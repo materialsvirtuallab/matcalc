@@ -1,0 +1,35 @@
+__pycache__/
+.DS_Store
+*.o
+*.so
+*.pyc
+*.swp
+*.swo
+*.pyd
+*.c
+dist
+_build
+build
+.project
+.pydevproject
+.settings
+.externalToolBuilders
+.idea
+setuptools*
+.ipynb_checkpoints
+.cache
+.tox
+.eggs/
+.coverage
+.*_cache
+# VS Code
+.vscode/*
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
