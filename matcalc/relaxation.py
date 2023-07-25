@@ -1,4 +1,4 @@
-"""Phonon properties."""
+"""Relaxation properties."""
 from __future__ import annotations
 
 import collections
@@ -89,7 +89,7 @@ class TrajectoryObserver(collections.abc.Sequence):
 
 
 class RelaxCalc(PropCalc):
-    """Calculator for phonon properties."""
+    """Relaxes and computes the relaxed parameters of a structure."""
 
     def __init__(
         self,
@@ -126,13 +126,21 @@ class RelaxCalc(PropCalc):
 
     def calc(self, structure) -> dict:
         """
-        All PropCalc should implement a calc method that takes in a pymatgen structure and returns a dict. Note that
-        the method can return more than one property.
+        Perform relaxation to obtain properties.
 
         Args:
             structure: Pymatgen structure.
 
-        Returns: {"prop name": value}
+        Returns: {
+            "final_structure": final_structure,
+            "a": lattice.a,
+            "b": lattice.b,
+            "c": lattice.c,
+            "alpha": lattice.alpha,
+            "beta": lattice.beta,
+            "gamma": lattice.gamma,
+            "volume": lattice.volume,
+        }
         """
         ase_adaptor = AseAtomsAdaptor()
         atoms = ase_adaptor.get_atoms(structure)
