@@ -36,6 +36,7 @@ jobs:
           cache-dependency-path: '**/requirements.txt'
       - name: Install dependencies
         run: |
+          pip install numpy
           pip install --quiet -r requirements.txt -r requirements-ci.txt
           pip install -e .
       - name: pytest
