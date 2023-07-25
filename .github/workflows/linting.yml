@@ -24,13 +24,13 @@ jobs:
       - name: ruff
         run: |
           ruff --version
-          ruff check matgl
+          ruff check matcalc
       - name: black
         run: |
           black --version
-          black --check --diff --color matgl
+          black --check --diff --color matcalc
       - name: mypy
         run: |
           mypy --version
           rm -rf .mypy_cache
-          mypy matgl
+          mypy matcalc
