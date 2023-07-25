@@ -31,12 +31,8 @@ setup(
         "deep learning",
     ],
     packages=find_packages(),
-    package_data={
-    },
-    install_requires=(
-        "ase",
-        "pymatgen",
-    ),
+    package_data={},
+    install_requires=("ase", "pymatgen", "joblib"),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",

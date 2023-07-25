@@ -4,6 +4,8 @@ from __future__ import annotations
 import abc
 from typing import TYPE_CHECKING
 
+from joblib import Parallel, delayed
+
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
@@ -25,16 +27,17 @@ class PropCalc(metaclass=abc.ABCMeta):
         Returns: {"prop name": value}
         """
 
-    def calc_many(self, structures: Sequence[Structure]) -> Generator[dict, None, None]:
+    def calc_many(self, structures: Sequence[Structure], n_jobs: None | int = None) -> Generator[dict, None, None]:
         """
         Performs calc on many structures. The return type is a generator given that the calc method can potentially be
         reasonably expensive. It is trivial to convert the generator to a list/tuple.
 
         Args:
-            structures: List or generator of Structures
+            structures: List or generator of Structures.
+            n_jobs: Number of processes to use for multiprocessing.Pool. Defaults to None, i.e., all CPUs.
 
         Returns:
             Generator of dicts.
         """
-        for structure in structures:
-            yield self.calc(structure)
+        parallel = Parallel(n_jobs=2, return_as="generator")
+        return parallel(delayed(self.calc)(s) for s in structures)
