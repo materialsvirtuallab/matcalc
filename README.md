@@ -1,8 +1,11 @@
 # Introduction
 
-MatCalc is a python library for calculating materials properties using machine learning interatomic potentials (MLIPs).
+MatCalc is a python library for calculating materials properties from the potential energy surface (PES). The
+PES can be from DFT or, more commonly, from machine learning interatomic potentials (MLIPs).
+
 Calculating various materials properties can require relatively involved setup of various simulation codes. The
-goal of MatCalc is to provide a simplified interface to access these properties with any MLIP.
+goal of MatCalc is to provide a simplified, consistent interface to access these properties with any
+parameterization of the PES.
 
 # Outline
 
