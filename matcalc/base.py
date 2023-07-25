@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
-class PropCalc(abc.ABCMeta):
+class PropCalc(metaclass=abc.ABCMeta):
     """API for a property calculator."""
 
     @abc.abstractmethod
