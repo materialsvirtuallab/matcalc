@@ -11,13 +11,7 @@ of "function".
 from __future__ import annotations
 
 import pytest
-from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.util.testing import PymatgenTest
-
-from matgl.ext.pymatgen import Molecule2Graph, Structure2Graph, get_element_list
-from matgl.graph.compute import (
-    compute_pair_vector_and_distance,
-)
 
 
 @pytest.fixture(scope="session")
