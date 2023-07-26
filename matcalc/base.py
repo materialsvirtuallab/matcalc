@@ -32,17 +32,14 @@ class PropCalc(metaclass=abc.ABCMeta):
     ) -> Generator[dict, None, None]:
         """
         Performs calc on many structures. The return type is a generator given that the calc method can potentially be
-        reasonably expensive. It is trivial to convert the generator to a list/tuple.
+        expensive. It is trivial to convert the generator to a list/tuple.
 
         Args:
             structures: List or generator of Structures.
-            n_jobs: The maximum number of concurrently running jobs, such as the number of Python worker processes when
-                backend=”multiprocessing” or the size of the thread-pool when backend=”threading”. If -1 all CPUs are
-                used. If 1 is given, no parallel computing code is used at all, and the behavior amounts to a simple
-                python for loop. This mode is not compatible with timeout. For n_jobs below -1, (n_cpus + 1 + n_jobs)
-                are used. Thus for n_jobs = -2, all CPUs but one are used. None is a marker for `unset` that will be
-                interpreted as n_jobs=1 unless the call is performed under a parallel_config() context manager that
-                sets another value for n_jobs.
+            n_jobs: The maximum number of concurrently running jobs. If -1 all CPUs are used.For n_jobs below -1,
+                (n_cpus + 1 + n_jobs) are used. None is a marker for `unset` that will be interpreted as n_jobs=1
+                unless the call is performed under a parallel_config() context manager that sets another value for
+                n_jobs.
             **kwargs: Passthrough to joblib.Parallel.
 
         Returns:
