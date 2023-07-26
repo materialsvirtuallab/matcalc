@@ -1,3 +1,7 @@
+[![CI Status](https://github.com/materialsvirtuallab/matcalc/actions/workflows/testing.yml/badge.svg)](https://github.com/materialsvirtuallab/matcalc/actions/workflows/testing.yml)
+[![Coveralls](https://img.shields.io/coveralls/github/materialsvirtuallab/matcalc?logo=coveralls&label=Coverage)](https://coveralls.io/github/materialsvirtuallab/matcalc?branch=master)
+[![Requires Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
+
 # Introduction
 
 MatCalc is a python library for calculating materials properties from the potential energy surface (PES). The
