@@ -39,5 +39,5 @@ class PropCalc(metaclass=abc.ABCMeta):
         Returns:
             Generator of dicts.
         """
-        parallel = Parallel(n_jobs=2, return_as="generator")
+        parallel = Parallel(n_jobs=n_jobs, return_as="generator")
         return parallel(delayed(self.calc)(s) for s in structures)
