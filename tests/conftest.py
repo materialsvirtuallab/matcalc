@@ -11,9 +11,17 @@ of "function".
 from __future__ import annotations
 
 import pytest
+import matgl
 from pymatgen.util.testing import PymatgenTest
+from matgl.ext.ase import M3GNetCalculator
 
 
 @pytest.fixture(scope="session")
 def LiFePO4():
     return PymatgenTest.get_structure("LiFePO4")
+
+
+@pytest.fixture(scope="session")
+def M3GNetUPCalc():
+    potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
+    return M3GNetCalculator(potential=potential, stress_weight=0.01)

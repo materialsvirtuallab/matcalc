@@ -4,14 +4,13 @@ import os
 
 import matgl
 import pytest
-from matgl.ext.ase import M3GNetCalculator
+
 
 from matcalc.relaxation import RelaxCalc
 
 
-def test_RelaxCalc(LiFePO4):
-    potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
-    calculator = M3GNetCalculator(potential=potential, stress_weight=0.01)
+def test_RelaxCalc(LiFePO4, M3GNetUPCalc):
+    calculator = M3GNetUPCalc
 
     pcalc = RelaxCalc(calculator, traj_file="lfp_relax.txt")
     results = pcalc.calc(LiFePO4)
