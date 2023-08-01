@@ -1,5 +1,7 @@
-[![CI Status](https://github.com/materialsvirtuallab/matcalc/actions/workflows/testing.yml/badge.svg)](https://github.com/materialsvirtuallab/matcalc/actions/workflows/testing.yml)
-[![Coveralls](https://img.shields.io/coveralls/github/materialsvirtuallab/matcalc?logo=coveralls&label=Coverage)](https://coveralls.io/github/materialsvirtuallab/matcalc?branch=master)
+[![GitHub license](https://img.shields.io/github/license/materialsvirtuallab/matcalc)](https://github.com/materialsvirtuallab/matcalc/blob/main/LICENSE)
+[![Linting](https://github.com/materialsvirtuallab/matcalc/workflows/Linting/badge.svg)](https://github.com/materialsvirtuallab/matcalc/workflows/Linting/badge.svg)
+[![Testing](https://github.com/materialsvirtuallab/matcalc/workflows/Testing/badge.svg)](https://github.com/materialsvirtuallab/matcalc/workflows/Testing/badge.svg)
+[![codecov](https://codecov.io/gh/materialsvirtuallab/matcalc/branch/master/graph/badge.svg?token=QNL1CRLVVL)](https://codecov.io/gh/materialsvirtuallab/matcalc)
 [![Requires Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
 
 # Introduction
