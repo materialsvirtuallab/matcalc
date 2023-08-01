@@ -1,7 +1,6 @@
 """Relaxation properties."""
 from __future__ import annotations
 
-import collections
 import contextlib
 import io
 import pickle
@@ -37,7 +36,7 @@ if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
 
 
-class TrajectoryObserver(collections.abc.Sequence):
+class TrajectoryObserver:
     """Trajectory observer is a hook in the relaxation process that saves the
     intermediate structures.
     """
@@ -63,12 +62,6 @@ class TrajectoryObserver(collections.abc.Sequence):
         self.stresses.append(self.atoms.get_stress())
         self.atom_positions.append(self.atoms.get_positions())
         self.cells.append(self.atoms.get_cell()[:])
-
-    def __getitem__(self, item):
-        return self.energies[item], self.forces[item], self.stresses[item], self.cells[item], self.atom_positions[item]
-
-    def __len__(self):
-        return len(self.energies)
 
     def save(self, filename: str) -> None:
         """Save the trajectory to file.
