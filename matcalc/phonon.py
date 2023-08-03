@@ -1,4 +1,5 @@
-"""Phonon properties."""
+"""Calculator for phonon properties."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -9,15 +10,13 @@ from .relaxation import RelaxCalc
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
 
+
+import numpy as np
 import phonopy
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
-from pymatgen.symmetry.bandstructure import HighSymmKpath
-from math import ceil
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
-import seekpath
+
+DEFAULT_SUPERCELL = ((2, 0, 0), (0, 2, 0), (0, 0, 2))
 
 
 class PhononCalc(PropCalc):
@@ -31,7 +30,7 @@ class PhononCalc(PropCalc):
         self.calculator = calculator
         self.phonon = None
 
-    def calc(self, structure, atom_disp=0.015, supercell_matrix=[[2, 0, 0], [0, 2, 0], [0, 0, 2]]) -> dict:
+    def calc(self, structure, atom_disp=0.015, supercell_matrix=DEFAULT_SUPERCELL) -> dict:
         """
         All PropCalc should implement a calc method that takes in a pymatgen structure and returns a dict. Note that
         the method can return more than one property.
@@ -41,9 +40,7 @@ class PhononCalc(PropCalc):
 
         Returns: {"prop name": value}
         """
-        phonon = self.get_phonon_from_calc(
-            structure, atom_disp=0.015, supercell_matrix=[[2, 0, 0], [0, 2, 0], [0, 0, 2]]
-        )
+        phonon = self.get_phonon_from_calc(structure, atom_disp=atom_disp, supercell_matrix=supercell_matrix)
         thermal_property = ThermalProperty(phonon)
         thermal_property.run()
         properties = thermal_property.get_thermal_properties()
@@ -57,10 +54,8 @@ class PhononCalc(PropCalc):
             },
         }
 
-    def get_phonon_from_calc(self, structure, atom_disp=0.015, supercell_matrix=[[2, 0, 0], [0, 2, 0], [0, 0, 2]]):
-        """
-        Relaxes and processes the files given an MP ID. Returns a phonopy Phonon object with force constants produced.
-        """
+    def get_phonon_from_calc(self, structure, atom_disp=0.015, supercell_matrix=DEFAULT_SUPERCELL):
+        """Relaxes and processes the files given an MP ID. Returns a phonopy Phonon object with force constants produced."""
         model = _Model(self.calculator)
         relaxer = RelaxCalc(self.calculator, fmax=0.001)
         structure = relaxer.calc(structure)["final_structure"]
@@ -95,9 +90,7 @@ class _Model:
 
 
 class ThermalProperty:
-    """
-    From phonondb script. Wrapper to call phonon functions.
-    """
+    """From phonondb script. Wrapper to call phonon functions."""
 
     def __init__(self, phonon, distance=100):
         self._phonon = phonon  # Phonopy object
@@ -118,11 +111,11 @@ class ThermalProperty:
         return self._mesh
 
     def get_thermal_properties(self):
-        """(temps(K), fe(kJ/mol), entropy(J/K/mol), cv(J/K/mol))"""
+        """(temps(K), fe(kJ/mol), entropy(J/K/mol), cv(J/K/mol))."""
         return self._thermal_properties
 
     def _set_mesh(self, distance=100):
-        self._mesh = klength2mesh(distance, self._lattice)
+        self._mesh = k_len_to_mesh(distance, self._lattice)
 
     def _run_mesh_sampling(self):
         return self._phonon.set_mesh(self._mesh)
@@ -132,7 +125,7 @@ class ThermalProperty:
         self._thermal_properties = self._phonon.get_thermal_properties()
 
 
-def klength2mesh(k_length, lattice):
+def k_len_to_mesh(k_length, lattice):
     """
     From phonondb script:
 
