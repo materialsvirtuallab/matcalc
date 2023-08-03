@@ -32,7 +32,7 @@ setup(
     ],
     packages=find_packages(),
     package_data={},
-    install_requires=("ase", "pymatgen", "joblib"),
+    install_requires=("ase", "pymatgen", "joblib", "phonopy"),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
