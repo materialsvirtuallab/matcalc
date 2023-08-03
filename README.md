@@ -1,10 +1,16 @@
-# MatCalc
+<h1 align="center">
+  <img src="https://github.com/materialsvirtuallab/matcalc/assets/30958850/89486f2f-73fb-40fb-803a-dfafe510eb6d" width="150" height="150" alt="MatCalc logo" style="vertical-align: middle;" />
+  MatCalc
+</h1>
+
+<h4 align="center">
 
 [![GitHub license](https://img.shields.io/github/license/materialsvirtuallab/matcalc)](https://github.com/materialsvirtuallab/matcalc/blob/main/LICENSE)
 [![Linting](https://github.com/materialsvirtuallab/matcalc/workflows/Linting/badge.svg)](https://github.com/materialsvirtuallab/matcalc/workflows/Linting/badge.svg)
 [![Testing](https://github.com/materialsvirtuallab/matcalc/workflows/Testing/badge.svg)](https://github.com/materialsvirtuallab/matcalc/workflows/Testing/badge.svg)
 [![codecov](https://codecov.io/gh/materialsvirtuallab/matcalc/branch/main/graph/badge.svg?token=OR7Z9WWRRC)](https://codecov.io/gh/materialsvirtuallab/matcalc)
 [![Requires Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
+</h4>
 
 ## Introduction
 
@@ -14,6 +20,8 @@ PES can be from DFT or, more commonly, from machine learning interatomic potenti
 Calculating various materials properties can require relatively involved setup of various simulation codes. The
 goal of MatCalc is to provide a simplified, consistent interface to access these properties with any
 parameterization of the PES.
+
+The purpose of MatCalc is to a unified interface for integrating MLIPs into the Materials Project (MP) [Builders infrastructure](https://github.com/materialsproject/emmet) and eventually integrate ML predictions into the MP Code database.
 
 ## Outline
 
