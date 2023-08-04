@@ -21,8 +21,6 @@ Calculating various materials properties can require relatively involved setup o
 goal of MatCalc is to provide a simplified, consistent interface to access these properties with any
 parameterization of the PES.
 
-The purpose of MatCalc is to a unified interface for integrating MLIPs into the Materials Project (MP) [Builders infrastructure](https://github.com/materialsproject/emmet) and eventually integrate ML predictions into the MP Code database.
-
 ## Outline
 
 The main base class in MatCalc is PropCalc (property calculator). All PropCalc subclasses should implement a
