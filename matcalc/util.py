@@ -17,11 +17,14 @@ def get_calculator(name: str, **kwargs):
     Returns:
         Calculator
     """
-    if name in ("M3GNet-MP-2021.2.8-PES", "M3GNet-MP-2021.2.8-DIRECT-PES"):
+    if name in ("M3GNet", "M3GNet-MP-2021.2.8-PES", "M3GNet-MP-2021.2.8-DIRECT-PES"):
         import matgl
         from matgl.ext.ase import M3GNetCalculator
 
-        potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
+        if name == "M3GNet":
+            # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
+            name = "M3GNet-MP-2021.2.8-DIRECT-PES"
+        potential = matgl.load_model(name)
         return M3GNetCalculator(potential=potential, stress_weight=0.01, **kwargs)
 
     if name == "CHGNet":
