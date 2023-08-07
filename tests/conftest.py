@@ -15,6 +15,8 @@ import matgl
 from pymatgen.util.testing import PymatgenTest
 from matgl.ext.ase import M3GNetCalculator
 
+matgl.clear_cache(confirm=False)
+
 
 @pytest.fixture(scope="session")
 def LiFePO4():
