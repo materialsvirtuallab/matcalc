@@ -20,6 +20,8 @@ from m3gnet.models import M3GNetCalculator as M3GNetCalculator_tf
 from m3gnet.models import M3GNet as M3GNet_tf
 from m3gnet.models._base import Potential as Potential_tf
 
+matgl.clear_cache(confirm=False)
+
 
 @pytest.fixture(scope="session")
 def LiFePO4():
