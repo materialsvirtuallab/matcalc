@@ -104,14 +104,7 @@ class RelaxCalc(PropCalc):
             interval (int): the step interval for saving the trajectories.
         """
         self.calculator = calculator
-        if isinstance(optimizer, str):
-            optimizer_obj = OPTIMIZERS.get(optimizer, None)
-        elif optimizer is None:
-            raise ValueError("Optimizer cannot be None")
-        else:
-            optimizer_obj = optimizer
-
-        self.opt_class: Optimizer = optimizer_obj
+        self.opt_class: Optimizer = OPTIMIZERS[optimizer] if isinstance(optimizer, str) else optimizer
         self.fmax = fmax
         self.interval = interval
         self.steps = steps
