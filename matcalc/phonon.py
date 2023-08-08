@@ -71,14 +71,9 @@ class PhononCalc(PropCalc):
         phonon = phonopy.Phonopy(cell, self.supercell_matrix)
         phonon.generate_displacements(distance=self.atom_disp)
         disp_supercells = phonon.supercells_with_displacements
-        forces = [
-            _calc_forces(self.calculator, supercell)
-            for supercell in [phonon.supercell, *disp_supercells]
-            if supercell is not None
+        phonon.forces = [
+            _calc_forces(self.calculator, supercell) for supercell in disp_supercells if supercell is not None
         ]
-        # parallel = Parallel(n_jobs=1)
-        # forces = parallel(delayed(_calc_forces)(self.calculator, s) for s in structure_list)
-        phonon.forces = forces[1:]
         phonon.produce_force_constants()
         phonon.run_mesh()
         phonon.run_thermal_properties(t_step=self.t_step, t_max=self.t_max, t_min=self.t_min)

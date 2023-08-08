@@ -5,10 +5,12 @@ import functools
 
 
 @functools.lru_cache
-def get_calculator(name: str, **kwargs):
+def get_universal_calculator(name: str, **kwargs):
     """
-    Helper method to get some well-known calculators. Note that imports should be within the if statements to ensure
-    that all these are optional.
+    Helper method to get some well-known **universal** calculators. Note that imports should be within the if
+    statements to ensure that all these are optional. It should be stressed that this method is for universal
+    calculators encompassing a wide swath of the periodic table only. Though matcalc can be used with any MLIP, it is
+    not the intention for this method to provide a listing of all MLIPs.
 
     Args:
         name (str): Name of calculator.
