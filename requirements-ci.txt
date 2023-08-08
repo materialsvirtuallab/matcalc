@@ -6,4 +6,4 @@ mypy
 ruff
 black
 matgl==0.8.1
-chgnet
+chgnet==0.2.0
