@@ -27,6 +27,7 @@ matgl.clear_cache(confirm=False)
 def LiFePO4():
     return PymatgenTest.get_structure("LiFePO4")
 
+
 @pytest.fixture(scope="session")
 def Li2O():
     return PymatgenTest.get_structure("Li2O")
@@ -37,7 +38,8 @@ def M3GNetUPCalc():
     potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
     return M3GNetCalculator(potential=potential, stress_weight=0.01)
 
-@pytest.fixture(scope="session")
-def M3GNetUPCalc_tf():
-    potential = Potential_tf(M3GNet_tf.load())
-    return M3GNetCalculator_tf(potential=potential, stress_weight=0.01)
+
+# @pytest.fixture(scope="session")
+# def M3GNetUPCalc_tf():
+#     potential = Potential_tf(M3GNet_tf.load())
+#     return M3GNetCalculator_tf(potential=potential, stress_weight=0.01)
