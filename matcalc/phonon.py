@@ -16,30 +16,32 @@ if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
 
 
-
-
-DEFAULT_SUPERCELL = ((2, 0, 0), (0, 2, 0), (0, 0, 2))
-
-
 class PhononCalc(PropCalc):
     """Calculator for phonon properties."""
 
     def __init__(
-                 self,
-                 calculator: Calculator,
-                 atom_disp=0.015,
-                 supercell_matrix=DEFAULT_SUPERCELL,
-                 fmax=0.1
-                 ):
+        self,
+        calculator: Calculator,
+        atom_disp=0.015,
+        supercell_matrix=((2, 0, 0), (0, 2, 0), (0, 0, 2)),
+        fmax=0.1,
+        relax_structure=True,
+    ):
         """
         Args:
             calculator: ASE Calculator to use.
+            atom_disp: Atomic displacement
+            supercell_matrix: Supercell matrix to use. Defaults to 2x2x2 supercell.
+            fmax: Max forces.
+            relax_structure: Whether to first relax the structure. Set to False if structures provided are pre-relaxed
+                with the same calculator.
         """
         self.calculator = calculator
         self.phonon = None
         self.atom_disp = atom_disp
         self.supercell_matrix = supercell_matrix
         self.fmax = fmax
+        self.relax_structure = relax_structure
 
     def calc(self, structure) -> dict:
         """
@@ -71,18 +73,20 @@ class PhononCalc(PropCalc):
         Relaxes and processes the files given an MP ID.
         Returns a phonopy Phonon object with force constants produced.
         """
-        model = _Model(self.calculator)
-        relaxer = RelaxCalc(self.calculator, fmax=self.fmax)
-        structure = relaxer.calc(structure)["final_structure"]
+        if self.relax_structure:
+            relaxer = RelaxCalc(self.calculator, fmax=self.fmax)
+            structure = relaxer.calc(structure)["final_structure"]
         cell = get_phonopy_structure(structure)
         phonon = phonopy.Phonopy(cell, self.supercell_matrix)
         phonon.generate_displacements(distance=self.atom_disp)
         disp_supercells = phonon.supercells_with_displacements
-        structure_list = [get_pmg_structure(phonon.supercell)]
-        for supercell in disp_supercells:
-            if supercell is not None:
-                structure_list.append(get_pmg_structure(supercell))
-        forces = model.calculate_forces(structure_list)
+        forces = [
+            _calc_forces(self.calculator, supercell)
+            for supercell in [phonon.supercell, *disp_supercells]
+            if supercell is not None
+        ]
+        # parallel = Parallel(n_jobs=1)
+        # forces = parallel(delayed(_calc_forces)(self.calculator, s) for s in structure_list)
         phonon.set_forces(forces[1:])
         phonon.produce_force_constants()
         self.phonon = phonon
@@ -90,20 +94,22 @@ class PhononCalc(PropCalc):
         return phonon
 
 
-class _Model:
-    """Wrapper to call calculator on batches of pymatgen structures."""
-    def __init__(self, calc):
-        self.calc = calc
-        self.adaptor = AseAtomsAdaptor()
+def _calc_forces(calculator, supercell):
+    """
+    Helper to compute forces on a structure.
 
-    def calculate_forces(self, structures):
-        """Calculate forces of list of pymatgen structures with calculator"""
-        forces = []
-        for i in range(len(structures)):
-            atoms = self.adaptor.get_atoms(structures[i])
-            atoms.calc = self.calc
-            forces.append(atoms.get_forces())
-        return forces
+    Args:
+        calculator: Calculator
+        supercell: Supercell from phonopy.
+
+    Return:
+        forces
+    """
+    s = get_pmg_structure(supercell)
+    adaptor = AseAtomsAdaptor()
+    atoms = adaptor.get_atoms(s)
+    atoms.calc = calculator
+    return atoms.get_forces()
 
 
 class _ThermalProperty:
@@ -145,7 +151,7 @@ class _ThermalProperty:
 
 def k_len_to_mesh(k_length, lattice):
     """
-    From phonondb script:
+    From phonondb script.
 
     Convert length to mesh in k-point sampling.
     This conversion follows VASP manual.
