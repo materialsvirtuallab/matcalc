@@ -104,7 +104,7 @@ class RelaxCalc(PropCalc):
             interval (int): the step interval for saving the trajectories.
         """
         self.calculator = calculator
-        self.opt_class: Optimizer = OPTIMIZERS[optimizer] if isinstance(optimizer, str) else optimizer
+        self.optimizer: Optimizer = OPTIMIZERS[optimizer] if isinstance(optimizer, str) else optimizer
         self.fmax = fmax
         self.interval = interval
         self.steps = steps
@@ -133,14 +133,15 @@ class RelaxCalc(PropCalc):
         atoms.set_calculator(self.calculator)
         stream = io.StringIO()
         with contextlib.redirect_stdout(stream):
-            obs = TrajectoryObserver(atoms)
             atoms = ExpCellFilter(atoms)
-            optimizer = self.opt_class(atoms)
-            optimizer.attach(obs, interval=self.interval)
+            optimizer = self.optimizer(atoms)
+            if self.traj_file is not None:
+                obs = TrajectoryObserver(atoms)
+                optimizer.attach(obs, interval=self.interval)
             optimizer.run(fmax=self.fmax, steps=self.steps)
-            obs()
-        if self.traj_file is not None:
-            obs.save(self.traj_file)
+            if self.traj_file is not None:
+                obs()
+                obs.save(self.traj_file)
         atoms = atoms.atoms
 
         final_structure = ase_adaptor.get_structure(atoms)
