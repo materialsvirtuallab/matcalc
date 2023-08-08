@@ -133,11 +133,10 @@ class RelaxCalc(PropCalc):
         atoms.set_calculator(self.calculator)
         stream = io.StringIO()
         with contextlib.redirect_stdout(stream):
+            obs = TrajectoryObserver(atoms)
             atoms = ExpCellFilter(atoms)
             optimizer = self.optimizer(atoms)
-            if self.traj_file is not None:
-                obs = TrajectoryObserver(atoms)
-                optimizer.attach(obs, interval=self.interval)
+            optimizer.attach(obs, interval=self.interval)
             optimizer.run(fmax=self.fmax, steps=self.steps)
             if self.traj_file is not None:
                 obs()
