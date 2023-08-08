@@ -26,6 +26,9 @@ class PhononCalc(PropCalc):
         supercell_matrix=((2, 0, 0), (0, 2, 0), (0, 0, 2)),
         fmax=0.1,
         relax_structure=True,
+        t_step=10,
+        t_max=1000,
+        t_min=0,
     ):
         """
         Args:
@@ -33,8 +36,12 @@ class PhononCalc(PropCalc):
             atom_disp: Atomic displacement
             supercell_matrix: Supercell matrix to use. Defaults to 2x2x2 supercell.
             fmax: Max forces.
-            relax_structure: Whether to first relax the structure. Set to False if structures provided are pre-relaxed
+            relax_structure: Whether to first relax the structure.
+                Set to False if structures provided are pre-relaxed
                 with the same calculator.
+            t_step: increment of temperature in returned thermal property values
+            t_max: max temperature for returned thermal property values
+            t_min: min temperature for returned thermal porperty values.
         """
         self.calculator = calculator
         self.phonon = None
@@ -42,21 +49,28 @@ class PhononCalc(PropCalc):
         self.supercell_matrix = supercell_matrix
         self.fmax = fmax
         self.relax_structure = relax_structure
+        self.t_step = t_step
+        self.t_max = t_max
+        self.t_min = t_min
 
     def calc(self, structure) -> dict:
         """
-        All PropCalc should implement a calc method that takes in a pymatgen structure
-        and returns a dict.
-        Note that the method can return more than one property.
+        Calculates thermal properties of
+        input Pymatgen structure with phonopy.
 
         Args:
             structure: Pymatgen structure.
-
-        Returns: {"prop name": value}
+        Returns: {"thermal_properties":
+                    {
+                    "temp": list of temperatures,
+                    "free_energy": list of Hemlholtz free energies at corresponding temperatures,
+                    "entropy": list of entropies at corresponding temperatures,
+                    "C_v": list of heat capacities at constant volume at corresponding temperatures,
+                    }}.
         """
         phonon = self.get_phonon_from_calc(structure)
         thermal_property = _ThermalProperty(phonon)
-        thermal_property.run()
+        thermal_property.run(t_step=self.t_step, t_max=self.t_max, t_min=self.t_min)
         properties = thermal_property.get_thermal_properties()
 
         return {
@@ -117,46 +131,23 @@ class _ThermalProperty:
 
     def __init__(self, phonon):
         self._phonon = phonon  # Phonopy object
-        self._lattice = np.array(phonon.get_unitcell().get_cell().T, dtype="double")
-        self._mesh = None
         self._thermal_properties = None
 
-    def run(self, distance=100):
+    def run(
+        self,
+        t_step=10,
+        t_max=1000,
+        t_min=0,
+    ):
         """Runs thermal properties."""
-        self._set_mesh(distance=distance)
-        self._run_mesh_sampling()
-        self._run_thermal_properties()
+        self._phonon.run_mesh()
+        self._run_thermal_properties(t_step=t_step, t_max=t_max, t_min=t_min)
         return True
-
-    def get_lattice(self):
-        return self._lattice
-
-    def get_mesh(self):
-        return self._mesh
 
     def get_thermal_properties(self):
         """(temps(K), fe(kJ/mol), entropy(J/K/mol), cv(J/K/mol))."""
         return self._thermal_properties
 
-    def _set_mesh(self, distance=100):
-        self._mesh = k_len_to_mesh(distance, self._lattice)
-
-    def _run_mesh_sampling(self):
-        return self._phonon.set_mesh(self._mesh)
-
-    def _run_thermal_properties(self, t_step=2, t_max=1500):
-        self._phonon.set_thermal_properties(t_step=t_step, t_max=t_max)
+    def _run_thermal_properties(self, t_step=10, t_max=1000, t_min=0):
+        self._phonon.set_thermal_properties(t_step=t_step, t_max=t_max, t_min=t_min)
         self._thermal_properties = self._phonon.get_thermal_properties()
-
-
-def k_len_to_mesh(k_length, lattice):
-    """
-    From phonondb script.
-
-    Convert length to mesh in k-point sampling.
-    This conversion follows VASP manual.
-    """
-    rec_lattice = np.linalg.inv(lattice).T
-    rec_lat_lengths = np.sqrt(np.diagonal(np.dot(rec_lattice.T, rec_lattice)))
-    k_mesh = (rec_lat_lengths * k_length + 0.5).astype(int)
-    return np.maximum(k_mesh, [1, 1, 1])
