@@ -12,13 +12,9 @@ from __future__ import annotations
 
 import pytest
 import matgl
-import m3gnet
 
 from pymatgen.util.testing import PymatgenTest
 from matgl.ext.ase import M3GNetCalculator
-from m3gnet.models import M3GNetCalculator as M3GNetCalculator_tf
-from m3gnet.models import M3GNet as M3GNet_tf
-from m3gnet.models._base import Potential as Potential_tf
 
 matgl.clear_cache(confirm=False)
 
