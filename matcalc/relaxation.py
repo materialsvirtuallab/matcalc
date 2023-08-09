@@ -92,16 +92,18 @@ class RelaxCalc(PropCalc):
         steps: int = 500,
         traj_file: str | None = None,
         interval=1,
+        relax_cell=True,
     ):
         """
         Args:
             calculator: ASE Calculator to use.
             optimizer (str or ase Optimizer): the optimization algorithm.
                 Defaults to "FIRE"
-            fmax (float): total force tolerance for relaxation convergence. fmax is a sum of force and stress forces.
-            steps (int): max number of steps for relaxation.
-            traj_file (str): the trajectory file for saving
-            interval (int): the step interval for saving the trajectories.
+            fmax (float): Total force tolerance for relaxation convergence. fmax is a sum of force and stress forces.
+            steps (int): Max number of steps for relaxation.
+            traj_file (str): The trajectory file for saving
+            interval (int): The step interval for saving the trajectories.
+            relax_cell (bool): Whether to relax the cell.
         """
         self.calculator = calculator
         self.optimizer: Optimizer = OPTIMIZERS[optimizer] if isinstance(optimizer, str) else optimizer
@@ -109,6 +111,7 @@ class RelaxCalc(PropCalc):
         self.interval = interval
         self.steps = steps
         self.traj_file = traj_file
+        self.relax_cell = relax_cell
 
     def calc(self, structure) -> dict:
         """
@@ -134,14 +137,16 @@ class RelaxCalc(PropCalc):
         stream = io.StringIO()
         with contextlib.redirect_stdout(stream):
             obs = TrajectoryObserver(atoms)
-            atoms = ExpCellFilter(atoms)
+            if self.relax_cell:
+                atoms = ExpCellFilter(atoms)
             optimizer = self.optimizer(atoms)
             optimizer.attach(obs, interval=self.interval)
             optimizer.run(fmax=self.fmax, steps=self.steps)
             if self.traj_file is not None:
                 obs()
                 obs.save(self.traj_file)
-        atoms = atoms.atoms
+        if self.relax_cell:
+            atoms = atoms.atoms
 
         final_structure = ase_adaptor.get_structure(atoms)
         lattice = final_structure.lattice
@@ -155,4 +160,5 @@ class RelaxCalc(PropCalc):
             "beta": lattice.beta,
             "gamma": lattice.gamma,
             "volume": lattice.volume,
+            "energy": obs.energies[-1],
         }
