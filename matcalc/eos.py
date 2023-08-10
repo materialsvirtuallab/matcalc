@@ -18,6 +18,7 @@ class EOSCalc(PropCalc):
         relax_structure: bool = True,
         fmax: float = 0.01,
         steps: int = 500,
+        max_abs_strain: float = 0.1,
         n_points: int = 11,
     ):
         """
@@ -27,11 +28,14 @@ class EOSCalc(PropCalc):
                 with the same calculator.
             fmax (float): Max force for relaxation (of structure as well as atoms).
             steps (int): Max number of steps for relaxation.
+            max_abs_strain (float): The maximum absolute strain applied to the structure. Defaults to 0.1, i.e.,
+                10% strain.
             n_points (int): Number of points in which to compute the EOS. Defaults to 11.
         """
         self.calculator = calculator
         self.relax_structure = relax_structure
         self.n_points = n_points
+        self.max_abs_strain = max_abs_strain
         self.fmax = fmax
         self.steps = steps
 
@@ -56,7 +60,7 @@ class EOSCalc(PropCalc):
 
         volumes, energies = [], []
         relaxer = RelaxCalc(self.calculator, fmax=self.fmax, steps=self.steps, relax_cell=False)
-        for idx in np.linspace(-0.1, 0.1, self.n_points):
+        for idx in np.linspace(-self.max_abs_strain, self.max_abs_strain, self.n_points):
             structure_strained = structure.copy()
             structure_strained.apply_strain([idx, idx, idx])
             result = relaxer.calc(structure_strained)
