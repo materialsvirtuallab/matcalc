@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from pymatgen.analysis.eos import BirchMurnaghan
 
 from .base import PropCalc
 from .relaxation import RelaxCalc
+
+if TYPE_CHECKING:
+    from ase.calculators.calculator import Calculator
+    from pymatgen.core import Structure
 
 
 class EOSCalc(PropCalc):
@@ -14,7 +20,7 @@ class EOSCalc(PropCalc):
 
     def __init__(
         self,
-        calculator,
+        calculator: Calculator,
         relax_structure: bool = True,
         fmax: float = 0.01,
         steps: int = 500,
@@ -39,7 +45,7 @@ class EOSCalc(PropCalc):
         self.fmax = fmax
         self.steps = steps
 
-    def calc(self, structure):
+    def calc(self, structure: Structure) -> dict:
         """Fit the Birch-Murnaghan equation of state.
 
         Args:

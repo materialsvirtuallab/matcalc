@@ -18,6 +18,7 @@ from pymatgen.io.ase import AseAtomsAdaptor
 if TYPE_CHECKING:
     import numpy as np
     from ase.optimize.optimize import Optimizer
+    from pymatgen.core import Structure
 
 from .base import PropCalc
 
@@ -113,7 +114,7 @@ class RelaxCalc(PropCalc):
         self.traj_file = traj_file
         self.relax_cell = relax_cell
 
-    def calc(self, structure) -> dict:
+    def calc(self, structure: Structure) -> dict:
         """
         Perform relaxation to obtain properties.
 

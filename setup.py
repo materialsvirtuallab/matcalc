@@ -16,7 +16,7 @@ setup(
     author_email="ongsp@ucsd.edu",
     maintainer="Shyue Ping Ong",
     maintainer_email="ongsp@ucsd.edu",
-    description="Calculators for materials properties.",
+    description="Calculators for materials properties from the potential energy surface.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     keywords=[

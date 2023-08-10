@@ -13,6 +13,7 @@ from .relaxation import RelaxCalc
 
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
+    from pymatgen.core import Structure
 
 
 class PhononCalc(PropCalc):
@@ -50,7 +51,7 @@ class PhononCalc(PropCalc):
         self.t_max = t_max
         self.t_min = t_min
 
-    def calc(self, structure) -> dict:
+    def calc(self, structure: Structure) -> dict:
         """
         Calculates thermal properties of Pymatgen structure with phonopy.
 

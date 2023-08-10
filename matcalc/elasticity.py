@@ -12,6 +12,7 @@ from .relaxation import RelaxCalc
 
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
+    from pymatgen.core import Structure
 
 
 class ElasticityCalc(PropCalc):
@@ -20,10 +21,10 @@ class ElasticityCalc(PropCalc):
     def __init__(
         self,
         calculator: Calculator,
-        norm_strains=0.01,
-        shear_strains=0.01,
-        relax_structure=True,
-        fmax=0.1,
+        norm_strains: float = 0.01,
+        shear_strains: float = 0.01,
+        relax_structure: bool = True,
+        fmax: float = 0.1,
     ):
         """
         Args:
@@ -39,7 +40,7 @@ class ElasticityCalc(PropCalc):
         self.relax_structure = relax_structure
         self.fmax = fmax
 
-    def calc(self, structure) -> dict:
+    def calc(self, structure: Structure) -> dict:
         """
         Calculates elastic properties of Pymatgen structure with units determined by the calculator.
 
