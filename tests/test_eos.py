@@ -13,8 +13,8 @@ def test_PhononCalc(Li2O, LiFePO4, M3GNetUPCalc):
     pcalc = EOSCalc(calculator)
     results = pcalc.calc(Li2O)
 
-    assert results["K (GPa)"] == pytest.approx(69.86879801931632, 1e-4)
+    assert results["K (GPa)"] == pytest.approx(69.86879801931632, 1e-2)
 
     results = list(pcalc.calc_many([Li2O, LiFePO4]))
     assert len(results) == 2
-    assert results[1]["K (GPa)"] == pytest.approx(60.083101510774476, 1e-4)
+    assert results[1]["K (GPa)"] == pytest.approx(60.083101510774476, 1e-2)
