@@ -47,7 +47,7 @@ class EOSCalc(PropCalc):
                 "volumes": volumes,
                 "energies": energies
             },
-            "K": bm.b0,
+            "K (GPa)": bm.b0_GPa,
         }
         """
         if self.relax_structure:
