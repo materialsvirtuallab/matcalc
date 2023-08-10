@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
 
 
-class ElasticCalc(PropCalc):
+class ElasticityCalc(PropCalc):
     """Calculator for elastic properties."""
 
     def __init__(

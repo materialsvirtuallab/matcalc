@@ -3,13 +3,13 @@ from __future__ import annotations
 
 import pytest
 
-from matcalc.elastic import ElasticCalc
+from matcalc.elasticity import ElasticityCalc
 
 
 def test_ElasticCalc(LiFePO4, M3GNetUPCalc):
     """Tests for ElasticCalc class"""
     calculator = M3GNetUPCalc
-    ecalc = ElasticCalc(calculator, norm_strains=0.02, shear_strains=0.04, fmax=0.01)
+    ecalc = ElasticityCalc(calculator, norm_strains=0.02, shear_strains=0.04, fmax=0.01)
 
     # Test LiFePO4 with relaxation
     results = ecalc.calc(LiFePO4)
