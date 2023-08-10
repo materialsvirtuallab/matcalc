@@ -11,7 +11,7 @@ with open(os.path.join(this_dir, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="matcalc",
-    version="0.0.1",
+    version="0.0.2",
     author="Eliott Liu, Ji Qi, Tsz Wai Ko, Shyue Ping Ong",
     author_email="ongsp@ucsd.edu",
     maintainer="Shyue Ping Ong",
