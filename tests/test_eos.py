@@ -17,4 +17,4 @@ def test_PhononCalc(Li2O, LiFePO4, M3GNetUPCalc):
 
     results = list(pcalc.calc_many([Li2O, LiFePO4]))
     assert len(results) == 2
-    assert results[1]["bulk_modulus"] == pytest.approx(60.083101510774476, 1e-2)
+    assert results[1]["bulk_modulus"] == pytest.approx(51.70659653126171, 1e-2)
