@@ -16,7 +16,7 @@ class EOSCalc(PropCalc):
         self,
         calculator,
         relax_structure: bool = True,
-        fmax: float = 0.1,
+        fmax: float = 0.01,
         steps: int = 500,
         n_points: int = 11,
     ):
