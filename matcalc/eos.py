@@ -47,7 +47,7 @@ class EOSCalc(PropCalc):
                 "volumes": volumes,
                 "energies": energies
             },
-            "K (GPa)": bm.b0_GPa,
+            "bulk_modulus": bm.b0_GPa,
         }
         """
         if self.relax_structure:
@@ -67,5 +67,5 @@ class EOSCalc(PropCalc):
 
         return {
             "EOS": {"volumes": volumes, "energies": energies},
-            "K (GPa)": bm.b0_GPa,
+            "bulk_modulus": bm.b0_GPa,
         }
