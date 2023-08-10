@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from pymatgen.analysis.elasticity import ElasticTensor, Strain, DeformedStructureSet
+from pymatgen.analysis.elasticity import DeformedStructureSet, ElasticTensor, Strain
 from pymatgen.io.ase import AseAtomsAdaptor
 
 from .base import PropCalc
