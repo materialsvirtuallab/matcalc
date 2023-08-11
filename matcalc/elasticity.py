@@ -82,7 +82,7 @@ class ElasticityCalc(PropCalc):
         )
         return {
             "elastic_tensor": elastic_tensor,
-            "g_vrh": elastic_tensor.g_vrh,
-            "k_vrh": elastic_tensor.k_vrh,
-            "y_mod": elastic_tensor.y_mod,
+            "shear_modulus_vrh": elastic_tensor.g_vrh,
+            "bulk_modulus_vrh": elastic_tensor.k_vrh,
+            "youngs_modulus": elastic_tensor.y_mod,
         }
