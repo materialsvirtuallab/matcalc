@@ -24,23 +24,25 @@ class PhononCalc(PropCalc):
         calculator: Calculator,
         atom_disp=0.015,
         supercell_matrix=((2, 0, 0), (0, 2, 0), (0, 0, 2)),
-        fmax=0.01,
-        relax_structure=True,
         t_step=10,
         t_max=1000,
         t_min=0,
+        fmax=0.1,
+        relax_structure=True,
     ):
         """
         Args:
             calculator: ASE Calculator to use.
+            fmax: Max forces. This criterion is more stringent than for simple relaxation.
             atom_disp: Atomic displacement
             supercell_matrix: Supercell matrix to use. Defaults to 2x2x2 supercell.
-            fmax: Max forces. This criterion is more stringent than for simple relaxation.
-            relax_structure: Whether to first relax the structure. Set to False if structures provided are pre-relaxed
-                with the same calculator.
+
             t_step: Temperature step.
             t_max: Max temperature.
             t_min: Min temperature.
+            relax_structure: Whether to first relax the structure. Set to False if structures provided are pre-relaxed
+                with the same calculator.
+
         """
         self.calculator = calculator
         self.atom_disp = atom_disp

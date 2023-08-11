@@ -89,10 +89,10 @@ class RelaxCalc(PropCalc):
         self,
         calculator: Calculator,
         optimizer: Optimizer | str = "FIRE",
-        fmax: float = 0.1,
         steps: int = 500,
         traj_file: str | None = None,
         interval=1,
+        fmax: float = 0.1,
         relax_cell=True,
     ):
         """
@@ -100,11 +100,11 @@ class RelaxCalc(PropCalc):
             calculator: ASE Calculator to use.
             optimizer (str or ase Optimizer): the optimization algorithm.
                 Defaults to "FIRE"
-            fmax (float): Total force tolerance for relaxation convergence. fmax is a sum of force and stress forces.
             steps (int): Max number of steps for relaxation.
             traj_file (str): The trajectory file for saving
             interval (int): The step interval for saving the trajectories.
-            relax_cell (bool): Whether to relax the cell.
+            fmax (float): Total force tolerance for relaxation convergence. fmax is a sum of force and stress forces.
+            relax_cell (bool): Whether to relax the cell (or just atoms).
         """
         self.calculator = calculator
         self.optimizer: Optimizer = OPTIMIZERS[optimizer] if isinstance(optimizer, str) else optimizer

@@ -23,16 +23,17 @@ class ElasticityCalc(PropCalc):
         calculator: Calculator,
         norm_strains: float = 0.01,
         shear_strains: float = 0.01,
-        relax_structure: bool = True,
         fmax: float = 0.1,
+        relax_structure: bool = True,
     ):
         """
         Args:
             calculator: ASE Calculator to use.
+
+            fmax: maximum force in the relaxed structure (if relax_structure).
             norm_strains: strain value to apply to each normal mode.
             shear_strains: strain value to apply to each shear mode.
             relax_structure: whether to relax the provided structure with the given calculator.
-            fmax: maximum force in the relaxed structure (if relax_structure).
         """
         self.calculator = calculator
         self.norm_strains = norm_strains

@@ -21,22 +21,24 @@ class EOSCalc(PropCalc):
     def __init__(
         self,
         calculator: Calculator,
-        relax_structure: bool = True,
-        fmax: float = 0.01,
         steps: int = 500,
         max_abs_strain: float = 0.1,
         n_points: int = 11,
+        fmax: float = 0.1,
+        relax_structure: bool = True,
     ):
         """
         Args:
             calculator: ASE Calculator to use.
-            relax_structure: Whether to first relax the structure. Set to False if structures provided are pre-relaxed
-                with the same calculator.
-            fmax (float): Max force for relaxation (of structure as well as atoms).
+
             steps (int): Max number of steps for relaxation.
             max_abs_strain (float): The maximum absolute strain applied to the structure. Defaults to 0.1, i.e.,
                 10% strain.
             n_points (int): Number of points in which to compute the EOS. Defaults to 11.
+
+            fmax (float): Max force for relaxation (of structure as well as atoms).
+            relax_structure: Whether to first relax the structure. Set to False if structures provided are pre-relaxed
+                with the same calculator.
         """
         self.calculator = calculator
         self.relax_structure = relax_structure
