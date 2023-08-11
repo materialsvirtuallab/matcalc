@@ -98,8 +98,7 @@ class RelaxCalc(PropCalc):
         """
         Args:
             calculator: ASE Calculator to use.
-            optimizer (str or ase Optimizer): the optimization algorithm.
-                Defaults to "FIRE"
+            optimizer (str or ase Optimizer): The optimization algorithm. Defaults to "FIRE".
             steps (int): Max number of steps for relaxation.
             traj_file (str): The trajectory file for saving
             interval (int): The step interval for saving the trajectories.
