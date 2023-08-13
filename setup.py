@@ -1,23 +1,16 @@
 from __future__ import annotations
 
-import os
-
 from setuptools import find_packages, setup
-
-this_dir = os.path.abspath(os.path.dirname(__file__))
-
-with open(os.path.join(this_dir, "README.md"), encoding="utf-8") as f:
-    long_description = f.read()
 
 setup(
     name="matcalc",
     version="0.0.2",
-    author="Eliott Liu, Ji Qi, Tsz Wai Ko, Shyue Ping Ong",
+    author="Eliott Liu, Ji Qi, Tsz Wai Ko, Janosh Riebesell, Shyue Ping Ong",
     author_email="ongsp@ucsd.edu",
     maintainer="Shyue Ping Ong",
     maintainer_email="ongsp@ucsd.edu",
     description="Calculators for materials properties from the potential energy surface.",
-    long_description=long_description,
+    long_description=open("README.md").read(),  # noqa: SIM115
     long_description_content_type="text/markdown",
     keywords=[
         "materials",
@@ -31,6 +24,7 @@ setup(
         "deep learning",
     ],
     packages=find_packages(),
+    python_requires=">=3.8",
     package_data={},
     install_requires=("ase", "pymatgen", "joblib", "phonopy"),
     classifiers=[
