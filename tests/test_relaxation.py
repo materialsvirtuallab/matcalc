@@ -10,7 +10,7 @@ from matcalc.relaxation import RelaxCalc
 
 
 def test_RelaxCalc(LiFePO4, M3GNetUPCalc, tmp_path):
-    pcalc = RelaxCalc(M3GNetUPCalc, traj_file=f"{tmp_path}/lfp_relax.txt")
+    pcalc = RelaxCalc(M3GNetUPCalc, traj_file=f"{tmp_path}/lfp_relax.txt", optimizer="FIRE")
     results = pcalc.calc(LiFePO4)
     assert results["a"] == pytest.approx(4.75571137)
     assert results["b"] == pytest.approx(6.13161423)
@@ -23,3 +23,6 @@ def test_RelaxCalc(LiFePO4, M3GNetUPCalc, tmp_path):
     results = list(pcalc.calc_many([LiFePO4] * 2))
     assert len(results) == 2
     assert results[-1]["a"] == pytest.approx(4.7557113)
+
+    with pytest.raises(ValueError, match="Unknown optimizer='invalid', must be one of "):
+        RelaxCalc(M3GNetUPCalc, optimizer="invalid")
