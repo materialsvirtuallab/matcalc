@@ -4,37 +4,21 @@ from __future__ import annotations
 import contextlib
 import io
 import pickle
+from inspect import isclass
 from typing import TYPE_CHECKING
 
+from ase import optimize
 from ase.constraints import ExpCellFilter
-from ase.optimize.bfgs import BFGS
-from ase.optimize.bfgslinesearch import BFGSLineSearch
-from ase.optimize.fire import FIRE
-from ase.optimize.lbfgs import LBFGS, LBFGSLineSearch
-from ase.optimize.mdmin import MDMin
-from ase.optimize.sciopt import SciPyFminBFGS, SciPyFminCG
+from ase.optimize.optimize import Optimizer
 from pymatgen.io.ase import AseAtomsAdaptor
-
-if TYPE_CHECKING:
-    import numpy as np
-    from ase.optimize.optimize import Optimizer
-    from pymatgen.core import Structure
 
 from .base import PropCalc
 
-OPTIMIZERS = {
-    "FIRE": FIRE,
-    "BFGS": BFGS,
-    "LBFGS": LBFGS,
-    "LBFGSLineSearch": LBFGSLineSearch,
-    "MDMin": MDMin,
-    "SciPyFminCG": SciPyFminCG,
-    "SciPyFminBFGS": SciPyFminBFGS,
-    "BFGSLineSearch": BFGSLineSearch,
-}
 if TYPE_CHECKING:
+    import numpy as np
     from ase import Atoms
     from ase.calculators.calculator import Calculator
+    from pymatgen.core import Structure
 
 
 class TrajectoryObserver:
@@ -104,9 +88,21 @@ class RelaxCalc(PropCalc):
             interval (int): The step interval for saving the trajectories.
             fmax (float): Total force tolerance for relaxation convergence. fmax is a sum of force and stress forces.
             relax_cell (bool): Whether to relax the cell (or just atoms).
+
+        Raises:
+            ValueError: If the optimizer is not a valid ASE optimizer.
         """
         self.calculator = calculator
-        self.optimizer: Optimizer = OPTIMIZERS[optimizer] if isinstance(optimizer, str) else optimizer
+
+        # check str is valid optimizer key
+        def is_ase_optimizer(key):
+            return isclass(obj := getattr(optimize, key)) and issubclass(obj, Optimizer)
+
+        valid_keys = [key for key in dir(optimize) if is_ase_optimizer(key)]
+        if isinstance(optimizer, str) and optimizer not in valid_keys:
+            raise ValueError(f"Unknown {optimizer=}, must be one of {valid_keys}")
+
+        self.optimizer: Optimizer = getattr(optimize, optimizer) if isinstance(optimizer, str) else optimizer
         self.fmax = fmax
         self.interval = interval
         self.steps = steps
