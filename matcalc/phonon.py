@@ -62,7 +62,7 @@ class PhononCalc(PropCalc):
 
         Returns: {
             "temperature": list of temperatures,
-            "free_energy": list of Hemlholtz free energies at corresponding temperatures,
+            "free_energy": list of Helmholtz free energies at corresponding temperatures,
             "entropy": list of entropies at corresponding temperatures,
             "heat_capacities": list of heat capacities at constant volume at corresponding temperatures,
         }
