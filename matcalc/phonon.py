@@ -13,6 +13,8 @@ from .relaxation import RelaxCalc
 
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
+    from numpy.typing import ArrayLike
+    from phonopy.structure.atoms import PhonopyAtoms
     from pymatgen.core import Structure
 
 
@@ -22,27 +24,25 @@ class PhononCalc(PropCalc):
     def __init__(
         self,
         calculator: Calculator,
-        atom_disp=0.015,
-        supercell_matrix=((2, 0, 0), (0, 2, 0), (0, 0, 2)),
-        t_step=10,
-        t_max=1000,
-        t_min=0,
-        fmax=0.1,
-        relax_structure=True,
-    ):
+        atom_disp: float = 0.015,
+        supercell_matrix: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2)),
+        t_step: float = 10,
+        t_max: float = 1000,
+        t_min: float = 0,
+        fmax: float = 0.1,
+        relax_structure: bool = True,
+    ) -> None:
         """
         Args:
             calculator: ASE Calculator to use.
             fmax: Max forces. This criterion is more stringent than for simple relaxation.
             atom_disp: Atomic displacement
             supercell_matrix: Supercell matrix to use. Defaults to 2x2x2 supercell.
-
             t_step: Temperature step.
             t_max: Max temperature.
             t_min: Min temperature.
-            relax_structure: Whether to first relax the structure. Set to False if structures provided are pre-relaxed
-                with the same calculator.
-
+            relax_structure: Whether to first relax the structure. Set to False if structures
+                provided are pre-relaxed with the same calculator.
         """
         self.calculator = calculator
         self.atom_disp = atom_disp
@@ -83,19 +83,18 @@ class PhononCalc(PropCalc):
         return phonon.get_thermal_properties_dict()
 
 
-def _calc_forces(calculator, supercell):
+def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:
     """
     Helper to compute forces on a structure.
 
     Args:
-        calculator: Calculator
+        calculator: ASE Calculator
         supercell: Supercell from phonopy.
 
     Return:
         forces
     """
-    s = get_pmg_structure(supercell)
-    adaptor = AseAtomsAdaptor()
-    atoms = adaptor.get_atoms(s)
+    struct = get_pmg_structure(supercell)
+    atoms = AseAtomsAdaptor.get_atoms(struct)
     atoms.calc = calculator
     return atoms.get_forces()
