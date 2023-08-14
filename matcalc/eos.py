@@ -56,13 +56,12 @@ class EOSCalc(PropCalc):
         Args:
             structure: pymatgen Structure object.
 
-        Returns:
-            {
-            "EOS": {
-                "volumes": volumes,
-                "energies": energies
+        Returns: {
+            EOS: {
+                volumes: list[float] in Angstrom^3,
+                energies: list[float] in eV,
             },
-            "bulk_modulus": bm.b0_GPa,
+            bulk_modulus: Birch-Murnaghan bulk modulus in GPa.
         }
         """
         if self.relax_structure:

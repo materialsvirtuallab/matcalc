@@ -118,15 +118,15 @@ class RelaxCalc(PropCalc):
             structure: Pymatgen structure.
 
         Returns: {
-            "final_structure": final_structure,
-            "energy": trajectory observer final energy
-            "volume": lattice.volume,
-            "a": lattice.a,
-            "b": lattice.b,
-            "c": lattice.c,
-            "alpha": lattice.alpha,
-            "beta": lattice.beta,
-            "gamma": lattice.gamma,
+            final_structure: final_structure,
+            energy: trajectory observer final energy in eV,
+            volume: lattice.volume in A^3,
+            a: lattice.a in A,
+            b: lattice.b in A,
+            c: lattice.c in A,
+            alpha: lattice.alpha in degrees,
+            beta: lattice.beta in degrees,
+            gamma: lattice.gamma in degrees,
         }
         """
         atoms = AseAtomsAdaptor.get_atoms(structure)
