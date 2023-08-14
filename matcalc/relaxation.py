@@ -75,10 +75,10 @@ class RelaxCalc(PropCalc):
         optimizer: Optimizer | str = "FIRE",
         steps: int = 500,
         traj_file: str | None = None,
-        interval=1,
+        interval: int = 1,
         fmax: float = 0.1,
-        relax_cell=True,
-    ):
+        relax_cell: bool = True,
+    ) -> None:
         """
         Args:
             calculator: ASE Calculator to use.
@@ -125,11 +125,11 @@ class RelaxCalc(PropCalc):
             "beta": lattice.beta,
             "gamma": lattice.gamma,
             "volume": lattice.volume,
+            "energy": trajectory observer final energy
         }
         """
-        ase_adaptor = AseAtomsAdaptor()
-        atoms = ase_adaptor.get_atoms(structure)
-        atoms.set_calculator(self.calculator)
+        atoms = AseAtomsAdaptor.get_atoms(structure)
+        atoms.calc = self.calculator
         stream = io.StringIO()
         with contextlib.redirect_stdout(stream):
             obs = TrajectoryObserver(atoms)
@@ -144,17 +144,12 @@ class RelaxCalc(PropCalc):
         if self.relax_cell:
             atoms = atoms.atoms
 
-        final_structure = ase_adaptor.get_structure(atoms)
+        final_structure = AseAtomsAdaptor.get_structure(atoms)
         lattice = final_structure.lattice
 
         return {
             "final_structure": final_structure,
-            "a": lattice.a,
-            "b": lattice.b,
-            "c": lattice.c,
-            "alpha": lattice.alpha,
-            "beta": lattice.beta,
-            "gamma": lattice.gamma,
+            **lattice.params_dict,
             "volume": lattice.volume,
             "energy": obs.energies[-1],
         }
