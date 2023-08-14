@@ -139,7 +139,7 @@ def release(ctx, notest=False):
 def get_changelog():
     with open("changes.md") as f:
         contents = f.read()
-        m = re.search(f"## {NEW_VER}([^#]*)", contents)
+        m = re.search(f"## v{NEW_VER}([^#]*)", contents)
         changes = m.group(1).strip()
         return changes
 
