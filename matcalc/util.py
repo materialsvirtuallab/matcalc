@@ -35,8 +35,7 @@ def get_universal_calculator(name: str, **kwargs):
 
     if name == "CHGNet":
         from chgnet.model.dynamics import CHGNetCalculator
-        from chgnet.model.model import CHGNet
 
-        return CHGNetCalculator(CHGNet.load(), stress_weight=0.01, **kwargs)
+        return CHGNetCalculator(**kwargs)
 
-    raise ValueError(f"Unsupported model name: {name}")
+    raise ValueError(f"Unsupported {name=}")
