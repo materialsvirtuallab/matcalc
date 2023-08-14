@@ -83,10 +83,11 @@ class RelaxCalc(PropCalc):
         Args:
             calculator: ASE Calculator to use.
             optimizer (str or ase Optimizer): The optimization algorithm. Defaults to "FIRE".
-            steps (int): Max number of steps for relaxation.
-            traj_file (str): The trajectory file for saving
-            interval (int): The step interval for saving the trajectories.
-            fmax (float): Total force tolerance for relaxation convergence. fmax is a sum of force and stress forces.
+            steps (int): Max number of steps for relaxation. Defaults to 500.
+            traj_file (str | None): File to save the trajectory to. Defaults to None.
+            interval (int): The step interval for saving the trajectories. Defaults to 1.
+            fmax (float): Total force tolerance for relaxation convergence.
+                fmax is a sum of force and stress forces. Defaults to 0.1 (eV/A).
             relax_cell (bool): Whether to relax the cell (or just atoms).
 
         Raises:
@@ -118,14 +119,14 @@ class RelaxCalc(PropCalc):
 
         Returns: {
             "final_structure": final_structure,
+            "energy": trajectory observer final energy
+            "volume": lattice.volume,
             "a": lattice.a,
             "b": lattice.b,
             "c": lattice.c,
             "alpha": lattice.alpha,
             "beta": lattice.beta,
             "gamma": lattice.gamma,
-            "volume": lattice.volume,
-            "energy": trajectory observer final energy
         }
         """
         atoms = AseAtomsAdaptor.get_atoms(structure)
@@ -149,7 +150,7 @@ class RelaxCalc(PropCalc):
 
         return {
             "final_structure": final_structure,
-            **lattice.params_dict,
-            "volume": lattice.volume,
             "energy": obs.energies[-1],
+            "volume": lattice.volume,
+            **lattice.params_dict,
         }

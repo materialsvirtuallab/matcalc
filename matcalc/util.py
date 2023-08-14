@@ -10,10 +10,11 @@ UNIVERSAL_CALCULATORS = ("M3GNet-MP-2021.2.8-PES", "M3GNet-MP-2021.2.8-DIRECT-PE
 @functools.lru_cache
 def get_universal_calculator(name: str, **kwargs):
     """
-    Helper method to get some well-known **universal** calculators. Note that imports should be within the if
-    statements to ensure that all these are optional. It should be stressed that this method is for **universal**
-    calculators encompassing a wide swath of the periodic table only. Though matcalc can be used with any MLIP, even
-    custom ones, it is not the intention for this method to provide a listing of all MLIPs.
+    Helper method to get some well-known **universal** calculators.
+    Imports should be inside if statements to ensure that all models are optional dependencies.
+    All calculators must be universal, i.e. encompass a wide swath of the periodic table.
+    Though matcalc can be used with any MLIP, even custom ones, this function is not meant as
+        a list of all MLIPs.
 
     Args:
         name (str): Name of calculator.
@@ -26,16 +27,15 @@ def get_universal_calculator(name: str, **kwargs):
         import matgl
         from matgl.ext.ase import M3GNetCalculator
 
-        if name == "M3GNet":
-            # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
-            name = "M3GNet-MP-2021.2.8-DIRECT-PES"
-        potential = matgl.load_model(name)
-        return M3GNetCalculator(potential=potential, stress_weight=0.01, **kwargs)
+        # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
+        name = {"M3GNet": "M3GNet-MP-2021.2.8-PES"}.get(name, name)
+        model = matgl.load_model(name)
+        kwargs.setdefault("stress_weight", 0.01)
+        return M3GNetCalculator(potential=model, **kwargs)
 
     if name == "CHGNet":
         from chgnet.model.dynamics import CHGNetCalculator
-        from chgnet.model.model import CHGNet
 
-        return CHGNetCalculator(CHGNet.load(), stress_weight=0.01, **kwargs)
+        return CHGNetCalculator(**kwargs)
 
-    raise ValueError(f"Unsupported model name: {name}")
+    raise ValueError(f"Unsupported {name=}")
