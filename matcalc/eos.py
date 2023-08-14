@@ -54,7 +54,7 @@ class EOSCalc(PropCalc):
         """Fit the Birch-Murnaghan equation of state.
 
         Args:
-            structure: A Structure object.
+            structure: pymatgen Structure object.
 
         Returns:
             {

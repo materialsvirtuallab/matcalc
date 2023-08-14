@@ -24,7 +24,7 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: "python"
+      PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
 
     steps:
       - uses: actions/checkout@v3
@@ -33,7 +33,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-          cache-dependency-path: '**/requirements.txt'
+          cache-dependency-path: "**/requirements.txt"
       - name: Install dependencies
         run: |
           pip install numpy
@@ -41,7 +41,7 @@ jobs:
           pip install -e .
       - name: pytest
         run: |
-          pytest --cov=matcalc tests --color=yes
+          pytest --cov=. tests --color=yes
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:

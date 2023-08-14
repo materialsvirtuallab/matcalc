@@ -9,14 +9,12 @@ import pytest
 from matcalc.relaxation import RelaxCalc
 
 
-def test_RelaxCalc(LiFePO4, M3GNetUPCalc):
-    calculator = M3GNetUPCalc
-
-    pcalc = RelaxCalc(calculator, traj_file="lfp_relax.txt")
+def test_RelaxCalc(LiFePO4, M3GNetUPCalc, tmp_path):
+    pcalc = RelaxCalc(M3GNetUPCalc, traj_file=f"{tmp_path}/lfp_relax.txt", optimizer="FIRE")
     results = pcalc.calc(LiFePO4)
-    assert results["a"] == pytest.approx(4.755711375217371)
-    assert results["b"] == pytest.approx(6.131614236614623)
-    assert results["c"] == pytest.approx(10.43859339794175)
+    assert results["a"] == pytest.approx(4.75571137)
+    assert results["b"] == pytest.approx(6.13161423)
+    assert results["c"] == pytest.approx(10.4385933)
     assert results["alpha"] == pytest.approx(90, abs=1)
     assert results["beta"] == pytest.approx(90, abs=1)
     assert results["gamma"] == pytest.approx(90, abs=1)
@@ -24,5 +22,7 @@ def test_RelaxCalc(LiFePO4, M3GNetUPCalc):
 
     results = list(pcalc.calc_many([LiFePO4] * 2))
     assert len(results) == 2
-    assert results[-1]["a"] == pytest.approx(4.755711375217371)
-    os.remove("lfp_relax.txt")
+    assert results[-1]["a"] == pytest.approx(4.7557113)
+
+    with pytest.raises(ValueError, match="Unknown optimizer='invalid', must be one of "):
+        RelaxCalc(M3GNetUPCalc, optimizer="invalid")
