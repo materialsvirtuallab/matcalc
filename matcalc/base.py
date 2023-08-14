@@ -18,13 +18,14 @@ class PropCalc(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def calc(self, structure: Structure) -> dict:
         """
-        All PropCalc should implement a calc method that takes in a pymatgen structure and returns a dict. Note that
-        the method can return more than one property.
+        All PropCalc subclasses should implement a calc method that takes in a pymatgen structure
+        and returns a dict. The method can return more than one property.
 
         Args:
             structure: Pymatgen structure.
 
-        Returns: {"prop name": value}
+        Returns:
+            dict[str, Any]: In the form {"prop_name": value}.
         """
 
     def calc_many(
@@ -36,7 +37,7 @@ class PropCalc(metaclass=abc.ABCMeta):
 
         Args:
             structures: List or generator of Structures.
-            n_jobs: The maximum number of concurrently running jobs. If -1 all CPUs are used.For n_jobs below -1,
+            n_jobs: The maximum number of concurrently running jobs. If -1 all CPUs are used. For n_jobs below -1,
                 (n_cpus + 1 + n_jobs) are used. None is a marker for `unset` that will be interpreted as n_jobs=1
                 unless the call is performed under a parallel_config() context manager that sets another value for
                 n_jobs.

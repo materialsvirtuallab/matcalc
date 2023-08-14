@@ -62,12 +62,8 @@ class ElasticityCalc(PropCalc):
         adaptor = AseAtomsAdaptor()
         deformed_structure_set = DeformedStructureSet(
             structure,
-            [
-                self.norm_strains,
-            ],
-            [
-                self.shear_strains,
-            ],
+            [self.norm_strains],
+            [self.shear_strains],
         )
         stresses = []
         for deformed_structure in deformed_structure_set:

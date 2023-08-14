@@ -67,8 +67,6 @@ ignore = [
   "D212",    # Multi-line docstring summary should start at the first line
   "PLR",     # pylint refactor
   "PLW0603", # Using the global statement to update variables is discouraged
-  "PLW2901", # redefined-loop-name
-  "RET504",  # unnecessary-assign
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
 ]
 pydocstyle.convention = "google"
@@ -77,12 +75,7 @@ extend-exclude = ["tests"]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
-"maths.py" = ["PERF"]
-"setup.py" = ["D"]
 "tasks.py" = ["D"]
-"tests/**/*" = ["D"]
-"docs/**/*" = ["D"]
-"examples/**/*" = ["D"]
 
 [tool.pytest.ini_options]
 addopts = "--durations=30 --quiet -rXs --color=yes -p no:warnings"
@@ -108,14 +101,14 @@ relative_files = true
 exclude_lines = [
   "@deprecated",
   "def __repr__",
+  "except PackageNotFoundError:",
   "if 0:",
+  "if TYPE_CHECKING:",
   "if __name__ == .__main__.:",
   "if self.debug:",
   "if settings.DEBUG",
+  "input",
   "pragma: no cover",
   "raise AssertionError",
   "raise NotImplementedError",
-  "input",
-  "if TYPE_CHECKING:",
-  "except PackageNotFoundError:"
 ]

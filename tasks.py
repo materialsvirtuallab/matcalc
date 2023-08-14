@@ -1,6 +1,4 @@
-"""
-Pyinvoke tasks.py file for automating releases and admin stuff.
-"""
+"""Pyinvoke tasks.py file for automating releases and admin stuff."""
 
 from __future__ import annotations
 
@@ -35,7 +33,7 @@ def make_tutorials(ctx):
         elif fn.endswith(".md"):
             with open(path) as file:
                 for line in file:
-                    line = line.rstrip()
+                    line = line.rstrip()  # noqa: PLW2901
                     if line.startswith("![png]"):
                         t1, t2 = line.split("(")
                         t2, t3 = t2.split("/")
@@ -140,8 +138,7 @@ def get_changelog():
     with open("changes.md") as f:
         contents = f.read()
         m = re.search(f"## v{NEW_VER}([^#]*)", contents)
-        changes = m.group(1).strip()
-        return changes
+        return m.group(1).strip()
 
 
 @task
