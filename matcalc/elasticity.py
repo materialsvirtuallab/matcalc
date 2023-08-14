@@ -25,7 +25,7 @@ class ElasticityCalc(PropCalc):
         shear_strains: float = 0.01,
         fmax: float = 0.1,
         relax_structure: bool = True,
-    ):
+    ) -> None:
         """
         Args:
             calculator: ASE Calculator to use.

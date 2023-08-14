@@ -28,7 +28,7 @@ class EOSCalc(PropCalc):
         n_points: int = 11,
         fmax: float = 0.1,
         relax_structure: bool = True,
-    ):
+    ) -> None:
         """
         Args:
             calculator: ASE Calculator to use.
