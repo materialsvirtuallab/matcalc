@@ -151,6 +151,11 @@ class RelaxCalc(PropCalc):
         return {
             "final_structure": final_structure,
             "energy": obs.energies[-1],
+            "a": lattice.a,
+            "b": lattice.b,
+            "c": lattice.c,
+            "alpha": lattice.alpha,
+            "beta": lattice.beta,
+            "gamma": lattice.gamma,
             "volume": lattice.volume,
-            **lattice.params_dict,
         }
