@@ -6,7 +6,12 @@ import functools
 from ase.calculators.calculator import Calculator
 
 # Listing of supported universal calculators.
-UNIVERSAL_CALCULATORS = ("M3GNet-MP-2021.2.8-PES", "M3GNet-MP-2021.2.8-DIRECT-PES", "CHGNet")
+UNIVERSAL_CALCULATORS = (
+    "M3GNet",
+    "M3GNet-MP-2021.2.8-PES",
+    "M3GNet-MP-2021.2.8-DIRECT-PES",
+    "CHGNet",
+)
 
 
 @functools.lru_cache
@@ -21,6 +26,9 @@ def get_universal_calculator(name: str | Calculator, **kwargs) -> Calculator:
     Args:
         name (str): Name of calculator.
         **kwargs: Passthrough to calculator init.
+
+    Raises:
+        ValueError: on unrecognized model name.
 
     Returns:
         Calculator
@@ -43,4 +51,4 @@ def get_universal_calculator(name: str | Calculator, **kwargs) -> Calculator:
 
         return CHGNetCalculator(**kwargs)
 
-    raise ValueError(f"Unsupported {name=}")
+    raise ValueError(f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}")
