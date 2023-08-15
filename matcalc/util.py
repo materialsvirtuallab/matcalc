@@ -36,17 +36,17 @@ def get_universal_calculator(name: str | Calculator, **kwargs) -> Calculator:
     if isinstance(name, Calculator):
         return name
 
-    if name in ("M3GNet", "M3GNet-MP-2021.2.8-PES", "M3GNet-MP-2021.2.8-DIRECT-PES"):
+    if name.lower().startswith("m3gnet"):
         import matgl
         from matgl.ext.ase import M3GNetCalculator
 
         # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
-        name = {"M3GNet": "M3GNet-MP-2021.2.8-PES"}.get(name, name)
+        name = {"m3gnet": "M3GNet-MP-2021.2.8-PES"}.get(name.lower(), name)
         model = matgl.load_model(name)
         kwargs.setdefault("stress_weight", 0.01)
         return M3GNetCalculator(potential=model, **kwargs)
 
-    if name == "CHGNet":
+    if name.lower() == "chgnet":
         from chgnet.model.dynamics import CHGNetCalculator
 
         return CHGNetCalculator(**kwargs)
