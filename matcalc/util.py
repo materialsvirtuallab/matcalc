@@ -3,12 +3,14 @@ from __future__ import annotations
 
 import functools
 
+from ase.calculators.calculator import Calculator
+
 # Listing of supported universal calculators.
 UNIVERSAL_CALCULATORS = ("M3GNet-MP-2021.2.8-PES", "M3GNet-MP-2021.2.8-DIRECT-PES", "CHGNet")
 
 
 @functools.lru_cache
-def get_universal_calculator(name: str, **kwargs):
+def get_universal_calculator(name: str | Calculator, **kwargs) -> Calculator:
     """
     Helper method to get some well-known **universal** calculators.
     Imports should be inside if statements to ensure that all models are optional dependencies.
@@ -23,6 +25,9 @@ def get_universal_calculator(name: str, **kwargs):
     Returns:
         Calculator
     """
+    if isinstance(name, Calculator):
+        return name
+
     if name in ("M3GNet", "M3GNet-MP-2021.2.8-PES", "M3GNet-MP-2021.2.8-DIRECT-PES"):
         import matgl
         from matgl.ext.ase import M3GNetCalculator
