@@ -6,7 +6,7 @@ import pytest
 from matcalc.phonon import PhononCalc
 
 
-def test_PhononCalc(Li2O, LiFePO4, M3GNetCalc):
+def test_phonon_calc(Li2O, LiFePO4, M3GNetCalc):
     """Tests for PhononCalc class"""
     calculator = M3GNetCalc
     # Note that the fmax is probably too high. This is for testing purposes only.

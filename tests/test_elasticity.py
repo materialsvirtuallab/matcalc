@@ -6,7 +6,7 @@ import pytest
 from matcalc.elasticity import ElasticityCalc
 
 
-def test_ElasticCalc(LiFePO4, M3GNetCalc):
+def test_elastic_calc(LiFePO4, M3GNetCalc):
     """Tests for ElasticCalc class"""
     calculator = M3GNetCalc
     ecalc = ElasticityCalc(calculator, norm_strains=0.02, shear_strains=0.04, fmax=0.1)

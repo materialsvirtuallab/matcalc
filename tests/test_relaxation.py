@@ -9,7 +9,7 @@ import pytest
 from matcalc.relaxation import RelaxCalc
 
 
-def test_RelaxCalc(LiFePO4, M3GNetCalc, tmp_path):
+def test_relax_calc(LiFePO4, M3GNetCalc, tmp_path):
     pcalc = RelaxCalc(M3GNetCalc, traj_file=f"{tmp_path}/lfp_relax.txt", optimizer="FIRE")
     results = pcalc.calc(LiFePO4)
     assert results["a"] == pytest.approx(4.75571137)
