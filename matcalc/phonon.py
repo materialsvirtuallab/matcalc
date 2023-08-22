@@ -61,10 +61,10 @@ class PhononCalc(PropCalc):
             structure: Pymatgen structure.
 
         Returns: {
-            temperature: list of temperatures in Kelvin,
+            temperatures: list of temperatures in Kelvin,
             free_energy: list of Helmholtz free energies at corresponding temperatures in eV,
             entropy: list of entropies at corresponding temperatures in eV/K,
-            heat_capacities: list of heat capacities at constant volume at corresponding temperatures in eV/K^2,
+            heat_capacity: list of heat capacities at constant volume at corresponding temperatures in eV/K^2,
         }
         """
         if self.relax_structure:
