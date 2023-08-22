@@ -1,32 +1,10 @@
 [build-system]
-requires = [
-  # pin NumPy version used in the build
-  "oldest-supported-numpy",
-  "setuptools>=58.0.3",
-]
+requires = ["oldest-supported-numpy", "setuptools>=58.0.3"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 120
-target-version = ['py39']
-include = '\.pyi?$'
-exclude = '''
-(
-  /(
-      \.eggs         # exclude a few common directories in the
-    | \.git          # root of the project
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | test_files
-  )/
-)
-'''
+target-version = ["py39"]
 
 [tool.ruff]
 target-version = "py39"

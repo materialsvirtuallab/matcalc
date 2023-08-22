@@ -14,7 +14,7 @@
 
 ## Introduction
 
-MatCalc is a python library for calculating materials properties from the potential energy surface (PES). The
+MatCalc is a Python library for calculating materials properties from the potential energy surface (PES). The
 PES can be from DFT or, more commonly, from machine learning interatomic potentials (MLIPs).
 
 Calculating various materials properties can require relatively involved setup of various simulation codes. The
@@ -23,8 +23,8 @@ parameterization of the PES.
 
 ## Outline
 
-The main base class in MatCalc is PropCalc (property calculator). All PropCalc subclasses should implement a
-`calc(structure) -> dict` method that takes in a Pymatgen Structure and returns a dict of properties.
+The main base class in MatCalc is `PropCalc` (property calculator). [All `PropCalc` subclasses](https://github.com/search?q=repo%3Amaterialsvirtuallab%2Fmatcalc%20%22(PropCalc)%22) should implement a
+`calc(pymatgen.Structure) -> dict` method that returns a dict of properties.
 
-In general, PropCalc should be initialized with an ML model or ASE calculator, which is then used by either ASE,
+In general, `PropCalc` should be initialized with an ML model or ASE calculator, which is then used by either ASE,
 LAMMPS or some other simulation code to perform calculations of properties.
