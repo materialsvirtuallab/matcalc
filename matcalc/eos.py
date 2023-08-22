@@ -32,15 +32,13 @@ class EOSCalc(PropCalc):
         """
         Args:
             calculator: ASE Calculator to use.
-            optimizer (str or ase Optimizer): The optimization algorithm. Defaults to "FIRE".
-            steps (int): Max number of steps for relaxation.
-            max_abs_strain (float): The maximum absolute strain applied to the structure. Defaults to 0.1, i.e.,
-                10% strain.
+            optimizer (str | ase Optimizer): The optimization algorithm. Defaults to "FIRE".
+            steps (int): Max number of steps for relaxation. Defaults to 500.
+            max_abs_strain (float): The maximum absolute strain applied to the structure. Defaults to 0.1 (10% strain).
             n_points (int): Number of points in which to compute the EOS. Defaults to 11.
-
             fmax (float): Max force for relaxation (of structure as well as atoms).
             relax_structure: Whether to first relax the structure. Set to False if structures provided are pre-relaxed
-                with the same calculator.
+                with the same calculator. Defaults to True.
         """
         self.calculator = calculator
         self.optimizer = optimizer
@@ -57,11 +55,11 @@ class EOSCalc(PropCalc):
             structure: pymatgen Structure object.
 
         Returns: {
-            EOS: {
+            eos: {
                 volumes: list[float] in Angstrom^3,
                 energies: list[float] in eV,
             },
-            bulk_modulus: Birch-Murnaghan bulk modulus in GPa.
+            bulk_modulus_bm: Birch-Murnaghan bulk modulus in GPa.
         }
         """
         if self.relax_structure:
@@ -82,6 +80,6 @@ class EOSCalc(PropCalc):
         bm.fit()
 
         return {
-            "EOS": {"volumes": volumes, "energies": energies},
-            "bulk_modulus": bm.b0_GPa,
+            "eos": {"volumes": volumes, "energies": energies},
+            "bulk_modulus_bm": bm.b0_GPa,
         }
