@@ -1,5 +1,5 @@
 """
-Define commonly used text fixtures. These are meant to be reused in unittests.
+This file defines commonly used test fixtures. These are meant to be reused in unit tests.
 - Fixtures that are formulae (e.g., LiFePO4) returns the appropriate pymatgen Structure or Molecule based on the most
   commonly known structure.
 - Fixtures that are prefixed with `graph_` returns a (structure, graph, state) tuple.
@@ -30,12 +30,6 @@ def Li2O():
 
 
 @pytest.fixture(scope="session")
-def M3GNetUPCalc():
+def M3GNetCalc():
     potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
     return M3GNetCalculator(potential=potential, stress_weight=0.01)
-
-
-# @pytest.fixture(scope="session")
-# def M3GNetUPCalc_tf():
-#     potential = Potential_tf(M3GNet_tf.load())
-#     return M3GNetCalculator_tf(potential=potential, stress_weight=0.01)

@@ -6,9 +6,9 @@ import pytest
 from matcalc.elasticity import ElasticityCalc
 
 
-def test_ElasticCalc(LiFePO4, M3GNetUPCalc):
+def test_ElasticCalc(LiFePO4, M3GNetCalc):
     """Tests for ElasticCalc class"""
-    calculator = M3GNetUPCalc
+    calculator = M3GNetCalc
     ecalc = ElasticityCalc(calculator, norm_strains=0.02, shear_strains=0.04, fmax=0.1)
 
     # Test LiFePO4 with relaxation
