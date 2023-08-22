@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-import os
-
-import matgl
 import pytest
-
 
 from matcalc.relaxation import RelaxCalc
 
