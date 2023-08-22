@@ -6,8 +6,8 @@ import pytest
 from matcalc.eos import EOSCalc
 
 
-def test_phonon_calc(Li2O, LiFePO4, M3GNetCalc):
-    """Tests for PhononCalc class"""
+def test_eos_calc(Li2O, LiFePO4, M3GNetCalc):
+    """Tests for EOSCalc class"""
     calculator = M3GNetCalc
     # Note that the fmax is probably too high. This is for testing purposes only.
     pcalc = EOSCalc(calculator, fmax=0.1)
