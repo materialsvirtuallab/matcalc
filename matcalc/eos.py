@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from pymatgen.analysis.eos import BirchMurnaghan
+from pymatgen.io.ase import AseAtomsAdaptor
 
 from .base import PropCalc
 from .relaxation import RelaxCalc
@@ -65,17 +66,15 @@ class EOSCalc(PropCalc):
         if self.relax_structure:
             relaxer = RelaxCalc(self.calculator, optimizer=self.optimizer, fmax=self.fmax, steps=self.steps)
             structure = relaxer.calc(structure)["final_structure"]
-
+        adaptor = AseAtomsAdaptor()
         volumes, energies = [], []
-        relaxer = RelaxCalc(
-            self.calculator, optimizer=self.optimizer, fmax=self.fmax, steps=self.steps, relax_cell=False
-        )
         for idx in np.linspace(-self.max_abs_strain, self.max_abs_strain, self.n_points):
             structure_strained = structure.copy()
             structure_strained.apply_strain([idx, idx, idx])
-            result = relaxer.calc(structure_strained)
-            volumes.append(result["final_structure"].volume)
-            energies.append(result["energy"])
+            atoms = adaptor.get_atoms(structure_strained)
+            atoms.set_calculator(self.calculator)
+            volumes.append(structure_strained.volume)
+            energies.append(atoms.get_potential_energy()[0])
         bm = BirchMurnaghan(volumes=volumes, energies=energies)
         bm.fit()
 

@@ -14,17 +14,18 @@ def test_eos_calc(Li2O, LiFePO4, M3GNetCalc):
     results = pcalc.calc(Li2O)
 
     assert {*results} == {"eos", "bulk_modulus_bm"}
-    assert results["bulk_modulus_bm"] == pytest.approx(69.868, rel=1e-2)
+    assert results["bulk_modulus_bm"] == pytest.approx(73.094, rel=1e-2)
     assert {*results["eos"]} == {"volumes", "energies"}
+    print(results["eos"]["volumes"], results["eos"]["energies"])
     assert results["eos"]["volumes"] == pytest.approx(
-        [18.70, 19.97, 21.30, 22.69, 24.14, 25.65, 27.22, 28.85, 30.55, 32.31, 34.14],
+        [18.92, 20.21, 21.56, 22.96, 24.43, 25.95, 27.54, 29.19, 30.91, 32.69, 34.54],
         rel=1e-3,
     )
     assert results["eos"]["energies"] == pytest.approx(
-        [-13.51, -13.78, -13.98, -14.11, -14.17, -14.19, -14.17, -14.12, -14.04, -13.94, -13.81],
+        [-13.81, -14.08, -14.27, -14.39, -14.46, -14.48, -14.45, -14.40, -14.31, -14.19, -14.05],
         rel=1e-3,
     )
 
     results = list(pcalc.calc_many([Li2O, LiFePO4]))
     assert len(results) == 2
-    assert results[1]["bulk_modulus_bm"] == pytest.approx(60.083, rel=1e-2)
+    assert results[1]["bulk_modulus_bm"] == pytest.approx(149.327, rel=1e-2)
