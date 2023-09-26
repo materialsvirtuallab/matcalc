@@ -73,7 +73,7 @@ class RelaxCalc(PropCalc):
         self,
         calculator: Calculator,
         optimizer: Optimizer | str = "FIRE",
-        steps: int = 500,
+        max_steps: int = 500,
         traj_file: str | None = None,
         interval: int = 1,
         fmax: float = 0.1,
@@ -83,7 +83,7 @@ class RelaxCalc(PropCalc):
         Args:
             calculator: ASE Calculator to use.
             optimizer (str | ase Optimizer): The optimization algorithm. Defaults to "FIRE".
-            steps (int): Max number of steps for relaxation. Defaults to 500.
+            max_steps (int): Max number of steps for relaxation. Defaults to 500.
             traj_file (str | None): File to save the trajectory to. Defaults to None.
             interval (int): The step interval for saving the trajectories. Defaults to 1.
             fmax (float): Total force tolerance for relaxation convergence.
@@ -106,7 +106,7 @@ class RelaxCalc(PropCalc):
         self.optimizer: Optimizer = getattr(optimize, optimizer) if isinstance(optimizer, str) else optimizer
         self.fmax = fmax
         self.interval = interval
-        self.steps = steps
+        self.max_steps = max_steps
         self.traj_file = traj_file
         self.relax_cell = relax_cell
 
@@ -138,7 +138,7 @@ class RelaxCalc(PropCalc):
                 atoms = ExpCellFilter(atoms)
             optimizer = self.optimizer(atoms)
             optimizer.attach(obs, interval=self.interval)
-            optimizer.run(fmax=self.fmax, steps=self.steps)
+            optimizer.run(fmax=self.fmax, steps=self.max_steps)
             if self.traj_file is not None:
                 obs()
                 obs.save(self.traj_file)

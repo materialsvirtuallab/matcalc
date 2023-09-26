@@ -23,7 +23,7 @@ class EOSCalc(PropCalc):
         self,
         calculator: Calculator,
         optimizer: Optimizer | str = "FIRE",
-        steps: int = 500,
+        max_steps: int = 500,
         max_abs_strain: float = 0.1,
         n_points: int = 11,
         fmax: float = 0.1,
@@ -33,7 +33,7 @@ class EOSCalc(PropCalc):
         Args:
             calculator: ASE Calculator to use.
             optimizer (str | ase Optimizer): The optimization algorithm. Defaults to "FIRE".
-            steps (int): Max number of steps for relaxation. Defaults to 500.
+            max_steps (int): Max number of steps for relaxation. Defaults to 500.
             max_abs_strain (float): The maximum absolute strain applied to the structure. Defaults to 0.1 (10% strain).
             n_points (int): Number of points in which to compute the EOS. Defaults to 11.
             fmax (float): Max force for relaxation (of structure as well as atoms).
@@ -46,7 +46,7 @@ class EOSCalc(PropCalc):
         self.n_points = n_points
         self.max_abs_strain = max_abs_strain
         self.fmax = fmax
-        self.steps = steps
+        self.max_steps = max_steps
 
     def calc(self, structure: Structure) -> dict:
         """Fit the Birch-Murnaghan equation of state.
@@ -63,12 +63,12 @@ class EOSCalc(PropCalc):
         }
         """
         if self.relax_structure:
-            relaxer = RelaxCalc(self.calculator, optimizer=self.optimizer, fmax=self.fmax, steps=self.steps)
+            relaxer = RelaxCalc(self.calculator, optimizer=self.optimizer, fmax=self.fmax, max_steps=self.max_steps)
             structure = relaxer.calc(structure)["final_structure"]
 
         volumes, energies = [], []
         relaxer = RelaxCalc(
-            self.calculator, optimizer=self.optimizer, fmax=self.fmax, steps=self.steps, relax_cell=False
+            self.calculator, optimizer=self.optimizer, fmax=self.fmax, max_steps=self.max_steps, relax_cell=False
         )
         for idx in np.linspace(-self.max_abs_strain, self.max_abs_strain, self.n_points):
             structure_strained = structure.copy()
