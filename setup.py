@@ -29,6 +29,7 @@ setup(
     python_requires=">=3.8",
     package_data={},
     install_requires=("ase", "pymatgen", "joblib", "phonopy"),
+    extras_require={"models": ["matgl", "chgnet"]},
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
