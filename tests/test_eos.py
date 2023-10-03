@@ -13,7 +13,7 @@ def test_eos_calc(Li2O, LiFePO4, M3GNetCalc):
     pcalc = EOSCalc(calculator, fmax=0.1)
     results = pcalc.calc(Li2O)
 
-    assert {*results} == {"eos", "bulk_modulus_bm"}
+    assert {*results} == {"eos", "r2_score_bm", "bulk_modulus_bm"}
     assert results["bulk_modulus_bm"] == pytest.approx(69.868, rel=1e-2)
     assert {*results["eos"]} == {"volumes", "energies"}
     assert results["eos"]["volumes"] == pytest.approx(
@@ -27,4 +27,4 @@ def test_eos_calc(Li2O, LiFePO4, M3GNetCalc):
 
     results = list(pcalc.calc_many([Li2O, LiFePO4]))
     assert len(results) == 2
-    assert results[1]["bulk_modulus_bm"] == pytest.approx(60.083, rel=1e-2)
+    assert results[1]["bulk_modulus_bm"] == pytest.approx(58.716, rel=1e-2)

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+from sklearn.metrics import r2_score
 from pymatgen.analysis.eos import BirchMurnaghan
 
 from .base import PropCalc
@@ -60,6 +61,8 @@ class EOSCalc(PropCalc):
                 energies: list[float] in eV,
             },
             bulk_modulus_bm: Birch-Murnaghan bulk modulus in GPa.
+            r2_score_bm: R squared of Birch-Murnaghan fit of energies predicted by model to help detect erroneous
+            calculations. This value should be at least around 1 - 1e-4 to 1 - 1e-5.
         }
         """
         if self.relax_structure:
@@ -70,16 +73,35 @@ class EOSCalc(PropCalc):
         relaxer = RelaxCalc(
             self.calculator, optimizer=self.optimizer, fmax=self.fmax, max_steps=self.max_steps, relax_cell=False
         )
-        for idx in np.linspace(-self.max_abs_strain, self.max_abs_strain, self.n_points):
-            structure_strained = structure.copy()
-            structure_strained.apply_strain([idx, idx, idx])
+
+        temp_structure = structure.copy()
+        for idx in np.linspace(-self.max_abs_strain, self.max_abs_strain, self.n_points)[self.n_points // 2 :]:
+            structure_strained = temp_structure.copy()
+            structure_strained.apply_strain(
+                (((1 + idx) ** 3 * structure.volume) / (structure_strained.volume)) ** (1 / 3) - 1
+            )
             result = relaxer.calc(structure_strained)
             volumes.append(result["final_structure"].volume)
             energies.append(result["energy"])
+            temp_structure = result["final_structure"]
+
+        for idx in np.flip(np.linspace(-self.max_abs_strain, self.max_abs_strain, self.n_points)[: self.n_points // 2]):
+            structure_strained = temp_structure.copy()
+            structure_strained.apply_strain(
+                (((1 + idx) ** 3 * structure.volume) / (structure_strained.volume)) ** (1 / 3) - 1
+            )
+            result = relaxer.calc(structure_strained)
+            volumes.append(result["final_structure"].volume)
+            energies.append(result["energy"])
+            temp_structure = result["final_structure"]
+
         bm = BirchMurnaghan(volumes=volumes, energies=energies)
         bm.fit()
+
+        volumes, energies = zip(*sorted(list(zip(volumes, energies)), key=lambda i: i[0]))
 
         return {
             "eos": {"volumes": volumes, "energies": energies},
             "bulk_modulus_bm": bm.b0_GPa,
+            "r2_score_bm": r2_score(energies, bm.func(volumes)),
         }
