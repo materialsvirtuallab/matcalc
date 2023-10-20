@@ -60,11 +60,16 @@ class PhononCalc(PropCalc):
         Args:
             structure: Pymatgen structure.
 
-        Returns: {
-            temperatures: list of temperatures in Kelvin,
-            free_energy: list of Helmholtz free energies at corresponding temperatures in eV,
-            entropy: list of entropies at corresponding temperatures in eV/K,
-            heat_capacity: list of heat capacities at constant volume at corresponding temperatures in eV/K^2,
+        Returns:
+        {
+            phonon: Phonopy object with force constants produced
+            thermal_properties:
+                {
+                    temperatures: list of temperatures in Kelvin,
+                    free_energy: list of Helmholtz free energies at corresponding temperatures in eV,
+                    entropy: list of entropies at corresponding temperatures in eV/K,
+                    heat_capacity: list of heat capacities at constant volume at corresponding temperatures in eV/K^2,
+                }
         }
         """
         if self.relax_structure:
@@ -80,7 +85,7 @@ class PhononCalc(PropCalc):
         phonon.produce_force_constants()
         phonon.run_mesh()
         phonon.run_thermal_properties(t_step=self.t_step, t_max=self.t_max, t_min=self.t_min)
-        return phonon.get_thermal_properties_dict()
+        return {"phonon": phonon, "thermal_properties": phonon.get_thermal_properties_dict()}
 
 
 def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:
