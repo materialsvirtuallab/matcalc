@@ -102,7 +102,8 @@ def make_docs(ctx):
 @task
 def publish(ctx):
     ctx.run("rm dist/*.*", warn=True)
-    ctx.run("python setup.py sdist bdist_wheel")
+    ctx.run("python -m build")
+    ctx.run("python -m build --wheel")
     ctx.run("twine upload dist/*")
 
 
