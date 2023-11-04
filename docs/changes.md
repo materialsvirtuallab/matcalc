@@ -1,3 +1,9 @@
+---
+layout: default
+title: Home
+nav_order: 2
+---
+
 # Change Log
 
 ## v0.0.2
