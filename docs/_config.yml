@@ -9,7 +9,7 @@ github_username: materialsvirtuallab
 # Build settings
 remote_theme: just-the-docs/just-the-docs
 
-favicon_ico: /assets/favicon.ico
+# favicon_ico: /assets/favicon.ico
 
 aux_links:
   API docs: /matcalc
