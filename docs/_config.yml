@@ -1,0 +1,30 @@
+title: matcalc
+email: ongsp@ucsd.edu
+description: >- # this means to ignore newlines until "baseurl:"
+  MatCalc is a Python library for calculating materials properties from the potential energy surface (PES).
+baseurl: ""
+# twitter_username: matcalc
+github_username: materialsvirtuallab
+
+# Build settings
+remote_theme: just-the-docs/just-the-docs
+
+color_scheme: pmg
+favicon_ico: /assets/favicon.ico
+
+aux_links:
+  API docs: /matcalc
+  GitHub: https://github.com/materialsvirtuallab/matcalc
+  Issues: https://github.com/materialsvirtuallab/matcalc/issues
+  Materials Virtual Lab: https://materialsvirtuallab.org
+
+# Enable or disable the site search
+# Supports true (default) or false
+search_enabled: true
+
+# Split pages into sections that can be searched individually
+# Supports 1 - 6, default: 2
+search.heading_level: 6
+
+kramdown:
+  toc_levels: 1..3
