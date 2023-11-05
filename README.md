@@ -13,6 +13,8 @@
 [![PyPI](https://img.shields.io/pypi/v/matcalc?logo=pypi&logoColor=white)](https://pypi.org/project/matcalc?logo=pypi&logoColor=white)
 </h4>
 
+[Documentation Link](https://materialsvirtuallab.github.io/matcalc/)
+
 ## Introduction
 
 MatCalc is a Python library for calculating materials properties from the potential energy surface (PES). The
