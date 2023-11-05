@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Home
+title: Change Log
 nav_order: 2
 ---
 

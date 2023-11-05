@@ -9,7 +9,7 @@ github_username: materialsvirtuallab
 # Build settings
 remote_theme: just-the-docs/just-the-docs
 
-# favicon_ico: /assets/favicon.ico
+favicon_ico: /assets/favicon.ico
 
 aux_links:
   API docs: /matcalc
@@ -17,13 +17,13 @@ aux_links:
   Issues: https://github.com/materialsvirtuallab/matcalc/issues
   Materials Virtual Lab: https://materialsvirtuallab.org
 
-## Enable or disable the site search
-## Supports true (default) or false
-#search_enabled: true
-#
-## Split pages into sections that can be searched individually
-## Supports 1 - 6, default: 2
-#search.heading_level: 6
-#
-#kramdown:
-#  toc_levels: 1..3
+# Enable or disable the site search
+# Supports true (default) or false
+search_enabled: true
+
+# Split pages into sections that can be searched individually
+# Supports 1 - 6, default: 2
+search.heading_level: 6
+
+kramdown:
+  toc_levels: 1..3
