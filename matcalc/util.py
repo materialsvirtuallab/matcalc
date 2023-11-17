@@ -11,6 +11,7 @@ UNIVERSAL_CALCULATORS = (
     "M3GNet-MP-2021.2.8-PES",
     "M3GNet-MP-2021.2.8-DIRECT-PES",
     "CHGNet",
+    "MACE",
 )
 
 
@@ -50,5 +51,10 @@ def get_universal_calculator(name: str | Calculator, **kwargs) -> Calculator:
         from chgnet.model.dynamics import CHGNetCalculator
 
         return CHGNetCalculator(**kwargs)
+
+    if name.lower() == "mace":
+        from mace.calculators import mace_mp
+
+        return mace_mp(**kwargs)
 
     raise ValueError(f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}")
