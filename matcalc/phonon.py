@@ -36,11 +36,12 @@ class PhononCalc(PropCalc):
         Args:
             calculator: ASE Calculator to use.
             fmax: Max forces. This criterion is more stringent than for simple relaxation.
-            atom_disp: Atomic displacement
+                Defaults to 0.1 (in eV/Angstrom)
+            atom_disp: Atomic displacement (in Angstrom).
             supercell_matrix: Supercell matrix to use. Defaults to 2x2x2 supercell.
-            t_step: Temperature step.
-            t_max: Max temperature.
-            t_min: Min temperature.
+            t_step: Temperature step (in Kelvin).
+            t_max: Max temperature (in Kelvin).
+            t_min: Min temperature (in Kelvin).
             relax_structure: Whether to first relax the structure. Set to False if structures
                 provided are pre-relaxed with the same calculator.
         """
@@ -60,11 +61,16 @@ class PhononCalc(PropCalc):
         Args:
             structure: Pymatgen structure.
 
-        Returns: {
-            temperatures: list of temperatures in Kelvin,
-            free_energy: list of Helmholtz free energies at corresponding temperatures in eV,
-            entropy: list of entropies at corresponding temperatures in eV/K,
-            heat_capacity: list of heat capacities at constant volume at corresponding temperatures in eV/K^2,
+        Returns:
+        {
+            phonon: Phonopy object with force constants produced
+            thermal_properties:
+                {
+                    temperatures: list of temperatures in Kelvin,
+                    free_energy: list of Helmholtz free energies at corresponding temperatures in eV,
+                    entropy: list of entropies at corresponding temperatures in eV/K,
+                    heat_capacity: list of heat capacities at constant volume at corresponding temperatures in eV/K^2,
+                }
         }
         """
         if self.relax_structure:
@@ -80,7 +86,7 @@ class PhononCalc(PropCalc):
         phonon.produce_force_constants()
         phonon.run_mesh()
         phonon.run_thermal_properties(t_step=self.t_step, t_max=self.t_max, t_min=self.t_min)
-        return phonon.get_thermal_properties_dict()
+        return {"phonon": phonon, "thermal_properties": phonon.get_thermal_properties_dict()}
 
 
 def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:

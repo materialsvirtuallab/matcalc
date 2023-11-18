@@ -64,10 +64,12 @@ def make_docs(ctx):
     make_tutorials(ctx)
 
     with cd("docs"):
+        ctx.run("cp ../README.md index.md", warn=True)
         ctx.run("rm matcalc.*.rst", warn=True)
         ctx.run("sphinx-apidoc -P -M -d 6 -o . -f ../matcalc")
         # ctx.run("rm matcalc*.html", warn=True)
         # ctx.run("sphinx-build -b html . ../docs")  # HTML building.
+        ctx.run("cp modules.rst index.rst")
         ctx.run("sphinx-build -M markdown . .")
         ctx.run("rm *.rst", warn=True)
         ctx.run("cp markdown/matcalc*.md .")
@@ -102,7 +104,8 @@ def make_docs(ctx):
 @task
 def publish(ctx):
     ctx.run("rm dist/*.*", warn=True)
-    ctx.run("python setup.py sdist bdist_wheel")
+    ctx.run("python -m build")
+    ctx.run("python -m build --wheel")
     ctx.run("twine upload dist/*")
 
 

@@ -57,10 +57,10 @@ class ElasticityCalc(PropCalc):
             structure: Pymatgen structure.
 
         Returns: {
-            elastic_tensor: Elastic tensor as a pymatgen ElasticTensor object,
-            shear_modulus_vrh: Voigt-Reuss-Hill shear modulus based on elastic tensor,
-            bulk_modulus_vrh: Voigt-Reuss-Hill bulk modulus based on elastic tensor,
-            youngs_modulus: Young's modulus based on elastic tensor,
+            elastic_tensor: Elastic tensor as a pymatgen ElasticTensor object (in eV/A^3),
+            shear_modulus_vrh: Voigt-Reuss-Hill shear modulus based on elastic tensor (in eV/A^3),
+            bulk_modulus_vrh: Voigt-Reuss-Hill bulk modulus based on elastic tensor (in eV/A^3),
+            youngs_modulus: Young's modulus based on elastic tensor (in eV/A^3),
             residuals_sum: Sum of squares of all residuals in the linear fits of the
             calculation of the elastic tensor,
             structure: The equilibrium structure used for the computation.

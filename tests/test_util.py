@@ -5,7 +5,10 @@ from ase.calculators.calculator import Calculator
 
 
 def test_get_universal_calculator():
-    for name in UNIVERSAL_CALCULATORS:
+    # skip MACE until https://github.com/ACEsuit/mace/pull/230 is merged
+    # maybe even permanently, since the checkpoint downloaded from figshare is 130MB+
+    # and hence would slow down test a lot
+    for name in {*UNIVERSAL_CALCULATORS} - {"MACE"}:
         calc = get_universal_calculator(name)
         assert isinstance(calc, Calculator)
         same_calc = get_universal_calculator(calc)  # test ASE Calculator classes are returned as-is
