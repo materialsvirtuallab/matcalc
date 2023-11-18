@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-import numpy as np
 import warnings
+from typing import TYPE_CHECKING
 
+import numpy as np
 from pymatgen.analysis.elasticity import DeformedStructureSet, ElasticTensor, Strain
 from pymatgen.analysis.elasticity.elastic import get_strain_state_dict
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -19,9 +19,7 @@ if TYPE_CHECKING:
 
 
 class ElasticityCalc(PropCalc):
-    """
-    Calculator for elastic properties.
-    """
+    """Calculator for elastic properties."""
 
     def __init__(
         self,
