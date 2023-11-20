@@ -57,8 +57,8 @@ class EOSCalc(PropCalc):
 
         Returns: {
             eos: {
-                volumes: list[float] in Angstrom^3,
-                energies: list[float] in eV,
+                volumes: tuple[float] in Angstrom^3,
+                energies: tuple[float] in eV,
             },
             bulk_modulus_bm: Birch-Murnaghan bulk modulus in GPa.
             r2_score_bm: R squared of Birch-Murnaghan fit of energies predicted by model to help detect erroneous
