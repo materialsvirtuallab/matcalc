@@ -24,31 +24,35 @@ class ElasticityCalc(PropCalc):
     def __init__(
         self,
         calculator: Calculator,
-        norm_strains: tuple[float, ...] = (0.001, 0.003, 0.005, 0.01),
-        shear_strains: tuple[float, ...] = (0.001, 0.003, 0.005, 0.01),
+        norm_strains: tuple[float, ...] | float = (-0.01, -0.005, 0.005, 0.01),
+        shear_strains: tuple[float, ...] | float = (-0.06, -0.03, 0.03, 0.06),
         fmax: float = 0.1,
         relax_structure: bool = True,
-        use_equilibrium: bool = False,
+        use_equilibrium: bool = True,
     ) -> None:
         """
         Args:
             calculator: ASE Calculator to use.
-            norm_strains: strain values to apply to each normal mode.
-                Defaults to (0.001, 0.003, 0.005, 0.01).
-            shear_strains: strain values to apply to each shear mode.
-                Defaults to (0.001, 0.003, 0.005, 0.01).
+            norm_strains: single or multiple strain values to apply to each normal mode.
+                Defaults to (-0.01, -0.005, 0.005, 0.01).
+            shear_strains: single or multiple strain values to apply to each shear mode.
+                Defaults to (-0.06, -0.03, 0.03, 0.06).
             fmax: maximum force in the relaxed structure (if relax_structure). Defaults to 0.1.
             relax_structure: whether to relax the provided structure with the given calculator.
                 Defaults to True.
-            use_equilibrium: whether to use the equilibrium stress and strain.
-                Defaults to False.
+            use_equilibrium: whether to use the equilibrium stress and strain. Ignored and set
+                to True if either norm_strains or shear_strains has length 1 or is a float.
+                Defaults to True.
         """
         self.calculator = calculator
-        self.norm_strains = norm_strains
-        self.shear_strains = shear_strains
+        self.norm_strains = tuple(np.array([1]) * np.array(norm_strains))
+        self.shear_strains = tuple(np.array([1]) * np.array(shear_strains))
         self.relax_structure = relax_structure
         self.fmax = fmax
-        self.use_equilibrium = use_equilibrium
+        if len(self.norm_strains) > 1 and len(self.shear_strains) > 1:
+            self.use_equilibrium = use_equilibrium
+        else:
+            self.use_equilibrium = True
 
     def calc(self, structure: Structure) -> dict[str, float | ElasticTensor | Structure]:
         """
@@ -140,6 +144,6 @@ class ElasticityCalc(PropCalc):
             for j in range(6):
                 fit = np.polyfit(strain[:, i], stress[:, j], 1, full=True)
                 c_ij[i, j] = fit[0][0]
-                residuals_sum += fit[1][0]
+                residuals_sum += fit[1][0] if len(fit[1]) > 0 else 0.0
         c = ElasticTensor.from_voigt(c_ij)
         return c.zeroed(tol), residuals_sum

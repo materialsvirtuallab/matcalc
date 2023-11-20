@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from sklearn.metrics import r2_score
 from pymatgen.analysis.eos import BirchMurnaghan
+from sklearn.metrics import r2_score
 
 from .base import PropCalc
 from .relaxation import RelaxCalc
@@ -98,7 +98,7 @@ class EOSCalc(PropCalc):
         bm = BirchMurnaghan(volumes=volumes, energies=energies)
         bm.fit()
 
-        volumes, energies = zip(*sorted(list(zip(volumes, energies)), key=lambda i: i[0]))
+        volumes, energies = zip(*sorted(zip(volumes, energies), key=lambda i: i[0]))
 
         return {
             "eos": {"volumes": volumes, "energies": energies},
