@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 import numpy as np
 from pymatgen.analysis.elasticity import DeformedStructureSet, ElasticTensor, Strain
 from pymatgen.analysis.elasticity.elastic import get_strain_state_dict
-from pymatgen.io.ase import AseAtomsAdaptor
 
 from .base import PropCalc
 from .relaxation import RelaxCalc
@@ -45,8 +44,8 @@ class ElasticityCalc(PropCalc):
                 Defaults to True.
         """
         self.calculator = calculator
-        self.norm_strains = tuple(np.array([1]) * np.array(norm_strains))
-        self.shear_strains = tuple(np.array([1]) * np.array(shear_strains))
+        self.norm_strains = tuple(np.array([1]) * np.asarray(norm_strains))
+        self.shear_strains = tuple(np.array([1]) * np.asarray(shear_strains))
         self.relax_structure = relax_structure
         self.fmax = fmax
         if len(self.norm_strains) > 1 and len(self.shear_strains) > 1:
@@ -76,7 +75,6 @@ class ElasticityCalc(PropCalc):
             relax_calc = RelaxCalc(self.calculator, fmax=self.fmax)
             structure = relax_calc.calc(structure)["final_structure"]
 
-        adaptor = AseAtomsAdaptor()
         deformed_structure_set = DeformedStructureSet(
             structure,
             self.norm_strains,
@@ -84,25 +82,18 @@ class ElasticityCalc(PropCalc):
         )
         stresses = []
         for deformed_structure in deformed_structure_set:
-            atoms = adaptor.get_atoms(deformed_structure)
+            atoms = deformed_structure.to_ase_atoms()
             atoms.calc = self.calculator
             stresses.append(atoms.get_stress(voigt=False))
 
         strains = [Strain.from_deformation(deformation) for deformation in deformed_structure_set.deformations]
-        atoms = adaptor.get_atoms(structure)
+        atoms = structure.to_ase_atoms()
         atoms.calc = self.calculator
-        if self.use_equilibrium:
-            elastic_tensor, residuals_sum = self._elastic_tensor_from_strains(
-                strains,
-                stresses,
-                eq_stress=atoms.get_stress(voigt=False),
-            )
-        else:
-            elastic_tensor, residuals_sum = self._elastic_tensor_from_strains(
-                strains,
-                stresses,
-                eq_stress=None,
-            )
+        elastic_tensor, residuals_sum = self._elastic_tensor_from_strains(
+            strains,
+            stresses,
+            eq_stress=atoms.get_stress(voigt=False) if self.use_equilibrium else None,
+        )
         return {
             "elastic_tensor": elastic_tensor,
             "shear_modulus_vrh": elastic_tensor.g_vrh,
@@ -138,12 +129,12 @@ class ElasticityCalc(PropCalc):
             )
         c_ij = np.zeros((6, 6))
         residuals_sum = 0
-        for i in range(6):
-            strain = ss_dict[strain_states[i]]["strains"]
-            stress = ss_dict[strain_states[i]]["stresses"]
-            for j in range(6):
-                fit = np.polyfit(strain[:, i], stress[:, j], 1, full=True)
-                c_ij[i, j] = fit[0][0]
+        for ii in range(6):
+            strain = ss_dict[strain_states[ii]]["strains"]
+            stress = ss_dict[strain_states[ii]]["stresses"]
+            for jj in range(6):
+                fit = np.polyfit(strain[:, ii], stress[:, jj], 1, full=True)
+                c_ij[ii, jj] = fit[0][0]
                 residuals_sum += fit[1][0] if len(fit[1]) > 0 else 0.0
-        c = ElasticTensor.from_voigt(c_ij)
-        return c.zeroed(tol), residuals_sum
+        elastic_tensor = ElasticTensor.from_voigt(c_ij)
+        return elastic_tensor.zeroed(tol), residuals_sum
