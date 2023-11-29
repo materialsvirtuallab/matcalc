@@ -14,7 +14,7 @@ def test_relax_calc(Li2O, M3GNetCalc, tmp_path):
     assert results["alpha"] == pytest.approx(60, abs=1)
     assert results["beta"] == pytest.approx(60, abs=1)
     assert results["gamma"] == pytest.approx(60, abs=1)
-    assert results["volume"] == pytest.approx(results["a"] * results["b"] * results["c"]/2**0.5, abs=0.1)
+    assert results["volume"] == pytest.approx(results["a"] * results["b"] * results["c"] / 2**0.5, abs=0.1)
 
     results = list(pcalc.calc_many([Li2O] * 2))
     assert len(results) == 2

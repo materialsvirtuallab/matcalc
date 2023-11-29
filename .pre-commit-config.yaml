@@ -6,7 +6,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.3
+    rev: v0.1.6
     hooks:
       - id: ruff
         args: [--fix]
@@ -21,7 +21,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.6.1
+    rev: v1.7.1
     hooks:
       - id: mypy
 
@@ -34,7 +34,7 @@ repos:
         additional_dependencies: [tomli] # needed to read pyproject.toml below py3.11
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: v0.15.0
+    rev: v0.16.0
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
