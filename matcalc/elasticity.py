@@ -121,9 +121,9 @@ class ElasticityCalc(PropCalc):
         """
         strain_states = [tuple(ss) for ss in np.eye(6)]
         ss_dict = get_strain_state_dict(strains, stresses, eq_stress=eq_stress, add_eq=self.use_equilibrium)
-        if not set(strain_states) <= set(ss_dict):
+        if set(strain_states) >= set(ss_dict):
             raise ValueError(f"Missing independent strain states: {set(strain_states) - set(ss_dict)}")
-        if len(set(ss_dict) - set(strain_states)) > 0:
+        if set(strain_states) <= set(ss_dict):
             warnings.warn(
                 "Extra strain states in strain-stress pairs are neglected in independent strain fitting", stacklevel=1
             )

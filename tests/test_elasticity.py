@@ -1,17 +1,16 @@
 """Tests for ElasticCalc class"""
 from __future__ import annotations
 
+import numpy as np
 import pytest
 
 from matcalc.elasticity import ElasticityCalc
-import numpy as np
 
 
 def test_elastic_calc(Li2O, M3GNetCalc):
     """Tests for ElasticCalc class"""
-    calculator = M3GNetCalc
     ecalc = ElasticityCalc(
-        calculator,
+        M3GNetCalc,
         fmax=0.1,
         norm_strains=list(np.linspace(-0.004, 0.004, num=4)),
         shear_strains=list(np.linspace(-0.004, 0.004, num=4)),
@@ -30,7 +29,7 @@ def test_elastic_calc(Li2O, M3GNetCalc):
 
     # Test Li2O without the equilibrium structure
     ecalc = ElasticityCalc(
-        calculator,
+        M3GNetCalc,
         fmax=0.1,
         norm_strains=list(np.linspace(-0.004, 0.004, num=4)),
         shear_strains=list(np.linspace(-0.004, 0.004, num=4)),
@@ -42,7 +41,7 @@ def test_elastic_calc(Li2O, M3GNetCalc):
 
     # Test Li2O with float
     ecalc = ElasticityCalc(
-        calculator,
+        M3GNetCalc,
         fmax=0.1,
         norm_strains=0.004,
         shear_strains=0.004,
@@ -52,3 +51,12 @@ def test_elastic_calc(Li2O, M3GNetCalc):
     results = ecalc.calc(Li2O)
     assert results["residuals_sum"] == 0.0
     assert results["bulk_modulus_vrh"] == pytest.approx(0.6631894154825593, rel=1e-3)
+
+
+def test_elastic_calc_invalid_states(Li2O, M3GNetCalc):
+    ecalc = ElasticityCalc(M3GNetCalc, shear_strains=[])
+    with pytest.raises(ValueError, match="Missing independent strain states: "):
+        results = ecalc.calc(Li2O)
+    ecalc = ElasticityCalc(M3GNetCalc, norm_strains=[])
+    with pytest.raises(ValueError, match="Missing independent strain states: "):
+        results = ecalc.calc(Li2O)
