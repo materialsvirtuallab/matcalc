@@ -98,7 +98,7 @@ class EOSCalc(PropCalc):
         bm = BirchMurnaghan(volumes=volumes, energies=energies)
         bm.fit()
 
-        volumes, energies = zip(*sorted(zip(volumes, energies), key=lambda i: i[0]))
+        volumes, energies = map(list, zip(*sorted(zip(volumes, energies), key=lambda i: i[0])))
 
         return {
             "eos": {"volumes": volumes, "energies": energies},
