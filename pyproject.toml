@@ -5,7 +5,6 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "matcalc"
 authors = [
-
     { name = "Eliott Liu", email = "elliottliu17@gmail.com" },
     { name = "Janosh Riebesell", email = "janosh@lbl.gov" },
     { name = "Ji Qi", email = "j1qi@ucsd.edu" },
@@ -97,11 +96,11 @@ ignore = [
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
-extend-exclude = ["tests"]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
 "tasks.py" = ["D"]
+"tests/*" = ["D"]
 
 [tool.pytest.ini_options]
 addopts = "--durations=30 --quiet -rXs --color=yes -p no:warnings"

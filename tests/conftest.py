@@ -10,26 +10,30 @@ of "function".
 """
 from __future__ import annotations
 
-import pytest
 import matgl
-
-from pymatgen.util.testing import PymatgenTest
+import pytest
 from matgl.ext.ase import M3GNetCalculator
+from pymatgen.util.testing import PymatgenTest
 
 matgl.clear_cache(confirm=False)
 
 
 @pytest.fixture(scope="session")
 def LiFePO4():
+    """LiFePO4 structure as session-scoped fixture (don't modify in-place,
+    will affect other tests).
+    """
     return PymatgenTest.get_structure("LiFePO4")
 
 
 @pytest.fixture(scope="session")
 def Li2O():
+    """Li2O structure as session-scoped fixture."""
     return PymatgenTest.get_structure("Li2O")
 
 
 @pytest.fixture(scope="session")
 def M3GNetCalc():
+    """M3GNet calculator as session-scoped fixture."""
     potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
     return M3GNetCalculator(potential=potential, stress_weight=0.01)
