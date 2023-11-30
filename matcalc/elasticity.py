@@ -46,6 +46,12 @@ class ElasticityCalc(PropCalc):
         self.calculator = calculator
         self.norm_strains = tuple(np.array([1]) * np.asarray(norm_strains))
         self.shear_strains = tuple(np.array([1]) * np.asarray(shear_strains))
+        if len(self.norm_strains) == 0:
+            raise ValueError("norm_strains must be nonempty")
+        if len(self.shear_strains) == 0:
+            raise ValueError("shear_strains must be nonempty")
+        if 0 in self.norm_strains or 0 in self.shear_strains:
+            raise ValueError("Strains must be nonzero")
         self.relax_structure = relax_structure
         self.fmax = fmax
         if len(self.norm_strains) > 1 and len(self.shear_strains) > 1:
@@ -121,12 +127,6 @@ class ElasticityCalc(PropCalc):
         """
         strain_states = [tuple(ss) for ss in np.eye(6)]
         ss_dict = get_strain_state_dict(strains, stresses, eq_stress=eq_stress, add_eq=self.use_equilibrium)
-        if set(strain_states) >= set(ss_dict):
-            raise ValueError(f"Missing independent strain states: {set(strain_states) - set(ss_dict)}")
-        if set(strain_states) <= set(ss_dict):
-            warnings.warn(
-                "Extra strain states in strain-stress pairs are neglected in independent strain fitting", stacklevel=1
-            )
         c_ij = np.zeros((6, 6))
         residuals_sum = 0
         for ii in range(6):

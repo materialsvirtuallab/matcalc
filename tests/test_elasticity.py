@@ -54,9 +54,11 @@ def test_elastic_calc(Li2O, M3GNetCalc):
 
 
 def test_elastic_calc_invalid_states(Li2O, M3GNetCalc):
-    e_calc = ElasticityCalc(M3GNetCalc, shear_strains=[])
-    with pytest.raises(ValueError, match="Missing independent strain states: "):
-        e_calc.calc(Li2O)
-    e_calc = ElasticityCalc(M3GNetCalc, norm_strains=[])
-    with pytest.raises(ValueError, match="Missing independent strain states: "):
-        e_calc.calc(Li2O)
+    with pytest.raises(ValueError, match="shear_strains must be nonempty"):
+        e_calc = ElasticityCalc(M3GNetCalc, shear_strains=[])
+    with pytest.raises(ValueError, match="norm_strains must be nonempty"):
+        e_calc = ElasticityCalc(M3GNetCalc, norm_strains=[])
+    with pytest.raises(ValueError, match="Strains must be nonzero"):
+        e_calc = ElasticityCalc(M3GNetCalc, norm_strains=[0.0, 0.1])
+    with pytest.raises(ValueError, match="Strains must be nonzero"):
+        e_calc = ElasticityCalc(M3GNetCalc, shear_strains=[0.0, 0.1])
