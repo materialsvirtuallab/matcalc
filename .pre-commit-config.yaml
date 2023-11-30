@@ -30,7 +30,8 @@ repos:
     hooks:
       - id: codespell
         stages: [commit, commit-msg]
-        exclude_types: [html]
+        exclude_types: [html, svg, javascript]
+        exclude: ^.+\.lock$ # ignore lock files
         additional_dependencies: [tomli] # needed to read pyproject.toml below py3.11
 
   - repo: https://github.com/MarcoGorelli/cython-lint
