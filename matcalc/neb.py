@@ -20,7 +20,7 @@ from pymatgen.core import Structure
 from pymatgen.io.ase import AseAtomsAdaptor
 
 
-class NEBcal(PropCalc):
+class NEBCalc(PropCalc):
     """
     Nudged Elastic Band calculator.
     """
@@ -113,5 +113,5 @@ class NEBcal(PropCalc):
                     )
                 )
         self.optimizer.run(fmax=fmax, steps=max_steps)
-        neb_tool = NEBTools(self.optimizer.neb.images)
+        neb_tool = NEBTools(self.neb.images)
         return neb_tool.get_barrier()
