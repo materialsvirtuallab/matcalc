@@ -37,6 +37,13 @@ class NEBCalc(PropCalc):
     ):
         """
         Args:
+            images: A list of ASE atoms or Pymathen structures as NEB image structures.
+            calculator: ASE Calculator to use. Default to M3GNet-MP-2021.2.8-DIRECT-PES.
+            optimizer: The optimization algorithm. Defaults to "BEGS".
+            traj_folder: The folder address to store NEB trajectories. Default to None.
+            interval: The step interval for saving the trajectories. Defaults to 1.
+            climb: Whether to enable climb image NEB. Default to True.
+            kwargs: Other arguments passed to ASE NEB object.
         """
         self.images = images
         self.calculator = calculator
@@ -76,12 +83,27 @@ class NEBCalc(PropCalc):
         cls,
         start_struct: Structure,
         end_struct: Structure,
-        calculator: Calculator,
+        calculator: "M3GNet-MP-2021.2.8-DIRECT-PES",
         nimages: int | Iterable = 7,
         interpolate_lattices: bool = False,
         autosort_tol: float = 0.5,
         **kwargs,
     ):
+        """
+        Initialize a NEBCalc from end images.
+        Args:
+            start_struct: The starting image as a pymatgen Structure.
+            end_struct: The ending image as a pymatgen Structure.
+            calculator: ASE Calculator to use. Default to M3GNet-MP-2021.2.8-DIRECT-PES.
+            nimages: The number of intermediate image structures to create.
+            interpolate_lattices: Whether to interpolate the lattices when creating NEB
+                path with Structure.interpolate() in pymatgen. Default to False.
+            autosort_tol: A distance tolerance in angstrom in which to automatically
+                sort end_struct to match to the closest points in start_struct. This
+                argument is required for Structure.interpolate() in pymatgen.
+                Default to 0.5.
+            kwargs: Other arguments passed to construct NEBCalc.
+        """
         images = start_struct.interpolate(
             end_struct,
             nimages=nimages + 1,
@@ -97,9 +119,9 @@ class NEBCalc(PropCalc):
         max_steps: int = 1000,
     ):
         """
-        Thin wrapper of ase MD run
+        Perform NEB calculation.
         Args:
-            fmax (float): Convergence criteria for NEB calculations.
+            fmax (float): Convergence criteria for NEB calculations  Max forces.
             max_steps (int): Maximum number of steps in NEB calculations. Default to 1000.
         Returns:
             NEB barrier.
@@ -110,7 +132,8 @@ class NEBCalc(PropCalc):
                 self.optimizer.attach(
                     Trajectory(
                         f"{self.traj_folder}/image_{i}.traj", "w", self.images[i]
-                    )
+                    ),
+                    interval=self.interval,
                 )
         self.optimizer.run(fmax=fmax, steps=max_steps)
         neb_tool = NEBTools(self.neb.images)
