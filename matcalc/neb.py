@@ -23,14 +23,14 @@ class NEBCalc(PropCalc):
     """Nudged Elastic Band calculator."""
 
     def __init__(
-            self,
-            images: list[Structure],
-            calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
-            optimizer: str | Optimizer = "BFGS",
-            traj_folder: str | None = None,
-            interval: int = 1,
-            climb: bool = True,
-            **kwargs,
+        self,
+        images: list[Structure],
+        calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
+        optimizer: str | Optimizer = "BFGS",
+        traj_folder: str | None = None,
+        interval: int = 1,
+        climb: bool = True,
+        **kwargs,
     ):
         """
         Args:
@@ -53,9 +53,7 @@ class NEBCalc(PropCalc):
         if isinstance(optimizer, str) and optimizer not in valid_keys:
             raise ValueError(f"Unknown {optimizer=}, must be one of {valid_keys}")
 
-        self.optimizer: Optimizer = (
-            getattr(optimize, optimizer) if isinstance(optimizer, str) else optimizer
-        )
+        self.optimizer: Optimizer = getattr(optimize, optimizer) if isinstance(optimizer, str) else optimizer
         self.traj_folder = traj_folder
         self.interval = interval
         self.climb = climb
@@ -77,14 +75,14 @@ class NEBCalc(PropCalc):
 
     @classmethod
     def from_end_images(
-            cls,
-            start_struct: Structure,
-            end_struct: Structure,
-            calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
-            nimages: int = 7,
-            interpolate_lattices: bool = False,
-            autosort_tol: float = 0.5,
-            **kwargs,
+        cls,
+        start_struct: Structure,
+        end_struct: Structure,
+        calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
+        nimages: int = 7,
+        interpolate_lattices: bool = False,
+        autosort_tol: float = 0.5,
+        **kwargs,
     ):
         """
         Initialize a NEBCalc from end images.
@@ -112,9 +110,9 @@ class NEBCalc(PropCalc):
         return cls(images=images, calculator=calculator, **kwargs)
 
     def calc(
-            self,
-            fmax: float = 0.1,
-            max_steps: int = 1000,
+        self,
+        fmax: float = 0.1,
+        max_steps: int = 1000,
     ):
         """
         Perform NEB calculation.
@@ -131,9 +129,7 @@ class NEBCalc(PropCalc):
             os.makedirs(self.traj_folder, exist_ok=True)
             for i in range(len(self.images)):
                 self.optimizer.attach(
-                    Trajectory(
-                        f"{self.traj_folder}/image_{i}.traj", "w", self.images[i]
-                    ),
+                    Trajectory(f"{self.traj_folder}/image_{i}.traj", "w", self.images[i]),
                     interval=self.interval,
                 )
         self.optimizer.run(fmax=fmax, steps=max_steps)
