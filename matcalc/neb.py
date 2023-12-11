@@ -109,11 +109,11 @@ class NEBCalc(PropCalc):
         )
         return cls(images=images, calculator=calculator, **kwargs)
 
-    def calc(
+    def calc(  # type: ignore[override]
         self,
         fmax: float = 0.1,
         max_steps: int = 1000,
-    ):
+    ) -> float:
         """
         Perform NEB calculation.
 
@@ -123,13 +123,13 @@ class NEBCalc(PropCalc):
             max_steps (int): Maximum number of steps in NEB calculations. Default to 1000.
 
         Returns:
-            NEB barrier.
+            float: The energy barrier in eV.
         """
         if self.traj_folder is not None:
             os.makedirs(self.traj_folder, exist_ok=True)
-            for i in range(len(self.images)):
+            for idx, img in enumerate(self.images):
                 self.optimizer.attach(
-                    Trajectory(f"{self.traj_folder}/image_{i}.traj", "w", self.images[i]),
+                    Trajectory(f"{self.traj_folder}/image_{idx}.traj", "w", img),
                     interval=self.interval,
                 )
         self.optimizer.run(fmax=fmax, steps=max_steps)
