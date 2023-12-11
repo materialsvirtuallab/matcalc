@@ -1,24 +1,19 @@
 from __future__ import annotations
 
-import contextlib
-import io
-import numpy as np
 import os
+from inspect import isclass
+from typing import Union
 
-from ase import Atoms
-from ase import optimize
+from ase import Atoms, optimize
 from ase.calculators.calculator import Calculator
 from ase.io import Trajectory
 from ase.neb import NEB, NEBTools
 from ase.optimize.optimize import Optimizer
-from ase.calculators.emt import EMT
-
-from inspect import isclass
-from matcalc.base import PropCalc
-from matcalc.util import get_universal_calculator
 from pymatgen.core import Structure
 from pymatgen.io.ase import AseAtomsAdaptor
-from typing import Union, List
+
+from matcalc.base import PropCalc
+from matcalc.util import get_universal_calculator
 
 
 class NEBCalc(PropCalc):
@@ -28,7 +23,7 @@ class NEBCalc(PropCalc):
 
     def __init__(
         self,
-        images: Union[List[Structure], List[Atoms]],
+        images: Union[list[Structure], list[Atoms]],
         calculator: Union[str, Calculator] = "M3GNet-MP-2021.2.8-DIRECT-PES",
         optimizer: Union[str, Optimizer] = "BFGS",
         traj_folder: Union[str, None] = None,
@@ -92,6 +87,7 @@ class NEBCalc(PropCalc):
     ):
         """
         Initialize a NEBCalc from end images.
+
         Args:
             start_struct(Structure): The starting image as a pymatgen Structure.
             end_struct(Structure): The ending image as a pymatgen Structure.
@@ -121,16 +117,18 @@ class NEBCalc(PropCalc):
     ):
         """
         Perform NEB calculation.
+
         Args:
             fmax (float): Convergence criteria for NEB calculations defined by Max forces.
                 Default to 0.1 eV/Angstrom.
             max_steps (int): Maximum number of steps in NEB calculations. Default to 1000.
+
         Returns:
             NEB barrier.
         """
         if self.traj_folder is not None:
             os.makedirs(self.traj_folder, exist_ok=True)
-            for i in range(0, len(self.images)):
+            for i in range(len(self.images)):
                 self.optimizer.attach(
                     Trajectory(
                         f"{self.traj_folder}/image_{i}.traj", "w", self.images[i]
