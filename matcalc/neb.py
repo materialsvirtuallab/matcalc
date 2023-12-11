@@ -127,7 +127,7 @@ class NEBCalc(PropCalc):
             os.makedirs(self.traj_folder, exist_ok=True)
             for idx, img in enumerate(self.images):
                 self.optimizer.attach(
-                    Trajectory(f"{self.traj_folder}/image_{idx}.traj", "w", img),
+                    Trajectory(f"{self.traj_folder}/image-{idx}.traj", "w", img),
                     interval=self.interval,
                 )
         self.optimizer.run(fmax=fmax, steps=max_steps)
