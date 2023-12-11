@@ -1,15 +1,21 @@
 """Tests for ElasticCalc class"""
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pytest
 
 from matcalc.elasticity import ElasticityCalc
 
+if TYPE_CHECKING:
+    from matgl.ext.ase import M3GNetCalculator
+    from pymatgen.core import Structure
 
-def test_elastic_calc(Li2O, M3GNetCalc):
+
+def test_elastic_calc(Li2O: Structure, M3GNetCalc: M3GNetCalculator) -> None:
     """Tests for ElasticCalc class"""
-    e_calc = ElasticityCalc(
+    elast_calc = ElasticityCalc(
         M3GNetCalc,
         fmax=0.1,
         norm_strains=list(np.linspace(-0.004, 0.004, num=4)),
@@ -18,7 +24,7 @@ def test_elastic_calc(Li2O, M3GNetCalc):
     )
 
     # Test Li2O with equilibrium structure
-    results = e_calc.calc(Li2O)
+    results = elast_calc.calc(Li2O)
     assert results["elastic_tensor"].shape == (3, 3, 3, 3)
     assert results["elastic_tensor"][0][1][1][0] == pytest.approx(0.5014895636122672, rel=1e-3)
     assert results["bulk_modulus_vrh"] == pytest.approx(0.6737897607182401, rel=1e-3)
@@ -28,7 +34,7 @@ def test_elastic_calc(Li2O, M3GNetCalc):
     assert results["structure"].lattice.a == pytest.approx(3.2885851104196875, rel=1e-4)
 
     # Test Li2O without the equilibrium structure
-    e_calc = ElasticityCalc(
+    elast_calc = ElasticityCalc(
         M3GNetCalc,
         fmax=0.1,
         norm_strains=list(np.linspace(-0.004, 0.004, num=4)),
@@ -36,11 +42,11 @@ def test_elastic_calc(Li2O, M3GNetCalc):
         use_equilibrium=False,
     )
 
-    results = e_calc.calc(Li2O)
+    results = elast_calc.calc(Li2O)
     assert results["residuals_sum"] == pytest.approx(2.9257237571340992e-08, rel=1e-2)
 
     # Test Li2O with float
-    e_calc = ElasticityCalc(
+    elast_calc = ElasticityCalc(
         M3GNetCalc,
         fmax=0.1,
         norm_strains=0.004,
@@ -48,12 +54,12 @@ def test_elastic_calc(Li2O, M3GNetCalc):
         use_equilibrium=True,
     )
 
-    results = e_calc.calc(Li2O)
+    results = elast_calc.calc(Li2O)
     assert results["residuals_sum"] == 0.0
     assert results["bulk_modulus_vrh"] == pytest.approx(0.6631894154825593, rel=1e-3)
 
 
-def test_elastic_calc_invalid_states(Li2O, M3GNetCalc):
+def test_elastic_calc_invalid_states(M3GNetCalc: M3GNetCalculator):
     with pytest.raises(ValueError, match="shear_strains must be nonempty"):
         ElasticityCalc(M3GNetCalc, shear_strains=[])
     with pytest.raises(ValueError, match="norm_strains must be nonempty"):

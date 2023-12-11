@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from pymatgen.analysis.elasticity import DeformedStructureSet, ElasticTensor, Strain
@@ -12,6 +12,8 @@ from .base import PropCalc
 from .relaxation import RelaxCalc
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from ase.calculators.calculator import Calculator
     from pymatgen.core import Structure
 
@@ -22,8 +24,8 @@ class ElasticityCalc(PropCalc):
     def __init__(
         self,
         calculator: Calculator,
-        norm_strains: tuple[float, ...] | float = (-0.01, -0.005, 0.005, 0.01),
-        shear_strains: tuple[float, ...] | float = (-0.06, -0.03, 0.03, 0.06),
+        norm_strains: Sequence[float] | float = (-0.01, -0.005, 0.005, 0.01),
+        shear_strains: Sequence[float] | float = (-0.06, -0.03, 0.03, 0.06),
         fmax: float = 0.1,
         relax_structure: bool = True,
         use_equilibrium: bool = True,
@@ -58,7 +60,7 @@ class ElasticityCalc(PropCalc):
         else:
             self.use_equilibrium = True
 
-    def calc(self, structure: Structure) -> dict[str, float | ElasticTensor | Structure]:
+    def calc(self, structure: Structure) -> dict[str, Any]:
         """
         Calculates elastic properties of Pymatgen structure with units determined by the calculator,
         (often the stress_weight).

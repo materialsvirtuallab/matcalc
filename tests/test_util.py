@@ -6,7 +6,7 @@ from ase.calculators.calculator import Calculator
 from matcalc.util import UNIVERSAL_CALCULATORS, get_universal_calculator
 
 
-def test_get_universal_calculator():
+def test_get_universal_calculator() -> None:
     for name in UNIVERSAL_CALCULATORS:
         calc = get_universal_calculator(name)
         assert isinstance(calc, Calculator)

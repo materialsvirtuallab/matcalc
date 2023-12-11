@@ -1,11 +1,19 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from matcalc.neb import NEBCalc
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
-def test_neb_calc(LiFePO4, M3GNetCalc, tmp_path):
+    from matgl.ext.ase import M3GNetCalculator
+    from pymatgen.core import Structure
+
+
+def test_neb_calc(LiFePO4: Structure, M3GNetCalc: M3GNetCalculator, tmp_path: Path) -> None:
     """Tests for NEBCalc class"""
     image_start = LiFePO4.copy()
     image_start.remove_sites([2])
