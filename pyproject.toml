@@ -48,11 +48,6 @@ models = ["chgnet", "mace@git+https://github.com/ACEsuit/mace", "matgl>=0.9.0"]
 [tool.setuptools]
 packages = ["matcalc"]
 
-
-[tool.black]
-line-length = 120
-target-version = ["py39"]
-
 [tool.ruff]
 target-version = "py39"
 line-length = 120

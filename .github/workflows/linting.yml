@@ -20,15 +20,12 @@ jobs:
           python-version: 3.11
       - name: Install dependencies
         run: |
-          pip install ruff black mypy
+          pip install ruff mypy
       - name: ruff
         run: |
           ruff --version
           ruff check matcalc
-      - name: black
-        run: |
-          black --version
-          black --check --diff --color matcalc
+          ruff format matcalc --check
       - name: mypy
         run: |
           mypy --version
