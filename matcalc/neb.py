@@ -1,11 +1,10 @@
+"""NEB calculations."""
 from __future__ import annotations
 
 import os
 from inspect import isclass
-from typing import Union
 
 from ase import Atoms, optimize
-from ase.calculators.calculator import Calculator
 from ase.io import Trajectory
 from ase.neb import NEB, NEBTools
 from ase.optimize.optimize import Optimizer
@@ -15,25 +14,25 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from matcalc.base import PropCalc
 from matcalc.util import get_universal_calculator
 
+if TYPE_CHECKING:
+    from ase.calculators.calculator import Calculator
 
 class NEBCalc(PropCalc):
-    """
-    Nudged Elastic Band calculator.
-    """
+    """Nudged Elastic Band calculator."""
 
     def __init__(
         self,
-        images: Union[list[Structure], list[Atoms]],
-        calculator: Union[str, Calculator] = "M3GNet-MP-2021.2.8-DIRECT-PES",
-        optimizer: Union[str, Optimizer] = "BFGS",
-        traj_folder: Union[str, None] = None,
+        images: list[Structure],
+        calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
+        optimizer: str | Optimizer = "BFGS",
+        traj_folder: str | None = None,
         interval: int = 1,
         climb: bool = True,
         **kwargs,
     ):
         """
         Args:
-            images(list): A list of ASE atoms or Pymathen structures as NEB image structures.
+            images(list): A list of pymatgen structures as NEB image structures.
             calculator(str|Calculator): ASE Calculator to use. Default to M3GNet-MP-2021.2.8-DIRECT-PES.
             optimizer(str|Optimizer): The optimization algorithm. Defaults to "BEGS".
             traj_folder(str|None): The folder address to store NEB trajectories. Default to None.
@@ -60,9 +59,9 @@ class NEBCalc(PropCalc):
         self.climb = climb
 
         self.images = []
-        for atoms in images:
-            if isinstance(atoms, Structure):
-                atoms = AseAtomsAdaptor().get_atoms(atoms)
+        for image in images:
+            if isinstance(image, Structure):
+                atoms = AseAtomsAdaptor().get_atoms(image)
             atoms.calc = get_universal_calculator(self.calculator)
             self.images.append(atoms)
 
@@ -79,7 +78,7 @@ class NEBCalc(PropCalc):
         cls,
         start_struct: Structure,
         end_struct: Structure,
-        calculator: Union[str, Calculator] = "M3GNet-MP-2021.2.8-DIRECT-PES",
+        calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
         nimages: int = 7,
         interpolate_lattices: bool = False,
         autosort_tol: float = 0.5,
