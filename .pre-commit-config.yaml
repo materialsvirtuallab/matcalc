@@ -6,7 +6,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.6
+    rev: v0.1.7
     hooks:
       - id: ruff
         args: [--fix]
@@ -30,7 +30,7 @@ repos:
     hooks:
       - id: codespell
         stages: [commit, commit-msg]
-        exclude_types: [html, svg, javascript]
+        exclude_types: [html, svg, javascript, jupyter]
         exclude: ^.+\.lock$ # ignore lock files
         additional_dependencies: [tomli] # needed to read pyproject.toml below py3.11
 

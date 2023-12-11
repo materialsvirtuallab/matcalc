@@ -42,7 +42,7 @@ def get_universal_calculator(name: str | Calculator, **kwargs) -> Calculator:
         from matgl.ext.ase import M3GNetCalculator
 
         # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
-        name = {"m3gnet": "M3GNet-MP-2021.2.8-PES"}.get(name.lower(), name)
+        name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES"}.get(name.lower(), name)
         model = matgl.load_model(name)
         kwargs.setdefault("stress_weight", 1.0 / 160.21766208)
         return M3GNetCalculator(potential=model, **kwargs)
