@@ -4,6 +4,7 @@ import pytest
 
 from matcalc.neb import NEBCalc
 
+
 def test_neb_calc(LiFePO4, M3GNetCalc):
     """Tests for NEBCalc class"""
     image_start = LiFePO4.copy()
