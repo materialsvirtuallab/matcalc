@@ -18,6 +18,7 @@ from matcalc.base import PropCalc
 from matcalc.util import get_universal_calculator
 from pymatgen.core import Structure
 from pymatgen.io.ase import AseAtomsAdaptor
+from typing import Union, List
 
 
 class NEBCalc(PropCalc):
@@ -27,22 +28,22 @@ class NEBCalc(PropCalc):
 
     def __init__(
         self,
-        images: list,
-        calculator: str = "M3GNet-MP-2021.2.8-DIRECT-PES",
-        optimizer: Optimizer | str = "BFGS",
-        traj_folder: str | None = None,
+        images: Union[List[Structure], List[Atoms]],
+        calculator: Union[str, Calculator] = "M3GNet-MP-2021.2.8-DIRECT-PES",
+        optimizer: Union[str, Optimizer] = "BFGS",
+        traj_folder: Union[str, None] = None,
         interval: int = 1,
-        climb=True,
+        climb: bool = True,
         **kwargs,
     ):
         """
         Args:
-            images: A list of ASE atoms or Pymathen structures as NEB image structures.
-            calculator: ASE Calculator to use. Default to M3GNet-MP-2021.2.8-DIRECT-PES.
-            optimizer: The optimization algorithm. Defaults to "BEGS".
-            traj_folder: The folder address to store NEB trajectories. Default to None.
-            interval: The step interval for saving the trajectories. Defaults to 1.
-            climb: Whether to enable climb image NEB. Default to True.
+            images(list): A list of ASE atoms or Pymathen structures as NEB image structures.
+            calculator(str|Calculator): ASE Calculator to use. Default to M3GNet-MP-2021.2.8-DIRECT-PES.
+            optimizer(str|Optimizer): The optimization algorithm. Defaults to "BEGS".
+            traj_folder(str|None): The folder address to store NEB trajectories. Default to None.
+            interval(int): The step interval for saving the trajectories. Defaults to 1.
+            climb(bool): Whether to enable climb image NEB. Default to True.
             kwargs: Other arguments passed to ASE NEB object.
         """
         self.images = images
@@ -83,8 +84,8 @@ class NEBCalc(PropCalc):
         cls,
         start_struct: Structure,
         end_struct: Structure,
-        calculator: "M3GNet-MP-2021.2.8-DIRECT-PES",
-        nimages: int | Iterable = 7,
+        calculator: Union[str, Calculator] = "M3GNet-MP-2021.2.8-DIRECT-PES",
+        nimages: int = 7,
         interpolate_lattices: bool = False,
         autosort_tol: float = 0.5,
         **kwargs,
@@ -92,13 +93,13 @@ class NEBCalc(PropCalc):
         """
         Initialize a NEBCalc from end images.
         Args:
-            start_struct: The starting image as a pymatgen Structure.
-            end_struct: The ending image as a pymatgen Structure.
-            calculator: ASE Calculator to use. Default to M3GNet-MP-2021.2.8-DIRECT-PES.
-            nimages: The number of intermediate image structures to create.
-            interpolate_lattices: Whether to interpolate the lattices when creating NEB
+            start_struct(Structure): The starting image as a pymatgen Structure.
+            end_struct(Structure): The ending image as a pymatgen Structure.
+            calculator(str|Calculator): ASE Calculator to use. Default to M3GNet-MP-2021.2.8-DIRECT-PES.
+            nimages(int): The number of intermediate image structures to create.
+            interpolate_lattices(bool): Whether to interpolate the lattices when creating NEB
                 path with Structure.interpolate() in pymatgen. Default to False.
-            autosort_tol: A distance tolerance in angstrom in which to automatically
+            autosort_tol(float): A distance tolerance in angstrom in which to automatically
                 sort end_struct to match to the closest points in start_struct. This
                 argument is required for Structure.interpolate() in pymatgen.
                 Default to 0.5.
@@ -115,13 +116,14 @@ class NEBCalc(PropCalc):
 
     def calc(
         self,
-        fmax=0.1,
+        fmax: float = 0.1,
         max_steps: int = 1000,
     ):
         """
         Perform NEB calculation.
         Args:
-            fmax (float): Convergence criteria for NEB calculations  Max forces.
+            fmax (float): Convergence criteria for NEB calculations defined by Max forces.
+                Default to 0.1 eV/Angstrom.
             max_steps (int): Maximum number of steps in NEB calculations. Default to 1000.
         Returns:
             NEB barrier.
