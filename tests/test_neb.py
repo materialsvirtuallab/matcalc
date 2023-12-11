@@ -11,7 +11,7 @@ def test_neb_calc(LiFePO4, M3GNetCalc, tmp_path):
     image_start.remove_sites([2])
     image_end = LiFePO4.copy()
     image_end.remove_sites([3])
-    NEBcalc = NEBCalc.from_end_images(image_start, image_end, M3GNetCalc, nimages=5, traj_folder=tmp_path)
+    NEBcalc = NEBCalc.from_end_images(image_start, image_end, M3GNetCalc, n_images=5, traj_folder=tmp_path)
     barriers = NEBcalc.calc(fmax=0.5)
     print(barriers)
     assert len(NEBcalc.neb.images) == 7

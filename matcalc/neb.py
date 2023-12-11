@@ -79,7 +79,7 @@ class NEBCalc(PropCalc):
         start_struct: Structure,
         end_struct: Structure,
         calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
-        nimages: int = 7,
+        n_images: int = 7,
         interpolate_lattices: bool = False,
         autosort_tol: float = 0.5,
         **kwargs,
@@ -91,7 +91,7 @@ class NEBCalc(PropCalc):
             start_struct(Structure): The starting image as a pymatgen Structure.
             end_struct(Structure): The ending image as a pymatgen Structure.
             calculator(str|Calculator): ASE Calculator to use. Default to M3GNet-MP-2021.2.8-DIRECT-PES.
-            nimages(int): The number of intermediate image structures to create.
+            n_images(int): The number of intermediate image structures to create.
             interpolate_lattices(bool): Whether to interpolate the lattices when creating NEB
                 path with Structure.interpolate() in pymatgen. Default to False.
             autosort_tol(float): A distance tolerance in angstrom in which to automatically
@@ -102,7 +102,7 @@ class NEBCalc(PropCalc):
         """
         images = start_struct.interpolate(
             end_struct,
-            nimages=nimages + 1,
+            n_images=n_images + 1,
             interpolate_lattices=interpolate_lattices,
             pbc=False,
             autosort_tol=autosort_tol,
@@ -110,9 +110,7 @@ class NEBCalc(PropCalc):
         return cls(images=images, calculator=calculator, **kwargs)
 
     def calc(  # type: ignore[override]
-        self,
-        fmax: float = 0.1,
-        max_steps: int = 1000,
+        self, fmax: float = 0.1, max_steps: int = 1000
     ) -> float:
         """
         Perform NEB calculation.
