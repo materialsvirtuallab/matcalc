@@ -3,8 +3,9 @@ from __future__ import annotations
 
 import os
 from inspect import isclass
+from typing import TYPE_CHECKING
 
-from ase import Atoms, optimize
+from ase import optimize
 from ase.io import Trajectory
 from ase.neb import NEB, NEBTools
 from ase.optimize.optimize import Optimizer
@@ -17,18 +18,19 @@ from matcalc.util import get_universal_calculator
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
 
+
 class NEBCalc(PropCalc):
     """Nudged Elastic Band calculator."""
 
     def __init__(
-        self,
-        images: list[Structure],
-        calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
-        optimizer: str | Optimizer = "BFGS",
-        traj_folder: str | None = None,
-        interval: int = 1,
-        climb: bool = True,
-        **kwargs,
+            self,
+            images: list[Structure],
+            calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
+            optimizer: str | Optimizer = "BFGS",
+            traj_folder: str | None = None,
+            interval: int = 1,
+            climb: bool = True,
+            **kwargs,
     ):
         """
         Args:
@@ -75,14 +77,14 @@ class NEBCalc(PropCalc):
 
     @classmethod
     def from_end_images(
-        cls,
-        start_struct: Structure,
-        end_struct: Structure,
-        calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
-        nimages: int = 7,
-        interpolate_lattices: bool = False,
-        autosort_tol: float = 0.5,
-        **kwargs,
+            cls,
+            start_struct: Structure,
+            end_struct: Structure,
+            calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
+            nimages: int = 7,
+            interpolate_lattices: bool = False,
+            autosort_tol: float = 0.5,
+            **kwargs,
     ):
         """
         Initialize a NEBCalc from end images.
@@ -110,9 +112,9 @@ class NEBCalc(PropCalc):
         return cls(images=images, calculator=calculator, **kwargs)
 
     def calc(
-        self,
-        fmax: float = 0.1,
-        max_steps: int = 1000,
+            self,
+            fmax: float = 0.1,
+            max_steps: int = 1000,
     ):
         """
         Perform NEB calculation.
