@@ -102,7 +102,7 @@ class NEBCalc(PropCalc):
         """
         images = start_struct.interpolate(
             end_struct,
-            n_images=n_images + 1,
+            nimages=n_images + 1,
             interpolate_lattices=interpolate_lattices,
             pbc=False,
             autosort_tol=autosort_tol,
