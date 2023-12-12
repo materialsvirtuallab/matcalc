@@ -1,9 +1,12 @@
 """Some utility methods, e.g., for getting calculators from well-known sources."""
+
 from __future__ import annotations
 
 import functools
+from typing import TYPE_CHECKING
 
-from ase.calculators.calculator import Calculator
+if TYPE_CHECKING:
+    from ase.calculators.calculator import Calculator
 
 # Listing of supported universal calculators.
 UNIVERSAL_CALCULATORS = (
@@ -34,7 +37,7 @@ def get_universal_calculator(name: str | Calculator, **kwargs) -> Calculator:
     Returns:
         Calculator
     """
-    if isinstance(name, Calculator):
+    if not isinstance(name, str):  # e.g. already an ase Calculator instance
         return name
 
     if name.lower().startswith("m3gnet"):
@@ -44,7 +47,7 @@ def get_universal_calculator(name: str | Calculator, **kwargs) -> Calculator:
         # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
         name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES"}.get(name.lower(), name)
         model = matgl.load_model(name)
-        kwargs.setdefault("stress_weight", 1.0 / 160.21766208)
+        kwargs.setdefault("stress_weight", 1 / 160.21766208)
         return M3GNetCalculator(potential=model, **kwargs)
 
     if name.lower() == "chgnet":
