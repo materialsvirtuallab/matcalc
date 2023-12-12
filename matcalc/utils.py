@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 import functools
+from inspect import isclass
 from typing import TYPE_CHECKING
+
+import ase.optimize
+from ase.optimize.optimize import Optimizer
 
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
@@ -61,3 +65,32 @@ def get_universal_calculator(name: str | Calculator, **kwargs) -> Calculator:
         return mace_mp(**kwargs)
 
     raise ValueError(f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}")
+
+
+def is_ase_optimizer(key: str) -> bool:
+    """Check if key is the name of an ASE optimizer class."""
+    return isclass(obj := getattr(ase.optimize, key)) and issubclass(obj, Optimizer)
+
+
+VALID_OPTIMIZERS = [key for key in dir(ase.optimize) if is_ase_optimizer(key)]
+
+
+def get_ase_optimizer(optimizer: str | Optimizer) -> Optimizer:
+    """Validate optimizer is a valid ASE Optimizer.
+
+    Args:
+        optimizer (str | Optimizer): The optimization algorithm.
+
+    Raises:
+        ValueError: on unrecognized optimizer name.
+
+    Returns:
+        Optimizer: ASE Optimizer class.
+    """
+    if isclass(optimizer) and issubclass(optimizer, Optimizer):
+        return optimizer
+
+    if optimizer not in VALID_OPTIMIZERS:
+        raise ValueError(f"Unknown {optimizer=}, must be one of {VALID_OPTIMIZERS}")
+
+    return getattr(ase.optimize, optimizer) if isinstance(optimizer, str) else optimizer
