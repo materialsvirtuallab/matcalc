@@ -4,13 +4,12 @@ from __future__ import annotations
 import contextlib
 import io
 import pickle
-from inspect import isclass
 from typing import TYPE_CHECKING
 
-from ase import optimize
 from ase.constraints import ExpCellFilter
-from ase.optimize.optimize import Optimizer
 from pymatgen.io.ase import AseAtomsAdaptor
+
+from matcalc.utils import get_ase_optimizer
 
 from .base import PropCalc
 
@@ -18,6 +17,7 @@ if TYPE_CHECKING:
     import numpy as np
     from ase import Atoms
     from ase.calculators.calculator import Calculator
+    from ase.optimize.optimize import Optimizer
     from pymatgen.core import Structure
 
 
@@ -95,15 +95,7 @@ class RelaxCalc(PropCalc):
         """
         self.calculator = calculator
 
-        # check str is valid optimizer key
-        def is_ase_optimizer(key):
-            return isclass(obj := getattr(optimize, key)) and issubclass(obj, Optimizer)
-
-        valid_keys = [key for key in dir(optimize) if is_ase_optimizer(key)]
-        if isinstance(optimizer, str) and optimizer not in valid_keys:
-            raise ValueError(f"Unknown {optimizer=}, must be one of {valid_keys}")
-
-        self.optimizer: Optimizer = getattr(optimize, optimizer) if isinstance(optimizer, str) else optimizer
+        self.optimizer = get_ase_optimizer(optimizer)
         self.fmax = fmax
         self.interval = interval
         self.max_steps = max_steps

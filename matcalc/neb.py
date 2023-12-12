@@ -2,20 +2,18 @@
 from __future__ import annotations
 
 import os
-from inspect import isclass
 from typing import TYPE_CHECKING
 
-from ase import optimize
 from ase.io import Trajectory
 from ase.neb import NEB, NEBTools
-from ase.optimize.optimize import Optimizer
 from pymatgen.core import Structure
 
 from matcalc.base import PropCalc
-from matcalc.utils import get_universal_calculator
+from matcalc.utils import get_ase_optimizer, get_universal_calculator
 
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
+    from ase.optimize.optimize import Optimizer
 
 
 class NEBCalc(PropCalc):
@@ -34,9 +32,9 @@ class NEBCalc(PropCalc):
         """
         Args:
             images(list): A list of pymatgen structures as NEB image structures.
-            calculator(str|Calculator): ASE Calculator to use. Defaults to M3GNet-MP-2021.2.8-DIRECT-PES.
-            optimizer(str|Optimizer): The optimization algorithm. Defaults to "BEGS".
-            traj_folder(str|None): The folder address to store NEB trajectories. Defaults to None.
+            calculator(str | Calculator): ASE Calculator to use. Defaults to M3GNet-MP-2021.2.8-DIRECT-PES.
+            optimizer(str | Optimizer): The optimization algorithm. Defaults to "BEGS".
+            traj_folder(str | None): The folder address to store NEB trajectories. Defaults to None.
             interval(int): The step interval for saving the trajectories. Defaults to 1.
             climb(bool): Whether to enable climb image NEB. Defaults to True.
             kwargs: Other arguments passed to ASE NEB object.
@@ -44,15 +42,7 @@ class NEBCalc(PropCalc):
         self.images = images
         self.calculator = get_universal_calculator(calculator)
 
-        # check str is valid optimizer key
-        def is_ase_optimizer(key):
-            return isclass(obj := getattr(optimize, key)) and issubclass(obj, Optimizer)
-
-        valid_keys = [key for key in dir(optimize) if is_ase_optimizer(key)]
-        if isinstance(optimizer, str) and optimizer not in valid_keys:
-            raise ValueError(f"Unknown {optimizer=}, must be one of {valid_keys}")
-
-        self.optimizer: Optimizer = getattr(optimize, optimizer) if isinstance(optimizer, str) else optimizer
+        self.optimizer = get_ase_optimizer(optimizer)
         self.traj_folder = traj_folder
         self.interval = interval
         self.climb = climb
@@ -83,7 +73,7 @@ class NEBCalc(PropCalc):
         Args:
             start_struct(Structure): The starting image as a pymatgen Structure.
             end_struct(Structure): The ending image as a pymatgen Structure.
-            calculator(str|Calculator): ASE Calculator to use. Defaults to M3GNet-MP-2021.2.8-DIRECT-PES.
+            calculator(str | Calculator): ASE Calculator to use. Defaults to M3GNet-MP-2021.2.8-DIRECT-PES.
             n_images(int): The number of intermediate image structures to create.
             interpolate_lattices(bool): Whether to interpolate the lattices when creating NEB
                 path with Structure.interpolate() in pymatgen. Defaults to False.
