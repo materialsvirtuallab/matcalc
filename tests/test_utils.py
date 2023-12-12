@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from ase.calculators.calculator import Calculator
 
-from matcalc.util import UNIVERSAL_CALCULATORS, get_universal_calculator
+from matcalc.utils import UNIVERSAL_CALCULATORS, get_universal_calculator
 
 
 def test_get_universal_calculator() -> None:
