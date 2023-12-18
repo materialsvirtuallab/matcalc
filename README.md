@@ -10,7 +10,9 @@
 [![Requires Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
 [![PyPI](https://img.shields.io/pypi/v/matcalc?logo=pypi&logoColor=white)](https://pypi.org/project/matcalc?logo=pypi&logoColor=white)
 
-[Documentation Link](https://materialsvirtuallab.github.io/matcalc/)
+## Docs
+
+[materialsvirtuallab.github.io/matcalc](https://materialsvirtuallab.github.io/matcalc)
 
 ## Introduction
 
@@ -28,3 +30,7 @@ The main base class in MatCalc is `PropCalc` (property calculator). [All `PropCa
 
 In general, `PropCalc` should be initialized with an ML model or ASE calculator, which is then used by either ASE,
 LAMMPS or some other simulation code to perform calculations of properties.
+
+## Cite `matcalc`
+
+If you use `matcalc` in your research, see [`citation.cff`](citation.cff) or the GitHub sidebar for a BibTeX and APA citation.
