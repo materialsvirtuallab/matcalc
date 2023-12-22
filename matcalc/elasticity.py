@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from ase.calculators.calculator import Calculator
+    from numpy.typing import ArrayLike
     from pymatgen.core import Structure
 
 
@@ -48,11 +49,11 @@ class ElasticityCalc(PropCalc):
         self.norm_strains = tuple(np.array([1]) * np.asarray(norm_strains))
         self.shear_strains = tuple(np.array([1]) * np.asarray(shear_strains))
         if len(self.norm_strains) == 0:
-            raise ValueError("norm_strains must be nonempty")
+            raise ValueError("norm_strains is empty")
         if len(self.shear_strains) == 0:
-            raise ValueError("shear_strains must be nonempty")
+            raise ValueError("shear_strains is empty")
         if 0 in self.norm_strains or 0 in self.shear_strains:
-            raise ValueError("Strains must be nonzero")
+            raise ValueError("strains must be non-zero")
         self.relax_structure = relax_structure
         self.fmax = fmax
         if len(self.norm_strains) > 1 and len(self.shear_strains) > 1:
@@ -112,11 +113,11 @@ class ElasticityCalc(PropCalc):
 
     def _elastic_tensor_from_strains(
         self,
-        strains,
-        stresses,
-        eq_stress=None,
+        strains: ArrayLike,
+        stresses: ArrayLike,
+        eq_stress: ArrayLike = None,
         tol: float = 1e-7,
-    ):
+    ) -> tuple[ElasticTensor, float]:
         """
         Slightly modified version of Pymatgen function
         pymatgen.analysis.elasticity.elastic.ElasticTensor.from_independent_strains;

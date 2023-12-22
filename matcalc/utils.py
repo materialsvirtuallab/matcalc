@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import functools
 from inspect import isclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import ase.optimize
 from ase.optimize.optimize import Optimizer
@@ -23,7 +23,7 @@ UNIVERSAL_CALCULATORS = (
 
 
 @functools.lru_cache
-def get_universal_calculator(name: str | Calculator, **kwargs) -> Calculator:
+def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculator:
     """
     Helper method to get some well-known **universal** calculators.
     Imports should be inside if statements to ensure that all models are optional dependencies.

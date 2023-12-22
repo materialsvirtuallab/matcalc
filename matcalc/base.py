@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import abc
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from joblib import Parallel, delayed
 
@@ -29,7 +29,7 @@ class PropCalc(metaclass=abc.ABCMeta):
         """
 
     def calc_many(
-        self, structures: Sequence[Structure], n_jobs: None | int = None, **kwargs
+        self, structures: Sequence[Structure], n_jobs: None | int = None, **kwargs: Any
     ) -> Generator[dict, None, None]:
         """
         Performs calc on many structures. The return type is a generator given that the calc method can potentially be

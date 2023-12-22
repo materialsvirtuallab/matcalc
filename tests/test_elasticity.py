@@ -59,12 +59,13 @@ def test_elastic_calc(Li2O: Structure, M3GNetCalc: M3GNetCalculator) -> None:
     assert results["bulk_modulus_vrh"] == pytest.approx(0.6631894154825593, rel=1e-3)
 
 
-def test_elastic_calc_invalid_states(M3GNetCalc: M3GNetCalculator):
-    with pytest.raises(ValueError, match="shear_strains must be nonempty"):
+def test_elastic_calc_invalid_states(M3GNetCalc: M3GNetCalculator) -> None:
+    with pytest.raises(ValueError, match="shear_strains is empty"):
         ElasticityCalc(M3GNetCalc, shear_strains=[])
-    with pytest.raises(ValueError, match="norm_strains must be nonempty"):
+    with pytest.raises(ValueError, match="norm_strains is empty"):
         ElasticityCalc(M3GNetCalc, norm_strains=[])
-    with pytest.raises(ValueError, match="Strains must be nonzero"):
+
+    with pytest.raises(ValueError, match="strains must be non-zero"):
         ElasticityCalc(M3GNetCalc, norm_strains=[0.0, 0.1])
-    with pytest.raises(ValueError, match="Strains must be nonzero"):
+    with pytest.raises(ValueError, match="strains must be non-zero"):
         ElasticityCalc(M3GNetCalc, shear_strains=[0.0, 0.1])

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from ase.io import Trajectory
 from ase.neb import NEB, NEBTools
@@ -27,8 +27,8 @@ class NEBCalc(PropCalc):
         traj_folder: str | None = None,
         interval: int = 1,
         climb: bool = True,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """
         Args:
             images(list): A list of pymatgen structures as NEB image structures.
@@ -65,8 +65,8 @@ class NEBCalc(PropCalc):
         n_images: int = 7,
         interpolate_lattices: bool = False,
         autosort_tol: float = 0.5,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> NEBCalc:
         """
         Initialize a NEBCalc from end images.
 
@@ -94,7 +94,7 @@ class NEBCalc(PropCalc):
 
     def calc(  # type: ignore[override]
         self, fmax: float = 0.1, max_steps: int = 1000
-    ) -> float:
+    ) -> tuple[float, float]:
         """
         Perform NEB calculation.
 
