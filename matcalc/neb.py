@@ -58,7 +58,7 @@ class NEBCalc(PropCalc):
 
     @classmethod
     def from_end_images(
-        cls,
+        cls: type[NEBCalc],
         start_struct: Structure,
         end_struct: Structure,
         calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",

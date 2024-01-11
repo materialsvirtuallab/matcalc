@@ -37,7 +37,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install numpy
-          pip install mace@git+https://github.com/ACEsuit/mace
           pip install --quiet -r requirements.txt -r requirements-ci.txt
           pip install -e '.[models]'
       - name: pytest
