@@ -67,9 +67,9 @@ class PhononCalc(PropCalc):
             thermal_properties:
                 {
                     temperatures: list of temperatures in Kelvin,
-                    free_energy: list of Helmholtz free energies at corresponding temperatures in eV,
-                    entropy: list of entropies at corresponding temperatures in eV/K,
-                    heat_capacity: list of heat capacities at constant volume at corresponding temperatures in eV/K^2,
+                    free_energy: list of Helmholtz free energies at corresponding temperatures in KJ/mol,
+                    entropy: list of entropies at corresponding temperatures in J/K/mol,
+                    heat_capacity: list of heat capacities at constant volume at corresponding temperatures in J/K/mol,
                 }
         }
         """
