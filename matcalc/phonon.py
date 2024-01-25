@@ -56,10 +56,7 @@ class PhononCalc(PropCalc):
 
     def calc(self, structure: Structure) -> dict:
         """
-        Calculates thermal properties of Pymatgen structure with phonopy. 
-        The units are documented in phonopy, See phonopy.Phonopy.run_thermal_properties() (https://github.com/phonopy/phonopy/blob/develop/phonopy/api_phonopy.py#L2591)
-        → phonopy.phonon.thermal_properties.ThermalProperties.run() (https://github.com/phonopy/phonopy/blob/develop/phonopy/phonon/thermal_properties.py#L498)
-        → phonopy.phonon.thermal_properties.ThermalPropertiesBase.run_free_energy(), run_entropy(), run_heat_capacity() (https://github.com/phonopy/phonopy/blob/develop/phonopy/phonon/thermal_properties.py#L217, #L233, #L225)
+        Calculates thermal properties of Pymatgen structure with phonopy.
 
         Args:
             structure: Pymatgen structure.
