@@ -67,9 +67,17 @@ class PhononCalc(PropCalc):
             thermal_properties:
                 {
                     temperatures: list of temperatures in Kelvin,
-                    free_energy: list of Helmholtz free energies at corresponding temperatures in KJ/mol,
+                    free_energy: list of Helmholtz free energies at corresponding temperatures in kJ/mol,
                     entropy: list of entropies at corresponding temperatures in J/K/mol,
                     heat_capacity: list of heat capacities at constant volume at corresponding temperatures in J/K/mol,
+                    
+                    The units are originally documented in phonopy.
+                    See phonopy.Phonopy.run_thermal_properties()
+                    (https://github.com/phonopy/phonopy/blob/develop/phonopy/api_phonopy.py#L2591)
+                    -> phonopy.phonon.thermal_properties.ThermalProperties.run()
+                    (https://github.com/phonopy/phonopy/blob/develop/phonopy/phonon/thermal_properties.py#L498)
+                    -> phonopy.phonon.thermal_properties.ThermalPropertiesBase.run_free_energy(), run_entropy(), run_heat_capacity()
+                    (https://github.com/phonopy/phonopy/blob/develop/phonopy/phonon/thermal_properties.py#L217, #L233, #L225)
                 }
         }
         """
