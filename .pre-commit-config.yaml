@@ -6,7 +6,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.11
+    rev: v0.2.2
     hooks:
       - id: ruff
         args: [--fix]
@@ -42,7 +42,7 @@ repos:
       - id: double-quote-cython-strings
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.6.1
+    rev: 0.7.1
     hooks:
       - id: nbstripout
         args: [--drop-empty-cells, --keep-output]
