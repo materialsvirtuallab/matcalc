@@ -67,9 +67,13 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
     raise ValueError(f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}")
 
 
-def is_ase_optimizer(key: str) -> bool:
+def is_ase_optimizer(key: str | Optimizer) -> bool:
     """Check if key is the name of an ASE optimizer class."""
-    return isclass(obj := getattr(ase.optimize, key)) and issubclass(obj, Optimizer)
+    if isclass(key) and issubclass(key, Optimizer):
+        return True
+    if isinstance(key, str):
+        return isclass(obj := getattr(ase.optimize, key, None)) and issubclass(obj, Optimizer)
+    return False
 
 
 VALID_OPTIMIZERS = [key for key in dir(ase.optimize) if is_ase_optimizer(key)]
