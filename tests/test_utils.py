@@ -43,3 +43,12 @@ def test_get_ase_optimizer() -> None:
         with pytest.raises(ValueError, match=f"Unknown {optimizer=}") as exc:
             get_ase_optimizer(optimizer)
         assert str(exc.value) == f"Unknown {optimizer=}, must be one of {VALID_OPTIMIZERS}"
+
+
+def test_is_ase_optimizer() -> None:
+    assert is_ase_optimizer(ase.optimize.BFGS)
+    assert is_ase_optimizer(Optimizer)
+    assert not is_ase_optimizer(Calculator)
+
+    for name in ("whatever", 42, -3.14):
+        assert not is_ase_optimizer(name)
