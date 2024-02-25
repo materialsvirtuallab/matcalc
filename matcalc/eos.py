@@ -86,7 +86,7 @@ class EOSCalc(PropCalc):
             temp_structure = result["final_structure"]
 
         for idx in np.flip(np.linspace(-self.max_abs_strain, self.max_abs_strain, self.n_points)[: self.n_points // 2]):
-            structure_strained = temp_structure.copy()
+            structure_strained = structure.copy()
             structure_strained.apply_strain(
                 (((1 + idx) ** 3 * structure.volume) / (structure_strained.volume)) ** (1 / 3) - 1
             )
