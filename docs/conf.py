@@ -346,6 +346,8 @@ def linkcode_resolve(domain, info):
         import os
 
         fn = inspect.getsourcefile(obj)
+        if not fn:
+            raise FileNotFoundError(f"Can't find file for {obj}")
         fn = os.path.relpath(fn, start=os.path.dirname(__file__))
         source, lineno = inspect.getsourcelines(obj)
         return fn, lineno, lineno + len(source) - 1

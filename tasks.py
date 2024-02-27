@@ -138,8 +138,10 @@ def release(ctx, notest: bool = False) -> None:
 def get_changelog():
     with open("changes.md") as f:
         contents = f.read()
-        m = re.search(f"## v{NEW_VER}([^#]*)", contents)
-        return m.group(1).strip()
+        match = re.search(f"## v{NEW_VER}([^#]*)", contents)
+        if not match:
+            raise ValueError("could not parse latest version from changes.md")
+        return match.group(1).strip()
 
 
 @task
