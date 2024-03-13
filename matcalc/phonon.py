@@ -30,6 +30,7 @@ class PhononCalc(PropCalc):
         t_max: float = 1000,
         t_min: float = 0,
         fmax: float = 0.1,
+        optimizer: str = "FIRE",
         relax_structure: bool = True,
     ) -> None:
         """
@@ -37,6 +38,7 @@ class PhononCalc(PropCalc):
             calculator: ASE Calculator to use.
             fmax: Max forces. This criterion is more stringent than for simple relaxation.
                 Defaults to 0.1 (in eV/Angstrom)
+            optimizer: Optimizer used for RelaxCalc
             atom_disp: Atomic displacement (in Angstrom).
             supercell_matrix: Supercell matrix to use. Defaults to 2x2x2 supercell.
             t_step: Temperature step (in Kelvin).
@@ -49,6 +51,7 @@ class PhononCalc(PropCalc):
         self.atom_disp = atom_disp
         self.supercell_matrix = supercell_matrix
         self.fmax = fmax
+        self.optimizer = optimizer
         self.relax_structure = relax_structure
         self.t_step = t_step
         self.t_max = t_max
@@ -85,7 +88,7 @@ class PhononCalc(PropCalc):
         }
         """
         if self.relax_structure:
-            relaxer = RelaxCalc(self.calculator, fmax=self.fmax)
+            relaxer = RelaxCalc(self.calculator, fmax=self.fmax, optimizer=self.optimizer)
             structure = relaxer.calc(structure)["final_structure"]
         cell = get_phonopy_structure(structure)
         phonon = phonopy.Phonopy(cell, self.supercell_matrix)
