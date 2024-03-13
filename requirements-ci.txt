@@ -5,5 +5,5 @@ coveralls
 mypy
 ruff
 black
-matgl==0.9.1
+matgl==1.0.0
 chgnet==0.2.0
