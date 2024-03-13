@@ -38,7 +38,7 @@ class PhononCalc(PropCalc):
             calculator: ASE Calculator to use.
             fmax: Max forces. This criterion is more stringent than for simple relaxation.
                 Defaults to 0.1 (in eV/Angstrom)
-            optimizer: Optimizer used for RelaxCalc
+            optimizer: Optimizer used for RelaxCalc.
             atom_disp: Atomic displacement (in Angstrom).
             supercell_matrix: Supercell matrix to use. Defaults to 2x2x2 supercell.
             t_step: Temperature step (in Kelvin).
