@@ -60,7 +60,7 @@ class PhononCalc(PropCalc):
                 Defaults to False.
             write_phonon: Whether to save phonon object. Set to True to save necesssary phonon
                 calculation results. Band structure, density of states, thermal properties,
-                etc. can be rebuilt from this file using the phonopy API via phonopy.load("phonon.yaml")
+                etc. can be rebuilt from this file using the phonopy API via phonopy.load("phonon.yaml").
         """
         self.calculator = calculator
         self.atom_disp = atom_disp
