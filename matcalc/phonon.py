@@ -51,14 +51,14 @@ class PhononCalc(PropCalc):
             t_min: Min temperature (in Kelvin).
             relax_structure: Whether to first relax the structure. Set to False if structures
                 provided are pre-relaxed with the same calculator.
-            write_force_constants: Whether to save force constants. Set to False for storage 
-                conservation. This file can be very large, be careful when doing high-throughput 
+            write_force_constants: Whether to save force constants. Set to False for storage
+                conservation. This file can be very large, be careful when doing high-throughput
                 calculations.
             write_band_structure: Whether to calculate and save band structure (in yaml format).
                 Defaults to False.
             write_total_dos: Whether to calculate and save density of states (in dat format).
                 Defaults to False.
-            write_phonon: Whether to save phonon object. Set to True to save necesssary phonon 
+            write_phonon: Whether to save phonon object. Set to True to save necesssary phonon
                 calculation results. Band structure, density of states, thermal properties,
                 etc. can be rebuilt from this file using the phonopy API via phonopy.load("phonon.yaml")
         """
@@ -119,19 +119,14 @@ class PhononCalc(PropCalc):
         phonon.produce_force_constants()
         phonon.run_mesh()
         phonon.run_thermal_properties(t_step=self.t_step, t_max=self.t_max, t_min=self.t_min)
-
         if self.write_force_constants:
             write_FORCE_CONSTANTS(phonon.force_constants, filename="FORCE_CONSTANTS")
-
         if self.write_band_structure:
             phonon.auto_band_structure(write_yaml=True, filename="phonon_band_structure.yaml")
-
         if self.write_total_dos:
             phonon.auto_total_dos(write_dat=True, filename="phonon_total_dos.dat")
-
         if self.write_phonon:
             phonon.save("phonon.yaml")
-            
         return {"phonon": phonon, "thermal_properties": phonon.get_thermal_properties_dict()}
 
 
