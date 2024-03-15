@@ -8,6 +8,7 @@ Given that the fixtures are unlikely to be modified by the underlying code, the 
 "session". In the event that future tests are written that modifies the fixtures, these can be set to the default scope
 of "function".
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
