@@ -7,4 +7,4 @@ ruff
 black
 dgl==1.1.3
 matgl==0.9.1
-chgnet==0.2.0
+chgnet
