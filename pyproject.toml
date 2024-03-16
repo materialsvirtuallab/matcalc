@@ -51,6 +51,8 @@ packages = ["matcalc"]
 [tool.ruff]
 target-version = "py39"
 line-length = 120
+
+[tool.ruff.lint]
 select = ["ALL"]
 ignore = [
     "ANN101",
@@ -63,6 +65,7 @@ ignore = [
     "EM102",
     "FBT001",
     "FBT002",
+    "ISC001",
     "PLR",     # pylint refactor
     "PLW0603", # Using the global statement to update variables is discouraged
     "PTH",     # prefer Path to os.path
@@ -73,7 +76,7 @@ exclude = ["docs/conf.py"]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "tasks.py" = ["ANN", "D", "T203"]
 "tests/*" = ["D", "INP001", "N802", "N803", "S101"]
