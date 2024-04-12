@@ -16,15 +16,15 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
-def test_phonon_calc(Li2O: Structure, M3GNetCalc: M3GNetCalculator, force_constants_tmp_path: Path, band_structure_tmp_path: Path, total_dos_tmp_path: Path, phonon_tmp_path: Path) -> None:
+def test_phonon_calc(Li2O: Structure, M3GNetCalc: M3GNetCalculator, tmp_path: Path) -> None:
     """Tests for PhononCalc class"""
     # Note that the fmax is probably too high. This is for testing purposes only.
 
     # change dir to tmp_path
-    force_constants = force_constants_tmp_path / "force_constants"
-    band_structure_yaml = band_structure_tmp_path / "band_structure.yaml"
-    total_dos_dat = total_dos_tmp_path / "total_dos.dat"
-    phonon_yaml = phonon_tmp_path / "phonon.yaml"
+    force_constants = tmp_path / "force_constants"
+    band_structure_yaml = tmp_path / "band_structure.yaml"
+    total_dos_dat = tmp_path / "total_dos.dat"
+    phonon_yaml = tmp_path / "phonon.yaml"
     phonon_calc = PhononCalc(
         M3GNetCalc,
         supercell_matrix=((2, 0, 0), (0, 2, 0), (0, 0, 2)),
