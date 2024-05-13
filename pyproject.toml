@@ -51,6 +51,7 @@ packages = ["matcalc"]
 [tool.ruff]
 target-version = "py39"
 line-length = 120
+extend-include = ["*.ipynb"]
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -75,6 +76,9 @@ ignore = [
 exclude = ["docs/conf.py"]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
+
+[tool.ruff.format]
+docstring-code-format = true
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]

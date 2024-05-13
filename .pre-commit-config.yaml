@@ -6,14 +6,14 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.3
+    rev: v0.4.4
     hooks:
       - id: ruff
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: check-yaml
         exclude: pymatgen/analysis/vesta_cutoffs.yaml
@@ -21,7 +21,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
       - id: mypy
 
@@ -35,7 +35,7 @@ repos:
         additional_dependencies: [tomli] # needed to read pyproject.toml below py3.11
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: v0.16.0
+    rev: v0.16.2
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
@@ -48,6 +48,6 @@ repos:
         args: [--drop-empty-cells, --keep-output]
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.354
+    rev: v1.1.362
     hooks:
       - id: pyright
