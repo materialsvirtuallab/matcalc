@@ -23,6 +23,7 @@ class NEBCalc(PropCalc):
     def __init__(
         self,
         images: list[Structure],
+        *,
         calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
         optimizer: str | Optimizer = "BFGS",
         traj_folder: str | None = None,
@@ -63,6 +64,7 @@ class NEBCalc(PropCalc):
         start_struct: Structure,
         end_struct: Structure,
         calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
+        *,
         n_images: int = 7,
         interpolate_lattices: bool = False,
         autosort_tol: float = 0.5,

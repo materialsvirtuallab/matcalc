@@ -128,7 +128,7 @@ def release_github(ctx):  # noqa: ARG001
 
 
 @task
-def release(ctx, notest: bool = False) -> None:
+def release(ctx, notest: bool = False) -> None:  # noqa: FBT001, FBT002
     ctx.run("rm -r dist build matcalc.egg-info", warn=True)
     if not notest:
         ctx.run("pytest tests")

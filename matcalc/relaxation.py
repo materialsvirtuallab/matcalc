@@ -73,6 +73,7 @@ class RelaxCalc(PropCalc):
     def __init__(
         self,
         calculator: Calculator,
+        *,
         optimizer: Optimizer | str = "FIRE",
         max_steps: int = 500,
         traj_file: str | None = None,

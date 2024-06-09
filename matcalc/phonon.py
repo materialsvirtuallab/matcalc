@@ -67,7 +67,8 @@ class PhononCalc(PropCalc):
     write_phonon: bool | str | Path = True
 
     def __post_init__(self) -> None:
-        # map True to canonical default path,False to "" and Path to str
+        """Set default paths for where to save output files."""
+        # map True to canonical default path, False to "" and Path to str
         for key, val, default_path in (
             ("write_force_constants", self.write_force_constants, "force_constants"),
             ("write_band_structure", self.write_band_structure, "band_structure.yaml"),
