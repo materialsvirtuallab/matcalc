@@ -19,6 +19,7 @@ UNIVERSAL_CALCULATORS = (
     "M3GNet-MP-2021.2.8-DIRECT-PES",
     "CHGNet",
     "MACE",
+    "SevenNet",
 )
 
 
@@ -63,6 +64,11 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
         from mace.calculators import mace_mp
 
         return mace_mp(**kwargs)
+
+    if name.lower() == "sevennet":
+        from sevenn.sevennet_calculator import SevenNetCalculator
+
+        return SevenNetCalculator(**kwargs)
 
     raise ValueError(f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}")
 
