@@ -7,7 +7,7 @@ import io
 import pickle
 from typing import TYPE_CHECKING
 
-from ase.constraints import ExpCellFilter
+from ase.filters import ExpCellFilter
 from pymatgen.io.ase import AseAtomsAdaptor
 
 from matcalc.utils import get_ase_optimizer
