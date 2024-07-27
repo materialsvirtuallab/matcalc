@@ -38,6 +38,7 @@ class PhononCalc(PropCalc):
         t_min (float): Min temperature (in Kelvin).
         relax_structure (bool): Whether to first relax the structure. Set to False if structures
             provided are pre-relaxed with the same calculator.
+        relax_calc_kwargs (dict): Arguments to be passed to the RelaxCalc, if relax_structure is True.
         write_force_constants (bool | str | Path): Whether to save force constants. Pass string or Path
             for custom filename. Set to False for storage conservation. This file can be very large, be
             careful when doing high-throughput. Defaults to False.
@@ -61,6 +62,7 @@ class PhononCalc(PropCalc):
     fmax: float = 0.1
     optimizer: str = "FIRE"
     relax_structure: bool = True
+    relax_calc_kwargs: dict | None = None
     write_force_constants: bool | str | Path = False
     write_band_structure: bool | str | Path = False
     write_total_dos: bool | str | Path = False
@@ -108,7 +110,9 @@ class PhononCalc(PropCalc):
         }
         """
         if self.relax_structure:
-            relaxer = RelaxCalc(self.calculator, fmax=self.fmax, optimizer=self.optimizer)
+            relaxer = RelaxCalc(
+                self.calculator, fmax=self.fmax, optimizer=self.optimizer, **(self.relax_calc_kwargs or {})
+            )
             structure = relaxer.calc(structure)["final_structure"]
         cell = get_phonopy_structure(structure)
         phonon = phonopy.Phonopy(cell, self.supercell_matrix)
