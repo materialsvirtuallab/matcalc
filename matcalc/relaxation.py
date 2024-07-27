@@ -7,7 +7,7 @@ import io
 import pickle
 from typing import TYPE_CHECKING
 
-from ase.constraints import ExpCellFilter
+from ase.filters import FrechetCellFilter
 from pymatgen.io.ase import AseAtomsAdaptor
 
 from matcalc.utils import get_ase_optimizer
@@ -129,7 +129,7 @@ class RelaxCalc(PropCalc):
         with contextlib.redirect_stdout(stream):
             obs = TrajectoryObserver(atoms)
             if self.relax_cell:
-                atoms = ExpCellFilter(atoms)
+                atoms = FrechetCellFilter(atoms)
             optimizer = self.optimizer(atoms)
             optimizer.attach(obs, interval=self.interval)
             optimizer.run(fmax=self.fmax, steps=self.max_steps)
