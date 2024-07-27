@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     import numpy as np
     from ase import Atoms
     from ase.calculators.calculator import Calculator
+    from ase.filters import Filter
     from ase.optimize.optimize import Optimizer
     from pymatgen.core import Structure
 
@@ -80,6 +81,7 @@ class RelaxCalc(PropCalc):
         interval: int = 1,
         fmax: float = 0.1,
         relax_cell: bool = True,
+        cell_filter: Filter = FrechetCellFilter,
     ) -> None:
         """
         Args:
@@ -91,6 +93,7 @@ class RelaxCalc(PropCalc):
             fmax (float): Total force tolerance for relaxation convergence.
                 fmax is a sum of force and stress forces. Defaults to 0.1 (eV/A).
             relax_cell (bool): Whether to relax the cell (or just atoms).
+            cell_filter (Filter): The ASE Filter used to relax the cell. Default is FrechetCellFilter.
 
         Raises:
             ValueError: If the optimizer is not a valid ASE optimizer.
@@ -103,6 +106,7 @@ class RelaxCalc(PropCalc):
         self.max_steps = max_steps
         self.traj_file = traj_file
         self.relax_cell = relax_cell
+        self.cell_filter = cell_filter
 
     def calc(self, structure: Structure) -> dict:
         """
@@ -129,7 +133,7 @@ class RelaxCalc(PropCalc):
         with contextlib.redirect_stdout(stream):
             obs = TrajectoryObserver(atoms)
             if self.relax_cell:
-                atoms = FrechetCellFilter(atoms)
+                atoms = self.cell_filter(atoms)
             optimizer = self.optimizer(atoms)
             optimizer.attach(obs, interval=self.interval)
             optimizer.run(fmax=self.fmax, steps=self.max_steps)
