@@ -39,7 +39,7 @@ dependencies = ["ase", "joblib", "phonopy", "pymatgen"]
 version = "0.0.4"
 
 [project.optional-dependencies]
-models = ["chgnet", "mace-torch", "matgl>=0.9.0"]
+models = ["chgnet", "mace-torch", "matgl>=0.9.0", "sevenn"]
 
 [tool.setuptools]
 packages = ["matcalc"]
