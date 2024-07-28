@@ -28,12 +28,12 @@ def test_relax_calc_single(
     assert len(missing_keys) == 0, f"{missing_keys=}"
     a, b, c, alpha, beta, gamma = final_struct.lattice.parameters
 
-    assert a == pytest.approx(expected_a, rel=0.002)
-    assert b == pytest.approx(expected_a, rel=0.002)
-    assert c == pytest.approx(expected_a, rel=0.002)
-    assert alpha == pytest.approx(60, abs=1)
-    assert beta == pytest.approx(60, abs=1)
-    assert gamma == pytest.approx(60, abs=1)
+    assert a == pytest.approx(expected_a, rel=1e-3)
+    assert b == pytest.approx(expected_a, rel=1e-3)
+    assert c == pytest.approx(expected_a, rel=1e-3)
+    assert alpha == pytest.approx(60, abs=0.5)
+    assert beta == pytest.approx(60, abs=0.5)
+    assert gamma == pytest.approx(60, abs=0.5)
     assert final_struct.volume == pytest.approx(a * b * c / 2**0.5, abs=0.1)
 
 
@@ -42,7 +42,7 @@ def test_relax_calc_many(Li2O: Structure, M3GNetCalc: M3GNetCalculator, cell_fil
     relax_calc = RelaxCalc(M3GNetCalc, optimizer="FIRE", cell_filter=cell_filter)
     results = list(relax_calc.calc_many([Li2O] * 2))
     assert len(results) == 2
-    assert results[-1]["a"] == pytest.approx(expected_a, rel=0.002)
+    assert results[-1]["a"] == pytest.approx(expected_a, rel=1e-3)
 
 
 def test_relax_calc_invalid_optimizer(M3GNetCalc: M3GNetCalculator) -> None:
