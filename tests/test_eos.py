@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from ase.constraints import ExpCellFilter
+from ase.filters import ExpCellFilter
 
 from matcalc.eos import EOSCalc
 
