@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from ase.filters import ExpCellFilter
 
 from matcalc.eos import EOSCalc
 
@@ -20,7 +21,7 @@ def test_eos_calc(
 ) -> None:
     """Tests for EOSCalc class"""
     # Note that the fmax is probably too high. This is for testing purposes only.
-    eos_calc = EOSCalc(M3GNetCalc, fmax=0.1)
+    eos_calc = EOSCalc(M3GNetCalc, fmax=0.1, relax_calc_kwargs={"cell_filter": ExpCellFilter})
     result = eos_calc.calc(Li2O)
 
     assert {*result} == {"eos", "r2_score_bm", "bulk_modulus_bm"}

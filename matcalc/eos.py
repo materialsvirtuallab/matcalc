@@ -30,6 +30,7 @@ class EOSCalc(PropCalc):
         n_points: int = 11,
         fmax: float = 0.1,
         relax_structure: bool = True,
+        relax_calc_kwargs: dict | None = None,
     ) -> None:
         """
         Args:
@@ -41,6 +42,7 @@ class EOSCalc(PropCalc):
             fmax (float): Max force for relaxation (of structure as well as atoms).
             relax_structure: Whether to first relax the structure. Set to False if structures provided are pre-relaxed
                 with the same calculator. Defaults to True.
+            relax_calc_kwargs: Arguments to be passed to the RelaxCalc, if relax_structure is True.
         """
         self.calculator = calculator
         self.optimizer = optimizer
@@ -49,6 +51,7 @@ class EOSCalc(PropCalc):
         self.max_abs_strain = max_abs_strain
         self.fmax = fmax
         self.max_steps = max_steps
+        self.relax_calc_kwargs = relax_calc_kwargs
 
     def calc(self, structure: Structure) -> dict:
         """Fit the Birch-Murnaghan equation of state.
@@ -67,12 +70,23 @@ class EOSCalc(PropCalc):
         }
         """
         if self.relax_structure:
-            relaxer = RelaxCalc(self.calculator, optimizer=self.optimizer, fmax=self.fmax, max_steps=self.max_steps)
+            relaxer = RelaxCalc(
+                self.calculator,
+                optimizer=self.optimizer,
+                fmax=self.fmax,
+                max_steps=self.max_steps,
+                **(self.relax_calc_kwargs or {}),
+            )
             structure = relaxer.calc(structure)["final_structure"]
 
         volumes, energies = [], []
         relaxer = RelaxCalc(
-            self.calculator, optimizer=self.optimizer, fmax=self.fmax, max_steps=self.max_steps, relax_cell=False
+            self.calculator,
+            optimizer=self.optimizer,
+            fmax=self.fmax,
+            max_steps=self.max_steps,
+            relax_cell=False,
+            **(self.relax_calc_kwargs or {}),
         )
 
         temp_structure = structure.copy()

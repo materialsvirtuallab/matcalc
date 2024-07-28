@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
+from ase.filters import ExpCellFilter
 
 from matcalc.elasticity import ElasticityCalc
 
@@ -22,6 +23,7 @@ def test_elastic_calc(Li2O: Structure, M3GNetCalc: M3GNetCalculator) -> None:
         norm_strains=list(np.linspace(-0.004, 0.004, num=4)),
         shear_strains=list(np.linspace(-0.004, 0.004, num=4)),
         use_equilibrium=True,
+        relax_calc_kwargs={"cell_filter": ExpCellFilter},
     )
 
     # Test Li2O with equilibrium structure
@@ -41,6 +43,7 @@ def test_elastic_calc(Li2O: Structure, M3GNetCalc: M3GNetCalculator) -> None:
         norm_strains=list(np.linspace(-0.004, 0.004, num=4)),
         shear_strains=list(np.linspace(-0.004, 0.004, num=4)),
         use_equilibrium=False,
+        relax_calc_kwargs={"cell_filter": ExpCellFilter},
     )
 
     results = elast_calc.calc(Li2O)
@@ -53,6 +56,7 @@ def test_elastic_calc(Li2O: Structure, M3GNetCalc: M3GNetCalculator) -> None:
         norm_strains=0.004,
         shear_strains=0.004,
         use_equilibrium=True,
+        relax_calc_kwargs={"cell_filter": ExpCellFilter},
     )
 
     results = elast_calc.calc(Li2O)

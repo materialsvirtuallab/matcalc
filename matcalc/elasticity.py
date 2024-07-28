@@ -31,6 +31,7 @@ class ElasticityCalc(PropCalc):
         fmax: float = 0.1,
         relax_structure: bool = True,
         use_equilibrium: bool = True,
+        relax_calc_kwargs: dict | None = None,
     ) -> None:
         """
         Args:
@@ -45,6 +46,8 @@ class ElasticityCalc(PropCalc):
             use_equilibrium: whether to use the equilibrium stress and strain. Ignored and set
                 to True if either norm_strains or shear_strains has length 1 or is a float.
                 Defaults to True.
+            relax_calc_kwargs: Arguments to be passed to the RelaxCalc, if relax_structure is True.
+
         """
         self.calculator = calculator
         self.norm_strains = tuple(np.array([1]) * np.asarray(norm_strains))
@@ -61,6 +64,7 @@ class ElasticityCalc(PropCalc):
             self.use_equilibrium = use_equilibrium
         else:
             self.use_equilibrium = True
+        self.relax_calc_kwargs = relax_calc_kwargs
 
     def calc(self, structure: Structure) -> dict[str, Any]:
         """
@@ -81,7 +85,7 @@ class ElasticityCalc(PropCalc):
         }
         """
         if self.relax_structure:
-            relax_calc = RelaxCalc(self.calculator, fmax=self.fmax)
+            relax_calc = RelaxCalc(self.calculator, fmax=self.fmax, **(self.relax_calc_kwargs or {}))
             structure = relax_calc.calc(structure)["final_structure"]
 
         deformed_structure_set = DeformedStructureSet(
