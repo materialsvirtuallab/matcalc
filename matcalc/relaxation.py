@@ -29,8 +29,7 @@ class TrajectoryObserver:
     """
 
     def __init__(self, atoms: Atoms) -> None:
-        """
-        Init the Trajectory Observer from a Atoms.
+        """Init the Trajectory Observer from a Atoms.
 
         Args:
             atoms (Atoms): Structure to observe.
@@ -83,8 +82,7 @@ class RelaxCalc(PropCalc):
         relax_cell: bool = True,
         cell_filter: Filter = FrechetCellFilter,
     ) -> None:
-        """
-        Args:
+        """Args:
             calculator: ASE Calculator to use.
             optimizer (str | ase Optimizer): The optimization algorithm. Defaults to "FIRE".
             max_steps (int): Max number of steps for relaxation. Defaults to 500.
@@ -109,8 +107,7 @@ class RelaxCalc(PropCalc):
         self.cell_filter = cell_filter
 
     def calc(self, structure: Structure) -> dict:
-        """
-        Perform relaxation to obtain properties.
+        """Perform relaxation to obtain properties.
 
         Args:
             structure: Pymatgen structure.

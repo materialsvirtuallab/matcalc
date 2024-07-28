@@ -25,8 +25,7 @@ UNIVERSAL_CALCULATORS = (
 
 @functools.lru_cache
 def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculator:
-    """
-    Helper method to get some well-known **universal** calculators.
+    """Helper method to get some well-known **universal** calculators.
     Imports should be inside if statements to ensure that all models are optional dependencies.
     All calculators must be universal, i.e. encompass a wide swath of the periodic table.
     Though matcalc can be used with any MLIP, even custom ones, this function is not meant as

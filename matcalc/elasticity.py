@@ -67,8 +67,7 @@ class ElasticityCalc(PropCalc):
         self.relax_calc_kwargs = relax_calc_kwargs
 
     def calc(self, structure: Structure) -> dict[str, Any]:
-        """
-        Calculates elastic properties of Pymatgen structure with units determined by the calculator,
+        """Calculates elastic properties of Pymatgen structure with units determined by the calculator,
         (often the stress_weight).
 
         Args:
@@ -123,8 +122,7 @@ class ElasticityCalc(PropCalc):
         eq_stress: ArrayLike = None,
         tol: float = 1e-7,
     ) -> tuple[ElasticTensor, float]:
-        """
-        Slightly modified version of Pymatgen function
+        """Slightly modified version of Pymatgen function
         pymatgen.analysis.elasticity.elastic.ElasticTensor.from_independent_strains;
         this is to give option to discard eq_stress,
         which (if the structure is relaxed) tends to sometimes be

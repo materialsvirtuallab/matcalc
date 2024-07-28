@@ -13,13 +13,12 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
-class PropCalc(metaclass=abc.ABCMeta):
+class PropCalc(abc.ABC):
     """API for a property calculator."""
 
     @abc.abstractmethod
     def calc(self, structure: Structure) -> dict:
-        """
-        All PropCalc subclasses should implement a calc method that takes in a pymatgen structure
+        """All PropCalc subclasses should implement a calc method that takes in a pymatgen structure
         and returns a dict. The method can return more than one property.
 
         Args:
@@ -32,9 +31,8 @@ class PropCalc(metaclass=abc.ABCMeta):
     def calc_many(
         self, structures: Sequence[Structure], n_jobs: None | int = None, **kwargs: Any
     ) -> Generator[dict, None, None]:
-        """
-        Performs calc on many structures. The return type is a generator given that the calc method can potentially be
-        expensive. It is trivial to convert the generator to a list/tuple.
+        """Performs calc on many structures. The return type is a generator given that the calc method can
+        potentially be expensive. It is trivial to convert the generator to a list/tuple.
 
         Args:
             structures: List or generator of Structures.

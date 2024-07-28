@@ -70,8 +70,7 @@ class NEBCalc(PropCalc):
         autosort_tol: float = 0.5,
         **kwargs: Any,
     ) -> NEBCalc:
-        """
-        Initialize a NEBCalc from end images.
+        """Initialize a NEBCalc from end images.
 
         Args:
             start_struct(Structure): The starting image as a pymatgen Structure.
@@ -98,8 +97,7 @@ class NEBCalc(PropCalc):
     def calc(  # type: ignore[override]
         self, fmax: float = 0.1, max_steps: int = 1000
     ) -> tuple[float, float]:
-        """
-        Perform NEB calculation.
+        """Perform NEB calculation.
 
         Args:
             fmax (float): Convergence criteria for NEB calculations defined by Max forces.

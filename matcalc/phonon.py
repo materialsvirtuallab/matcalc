@@ -80,8 +80,7 @@ class PhononCalc(PropCalc):
             setattr(self, key, str({True: default_path, False: ""}.get(val, val)))  # type: ignore[arg-type]
 
     def calc(self, structure: Structure) -> dict:
-        """
-        Calculates thermal properties of Pymatgen structure with phonopy.
+        """Calculates thermal properties of Pymatgen structure with phonopy.
 
         Args:
             structure: Pymatgen structure.
@@ -136,8 +135,7 @@ class PhononCalc(PropCalc):
 
 
 def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:
-    """
-    Helper to compute forces on a structure.
+    """Helper to compute forces on a structure.
 
     Args:
         calculator: ASE Calculator
