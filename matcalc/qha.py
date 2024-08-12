@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import numpy as np
-
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -16,6 +14,8 @@ from .relaxation import RelaxCalc
 from .phonon import PhononCalc
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from ase.calculators.calculator import Calculator
     from pymatgen.core import Structure
 
@@ -31,7 +31,7 @@ class QhaPhononCalc(PropCalc):
         fmax (float): Max forces. This criterion is more stringent than for simple relaxation.
             Defaults to 0.1 (in eV/Angstrom)
         optimizer (str): Optimizer used for RelaxCalc. Default to "FIRE"
-        eos (str): Equation of state used to fit F vs V, including "vinet", "murnaghan" or 
+        eos (str): Equation of state used to fit F vs V, including "vinet", "murnaghan" or
             "birch_murnaghan". Default to "vinet".
         relax_structure (bool): Whether to first relax the structure. Set to False if structures
             provided are pre-relaxed with the same calculator.
@@ -42,18 +42,18 @@ class QhaPhononCalc(PropCalc):
             Pass string or Path for custom filename. Defaults to False.
         write_volume_temperature (bool | str | Path): Whether to save equilibrium volume vs temperature in file.
             Pass string or Path for custom filename. Defaults to False.
-        write_thermal_expansion (bool | str | Path): Whether to save thermal expansion vs temperature in file. 
+        write_thermal_expansion (bool | str | Path): Whether to save thermal expansion vs temperature in file.
             Pass string or Path for custom filename. Defaults to False.
         write_gibbs_temperature (bool | str | Path): Whether to save Gibbs free energy vs temperature in file.
             Pass string or Path for custom filename. Defaults to False.
         write_bulk_modulus_temperature (bool | str | Path): Whether to save bulk modulus vs temperature in file.
             Pass string or Path for custom filename. Defaults to False.
-        write_heat_capacity_P_numerical (bool | str | Path): Whether to save heat capacity at constant pressure
-            by numerical difference vs temperature in file. Pass string or Path for custom filename. 
+        write_heat_capacity_p_numerical (bool | str | Path): Whether to save heat capacity at constant pressure
+            by numerical difference vs temperature in file. Pass string or Path for custom filename.
             Defaults to False.
-        write_heat_capacity_P_polyfit (bool | str | Path): Whether to save heat capacity at constant pressure
+        write_heat_capacity_p_polyfit (bool | str | Path): Whether to save heat capacity at constant pressure
             by fitting vs temperature in file. Pass string or Path for custom filename. Defaults to False.
-        write_gruneisen_temperature (bool | str | Path): Whether to save Grueneisen parameter vs temperature in 
+        write_gruneisen_temperature (bool | str | Path): Whether to save Grueneisen parameter vs temperature in
             file. Pass string or Path for custom filename. Defaults to False.
     """
 
@@ -73,8 +73,8 @@ class QhaPhononCalc(PropCalc):
     write_thermal_expansion: bool | str | Path = False
     write_gibbs_temperature: bool | str | Path = False
     write_bulk_modulus_temperature: bool | str | Path = False
-    write_heat_capacity_P_numerical: bool | str | Path = False
-    write_heat_capacity_P_polyfit: bool | str | Path = False
+    write_heat_capacity_p_numerical: bool | str | Path = False
+    write_heat_capacity_p_polyfit: bool | str | Path = False
     write_gruneisen_temperature: bool | str | Path = False
 
     def __post_init__(self) -> None:
@@ -86,8 +86,8 @@ class QhaPhononCalc(PropCalc):
             ("write_thermal_expansion", self.write_thermal_expansion, "thermal_expansion.dat"),
             ("write_write_gibbs_temperature", self.write_gibbs_temperature, "gibbs_temperature.dat"),
             ("write_bulk_modulus_temperature", self.write_bulk_modulus_temperature, "bulk_modulus_temperature.dat"),
-            ("write_heat_capacity_P_numerical", self.write_heat_capacity_P_numerical, "Cp_temperature.dat"),
-            ("write_heat_capacity_P_polyfit", self.write_heat_capacity_P_polyfit, "Cp_temperature_polyfit.dat"),
+            ("write_heat_capacity_p_numerical", self.write_heat_capacity_p_numerical, "Cp_temperature.dat"),
+            ("write_heat_capacity_p_polyfit", self.write_heat_capacity_p_polyfit, "Cp_temperature_polyfit.dat"),
             ("write_gruneisen_temperature", self.write_gruneisen_temperature, "gruneisen_temperature.dat"),
         ):
             setattr(self, key, str({True: default_path, False: ""}.get(val, val)))  # type: ignore[arg-type]
@@ -104,7 +104,7 @@ class QhaPhononCalc(PropCalc):
             "volumes": list of unit cell volumes at corresponding scale factors (in Angstrom^3),
             "electronic_energies": list of electronic energies at corresponding volumes (in eV),
             "temperatures": list of temperatures in ascending order (in Kelvin),
-            "thermal_expansion_coefficients": list of volumetric thermal expansion coefficients at corresponding 
+            "thermal_expansion_coefficients": list of volumetric thermal expansion coefficients at corresponding
                 temperatures (in Kelvin^-1),
             "gibbs_free_energies": list of Gibbs free energies at corresponding temperatures (in eV),
             "bulk_modulus_P": list of bulk modulus at constant presure at corresponding temperatures (in GPa),
@@ -131,7 +131,7 @@ class QhaPhononCalc(PropCalc):
             struct.scale_lattice(struct.volume*scale_factor**3)
 
             static_calc = RelaxCalc(
-                    self.calculator, relax_atoms=False, relax_cell=False)            
+                    self.calculator, relax_atoms=False, relax_cell=False)
             volumes.append(struct.volume)
             electronic_energies.append(static_calc.calc(struct)["energy"])
 
@@ -164,10 +164,10 @@ class QhaPhononCalc(PropCalc):
             qha.write_gibbs_temperature(filename=self.write_gibbs_temperature)
         if self.write_bulk_modulus_temperature:
             qha.write_bulk_modulus_temperature(filename=self.write_bulk_modulus_temperature)
-        if self.write_heat_capacity_P_numerical:
-            qha.write_heat_capacity_P_numerical(filename=self.write_heat_capacity_P_numerical)
-        if self.write_heat_capacity_P_polyfit:
-            qha.write_heat_capacity_P_polyfit(filename=self.write_heat_capacity_P_polyfit)
+        if self.write_heat_capacity_p_numerical:
+            qha.write_heat_capacity_P_numerical(filename=self.write_heat_capacity_p_numerical)
+        if self.write_heat_capacity_p_polyfit:
+            qha.write_heat_capacity_P_polyfit(filename=self.write_heat_capacity_p_polyfit)
         if self.write_gruneisen_temperature:
             qha.write_gruneisen_temperature(filename=self.write_gruneisen_temperature)
 
@@ -177,7 +177,7 @@ class QhaPhononCalc(PropCalc):
                 "temperatures": temperatures,
                 "thermal_expansion_coefficients": qha.thermal_expansion,
                 "gibbs_free_energies": qha.gibbs_temperature,
-                "bulk_modulus_P": qha.bulk_modulus_temperature,
-                "heat_capacity_P": qha.heat_capacity_P_polyfit,
+                "bulk_modulus": qha.bulk_modulus_temperature,
+                "heat_capacity": qha.heat_capacity_p_polyfit,
                 "gruneisen_parameters": qha.gruneisen_temperature,
         }
