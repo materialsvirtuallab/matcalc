@@ -146,7 +146,7 @@ class RelaxCalc(PropCalc):
             energy = obs.energies[-1]
         else:
             energy = atoms.get_potential_energy()
-            
+
         final_structure = AseAtomsAdaptor.get_structure(atoms)
         lattice = final_structure.lattice
 
