@@ -76,7 +76,7 @@ class QhaPhononCalc(PropCalc):
     write_heat_capacity_P_numerical: bool | str | Path = False
     write_heat_capacity_P_polyfit: bool | str | Path = False
     write_gruneisen_temperature: bool | str | Path = False
-    
+
     def __post_init__(self) -> None:
         """Set default paths for where to save output files."""
         # map True to canonical default path, False to "" and Path to str
@@ -129,7 +129,7 @@ class QhaPhononCalc(PropCalc):
         for scale_factor in self.scale_factors:
             struct = copy.deepcopy(structure)
             struct.scale_lattice(struct.volume*scale_factor**3)
-            
+
             static_calc = RelaxCalc(
                     self.calculator, relax_atoms=False, relax_cell=False)            
             volumes.append(struct.volume)
@@ -142,7 +142,7 @@ class QhaPhononCalc(PropCalc):
             free_energies.append(thermal_properties["free_energy"])
             entropies.append(thermal_properties["entropy"])
             heat_capacities.append(thermal_properties["heat_capacity"])
-            
+
         qha = PhonopyQHA(
             volumes=volumes,
             electronic_energies=electronic_energies,
@@ -170,7 +170,7 @@ class QhaPhononCalc(PropCalc):
             qha.write_heat_capacity_P_polyfit(filename=self.write_heat_capacity_P_polyfit)
         if self.write_gruneisen_temperature:
             qha.write_gruneisen_temperature(filename=self.write_gruneisen_temperature)
-        
+
         return {"scale_factors": self.scale_factors,
                 "volumes": volumes,
                 "electronic_energies": electronic_energies,
