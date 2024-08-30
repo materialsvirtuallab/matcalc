@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class QHACalc(PropCalc):
-    """Calculator for phonon properties under quasi-harmonic approxiamtion.
+    """Calculator for phonon properties under quasi-harmonic approximation.
 
     Args:
         calculator (Calculator): ASE Calculator to use.
@@ -94,7 +94,7 @@ class QHACalc(PropCalc):
             setattr(self, key, str({True: default_path, False: ""}.get(val, val)))  # type: ignore[arg-type]
 
     def calc(self, structure: Structure) -> dict:
-        """Calculates thermal properties of Pymatgen structure with phonopy under quasi-harmonic approxiamtion.
+        """Calculates thermal properties of Pymatgen structure with phonopy under quasi-harmonic approximation.
 
         Args:
             structure: Pymatgen structure.
@@ -106,7 +106,7 @@ class QHACalc(PropCalc):
             "volumes": list of unit cell volumes at corresponding scale factors (in Angstrom^3),
             "electronic_energies": list of electronic energies at corresponding volumes (in eV),
             "temperatures": list of temperatures in ascending order (in Kelvin),
-            "thermal_expansion_coefficients": list of volumetric thermal expansion coefficients at corresponding 
+            "thermal_expansion_coefficients": list of volumetric thermal expansion coefficients at corresponding
                 temperatures (in Kelvin^-1),
             "gibbs_free_energies": list of Gibbs free energies at corresponding temperatures (in eV),
             "bulk_modulus_P": list of bulk modulus at constant presure at corresponding temperatures (in GPa),
@@ -136,8 +136,8 @@ class QHACalc(PropCalc):
             structure: Pymatgen structure for which the properties need to be calculated.
 
         Returns:
-            Tuple containing lists of volumes, electronic energies, free energies, entropies, 
-            and heat capacities for different scale factors.
+            Tuple containing lists of volumes, electronic energies, free energies, entropies,
+                and heat capacities for different scale factors.
         """
 
         volumes = []
@@ -215,7 +215,7 @@ class QHACalc(PropCalc):
             free_energies: List of free energies corresponding to different volumes and temperatures.
             entropies: List of entropies corresponding to different volumes and temperatures.
             heat_capacities: List of heat capacities corresponding to different volumes and temperatures.
-    
+
         Returns:
             Phonopy.qha object.
         """
@@ -232,7 +232,7 @@ class QHACalc(PropCalc):
         )
 
     def _write_output_files(self, qha: PhonopyQHA) -> None:
-         """Helper to write various output files based on the QHA calculation.
+        """Helper to write various output files based on the QHA calculation.
 
         Args:
             qha: Phonopy.qha object
@@ -256,7 +256,7 @@ class QHACalc(PropCalc):
             qha.write_gruneisen_temperature(filename=self.write_gruneisen_temperature)
 
     def _generate_output_dict(self, qha: PhonopyQHA, volumes: list, electronic_energies: list) -> dict:
-            """Helper to generate the output dictionary after QHA calculation.
+        """Helper to generate the output dictionary after QHA calculation.
 
         Args:
             qha: Phonopy.qha object.
