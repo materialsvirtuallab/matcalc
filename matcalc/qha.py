@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
     from pymatgen.core import Structure
 
+
 @dataclass
 class QHACalc(PropCalc):
     """Calculator for phonon properties under quasi-harmonic approximation.
@@ -68,7 +69,19 @@ class QHACalc(PropCalc):
     relax_structure: bool = True
     relax_calc_kwargs: dict | None = None
     phonon_calc_kwargs: dict | None = None
-    scale_factors: Sequence[float] = (0.95, 0.96, 0.97, 0.98, 0.99, 1.00, 1.01, 1.02, 1.03, 1.04, 1.05)
+    scale_factors: Sequence[float] = (
+        0.95,
+        0.96,
+        0.97,
+        0.98,
+        0.99,
+        1.00,
+        1.01,
+        1.02,
+        1.03,
+        1.04,
+        1.05,
+    )
     write_helmholtz_volume: bool | str | Path = False
     write_volume_temperature: bool | str | Path = False
     write_thermal_expansion: bool | str | Path = False
@@ -82,14 +95,46 @@ class QHACalc(PropCalc):
         """Set default paths for where to save output files."""
         # map True to canonical default path, False to "" and Path to str
         for key, val, default_path in (
-            ("write_helmholtz_volume", self.write_helmholtz_volume, "helmholtz_volume.dat"),
-            ("write_volume_temperature", self.write_volume_temperature, "volume_temperature.dat"),
-            ("write_thermal_expansion", self.write_thermal_expansion, "thermal_expansion.dat"),
-            ("write_gibbs_temperature", self.write_gibbs_temperature, "gibbs_temperature.dat"),
-            ("write_bulk_modulus_temperature", self.write_bulk_modulus_temperature, "bulk_modulus_temperature.dat"),
-            ("write_heat_capacity_p_numerical", self.write_heat_capacity_p_numerical, "Cp_temperature.dat"),
-            ("write_heat_capacity_p_polyfit", self.write_heat_capacity_p_polyfit, "Cp_temperature_polyfit.dat"),
-            ("write_gruneisen_temperature", self.write_gruneisen_temperature, "gruneisen_temperature.dat"),
+            (
+                "write_helmholtz_volume",
+                self.write_helmholtz_volume,
+                "helmholtz_volume.dat",
+            ),
+            (
+                "write_volume_temperature",
+                self.write_volume_temperature,
+                "volume_temperature.dat",
+            ),
+            (
+                "write_thermal_expansion",
+                self.write_thermal_expansion,
+                "thermal_expansion.dat",
+            ),
+            (
+                "write_gibbs_temperature",
+                self.write_gibbs_temperature,
+                "gibbs_temperature.dat",
+            ),
+            (
+                "write_bulk_modulus_temperature",
+                self.write_bulk_modulus_temperature,
+                "bulk_modulus_temperature.dat",
+            ),
+            (
+                "write_heat_capacity_p_numerical",
+                self.write_heat_capacity_p_numerical,
+                "Cp_temperature.dat",
+            ),
+            (
+                "write_heat_capacity_p_polyfit",
+                self.write_heat_capacity_p_polyfit,
+                "Cp_temperature_polyfit.dat",
+            ),
+            (
+                "write_gruneisen_temperature",
+                self.write_gruneisen_temperature,
+                "gruneisen_temperature.dat",
+            ),
         ):
             setattr(self, key, str({True: default_path, False: ""}.get(val, val)))  # type: ignore[arg-type]
 
@@ -102,31 +147,35 @@ class QHACalc(PropCalc):
         Returns:
         {
             "qha": Phonopy.qha object,
-            "scale_factors": list of scale factors of lattice constants,
-            "volumes": list of unit cell volumes at corresponding scale factors (in Angstrom^3),
-            "electronic_energies": list of electronic energies at corresponding volumes (in eV),
-            "temperatures": list of temperatures in ascending order (in Kelvin),
-            "thermal_expansion_coefficients": list of volumetric thermal expansion coefficients at corresponding
+            "scale_factors": List of scale factors of lattice constants,
+            "volumes": List of unit cell volumes at corresponding scale factors (in Angstrom^3),
+            "electronic_energies": List of electronic energies at corresponding volumes (in eV),
+            "temperatures": List of temperatures in ascending order (in Kelvin),
+            "thermal_expansion_coefficients": List of volumetric thermal expansion coefficients at corresponding
                 temperatures (in Kelvin^-1),
-            "gibbs_free_energies": list of Gibbs free energies at corresponding temperatures (in eV),
-            "bulk_modulus_P": list of bulk modulus at constant presure at corresponding temperatures (in GPa),
-            "heat_capacity_P": list of heat capacities at constant pressure at corresponding temperatures (in J/K/mol),
-            "gruneisen_parameters": list of Gruneisen parameters at corresponding temperatures,
+            "gibbs_free_energies": List of Gibbs free energies at corresponding temperatures (in eV),
+            "bulk_modulus_P": List of bulk modulus at constant presure at corresponding temperatures (in GPa),
+            "heat_capacity_P": List of heat capacities at constant pressure at corresponding temperatures (in J/K/mol),
+            "gruneisen_parameters": List of Gruneisen parameters at corresponding temperatures,
         }
         """
         if self.relax_structure:
             relaxer = RelaxCalc(
-                self.calculator, fmax=self.fmax, optimizer=self.optimizer, **(self.relax_calc_kwargs or {})
+                self.calculator,
+                fmax=self.fmax,
+                optimizer=self.optimizer,
+                **(self.relax_calc_kwargs or {}),
             )
             structure = relaxer.calc(structure)["final_structure"]
 
+        temperatures = np.arange(self.t_min, self.t_max + self.t_step, self.t_step)
         volumes, electronic_energies, free_energies, entropies, heat_capacities = self._collect_properties(structure)
 
-        qha = self._create_qha(volumes, electronic_energies, free_energies, entropies, heat_capacities)
+        qha = self._create_qha(volumes, electronic_energies, temperatures, free_energies, entropies, heat_capacities)
 
         self._write_output_files(qha)
 
-        return self._generate_output_dict(qha, volumes, electronic_energies)
+        return self._generate_output_dict(qha, volumes, electronic_energies, temperatures)
 
     def _collect_properties(self, structure: Structure) -> tuple[list, list, list, list, list]:
         """Helper to collect properties like volumes, electronic energies, and thermal properties.
@@ -164,7 +213,7 @@ class QHACalc(PropCalc):
             Pymatgen structure with scaled lattice constants.
         """
         struct = copy.deepcopy(structure)
-        struct.scale_lattice(struct.volume * scale_factor ** 3)
+        struct.scale_lattice(struct.volume * scale_factor**3)
         return struct
 
     def _calculate_energy(self, structure: Structure) -> float:
@@ -189,8 +238,13 @@ class QHACalc(PropCalc):
             Dictionary of thermal properties containing free energies, entropies and heat capacities.
         """
         phonon_calc = PhononCalc(
-            self.calculator, t_step=self.t_step, t_max=self.t_max, t_min=self.t_min,
-            relax_structure=False, write_phonon=False, **(self.phonon_calc_kwargs or {})
+            self.calculator,
+            t_step=self.t_step,
+            t_max=self.t_max,
+            t_min=self.t_min,
+            relax_structure=False,
+            write_phonon=False,
+            **(self.phonon_calc_kwargs or {}),
         )
         return phonon_calc.calc(structure)["thermal_properties"]
 
@@ -198,15 +252,17 @@ class QHACalc(PropCalc):
         self,
         volumes: list,
         electronic_energies: list,
+        temperatures: list,
         free_energies: list,
         entropies: list,
-        heat_capacities: list
+        heat_capacities: list,
     ) -> PhonopyQHA:
         """Helper to create a PhonopyQHA object for quasi-harmonic approximation.
 
         Args:
             volumes: List of volumes corresponding to different scale factors.
             electronic_energies: List of electronic energies corresponding to different volumes.
+            temperatures: List of temperatures in ascending order (in Kelvin).
             free_energies: List of free energies corresponding to different volumes and temperatures.
             entropies: List of entropies corresponding to different volumes and temperatures.
             heat_capacities: List of heat capacities corresponding to different volumes and temperatures.
@@ -217,12 +273,12 @@ class QHACalc(PropCalc):
         return PhonopyQHA(
             volumes=volumes,
             electronic_energies=electronic_energies,
-            temperatures=np.arange(self.t_min, self.t_max + self.t_step, self.t_step),
+            temperatures=temperatures,
             free_energy=np.transpose(free_energies),
             entropy=np.transpose(entropies),
             cv=np.transpose(heat_capacities),
             eos=self.eos,
-            t_max=self.t_max
+            t_max=self.t_max,
         )
 
     def _write_output_files(self, qha: PhonopyQHA) -> None:
@@ -248,13 +304,16 @@ class QHACalc(PropCalc):
         if self.write_gruneisen_temperature:
             qha.write_gruneisen_temperature(filename=self.write_gruneisen_temperature)
 
-    def _generate_output_dict(self, qha: PhonopyQHA, volumes: list, electronic_energies: list) -> dict:
+    def _generate_output_dict(
+        self, qha: PhonopyQHA, volumes: list, electronic_energies: list, temperatures: list
+    ) -> dict:
         """Helper to generate the output dictionary after QHA calculation.
 
         Args:
             qha: Phonopy.qha object.
             volumes: List of volumes corresponding to different scale factors.
             electronic_energies: List of electronic energies corresponding to different volumes.
+            temperatures: List of temperatures in ascending order (in Kelvin).
 
         Returns:
             Dictionary containing the results of QHA calculation.
@@ -264,7 +323,7 @@ class QHACalc(PropCalc):
             "scale_factors": self.scale_factors,
             "volumes": volumes,
             "electronic_energies": electronic_energies,
-            "temperatures": qha.temperatures,
+            "temperatures": temperatures,
             "thermal_expansion_coefficients": qha.thermal_expansion,
             "gibbs_free_energies": qha.gibbs_temperature,
             "bulk_modulus_P": qha.bulk_modulus_temperature,
