@@ -114,7 +114,6 @@ class QHACalc(PropCalc):
             "gruneisen_parameters": list of Gruneisen parameters at corresponding temperatures,
         }
         """
-
         if self.relax_structure:
             relaxer = RelaxCalc(
                 self.calculator, fmax=self.fmax, optimizer=self.optimizer, **(self.relax_calc_kwargs or {})
@@ -139,7 +138,6 @@ class QHACalc(PropCalc):
             Tuple containing lists of volumes, electronic energies, free energies, entropies,
                 and heat capacities for different scale factors.
         """
-
         volumes = []
         electronic_energies = []
         free_energies = []
@@ -165,7 +163,6 @@ class QHACalc(PropCalc):
         Returns:
             Pymatgen structure with scaled lattice constants.
         """
-
         struct = copy.deepcopy(structure)
         struct.scale_lattice(struct.volume * scale_factor ** 3)
         return struct
@@ -179,7 +176,6 @@ class QHACalc(PropCalc):
         Returns:
             Electronic energy of the structure.
         """
-
         static_calc = RelaxCalc(self.calculator, relax_atoms=False, relax_cell=False)
         return static_calc.calc(structure)["energy"]
 
@@ -192,7 +188,6 @@ class QHACalc(PropCalc):
         Returns:
             Dictionary of thermal properties containing free energies, entropies and heat capacities.
         """
-
         phonon_calc = PhononCalc(
             self.calculator, t_step=self.t_step, t_max=self.t_max, t_min=self.t_min,
             relax_structure=False, write_phonon=False, **(self.phonon_calc_kwargs or {})
@@ -219,7 +214,6 @@ class QHACalc(PropCalc):
         Returns:
             Phonopy.qha object.
         """
-
         return PhonopyQHA(
             volumes=volumes,
             electronic_energies=electronic_energies,
@@ -237,7 +231,6 @@ class QHACalc(PropCalc):
         Args:
             qha: Phonopy.qha object
         """
-
         if self.write_helmholtz_volume:
             qha.write_helmholtz_volume(filename=self.write_helmholtz_volume)
         if self.write_volume_temperature:
@@ -266,7 +259,6 @@ class QHACalc(PropCalc):
         Returns:
             Dictionary containing the results of QHA calculation.
         """
-
         return {
             "qha": qha,
             "scale_factors": self.scale_factors,
