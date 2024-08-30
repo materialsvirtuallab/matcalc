@@ -160,13 +160,13 @@ class RelaxCalc(PropCalc):
                 "gamma": lattice.gamma,
                 "volume": lattice.volume,
             }
-        else:
-            energy = atoms.get_potential_energy()
-            forces = atoms.get_forces()
-            stresses = atoms.get_stress()
 
-            return {
-                "energy": energy,
-                "forces": forces,
-                "stress": stresses,
-            }
+        energy = atoms.get_potential_energy()
+        forces = atoms.get_forces()
+        stresses = atoms.get_stress()
+
+        return {
+            "energy": energy,
+            "forces": forces,
+            "stress": stresses,
+        }
