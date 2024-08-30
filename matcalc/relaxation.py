@@ -105,8 +105,8 @@ class RelaxCalc(PropCalc):
         self.interval = interval
         self.max_steps = max_steps
         self.traj_file = traj_file
-        self.relax_atoms = relax_atoms
         self.relax_cell = relax_cell
+        self.relax_atoms = relax_atoms
         self.cell_filter = cell_filter
 
     def calc(self, structure: Structure) -> dict:
@@ -116,8 +116,10 @@ class RelaxCalc(PropCalc):
             structure: Pymatgen structure.
 
         Returns: {
-            final_structure: final structure,
+            final_structure: final_structure,
             energy: static energy or trajectory observer final energy in eV,
+            forces: forces in eV/A,
+            stress: stress in eV/A^3,
             volume: lattice.volume in A^3,
             a: lattice.a in A,
             b: lattice.b in A,
@@ -144,20 +146,27 @@ class RelaxCalc(PropCalc):
             if self.relax_cell:
                 atoms = atoms.atoms
             energy = obs.energies[-1]
+            final_structure = AseAtomsAdaptor.get_structure(atoms)
+            lattice = final_structure.lattice
+
+            return {
+                "final_structure": final_structure,
+                "energy": energy,
+                "a": lattice.a,
+                "b": lattice.b,
+                "c": lattice.c,
+                "alpha": lattice.alpha,
+                "beta": lattice.beta,
+                "gamma": lattice.gamma,
+                "volume": lattice.volume,
+            }
         else:
             energy = atoms.get_potential_energy()
+            forces = atoms.get_forces()
+            stresses = atoms.get_stress()
 
-        final_structure = AseAtomsAdaptor.get_structure(atoms)
-        lattice = final_structure.lattice
-
-        return {
-            "final_structure": final_structure,
-            "energy": energy,
-            "a": lattice.a,
-            "b": lattice.b,
-            "c": lattice.c,
-            "alpha": lattice.alpha,
-            "beta": lattice.beta,
-            "gamma": lattice.gamma,
-            "volume": lattice.volume,
-        }
+            return {
+                "energy": energy,
+                "forces": forces,
+                "stress": stresses,
+            }
