@@ -12,6 +12,17 @@ from ase.optimize.optimize import Optimizer
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
 
+# Listing of supported customized calculators.
+CUSTOMIZED_CALCULATORS = (
+    "MatGL",
+    "MTP",
+    "GAP",
+    "NNP",
+    "SNAP",
+    "QSNAP",
+    "ACE",
+)
+
 # Listing of supported universal calculators.
 UNIVERSAL_CALCULATORS = (
     "M3GNet",
@@ -22,6 +33,68 @@ UNIVERSAL_CALCULATORS = (
     "SevenNet",
 )
 
+def get_customized_calculator(name: str | Calculator, **kwargs: Any) -> Calculator:
+    """Helper method to get some well-known **customized** calculators.
+    Imports should be inside if statements to ensure that all models are optional dependencies.
+
+    Args:
+        name (str): Name of calculator.
+        **kwargs: Passthrough to calculator init.
+
+    Raises:
+        ValueError: on unrecognized model name.
+
+    Returns:
+        Calculator
+    """
+    if not isinstance(name, str):  # e.g. already an ase Calculator instance
+        return name
+
+    if name.lower().startswith("matgl"):
+        import matgl
+        from matgl.ext.ase import M3GNetCalculator
+
+        model = matgl.load_model(path=kwargs.get("path"))
+        kwargs.setdefault("stress_weight", 1 / 160.21766208)
+        return M3GNetCalculator(potential=model, **kwargs)
+
+    if name.lower().startswith("mtp"):
+        from maml.apps.pes import MTPotential
+
+        model = MTPotential.from_config(filename=kwargs.get("filename"),
+                                        elements=kwargs.get("elements"),
+                                       )
+        return PotentialCalculator(potential=model, **kwargs)
+
+    if name.lower().startswith("gap"):
+        from maml.apps.pes import GAPotential
+
+        model = GAPotential.from_config(filename=kwargs.get("filename"))
+        return PotentialCalculator(potential=model, **kwargs)
+
+    if name.lower().startswith("nnp"):
+        from maml.apps.pes import NNPotential
+
+        model = NNPotential.from_config(input_filename=kwargs.get("input_filename"),
+                                        scaling_filename=kwargs.get("scaling_filename"),
+                                        weights_filenames=kwargs.get("weights_filenames"),
+                                       )
+        return PotentialCalculator(potential=model, **kwargs)
+
+    if name.lower().startswith(("qsnap", "snap")):
+        from maml.apps.pes import SNAPotential
+
+        model = SNAPotential.from_config(param_file=kwargs.get("param_file"),
+                                         coeff_file=kwargs.get("coeff_file"),
+                                        )
+        return PotentialCalculator(potential=model, **kwargs)
+
+    if name.lower().startswith("ace"):
+        from pyace import PyACECalculator
+
+        return PyACECalculator(**kwargs)
+
+    raise ValueError(f"Unrecognized {name=}, must be one of {CUSTOMIZED_CALCULATORS}")
 
 @functools.lru_cache
 def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculator:
@@ -103,3 +176,51 @@ def get_ase_optimizer(optimizer: str | Optimizer) -> Optimizer:
         raise ValueError(f"Unknown {optimizer=}, must be one of {VALID_OPTIMIZERS}")
 
     return getattr(ase.optimize, optimizer) if isinstance(optimizer, str) else optimizer
+
+class PotentialCalculator(Calculator):
+    """Potential calculator for ASE."""
+
+    implemented_properties = ("energy", "forces", "stress")
+
+    def __init__(self, potential, stress_weight: float = 1 / 160.21766208, **kwargs: Any):
+        """
+        Init PotentialCalculator with a Potential from maml.
+
+        Args:
+            potential (Potential): maml.apps.pes.Potential
+            stress_weight (float): conversion factor from GPa to eV/A^3, if it is set to 1.0, the unit is in GPa.
+                Default to 1 / 160.21766208.
+            **kwargs: Kwargs pass through to super().__init__().
+        """
+        super().__init__(**kwargs)
+        self.potential = potential
+        self.stress_weight = stress_weight
+    def calculate(self, atoms: Atoms | None = None, properties: list | None = None, system_changes: list | None = None):
+        """
+        Perform calculation for an input Atoms.
+
+        Args:
+            atoms (ase.Atoms): ase Atoms object
+            properties (list): list of properties to calculate
+            system_changes (list): monitor which properties of atoms were
+                changed for new calculation. If not, the previous calculation
+                results will be loaded.
+        """
+        from ase.calculators.calculator import all_changes, all_properties
+        from pymatgen.io.ase import AseAtomsAdaptor
+
+        from maml.apps.pes import EnergyForceStress
+
+        properties = properties or all_properties
+        system_changes = system_changes or all_changes
+        super().calculate(atoms=atoms, properties=properties, system_changes=system_changes)
+
+        structure = AseAtomsAdaptor.get_structure(atoms)
+        efs_calculator = EnergyForceStress(ff_settings=self.potential)
+        energy, forces, stresses = efs_calculator.calculate([structure])[0]
+
+        self.results = {
+            "energy": energy,
+            "forces": forces,
+            "stress": stresses*self.stress_weight,
+        }
