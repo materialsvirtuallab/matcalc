@@ -49,7 +49,6 @@ def get_customized_calculator(name: str | Calculator, **kwargs: Any) -> Calculat
     Returns:
         Calculator
     """
-
     if name.lower().startswith("matgl"):
         import matgl
         from matgl.ext.ase import M3GNetCalculator
@@ -61,9 +60,10 @@ def get_customized_calculator(name: str | Calculator, **kwargs: Any) -> Calculat
     if name.lower().startswith("mtp"):
         from maml.apps.pes import MTPotential
 
-        model = MTPotential.from_config(filename=kwargs.get("filename"),
-                                        elements=kwargs.get("elements"),
-                                       )
+        model = MTPotential.from_config(
+            filename=kwargs.get("filename"),
+            elements=kwargs.get("elements"),
+        )
         return PotentialCalculator(potential=model, **kwargs)
 
     if name.lower().startswith("gap"):
@@ -75,18 +75,20 @@ def get_customized_calculator(name: str | Calculator, **kwargs: Any) -> Calculat
     if name.lower().startswith("nnp"):
         from maml.apps.pes import NNPotential
 
-        model = NNPotential.from_config(input_filename=kwargs.get("input_filename"),
-                                        scaling_filename=kwargs.get("scaling_filename"),
-                                        weights_filenames=kwargs.get("weights_filenames"),
-                                       )
+        model = NNPotential.from_config(
+            input_filename=kwargs.get("input_filename"),
+            scaling_filename=kwargs.get("scaling_filename"),
+            weights_filenames=kwargs.get("weights_filenames"),
+        )
         return PotentialCalculator(potential=model, **kwargs)
 
     if name.lower().startswith(("qsnap", "snap")):
         from maml.apps.pes import SNAPotential
 
-        model = SNAPotential.from_config(param_file=kwargs.get("param_file"),
-                                         coeff_file=kwargs.get("coeff_file"),
-                                        )
+        model = SNAPotential.from_config(
+            param_file=kwargs.get("param_file"),
+            coeff_file=kwargs.get("coeff_file"),
+        )
         return PotentialCalculator(potential=model, **kwargs)
 
     if name.lower().startswith("ace"):
@@ -95,6 +97,7 @@ def get_customized_calculator(name: str | Calculator, **kwargs: Any) -> Calculat
         return PyACECalculator(**kwargs)
 
     raise ValueError(f"Unrecognized {name=}, must be one of {CUSTOMIZED_CALCULATORS}")
+
 
 @functools.lru_cache
 def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculator:
@@ -150,7 +153,9 @@ def is_ase_optimizer(key: str | Optimizer) -> bool:
     if isclass(key) and issubclass(key, Optimizer):
         return True
     if isinstance(key, str):
-        return isclass(obj := getattr(ase.optimize, key, None)) and issubclass(obj, Optimizer)
+        return isclass(obj := getattr(ase.optimize, key, None)) and issubclass(
+            obj, Optimizer
+        )
     return False
 
 
@@ -177,12 +182,18 @@ def get_ase_optimizer(optimizer: str | Optimizer) -> Optimizer:
 
     return getattr(ase.optimize, optimizer) if isinstance(optimizer, str) else optimizer
 
+
 class PotentialCalculator(Calculator):
     """Potential calculator for ASE."""
 
     implemented_properties = ("energy", "forces", "stress")
 
-    def __init__(self, potential: LMPStaticCalculator, stress_weight: float = 1 / 160.21766208, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        potential: LMPStaticCalculator,
+        stress_weight: float = 1 / 160.21766208,
+        **kwargs: Any,
+    ) -> None:
         """
         Init PotentialCalculator with a Potential from maml.
 
@@ -195,7 +206,13 @@ class PotentialCalculator(Calculator):
         super().__init__(**kwargs)
         self.potential = potential
         self.stress_weight = stress_weight
-    def calculate(self, atoms: Atoms | None = None, properties: list | None = None, system_changes: list | None = None) -> None:
+
+    def calculate(
+        self,
+        atoms: Atoms | None = None,
+        properties: list | None = None,
+        system_changes: list | None = None,
+    ) -> None:
         """
         Perform calculation for an input Atoms.
 
@@ -212,7 +229,9 @@ class PotentialCalculator(Calculator):
 
         properties = properties or all_properties
         system_changes = system_changes or all_changes
-        super().calculate(atoms=atoms, properties=properties, system_changes=system_changes)
+        super().calculate(
+            atoms=atoms, properties=properties, system_changes=system_changes
+        )
 
         structure = AseAtomsAdaptor.get_structure(atoms)
         efs_calculator = EnergyForceStress(ff_settings=self.potential)
@@ -221,5 +240,5 @@ class PotentialCalculator(Calculator):
         self.results = {
             "energy": energy,
             "forces": forces,
-            "stress": stresses*self.stress_weight,
+            "stress": stresses * self.stress_weight,
         }
