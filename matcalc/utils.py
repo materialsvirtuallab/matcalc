@@ -7,10 +7,12 @@ from inspect import isclass
 from typing import TYPE_CHECKING, Any
 
 import ase.optimize
+from ase.calculators.calculator import Calculator
 from ase.optimize.optimize import Optimizer
 
 if TYPE_CHECKING:
-    from ase.calculators.calculator import Calculator
+    from ase import Atoms
+    from maml.apps.pes._lammps import LMPStaticCalculator
 
 # Listing of supported customized calculators.
 CUSTOMIZED_CALCULATORS = (
@@ -47,8 +49,6 @@ def get_customized_calculator(name: str | Calculator, **kwargs: Any) -> Calculat
     Returns:
         Calculator
     """
-    if not isinstance(name, str):  # e.g. already an ase Calculator instance
-        return name
 
     if name.lower().startswith("matgl"):
         import matgl
@@ -182,12 +182,12 @@ class PotentialCalculator(Calculator):
 
     implemented_properties = ("energy", "forces", "stress")
 
-    def __init__(self, potential, stress_weight: float = 1 / 160.21766208, **kwargs: Any):
+    def __init__(self, potential: LMPStaticCalculator, stress_weight: float = 1 / 160.21766208, **kwargs: Any) -> None:
         """
         Init PotentialCalculator with a Potential from maml.
 
         Args:
-            potential (Potential): maml.apps.pes.Potential
+            potential (LMPStaticCalculator): maml.apps.pes._lammps.LMPStaticCalculator
             stress_weight (float): conversion factor from GPa to eV/A^3, if it is set to 1.0, the unit is in GPa.
                 Default to 1 / 160.21766208.
             **kwargs: Kwargs pass through to super().__init__().
@@ -195,7 +195,7 @@ class PotentialCalculator(Calculator):
         super().__init__(**kwargs)
         self.potential = potential
         self.stress_weight = stress_weight
-    def calculate(self, atoms: Atoms | None = None, properties: list | None = None, system_changes: list | None = None):
+    def calculate(self, atoms: Atoms | None = None, properties: list | None = None, system_changes: list | None = None) -> None:
         """
         Perform calculation for an input Atoms.
 
@@ -207,9 +207,8 @@ class PotentialCalculator(Calculator):
                 results will be loaded.
         """
         from ase.calculators.calculator import all_changes, all_properties
-        from pymatgen.io.ase import AseAtomsAdaptor
-
         from maml.apps.pes import EnergyForceStress
+        from pymatgen.io.ase import AseAtomsAdaptor
 
         properties = properties or all_properties
         system_changes = system_changes or all_changes
