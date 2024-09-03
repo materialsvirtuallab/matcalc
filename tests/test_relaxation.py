@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
     from ase.filters import Filter
     from matgl.ext.ase import M3GNetCalculator
+    from numpy.typing import ArrayLike
     from pymatgen.core import Structure
 
 
@@ -41,7 +42,7 @@ def test_relax_calc_relax_cell(
 
 @pytest.mark.parametrize("expected_a", [3.288585])
 def test_relax_calc_relax_atoms(
-    Li2O: Structure, M3GNetCalc: M3GNetCalculator, tmp_path: Path, cell_filter: Filter, expected_a: float
+    Li2O: Structure, M3GNetCalc: M3GNetCalculator, tmp_path: Path, expected_a: float
 ) -> None:
     relax_calc = RelaxCalc(
         M3GNetCalc, traj_file=f"{tmp_path}/li2o_relax.txt", optimizer="FIRE", relax_atoms=True, relax_cell=False
@@ -63,16 +64,16 @@ def test_relax_calc_relax_atoms(
     assert isinstance(energy, float)
 
 def test_static_calc(
-    Li2O: Structure, M3GNetCalc: M3GNetCalculator, tmp_path: Path, cell_filter: Filter, expected_a: float
+    Li2O: Structure, M3GNetCalc: M3GNetCalculator, tmp_path: Path
 ) -> None:
     relax_calc = RelaxCalc(
         M3GNetCalc, traj_file=f"{tmp_path}/li2o_relax.txt", relax_atoms=False, relax_cell=False
     )
     result = relax_calc.calc(Li2O)
 
-    energy = result["energy"]
-    forces = result["forces"]
-    stresses = result["stress"]
+    energy: float = result["energy"]
+    forces: ArrayLike = result["forces"]
+    stresses: ArrayLike = result["stress"]
 
     assert isinstance(forces, float)
     assert list(forces.shape) == [3, 3]
