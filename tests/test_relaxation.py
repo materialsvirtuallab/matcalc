@@ -75,7 +75,7 @@ def test_static_calc(
     forces: ArrayLike = result["forces"]
     stresses: ArrayLike = result["stress"]
 
-    assert isinstance(forces, float)
+    assert isinstance(energy, float)
     assert list(forces.shape) == [3, 3]
     assert list(stresses.shape) == [6]
 
