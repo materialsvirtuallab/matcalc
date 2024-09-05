@@ -1,6 +1,7 @@
 [project]
 name = "matcalc"
 authors = [
+    { name = "Runze Liu", email = "rul048@ucsd.edu" },
     { name = "Eliott Liu", email = "elliottliu17@gmail.com" },
     { name = "Janosh Riebesell", email = "janosh@lbl.gov" },
     { name = "Ji Qi", email = "j1qi@ucsd.edu" },
@@ -35,11 +36,11 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = ["ase>=3.23.0", "joblib", "phonopy", "pymatgen"]
+dependencies = ["ase>=3.23.0", "joblib", "phonopy", "pymatgen", "numpy<2.0.0"]
 version = "0.0.4"
 
 [project.optional-dependencies]
-models = ["chgnet>=0.3.8", "mace-torch>=0.3.6", "matgl>=0.9.0", "sevenn>=0.9.3"]
+models = ["chgnet>=0.3.8", "mace-torch>=0.3.6", "matgl>=1.0.0", "sevenn>=0.9.3", "dgl<=2.1.0", "torch<=2.2.1"]
 
 [tool.setuptools]
 packages = ["matcalc"]
