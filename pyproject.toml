@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "matcalc"
 authors = [
-
+    { name = "Runze Liu", email = "rul048@ucsd.edu" },
     { name = "Eliott Liu", email = "elliottliu17@gmail.com" },
     { name = "Ji Qi", email = "j1qi@ucsd.edu" },
     { name = "Tsz Wai Ko", email = "t1ko@ucsd.edu" },
