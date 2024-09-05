@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from pymatgen.analysis.eos import BirchMurnaghan
+from sklearn.metrics import r2_score
 
 from .base import PropCalc
 from .relaxation import RelaxCalc
@@ -22,12 +23,14 @@ class EOSCalc(PropCalc):
     def __init__(
         self,
         calculator: Calculator,
+        *,
         optimizer: Optimizer | str = "FIRE",
         max_steps: int = 500,
         max_abs_strain: float = 0.1,
         n_points: int = 11,
         fmax: float = 0.1,
         relax_structure: bool = True,
+        relax_calc_kwargs: dict | None = None,
     ) -> None:
         """
         Args:
@@ -39,6 +42,7 @@ class EOSCalc(PropCalc):
             fmax (float): Max force for relaxation (of structure as well as atoms).
             relax_structure: Whether to first relax the structure. Set to False if structures provided are pre-relaxed
                 with the same calculator. Defaults to True.
+            relax_calc_kwargs: Arguments to be passed to the RelaxCalc, if relax_structure is True.
         """
         self.calculator = calculator
         self.optimizer = optimizer
@@ -47,6 +51,7 @@ class EOSCalc(PropCalc):
         self.max_abs_strain = max_abs_strain
         self.fmax = fmax
         self.max_steps = max_steps
+        self.relax_calc_kwargs = relax_calc_kwargs
 
     def calc(self, structure: Structure) -> dict:
         """Fit the Birch-Murnaghan equation of state.
@@ -56,30 +61,62 @@ class EOSCalc(PropCalc):
 
         Returns: {
             eos: {
-                volumes: list[float] in Angstrom^3,
-                energies: list[float] in eV,
+                volumes: tuple[float] in Angstrom^3,
+                energies: tuple[float] in eV,
             },
             bulk_modulus_bm: Birch-Murnaghan bulk modulus in GPa.
+            r2_score_bm: R squared of Birch-Murnaghan fit of energies predicted by model to help detect erroneous
+            calculations. This value should be at least around 1 - 1e-4 to 1 - 1e-5.
         }
         """
         if self.relax_structure:
-            relaxer = RelaxCalc(self.calculator, optimizer=self.optimizer, fmax=self.fmax, max_steps=self.max_steps)
+            relaxer = RelaxCalc(
+                self.calculator,
+                optimizer=self.optimizer,
+                fmax=self.fmax,
+                max_steps=self.max_steps,
+                **(self.relax_calc_kwargs or {}),
+            )
             structure = relaxer.calc(structure)["final_structure"]
 
         volumes, energies = [], []
         relaxer = RelaxCalc(
-            self.calculator, optimizer=self.optimizer, fmax=self.fmax, max_steps=self.max_steps, relax_cell=False
+            self.calculator,
+            optimizer=self.optimizer,
+            fmax=self.fmax,
+            max_steps=self.max_steps,
+            relax_cell=False,
+            **(self.relax_calc_kwargs or {}),
         )
-        for idx in np.linspace(-self.max_abs_strain, self.max_abs_strain, self.n_points):
-            structure_strained = structure.copy()
-            structure_strained.apply_strain([idx, idx, idx])
+
+        temp_structure = structure.copy()
+        for idx in np.linspace(-self.max_abs_strain, self.max_abs_strain, self.n_points)[self.n_points // 2 :]:
+            structure_strained = temp_structure.copy()
+            structure_strained.apply_strain(
+                (((1 + idx) ** 3 * structure.volume) / (structure_strained.volume)) ** (1 / 3) - 1
+            )
             result = relaxer.calc(structure_strained)
             volumes.append(result["final_structure"].volume)
             energies.append(result["energy"])
+            temp_structure = result["final_structure"]
+
+        for idx in np.flip(np.linspace(-self.max_abs_strain, self.max_abs_strain, self.n_points)[: self.n_points // 2]):
+            structure_strained = structure.copy()
+            structure_strained.apply_strain(
+                (((1 + idx) ** 3 * structure.volume) / (structure_strained.volume)) ** (1 / 3) - 1
+            )
+            result = relaxer.calc(structure_strained)
+            volumes.append(result["final_structure"].volume)
+            energies.append(result["energy"])
+            temp_structure = result["final_structure"]
+
         bm = BirchMurnaghan(volumes=volumes, energies=energies)
         bm.fit()
+
+        volumes, energies = map(list, zip(*sorted(zip(volumes, energies), key=lambda i: i[0])))
 
         return {
             "eos": {"volumes": volumes, "energies": energies},
             "bulk_modulus_bm": bm.b0_GPa,
+            "r2_score_bm": r2_score(energies, bm.func(volumes)),
         }

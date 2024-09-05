@@ -1,30 +1,41 @@
 """Tests for PhononCalc class"""
+
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
+from ase.filters import ExpCellFilter
 
 from matcalc.eos import EOSCalc
 
+if TYPE_CHECKING:
+    from matgl.ext.ase import M3GNetCalculator
+    from pymatgen.core import Structure
 
-def test_eos_calc(Li2O, LiFePO4, M3GNetCalc):
+
+def test_eos_calc(
+    Li2O: Structure,
+    LiFePO4: Structure,
+    M3GNetCalc: M3GNetCalculator,
+) -> None:
     """Tests for EOSCalc class"""
-    calculator = M3GNetCalc
     # Note that the fmax is probably too high. This is for testing purposes only.
-    pcalc = EOSCalc(calculator, fmax=0.1)
-    results = pcalc.calc(Li2O)
+    eos_calc = EOSCalc(M3GNetCalc, fmax=0.1, relax_calc_kwargs={"cell_filter": ExpCellFilter})
+    result = eos_calc.calc(Li2O)
 
-    assert {*results} == {"eos", "bulk_modulus_bm"}
-    assert results["bulk_modulus_bm"] == pytest.approx(69.868, rel=1e-2)
-    assert {*results["eos"]} == {"volumes", "energies"}
-    assert results["eos"]["volumes"] == pytest.approx(
-        [18.70, 19.97, 21.30, 22.69, 24.14, 25.65, 27.22, 28.85, 30.55, 32.31, 34.14],
+    assert {*result} == {"eos", "r2_score_bm", "bulk_modulus_bm"}
+    assert result["bulk_modulus_bm"] == pytest.approx(65.57980045603279, rel=1e-2)
+    assert {*result["eos"]} == {"volumes", "energies"}
+    assert result["eos"]["volumes"] == pytest.approx(
+        [18.38, 19.63, 20.94, 22.3, 23.73, 25.21, 26.75, 28.36, 30.02, 31.76, 33.55],
         rel=1e-3,
     )
-    assert results["eos"]["energies"] == pytest.approx(
-        [-13.51, -13.78, -13.98, -14.11, -14.17, -14.19, -14.17, -14.12, -14.04, -13.94, -13.81],
+    assert result["eos"]["energies"] == pytest.approx(
+        [-13.52, -13.77, -13.94, -14.08, -14.15, -14.18, -14.16, -14.11, -14.03, -13.94, -13.83],
         rel=1e-3,
     )
-
-    results = list(pcalc.calc_many([Li2O, LiFePO4]))
+    eos_calc = EOSCalc(M3GNetCalc, relax_structure=False)
+    results = list(eos_calc.calc_many([Li2O, LiFePO4]))
     assert len(results) == 2
-    assert results[1]["bulk_modulus_bm"] == pytest.approx(60.083, rel=1e-2)
+    assert results[1]["bulk_modulus_bm"] == pytest.approx(54.5953851822073, rel=1e-2)

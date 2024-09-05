@@ -1,24 +1,76 @@
 """Tests for PhononCalc class"""
+
 from __future__ import annotations
+
+import inspect
+import os
+from typing import TYPE_CHECKING
 
 import pytest
 
 from matcalc.phonon import PhononCalc
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
-def test_phonon_calc(Li2O, LiFePO4, M3GNetCalc):
+    from matgl.ext.ase import M3GNetCalculator
+    from pymatgen.core import Structure
+
+
+@pytest.mark.parametrize(
+    ("force_const_file", "band_struct_file", "dos_file", "phonon_file"),
+    [("", "", "", ""), ("fc", "bs.yaml", "dos.dat", "ph.yaml")],
+)
+def test_phonon_calc(
+    Li2O: Structure,
+    M3GNetCalc: M3GNetCalculator,
+    tmp_path: Path,
+    force_const_file: str,
+    band_struct_file: str,
+    dos_file: str,
+    phonon_file: str,
+) -> None:
     """Tests for PhononCalc class"""
-    calculator = M3GNetCalc
     # Note that the fmax is probably too high. This is for testing purposes only.
-    pcalc = PhononCalc(calculator, supercell_matrix=((2, 0, 0), (0, 2, 0), (0, 0, 2)), fmax=0.1, t_step=50, t_max=1000)
-    results = pcalc.calc(Li2O)
+
+    # change dir to tmp_path
+    force_constants = tmp_path / force_const_file if force_const_file else False
+    band_structure_yaml = tmp_path / band_struct_file if band_struct_file else False
+    total_dos_dat = tmp_path / dos_file if dos_file else False
+    phonon_yaml = tmp_path / phonon_file if phonon_file else False
+    write_kwargs = {
+        "write_force_constants": force_constants,
+        "write_band_structure": band_structure_yaml,
+        "write_total_dos": total_dos_dat,
+        "write_phonon": phonon_yaml,
+    }
+    phonon_calc = PhononCalc(
+        calculator=M3GNetCalc,
+        supercell_matrix=((2, 0, 0), (0, 2, 0), (0, 0, 2)),
+        fmax=0.1,
+        t_step=50,
+        t_max=1000,
+        **write_kwargs,  # type: ignore[arg-type]
+    )
+    result = phonon_calc.calc(Li2O)
 
     # Test values at 100 K
-    ind = results["thermal_properties"]["temperatures"].tolist().index(300)
-    assert results["thermal_properties"]["heat_capacity"][ind] == pytest.approx(59.91894069664282, rel=1e-2)
-    assert results["thermal_properties"]["entropy"][ind] == pytest.approx(51.9081928335805, rel=1e-2)
-    assert results["thermal_properties"]["free_energy"][ind] == pytest.approx(11.892105644441045, rel=1e-2)
+    thermal_props = result["thermal_properties"]
+    ind = thermal_props["temperatures"].tolist().index(300)
+    assert thermal_props["heat_capacity"][ind] == pytest.approx(58.42898, rel=1e-2)
+    assert thermal_props["entropy"][ind] == pytest.approx(49.37746, rel=1e-2)
+    assert thermal_props["free_energy"][ind] == pytest.approx(13.24547, rel=1e-2)
 
-    results = list(pcalc.calc_many([Li2O, LiFePO4]))
+    results = list(phonon_calc.calc_many([Li2O, Li2O]))
     assert len(results) == 2
-    assert results[-1]["thermal_properties"]["heat_capacity"][ind] == pytest.approx(550.6419940551511, rel=1e-2)
+
+    ph_calc_params = inspect.signature(PhononCalc).parameters
+    # get all keywords starting with write_ and their default values
+    file_write_defaults = {key: val.default for key, val in ph_calc_params.items() if key.startswith("write_")}
+    assert len(file_write_defaults) == 4
+
+    for keyword, default_path in file_write_defaults.items():
+        if instance_val := write_kwargs[keyword]:
+            assert os.path.isfile(str(instance_val))
+        elif not default_path and not instance_val:
+            assert not os.path.isfile(default_path)

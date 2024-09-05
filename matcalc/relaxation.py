@@ -1,16 +1,16 @@
 """Relaxation properties."""
+
 from __future__ import annotations
 
 import contextlib
 import io
 import pickle
-from inspect import isclass
 from typing import TYPE_CHECKING
 
-from ase import optimize
-from ase.constraints import ExpCellFilter
-from ase.optimize.optimize import Optimizer
+from ase.filters import FrechetCellFilter
 from pymatgen.io.ase import AseAtomsAdaptor
+
+from matcalc.utils import get_ase_optimizer
 
 from .base import PropCalc
 
@@ -18,6 +18,8 @@ if TYPE_CHECKING:
     import numpy as np
     from ase import Atoms
     from ase.calculators.calculator import Calculator
+    from ase.filters import Filter
+    from ase.optimize.optimize import Optimizer
     from pymatgen.core import Structure
 
 
@@ -27,8 +29,7 @@ class TrajectoryObserver:
     """
 
     def __init__(self, atoms: Atoms) -> None:
-        """
-        Init the Trajectory Observer from a Atoms.
+        """Init the Trajectory Observer from a Atoms.
 
         Args:
             atoms (Atoms): Structure to observe.
@@ -72,15 +73,16 @@ class RelaxCalc(PropCalc):
     def __init__(
         self,
         calculator: Calculator,
+        *,
         optimizer: Optimizer | str = "FIRE",
         max_steps: int = 500,
         traj_file: str | None = None,
         interval: int = 1,
         fmax: float = 0.1,
         relax_cell: bool = True,
+        cell_filter: Filter = FrechetCellFilter,
     ) -> None:
-        """
-        Args:
+        """Args:
             calculator: ASE Calculator to use.
             optimizer (str | ase Optimizer): The optimization algorithm. Defaults to "FIRE".
             max_steps (int): Max number of steps for relaxation. Defaults to 500.
@@ -89,30 +91,23 @@ class RelaxCalc(PropCalc):
             fmax (float): Total force tolerance for relaxation convergence.
                 fmax is a sum of force and stress forces. Defaults to 0.1 (eV/A).
             relax_cell (bool): Whether to relax the cell (or just atoms).
+            cell_filter (Filter): The ASE Filter used to relax the cell. Default is FrechetCellFilter.
 
         Raises:
             ValueError: If the optimizer is not a valid ASE optimizer.
         """
         self.calculator = calculator
 
-        # check str is valid optimizer key
-        def is_ase_optimizer(key):
-            return isclass(obj := getattr(optimize, key)) and issubclass(obj, Optimizer)
-
-        valid_keys = [key for key in dir(optimize) if is_ase_optimizer(key)]
-        if isinstance(optimizer, str) and optimizer not in valid_keys:
-            raise ValueError(f"Unknown {optimizer=}, must be one of {valid_keys}")
-
-        self.optimizer: Optimizer = getattr(optimize, optimizer) if isinstance(optimizer, str) else optimizer
+        self.optimizer = get_ase_optimizer(optimizer)
         self.fmax = fmax
         self.interval = interval
         self.max_steps = max_steps
         self.traj_file = traj_file
         self.relax_cell = relax_cell
+        self.cell_filter = cell_filter
 
     def calc(self, structure: Structure) -> dict:
-        """
-        Perform relaxation to obtain properties.
+        """Perform relaxation to obtain properties.
 
         Args:
             structure: Pymatgen structure.
@@ -135,7 +130,7 @@ class RelaxCalc(PropCalc):
         with contextlib.redirect_stdout(stream):
             obs = TrajectoryObserver(atoms)
             if self.relax_cell:
-                atoms = ExpCellFilter(atoms)
+                atoms = self.cell_filter(atoms)
             optimizer = self.optimizer(atoms)
             optimizer.attach(obs, interval=self.interval)
             optimizer.run(fmax=self.fmax, steps=self.max_steps)

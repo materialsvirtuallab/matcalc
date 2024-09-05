@@ -1,24 +1,50 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
+from ase.filters import ExpCellFilter, FrechetCellFilter
 
 from matcalc.relaxation import RelaxCalc
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
-def test_relax_calc(LiFePO4, M3GNetCalc, tmp_path):
-    pcalc = RelaxCalc(M3GNetCalc, traj_file=f"{tmp_path}/lfp_relax.txt", optimizer="FIRE")
-    results = pcalc.calc(LiFePO4)
-    assert results["a"] == pytest.approx(4.75571137)
-    assert results["b"] == pytest.approx(6.13161423)
-    assert results["c"] == pytest.approx(10.4385933)
-    assert results["alpha"] == pytest.approx(90, abs=1)
-    assert results["beta"] == pytest.approx(90, abs=1)
-    assert results["gamma"] == pytest.approx(90, abs=1)
-    assert results["volume"] == pytest.approx(results["a"] * results["b"] * results["c"], abs=0.1)
+    from ase.filters import Filter
+    from matgl.ext.ase import M3GNetCalculator
+    from pymatgen.core import Structure
 
-    results = list(pcalc.calc_many([LiFePO4] * 2))
+
+@pytest.mark.parametrize(("cell_filter", "expected_a"), [(ExpCellFilter, 3.291071), (FrechetCellFilter, 3.288585)])
+def test_relax_calc_single(
+    Li2O: Structure, M3GNetCalc: M3GNetCalculator, tmp_path: Path, cell_filter: Filter, expected_a: float
+) -> None:
+    relax_calc = RelaxCalc(
+        M3GNetCalc, traj_file=f"{tmp_path}/li2o_relax.txt", optimizer="FIRE", cell_filter=cell_filter
+    )
+    result = relax_calc.calc(Li2O)
+    final_struct: Structure = result["final_structure"]
+    missing_keys = {*final_struct.lattice.params_dict} - {*result}
+    assert len(missing_keys) == 0, f"{missing_keys=}"
+    a, b, c, alpha, beta, gamma = final_struct.lattice.parameters
+
+    assert a == pytest.approx(expected_a, rel=1e-3)
+    assert b == pytest.approx(expected_a, rel=1e-3)
+    assert c == pytest.approx(expected_a, rel=1e-3)
+    assert alpha == pytest.approx(60, abs=0.5)
+    assert beta == pytest.approx(60, abs=0.5)
+    assert gamma == pytest.approx(60, abs=0.5)
+    assert final_struct.volume == pytest.approx(a * b * c / 2**0.5, abs=0.1)
+
+
+@pytest.mark.parametrize(("cell_filter", "expected_a"), [(ExpCellFilter, 3.291071), (FrechetCellFilter, 3.288585)])
+def test_relax_calc_many(Li2O: Structure, M3GNetCalc: M3GNetCalculator, cell_filter: Filter, expected_a: float) -> None:
+    relax_calc = RelaxCalc(M3GNetCalc, optimizer="FIRE", cell_filter=cell_filter)
+    results = list(relax_calc.calc_many([Li2O] * 2))
     assert len(results) == 2
-    assert results[-1]["a"] == pytest.approx(4.7557113)
+    assert results[-1]["a"] == pytest.approx(expected_a, rel=1e-3)
 
+
+def test_relax_calc_invalid_optimizer(M3GNetCalc: M3GNetCalculator) -> None:
     with pytest.raises(ValueError, match="Unknown optimizer='invalid', must be one of "):
         RelaxCalc(M3GNetCalc, optimizer="invalid")

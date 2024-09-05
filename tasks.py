@@ -67,8 +67,6 @@ def make_docs(ctx):
         ctx.run("cp ../README.md index.md", warn=True)
         ctx.run("rm matcalc.*.rst", warn=True)
         ctx.run("sphinx-apidoc -P -M -d 6 -o . -f ../matcalc")
-        # ctx.run("rm matcalc*.html", warn=True)
-        # ctx.run("sphinx-build -b html . ../docs")  # HTML building.
         ctx.run("cp modules.rst index.rst")
         ctx.run("sphinx-build -M markdown . .")
         ctx.run("rm *.rst", warn=True)
@@ -110,7 +108,7 @@ def publish(ctx):
 
 
 @task
-def release_github(ctx):
+def release_github(ctx):  # noqa: ARG001
     desc = get_changelog()
     payload = {
         "tag_name": "v" + NEW_VER,
@@ -124,27 +122,29 @@ def release_github(ctx):
         "https://api.github.com/repos/materialsvirtuallab/matcalc/releases",
         data=json.dumps(payload),
         headers={"Authorization": "token " + os.environ["GITHUB_RELEASES_TOKEN"]},
+        timeout=10,
     )
     pprint(response.json())
 
 
 @task
-def release(ctx, notest=False):
+def release(ctx, notest: bool = False) -> None:  # noqa: FBT001, FBT002
     ctx.run("rm -r dist build matcalc.egg-info", warn=True)
     if not notest:
         ctx.run("pytest tests")
-    # publish(ctx)
     release_github(ctx)
 
 
 def get_changelog():
     with open("changes.md") as f:
         contents = f.read()
-        m = re.search(f"## v{NEW_VER}([^#]*)", contents)
-        return m.group(1).strip()
+        match = re.search(f"## v{NEW_VER}([^#]*)", contents)
+        if not match:
+            raise ValueError("could not parse latest version from changes.md")
+        return match.group(1).strip()
 
 
 @task
-def view_docs(ctx):
+def view_docs(ctx) -> None:
     with cd("docs"):
         ctx.run("bundle exec jekyll serve")
