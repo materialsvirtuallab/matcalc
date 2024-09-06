@@ -79,7 +79,7 @@ def test_relax_calc_relax_atoms(
 
 
 @pytest.mark.parametrize(
-    ("expected_energy", "expected_forces", "expected_stress"),
+    ("expected_energy", "expected_forces", "expected_stresses"),
     [
         (
             -14.176743,
