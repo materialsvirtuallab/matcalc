@@ -79,6 +79,7 @@ class RelaxCalc(PropCalc):
         traj_file: str | None = None,
         interval: int = 1,
         fmax: float = 0.1,
+        relax_atoms: bool = True,
         relax_cell: bool = True,
         cell_filter: Filter = FrechetCellFilter,
     ) -> None:
@@ -90,6 +91,7 @@ class RelaxCalc(PropCalc):
             interval (int): The step interval for saving the trajectories. Defaults to 1.
             fmax (float): Total force tolerance for relaxation convergence.
                 fmax is a sum of force and stress forces. Defaults to 0.1 (eV/A).
+            relax_atoms (bool): Whether to relax the atoms (or just static calculation).
             relax_cell (bool): Whether to relax the cell (or just atoms).
             cell_filter (Filter): The ASE Filter used to relax the cell. Default is FrechetCellFilter.
 
@@ -104,6 +106,7 @@ class RelaxCalc(PropCalc):
         self.max_steps = max_steps
         self.traj_file = traj_file
         self.relax_cell = relax_cell
+        self.relax_atoms = relax_atoms
         self.cell_filter = cell_filter
 
     def calc(self, structure: Structure) -> dict:
@@ -114,7 +117,9 @@ class RelaxCalc(PropCalc):
 
         Returns: {
             final_structure: final_structure,
-            energy: trajectory observer final energy in eV,
+            energy: static energy or trajectory observer final energy in eV,
+            forces: forces in eV/A,
+            stress: stress in eV/A^3,
             volume: lattice.volume in A^3,
             a: lattice.a in A,
             b: lattice.b in A,
@@ -126,31 +131,42 @@ class RelaxCalc(PropCalc):
         """
         atoms = AseAtomsAdaptor.get_atoms(structure)
         atoms.calc = self.calculator
-        stream = io.StringIO()
-        with contextlib.redirect_stdout(stream):
-            obs = TrajectoryObserver(atoms)
+        if self.relax_atoms:
+            stream = io.StringIO()
+            with contextlib.redirect_stdout(stream):
+                obs = TrajectoryObserver(atoms)
+                if self.relax_cell:
+                    atoms = self.cell_filter(atoms)
+                optimizer = self.optimizer(atoms)
+                optimizer.attach(obs, interval=self.interval)
+                optimizer.run(fmax=self.fmax, steps=self.max_steps)
+                if self.traj_file is not None:
+                    obs()
+                    obs.save(self.traj_file)
             if self.relax_cell:
-                atoms = self.cell_filter(atoms)
-            optimizer = self.optimizer(atoms)
-            optimizer.attach(obs, interval=self.interval)
-            optimizer.run(fmax=self.fmax, steps=self.max_steps)
-            if self.traj_file is not None:
-                obs()
-                obs.save(self.traj_file)
-        if self.relax_cell:
-            atoms = atoms.atoms
+                atoms = atoms.atoms
+            energy = obs.energies[-1]
+            final_structure = AseAtomsAdaptor.get_structure(atoms)
+            lattice = final_structure.lattice
 
-        final_structure = AseAtomsAdaptor.get_structure(atoms)
-        lattice = final_structure.lattice
+            return {
+                "final_structure": final_structure,
+                "energy": energy,
+                "a": lattice.a,
+                "b": lattice.b,
+                "c": lattice.c,
+                "alpha": lattice.alpha,
+                "beta": lattice.beta,
+                "gamma": lattice.gamma,
+                "volume": lattice.volume,
+            }
+
+        energy = atoms.get_potential_energy()
+        forces = atoms.get_forces()
+        stresses = atoms.get_stress()
 
         return {
-            "final_structure": final_structure,
-            "energy": obs.energies[-1],
-            "a": lattice.a,
-            "b": lattice.b,
-            "c": lattice.c,
-            "alpha": lattice.alpha,
-            "beta": lattice.beta,
-            "gamma": lattice.gamma,
-            "volume": lattice.volume,
+            "energy": energy,
+            "forces": forces,
+            "stress": stresses,
         }
