@@ -74,8 +74,8 @@ def test_qha_calc(
         "write_thermal_expansion": thermal_expansion,
         "write_gibbs_temperature": gibbs_temperature,
         "write_bulk_modulus_temperature": bulk_modulus_temperature,
-        "write_heat_capacity_P_numerical": cp_numerical,
-        "write_heat_capacity_P_polyfit": cp_polyfit,
+        "write_heat_capacity_p_numerical": cp_numerical,
+        "write_heat_capacity_p_polyfit": cp_polyfit,
         "write_gruneisen_temperature": gruneisen_temperature,
     }
 
