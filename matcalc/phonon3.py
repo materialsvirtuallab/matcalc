@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+import numpy as np
 from phono3py import Phono3py
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
 
@@ -76,7 +77,7 @@ class Phonon3Calc(PropCalc):
             (in Watts/meter/Kelvin),
         }
         """
-        temperatures = range(self.t_min, self.t_max + self.t_step, self.t_step)
+        temperatures = np.arange(self.t_min, self.t_max + self.t_step, self.t_step)
 
         if self.relax_structure:
             relaxer = RelaxCalc(
