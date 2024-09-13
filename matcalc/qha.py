@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -212,8 +211,8 @@ class QHACalc(PropCalc):
         Returns:
             Pymatgen structure with scaled lattice constants.
         """
-        struct = copy.deepcopy(structure)
-        struct.scale_lattice(struct.volume * scale_factor**3)
+        struct = structure.copy()
+        struct.apply_strain(scale_factor - 1)
         return struct
 
     def _calculate_energy(self, structure: Structure) -> float:
