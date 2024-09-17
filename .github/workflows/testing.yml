@@ -37,7 +37,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --quiet -r requirements.txt -r requirements-ci.txt
-          pip install git+https://github.com/materialsvirtuallab/maml
           pip install -e '.[models]'
       - name: pytest
         run: |
