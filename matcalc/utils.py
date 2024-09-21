@@ -32,7 +32,7 @@ UNIVERSAL_CALCULATORS = (
 class PESCalculator(Calculator):
     """
     Potential calculator for ASE, supporting both **universal** and **customized** potentials, including:
-        Customized potentials: MatGL(M3GNet, CHGNet, TensorNet and SO3Net), MAML(MTP, GAP, NNP, SNAP and QSNAP) and ACE.
+        Customized potentials: MatGL(M3GNet, CHGNet, TensorNet and SO3Net), MAML(MTP, GAP, NNP, SNAP and qSNAP) and ACE.
         Universal potentials: M3GNet, CHGNet, MACE and SevenNet.
     Though MatCalc can be used with any MLIP, this method does not yet cover all MLIPs.
     Imports should be inside if statements to ensure that all models are optional dependencies.
@@ -178,7 +178,7 @@ class PESCalculator(Calculator):
     @staticmethod
     def load_snap(param_file: str | Path, coeff_file: str | Path, **kwargs: Any) -> Calculator:
         """
-        Load the SNAP or QSNAP model for use in ASE as a calculator.
+        Load the SNAP or qSNAP model for use in ASE as a calculator.
 
         Args:
             param_file (str | Path): The file storing the configuration of potentials.
@@ -186,7 +186,7 @@ class PESCalculator(Calculator):
             **kwargs (Any): Additional keyword arguments for the PESCalculator.
 
         Returns:
-            Calculator: ASE calculator compatible with the SNAP or QSNAP model.
+            Calculator: ASE calculator compatible with the SNAP or qSNAP model.
         """
         from maml.apps.pes import SNAPotential
 

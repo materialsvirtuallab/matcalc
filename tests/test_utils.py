@@ -49,6 +49,7 @@ class TestPESCalculator(unittest.TestCase):
         assert isinstance(calc, Calculator)
 
     @unittest.skipIf(not find_spec("maml"), "maml is not installed")
+    @unittest.skipIf(not find_spec("lammps"), "lammps is not installed")
     def test_pescalculator_load_snap(self) -> None:
         for name in ("SNAP", "qSNAP"):
             calc = PESCalculator.load_snap(
@@ -108,6 +109,10 @@ class TestPESCalculator(unittest.TestCase):
         assert list(stresses.shape) == [6]
 
 
+@unittest.skipIf(not find_spec("matgl"), "matgl is not installed")
+@unittest.skipIf(not find_spec("chgnet"), "chgnet is not installed")
+@unittest.skipIf(not find_spec("mace"), "mace is not installed")
+@unittest.skipIf(not find_spec("sevenn"), "sevenn is not installed")
 def test_get_universal_calculator() -> None:
     for name in UNIVERSAL_CALCULATORS:
         calc = get_universal_calculator(name)
