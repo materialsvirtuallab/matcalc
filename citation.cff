@@ -1,7 +1,7 @@
 # cff-version: 1.2.0
 message: If you use MatCalc, please cite it as follows.
 title: MatCalc
-subtitle: A Python library for calculating materials properties
+subtitle: A Python library for calculating materials properties from the potential energy surface (PES)
 authors:
   - given-names: Runze
     family-names: Liu
