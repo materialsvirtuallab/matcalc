@@ -133,7 +133,7 @@ class ElasticityCalc(PropCalc):
         strain_states = [tuple(ss) for ss in np.eye(6)]
         ss_dict = get_strain_state_dict(strains, stresses, eq_stress=eq_stress, add_eq=self.use_equilibrium)
         c_ij = np.zeros((6, 6))
-        residuals_sum = 0
+        residuals_sum = 0.0
         for ii in range(6):
             strain = ss_dict[strain_states[ii]]["strains"]
             stress = ss_dict[strain_states[ii]]["stresses"]
