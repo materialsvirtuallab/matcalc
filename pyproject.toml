@@ -41,6 +41,7 @@ version = "0.0.4"
 
 [project.optional-dependencies]
 models = ["chgnet>=0.3.8", "mace-torch>=0.3.6", "matgl>=1.0.0", "sevenn>=0.9.3", "maml>=2024.6.13", "dgl<=2.1.0", "torch<=2.2.1"]
+ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "coverage", "coveralls"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
