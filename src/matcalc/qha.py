@@ -153,7 +153,7 @@ class QHACalc(PropCalc):
             "thermal_expansion_coefficients": List of volumetric thermal expansion coefficients at corresponding
                 temperatures (in Kelvin^-1),
             "gibbs_free_energies": List of Gibbs free energies at corresponding temperatures (in eV),
-            "bulk_modulus_P": List of bulk modulus at constant presure at corresponding temperatures (in GPa),
+            "bulk_modulus_P": List of bulk modulus at constant pressure at corresponding temperatures (in GPa),
             "heat_capacity_P": List of heat capacities at constant pressure at corresponding temperatures (in J/K/mol),
             "gruneisen_parameters": List of Gruneisen parameters at corresponding temperatures,
         }
