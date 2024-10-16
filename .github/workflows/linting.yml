@@ -27,11 +27,11 @@ jobs:
       - name: ruff
         run: |
           ruff --version
-          ruff check matcalc
-          ruff format matcalc --check
+          ruff check src
+          ruff format src --check
 
       - name: mypy
         run: |
           mypy --version
           rm -rf .mypy_cache
-          mypy matcalc
+          mypy src
