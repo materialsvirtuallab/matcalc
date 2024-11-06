@@ -42,7 +42,7 @@ jobs:
         run: |
           pytest --cov=matcalc tests --color=yes
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -61,7 +61,7 @@ jobs:
         run: |
           python -m build --sdist
           python -m build --wheel
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: dist/*.*
 
@@ -78,7 +78,7 @@ jobs:
         with:
           python-version: 3.11
       - name: Get build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifact
           path: dist
