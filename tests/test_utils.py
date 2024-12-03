@@ -56,7 +56,7 @@ class TestPESCalculator(unittest.TestCase):
                 param_file=os.path.join(DIR, f"pes/{name}-Cu-2020.1-PES", "SNAPotential.snapparam"),
                 coeff_file=os.path.join(DIR, f"pes/{name}-Cu-2020.1-PES", "SNAPotential.snapcoeff"),
             )
-        assert isinstance(calc, Calculator)
+            assert isinstance(calc, Calculator)
 
     @unittest.skipIf(not find_spec("pyace"), "pyace is not installed")
     def test_pescalculator_load_ace(self) -> None:
