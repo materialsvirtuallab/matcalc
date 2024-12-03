@@ -63,6 +63,11 @@ class TestPESCalculator(unittest.TestCase):
         calc = PESCalculator.load_ace(basis_set=os.path.join(DIR, "pes/ACE-Cu-2021.5.15-PES", "Cu-III.yaml"))
         assert isinstance(calc, Calculator)
 
+    @unittest.skipIf(not find_spec("nequip"), "nequip is not installed")
+    def test_pescalculator_load_nequip(self) -> None:
+        calc = PESCalculator.load_nequip(model_path=os.path.join(DIR, "pes/NequIP-am-Al2O3-2023.9-PES", "default.pth"))
+        assert isinstance(calc, Calculator)
+
     @unittest.skipIf(not find_spec("matgl"), "matgl is not installed")
     @unittest.skipIf(not find_spec("chgnet"), "chgnet is not installed")
     @unittest.skipIf(not find_spec("mace"), "mace is not installed")
