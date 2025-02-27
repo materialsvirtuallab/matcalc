@@ -29,8 +29,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Scientific/Engineering :: Physics",
@@ -40,8 +39,9 @@ dependencies = ["ase>=3.23.0", "joblib", "phonopy", "pymatgen", "numpy<2.0.0"]
 version = "0.0.4"
 
 [project.optional-dependencies]
-models = ["chgnet>=0.3.8", "mace-torch>=0.3.6", "matgl>=1.0.0", "sevenn>=0.9.3", "maml>=2024.6.13", "dgl<=2.1.0", "torch<=2.2.1"]
+models = ["chgnet>=0.3.8", "mace-torch>=0.3.6", "matgl>=1.0.0", "sevenn>=0.9.3", "maml>=2024.6.13", "dgl<=2.1.0", "torch<=2.2.1","nequip>=0.6.1"]
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "coverage", "coveralls"]
+phonon = ["seekpath"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -99,7 +99,7 @@ module = ["requests.*", "tabulate.*"]
 ignore_missing_imports = true
 
 [tool.codespell]
-ignore-words-list = "mater,te,nd"
+ignore-words-list = "mater,te,nd,Commun"
 check-filenames = true
 
 [tool.coverage.run]
