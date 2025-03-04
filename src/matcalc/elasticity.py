@@ -44,8 +44,8 @@ class ElasticityCalc(PropCalc):
             fmax: maximum force in the relaxed structure (if relax_structure). Defaults to 0.1.
             relax_structure: whether to relax the provided structure with the given calculator.
                 Defaults to True.
-            relax_structure: whether to relax the atomic positions of the deformed/strained structures with the given
-                calculator. Defaults to True.
+            relax_deformed_structures: whether to relax the atomic positions of the deformed/strained structures
+                with the given calculator. Defaults to True.
             use_equilibrium: whether to use the equilibrium stress and strain. Ignored and set
                 to True if either norm_strains or shear_strains has length 1 or is a float.
                 Defaults to True.
@@ -100,9 +100,11 @@ class ElasticityCalc(PropCalc):
         stresses = []
         for deformed_structure in deformed_structure_set:
             if self.relax_deformed_structures:
-                deformed_structure = relax_calc.calc(deformed_structure)["final_structure"]
+                deformed_structure_relaxed = relax_calc.calc(deformed_structure)["final_structure"]
+                atoms = deformed_structure_relaxed.to_ase_atoms()
+            else:
+                atoms = deformed_structure.to_ase_atoms()
 
-            atoms = deformed_structure.to_ase_atoms()
             atoms.calc = self.calculator
             stresses.append(atoms.get_stress(voigt=False))
 
