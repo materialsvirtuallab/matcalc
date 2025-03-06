@@ -30,6 +30,7 @@ class ElasticityCalc(PropCalc):
         shear_strains: Sequence[float] | float = (-0.06, -0.03, 0.03, 0.06),
         fmax: float = 0.1,
         relax_structure: bool = True,
+        relax_deformed_structures: bool = False,
         use_equilibrium: bool = True,
         relax_calc_kwargs: dict | None = None,
     ) -> None:
@@ -43,6 +44,8 @@ class ElasticityCalc(PropCalc):
             fmax: maximum force in the relaxed structure (if relax_structure). Defaults to 0.1.
             relax_structure: whether to relax the provided structure with the given calculator.
                 Defaults to True.
+            relax_deformed_structures: whether to relax the atomic positions of the deformed/strained structures
+                with the given calculator. Defaults to True.
             use_equilibrium: whether to use the equilibrium stress and strain. Ignored and set
                 to True if either norm_strains or shear_strains has length 1 or is a float.
                 Defaults to True.
@@ -59,6 +62,7 @@ class ElasticityCalc(PropCalc):
         if 0 in self.norm_strains or 0 in self.shear_strains:
             raise ValueError("strains must be non-zero")
         self.relax_structure = relax_structure
+        self.relax_deformed_structures = relax_deformed_structures
         self.fmax = fmax
         if len(self.norm_strains) > 1 and len(self.shear_strains) > 1:
             self.use_equilibrium = use_equilibrium
@@ -83,9 +87,10 @@ class ElasticityCalc(PropCalc):
             structure: The equilibrium structure used for the computation.
         }
         """
-        if self.relax_structure:
+        if self.relax_structure or self.relax_deformed_structures:
             relax_calc = RelaxCalc(self.calculator, fmax=self.fmax, **(self.relax_calc_kwargs or {}))
             structure = relax_calc.calc(structure)["final_structure"]
+            relax_calc.relax_cell = False
 
         deformed_structure_set = DeformedStructureSet(
             structure,
@@ -94,7 +99,12 @@ class ElasticityCalc(PropCalc):
         )
         stresses = []
         for deformed_structure in deformed_structure_set:
-            atoms = deformed_structure.to_ase_atoms()
+            if self.relax_deformed_structures:
+                deformed_structure_relaxed = relax_calc.calc(deformed_structure)["final_structure"]
+                atoms = deformed_structure_relaxed.to_ase_atoms()
+            else:
+                atoms = deformed_structure.to_ase_atoms()
+
             atoms.calc = self.calculator
             stresses.append(atoms.get_stress(voigt=False))
 
