@@ -251,7 +251,7 @@ class PESCalculator(Calculator):
 
         if name.lower().startswith("m3gnet"):
             import matgl
-            from matgl.ext.ase import PESCalculator_
+            from matgl.ext.ase import PESCalculator as PESCalculator_
 
             # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
             name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES"}.get(name.lower(), name)
