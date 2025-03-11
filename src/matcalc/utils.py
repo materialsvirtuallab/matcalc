@@ -306,15 +306,15 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
     if not isinstance(name, str):  # e.g. already an ase Calculator instance
         return name
 
-    if name.lower().startswith("m3gnet"):
+    if name.lower().startswith("m3gnet") or name.lower().startswith("tensornet-matpes"):
         import matgl
-        from matgl.ext.ase import M3GNetCalculator
+        from matgl.ext.ase import PESCalculator as PESCalculator_
 
         # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
         name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES"}.get(name.lower(), name)
         model = matgl.load_model(name)
         kwargs.setdefault("stress_weight", 1 / 160.21766208)
-        return M3GNetCalculator(potential=model, **kwargs)
+        return PESCalculator_(potential=model, **kwargs)
 
     if name.lower() == "chgnet":
         from chgnet.model.dynamics import CHGNetCalculator
