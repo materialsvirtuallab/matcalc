@@ -26,6 +26,8 @@ UNIVERSAL_CALCULATORS = (
     "CHGNet",
     "MACE",
     "SevenNet",
+    "TensorNet-MatPES-PBE-v2025.1-PES",
+    "TensorNet-MatPES-r2SCAN-v2025.1-PES",
 )
 
 
@@ -106,11 +108,11 @@ class PESCalculator(Calculator):
             Calculator: ASE calculator compatible with the MatGL model.
         """
         import matgl
-        from matgl.ext.ase import M3GNetCalculator
+        from matgl.ext.ase import PESCalculator as PESCalculator_
 
         model = matgl.load_model(path=path)
         kwargs.setdefault("stress_weight", 1 / 160.21766208)
-        return M3GNetCalculator(potential=model, **kwargs)
+        return PESCalculator_(potential=model, **kwargs)
 
     @staticmethod
     def load_mtp(filename: str | Path, elements: list, **kwargs: Any) -> Calculator:
@@ -233,13 +235,13 @@ class PESCalculator(Calculator):
 
         if name.lower().startswith("m3gnet"):
             import matgl
-            from matgl.ext.ase import M3GNetCalculator
+            from matgl.ext.ase import PESCalculator_
 
             # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
             name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES"}.get(name.lower(), name)
             model = matgl.load_model(name)
             kwargs.setdefault("stress_weight", 1 / 160.21766208)
-            return M3GNetCalculator(potential=model, **kwargs)
+            return PESCalculator_(potential=model, **kwargs)
 
         if name.lower() == "chgnet":
             from chgnet.model.dynamics import CHGNetCalculator
