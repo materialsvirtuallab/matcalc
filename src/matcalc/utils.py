@@ -249,7 +249,7 @@ class PESCalculator(Calculator):
         if not isinstance(name, str):  # e.g. already an ase Calculator instance
             return name
 
-        if name.lower().startswith("m3gnet"):
+        if name.lower().startswith("m3gnet") or name.lower().startswith("tensornet-matpes"):
             import matgl
             from matgl.ext.ase import PESCalculator as PESCalculator_
 
