@@ -51,8 +51,9 @@ class ElasticityBenchmark:
         :param benchmark_name: Name or path of the benchmark file. It is either a string
             or a ``Path`` object depending on the data storage directory. Defaults to
             "mp-elasticity-2025.1.json.gz".
-        :param n_samples: Number of samples to extract randomly from entries. If `None`,
-            all entries from the file are used. Defaults to `None`.
+        :param n_samples: Number of samples to extract randomly from entries. This is useful when you just want to
+            run a small number of structures for code testing. If `None`, all entries from the file are used.
+            Defaults to `None`.
         :param seed: Random seed used for reproducible sub-sampling of the entry dataset.
             Defaults to 42.
         :param kwargs: Keyword arguments passthrough to the ElasticityCalculator.
