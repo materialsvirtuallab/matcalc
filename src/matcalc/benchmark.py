@@ -118,7 +118,7 @@ class ElasticityBenchmark:
 
         results[f"K_{model_name}"] = [d["bulk_modulus_vrh"] * eVA3ToGPa for d in properties]
         results[f"G_{model_name}"] = [d["shear_modulus_vrh"] * eVA3ToGPa for d in properties]
-        results[f"AE K {model_name}"] = np.abs(results[f"K_{model_name}"] - results["K_DFT"])
-        results[f"AE G {model_name}"] = np.abs(results[f"G_{model_name}"] - results["G_DFT"])
+        results[f"AE K_{model_name}"] = np.abs(results[f"K_{model_name}"] - results["K_DFT"])
+        results[f"AE G_{model_name}"] = np.abs(results[f"G_{model_name}"] - results["G_DFT"])
 
         return results
