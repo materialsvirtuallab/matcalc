@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from matcalc.benchmark import BenchmarkSuite, ElasticityBenchmark
+from matcalc.benchmark import BenchmarkSuite, ElasticityBenchmark, get_available_benchmarks
 
 if TYPE_CHECKING:
     from matgl.ext.ase import M3GNetCalculator
@@ -27,3 +27,7 @@ def test_benchmark_suite(M3GNetCalc: M3GNetCalculator) -> None:
     assert "K_toy2" in results[0].columns
     assert "G_toy1" in results[0].columns
     assert "G_toy2" in results[0].columns
+
+
+def test_available_benchmarks() -> None:
+    assert "mp-elasticity-2025.1.json.gz" in get_available_benchmarks()

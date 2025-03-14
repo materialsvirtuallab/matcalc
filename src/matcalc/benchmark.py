@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import abc
+import json
 import random
 import typing
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import requests
 from monty.serialization import loadfn
 from scipy import constants
 
@@ -19,7 +21,50 @@ from .elasticity import ElasticityCalc
 
 eVA3ToGPa = constants.e / (constants.angstrom) ** 3 / constants.giga  # noqa: N816
 
-BENCHMARK_DATA_DIR = Path(__file__).parent / ".." / ".." / "benchmark_data"
+BENCHMARK_DATA_URL = "https://api.github.com/repos/materialsvirtuallab/matcalc/contents/benchmark_data"
+BENCHMARK_DATA_DOWNLOAD_URL = "https://raw.githubusercontent.com/materialsvirtuallab/matcalc/main/benchmark_data"
+BENCHMARK_DATA_DIR = Path.home() / ".local" / "matcalc" / "benchmark_data"
+BENCHMARK_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def get_available_benchmarks() -> list[str]:
+    """Checks Github for available benchmarks for download.
+
+    Returns:
+        List of available benchmarks.
+    """
+    r = requests.get(BENCHMARK_DATA_URL)  # noqa: S113
+    return [d["name"] for d in json.loads(r.content.decode("utf-8")) if d["name"].endswith(".json.gz")]
+
+
+def get_benchmark_data(name: str) -> pd.DataFrame:
+    """
+    Retrieve benchmark data as a Pandas DataFrame by downloading it if not already
+    available locally.
+
+    The function checks if the specified benchmark data file exists in the
+    `BENCHMARK_DATA_DIR` directory. If the file does not exist, it attempts to
+    download the data from a predefined URL using the benchmark name. In the case
+    of a successful download, the file is saved locally. If the download fails,
+    a RequestException is raised. Upon successful retrieval or download of the
+    benchmark file, the data is read and returned as a Pandas DataFrame.
+
+    :param name: Name of the benchmark data file to be retrieved
+    :type name: str
+    :return: Benchmark data loaded as a Pandas DataFrame
+    :rtype: pd.DataFrame
+    :raises requests.RequestException: If the benchmark data file cannot be
+        downloaded from the specified URL
+    """
+    if not (BENCHMARK_DATA_DIR / name).exists():
+        uri = f"{BENCHMARK_DATA_DOWNLOAD_URL}/{name}"
+        r = requests.get(uri)  # noqa: S113
+        if r.status_code == 200:  # noqa: PLR2004
+            with open(BENCHMARK_DATA_DIR / name, "wb") as f:
+                f.write(r.content)
+        else:
+            raise requests.RequestException(f"Bad uri: {uri}")
+    return loadfn(BENCHMARK_DATA_DIR / name)
 
 
 class Benchmark(metaclass=abc.ABCMeta):
@@ -92,11 +137,7 @@ class ElasticityBenchmark:
         """
         rows = []
         structures = []
-        if isinstance(benchmark_name, str):
-            benchmark_name = Path(BENCHMARK_DATA_DIR / benchmark_name)
-
-        entries = loadfn(benchmark_name)
-
+        entries = get_benchmark_data(benchmark_name) if isinstance(benchmark_name, str) else loadfn(benchmark_name)
         if n_samples:
             random.seed(seed)
             entries = random.sample(entries, n_samples)
