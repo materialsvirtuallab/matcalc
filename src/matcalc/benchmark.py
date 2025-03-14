@@ -21,74 +21,104 @@ eVA3ToGPa = constants.e / (constants.angstrom) ** 3 / constants.giga  # noqa: N8
 BENCHMARK_DATA_DIR = Path(__file__).parent / ".." / ".." / "benchmark_data"
 
 
-def run_elasticity_benchmark(
-    calculator: PESCalculator,
-    model_name: str,
-    benchmark_name: str | Path = "mp-elasticity-2025.1.json.gz",
-    n_samples: int | None = None,
-    seed: int = 42,
-    n_jobs: None | int = -1,
-) -> pd.DataFrame:
+class ElasticityBenchmark:
     """
-    Runs an elasticity benchmark by calculating the bulk and shear moduli for a given set
-    of structures using the provided calculator. The benchmark results include comparisons
-    with reference DFT values.
+    A benchmarking class to process elasticity data and evaluate potential energy
+    surface models. The class initializes with benchmark data, handles sub-sampling
+    for analytical purposes, and computes elasticity properties for evaluation.
 
-    :param calculator: An instance of a calculator object used for performing calculations.
-    :param model_name: The name of the model used for calculations, included in results.
-    :param benchmark_name: str | Path
-        Path to the benchmark data file. By default, it points to a JSON.gz file
-        containing elasticity data for materials. Can also be a string representing
-        the file name located in the benchmark data directory.
-    :param n_samples: int | None
-        Number of random samples to select from the dataset. If None, all entries
-        from the dataset are included in the benchmark. Default is None.
-    :param seed: int
-        Random seed used for selecting samples. Default value is 42.
-    :param n_jobs: int
-        Number of parallel jobs to use for calculations. Default is -1, which
-        uses all available CPUs for parallel processing.
-
-    :return: pandas.DataFrame
-        A dataframe containing the benchmark results. Includes reference DFT bulk
-        and shear modulus values, calculated properties using the specified model,
-        and absolute errors for each property. Additional information such as
-        material IDs and formulae is also included.
+    :ivar kwargs: Additional parameters passed for customization.
+    :type kwargs: dict
+    :ivar _ground_truth: DataFrame holding the ground truth elastic properties
+        extracted from the benchmark dataset.
+    :type _ground_truth: pandas.DataFrame
     """
-    rows = []
-    structures = []
-    if isinstance(benchmark_name, str):
-        benchmark_name = Path(BENCHMARK_DATA_DIR / benchmark_name)
 
-    entries = loadfn(benchmark_name)
+    def __init__(
+        self,
+        benchmark_name: str | Path = "mp-elasticity-2025.1.json.gz",
+        n_samples: int | None = None,
+        seed: int = 42,
+        **kwargs,  # noqa:ANN003
+    ) -> None:
+        """
+        Initializes the object by processing benchmark data and creating a DataFrame
+        containing extracted data for further analysis. This includes creating an
+        entry list, extracting required fields from benchmark data, and organizing
+        associated structures. The initialization also supports sampling a subset
+        of entries with an optional random seed.
 
-    if n_samples:
-        random.seed(seed)
-        entries = random.sample(entries, n_samples)
+        :param benchmark_name: Name or path of the benchmark file. It is either a string
+            or a ``Path`` object depending on the data storage directory. Defaults to
+            "mp-elasticity-2025.1.json.gz".
+        :param n_samples: Number of samples to extract randomly from entries. If `None`,
+            all entries from the file are used. Defaults to `None`.
+        :param seed: Random seed used for reproducible sub-sampling of the entry dataset.
+            Defaults to 42.
+        :param kwargs: Keyword arguments passthrough to the ElasticityCalculator.
+        """
+        rows = []
+        structures = []
+        if isinstance(benchmark_name, str):
+            benchmark_name = Path(BENCHMARK_DATA_DIR / benchmark_name)
 
-    # We will first create a DataFrame from the required components from the raw data.
-    # We also create the list of structures in the order of the entries.
-    for entry in entries:
-        rows.append(
-            {
-                "mp_id": entry["mp_id"],
-                "formula": entry["formula"],
-                "K_DFT": entry["bulk_modulus_vrh"],
-                "G_DFT": entry["shear_modulus_vrh"],
-            }
-        )
-        structures.append(entry["structure"])
+        entries = loadfn(benchmark_name)
 
-    results = pd.DataFrame(rows)
+        if n_samples:
+            random.seed(seed)
+            entries = random.sample(entries, n_samples)
 
-    elastic_calc = ElasticityCalc(calculator, fmax=0.05, relax_structure=True)
+        # We will first create a DataFrame from the required components from the raw data.
+        # We also create the list of structures in the order of the entries.
+        for entry in entries:
+            rows.append(
+                {
+                    "mp_id": entry["mp_id"],
+                    "formula": entry["formula"],
+                    "K_DFT": entry["bulk_modulus_vrh"],
+                    "G_DFT": entry["shear_modulus_vrh"],
+                }
+            )
+            structures.append(entry["structure"])
 
-    # We use trivial parallel processing in joblib to speed up the computations.
-    properties = list(elastic_calc.calc_many(structures, n_jobs=n_jobs))
+        self.structures = structures
+        self.kwargs = kwargs
+        self.ground_truth = pd.DataFrame(rows)
 
-    results[f"K_{model_name}"] = [d["bulk_modulus_vrh"] * eVA3ToGPa for d in properties]
-    results[f"G_{model_name}"] = [d["shear_modulus_vrh"] * eVA3ToGPa for d in properties]
-    results[f"AE K {model_name}"] = np.abs(results[f"K_{model_name}"] - results["K_DFT"])
-    results[f"AE G {model_name}"] = np.abs(results[f"G_{model_name}"] - results["G_DFT"])
+    def run(
+        self,
+        calculator: PESCalculator,
+        model_name: str,
+        n_jobs: None | int = -1,
+    ) -> pd.DataFrame:
+        """
+        Runs the elasticity benchmark for a given potential energy surface (PES)
+        calculator and model name. The benchmark computes bulk and shear moduli,
+        and evaluates absolute error (AE) with respect to the ground truth data
+        for each modulus.
 
-    return results
+        :param calculator: Instance of PESCalculator used for calculation.
+        :type calculator: PESCalculator
+        :param model_name: The name of the model being benchmarked.
+        :type model_name: str
+        :param n_jobs: Number of parallel jobs to execute for elasticity calculation.
+            Defaults to -1, which uses all available processors.
+        :type n_jobs: None | int
+        :return: DataFrame containing calculated properties, including bulk modulus
+            and shear modulus for the given model, as well as their absolute
+            errors compared to ground truth data.
+        :rtype: pandas.DataFrame
+        """
+        results = self.ground_truth.copy()
+
+        elastic_calc = ElasticityCalc(calculator, **self.kwargs)
+
+        # We use trivial parallel processing in joblib to speed up the computations.
+        properties = list(elastic_calc.calc_many(self.structures, n_jobs=n_jobs))
+
+        results[f"K_{model_name}"] = [d["bulk_modulus_vrh"] * eVA3ToGPa for d in properties]
+        results[f"G_{model_name}"] = [d["shear_modulus_vrh"] * eVA3ToGPa for d in properties]
+        results[f"AE K {model_name}"] = np.abs(results[f"K_{model_name}"] - results["K_DFT"])
+        results[f"AE G {model_name}"] = np.abs(results[f"G_{model_name}"] - results["G_DFT"])
+
+        return results
