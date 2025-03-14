@@ -74,6 +74,23 @@ def parallel_calc():
 # This was run on 10 CPUs on a Mac.
 ```
 
+## Benchmarking
+
+MatCalc makes it easy to perform a large number of calculations rapidly. With the release of MatPES, we have released
+the `MatCalc-Benchmark`.
+
+For example, the following code can be used to run the ElasticityBenchmark on `TensorNet-MatPES-PBE-v2025.1-PES` UMLIP.
+
+```python
+from matcalc.utils import PESCalculator
+calculator = PESCalculator.load_universal("TensorNet-MatPES-PBE-v2025.1-PES")
+from matcalc.benchmark import ElasticityBenchmark
+benchmark = ElasticityBenchmark(fmax=0.05, relax_structure=True)
+results = benchmark.run(calculator, "TensorNet-MatPES")
+```
+
+The entire run takes ~ 16mins when parallelized over 10 CPUs on a Mac.
+
 ## Cite `matcalc`
 
 If you use `matcalc` in your research, see [`citation.cff`](citation.cff) or the GitHub sidebar for a BibTeX and APA citation.
