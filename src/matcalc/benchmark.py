@@ -101,8 +101,8 @@ class ElasticityBenchmark:
         :type calculator: PESCalculator
         :param model_name: The name of the model being benchmarked.
         :type model_name: str
-        :param n_jobs: Number of parallel jobs to execute for elasticity calculation.
-            Defaults to -1, which uses all available processors.
+        :param n_jobs: Number of parallel jobs to execute for elasticity calculation. Since benchmarking is typically
+            done on a large number of structures, the default is set to -1, which uses all available processors.
         :type n_jobs: None | int
         :return: DataFrame containing calculated properties, including bulk modulus
             and shear modulus for the given model, as well as their absolute
