@@ -9,7 +9,9 @@ from typing import TYPE_CHECKING, Any
 import ase.optimize
 from ase.calculators.calculator import Calculator
 from ase.optimize.optimize import Optimizer
+from scipy import constants
 
+eVA3ToGPa = constants.e / (constants.angstrom) ** 3 / constants.giga  # noqa:N816
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -45,7 +47,7 @@ class PESCalculator(Calculator):
     def __init__(
         self,
         potential: LMPStaticCalculator,
-        stress_weight: float = 1 / 160.21766208,
+        stress_weight: float = 1 / eVA3ToGPa,
         **kwargs: Any,
     ) -> None:
         """
@@ -111,7 +113,7 @@ class PESCalculator(Calculator):
         from matgl.ext.ase import PESCalculator as PESCalculator_
 
         model = matgl.load_model(path=path)
-        kwargs.setdefault("stress_weight", 1 / 160.21766208)
+        kwargs.setdefault("stress_weight", 1 / eVA3ToGPa)
         return PESCalculator_(potential=model, **kwargs)
 
     @staticmethod
@@ -256,7 +258,7 @@ class PESCalculator(Calculator):
             # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
             name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES"}.get(name.lower(), name)
             model = matgl.load_model(name)
-            kwargs.setdefault("stress_weight", 1 / 160.21766208)
+            kwargs.setdefault("stress_weight", 1 / eVA3ToGPa)
             return PESCalculator_(potential=model, **kwargs)
 
         if name.lower() == "chgnet":
@@ -313,7 +315,7 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
         # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
         name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES"}.get(name.lower(), name)
         model = matgl.load_model(name)
-        kwargs.setdefault("stress_weight", 1 / 160.21766208)
+        kwargs.setdefault("stress_weight", 1 / eVA3ToGPa)
         return PESCalculator_(potential=model, **kwargs)
 
     if name.lower() == "chgnet":

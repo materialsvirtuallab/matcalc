@@ -29,7 +29,7 @@ repos:
     rev: v2.3.0
     hooks:
       - id: codespell
-        stages: [commit, commit-msg]
+        stages: [pre-commit, commit-msg]
         exclude_types: [html, svg, javascript, jupyter]
         exclude: ^.+\.lock$ # ignore lock files
         additional_dependencies: [tomli] # needed to read pyproject.toml below py3.11
