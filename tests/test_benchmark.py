@@ -30,4 +30,4 @@ def test_benchmark_suite(M3GNetCalc: M3GNetCalculator) -> None:
 
 
 def test_available_benchmarks() -> None:
-    assert "mp-elasticity-2025.1.json.gz" in get_available_benchmarks()
+    assert "mp-binary-elasticity-2025.1.json.gz" in get_available_benchmarks()
