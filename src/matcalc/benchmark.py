@@ -113,7 +113,7 @@ class ElasticityBenchmark:
     def __init__(
         self,
         index_name: str = "mp_id",
-        benchmark_name: str | Path = "mp-elasticity-2025.1.json.gz",
+        benchmark_name: str | Path = "mp-binary-elasticity-2025.1.json.gz",
         n_samples: int | None = None,
         seed: int = 42,
         **kwargs,  # noqa:ANN003
