@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import abc
 import random
 import typing
 from pathlib import Path
@@ -21,6 +22,36 @@ eVA3ToGPa = constants.e / (constants.angstrom) ** 3 / constants.giga  # noqa: N8
 BENCHMARK_DATA_DIR = Path(__file__).parent / ".." / ".." / "benchmark_data"
 
 
+class Benchmark(metaclass=abc.ABCMeta):
+    """
+    Defines an abstract base class for benchmarking implementations.
+
+    This class serves as a blueprint for creating benchmarking tools
+    that operate with a predictive engagement system calculator
+    and model names. Subclasses must implement the abstract
+    `run` method, which is responsible for executing the benchmarking
+    logic.
+    """
+
+    @abc.abstractmethod
+    def run(
+        self,
+        calculator: PESCalculator,
+        model_name: str,
+        n_jobs: None | int = -1,
+    ) -> pd.DataFrame:
+        """
+        Runs the primary execution logic for the PESCalculator instance, allowing
+        for computation using a specific model and optional parallelization.
+
+        :param calculator: The PESCalculator instance that performs the computations.
+        :param model_name: The name of the model to be used during computation.
+        :param n_jobs: The number of jobs for parallel computation. If None or omitted,
+            defaults to -1, which signifies using all available processors.
+        :return: A pandas DataFrame containing the results of the computations.
+        """
+
+
 class ElasticityBenchmark:
     """
     A benchmarking class to process elasticity data and evaluate potential energy
@@ -36,6 +67,7 @@ class ElasticityBenchmark:
 
     def __init__(
         self,
+        index_name: str = "mp_id",
         benchmark_name: str | Path = "mp-elasticity-2025.1.json.gz",
         n_samples: int | None = None,
         seed: int = 42,
@@ -84,7 +116,7 @@ class ElasticityBenchmark:
 
         self.structures = structures
         self.kwargs = kwargs
-        self.ground_truth = pd.DataFrame(rows)
+        self.ground_truth = pd.DataFrame(rows).set_index(index_name)
 
     def run(
         self,
@@ -123,3 +155,48 @@ class ElasticityBenchmark:
         results[f"AE G_{model_name}"] = np.abs(results[f"G_{model_name}"] - results["G_DFT"])
 
         return results
+
+
+class BenchmarkSuite:
+    """A class to run multiple benchmarks in a single run."""
+
+    def __init__(self, benchmarks: list) -> None:
+        """
+        Represents a configuration for handling a list of benchmarks. This class is designed
+        to initialize with a specified list of benchmarks.
+
+        Attributes:
+            benchmarks (list): A list containing benchmark configurations or data for
+            evaluation.
+
+        :param benchmarks: A list of benchmarks for configuration or evaluation.
+        :type benchmarks: list
+        """
+        self.benchmarks = benchmarks
+
+    def run(self, calculators: dict[str, PESCalculator], n_jobs: int | None = -1) -> list[pd.DataFrame]:
+        """
+        Executes the `run` method for each benchmark using the provided PES calculators and the number
+        of jobs for parallel processing. The method manages multiple calculations for each benchmark and
+        consolidates their results.
+
+        :param calculators: A dictionary where keys are model names as strings and values
+            are instances of `PESCalculator`.
+        :param n_jobs: Number of parallel jobs. Defaults to -1 which typically means using
+            all available processors.
+        :return: A list of pandas DataFrame objects, each DataFrame representing the consolidated
+            results of all models for a particular benchmark.
+        """
+        all_results = []
+        for benchmark in self.benchmarks:
+            results: list[pd.DataFrame] = []
+            for model_name, calculator in calculators.items():
+                result = benchmark.run(calculator, model_name, n_jobs=n_jobs)
+                if results:
+                    # Remove duplicate DFT columns.
+                    todrop = [c for c in result.columns if c in results[0].columns]
+                    result = result.drop(todrop, axis=1)
+                results.append(result)
+            combined = results[0].join(results[1:], validate="one_to_one")
+            all_results.append(combined)
+        return all_results
