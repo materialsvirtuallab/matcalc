@@ -15,7 +15,7 @@ from monty.serialization import loadfn
 from scipy import constants
 
 if typing.TYPE_CHECKING:
-    from .utils import PESCalculator
+    from ase.calculators.calculator import Calculator
 
 from .elasticity import ElasticityCalc
 from .phonon import PhononCalc
@@ -82,15 +82,15 @@ class Benchmark(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def run(
         self,
-        calculator: PESCalculator,
+        calculator: Calculator,
         model_name: str,
         n_jobs: None | int = -1,
     ) -> pd.DataFrame:
         """
-        Runs the primary execution logic for the PESCalculator instance, allowing
+        Runs the primary execution logic for the Calculator instance, allowing
         for computation using a specific model and optional parallelization.
 
-        :param calculator: The PESCalculator instance that performs the computations.
+        :param calculator: The Calculator instance that performs the computations.
         :param model_name: The name of the model to be used during computation.
         :param n_jobs: The number of jobs for parallel computation. If None or omitted,
             defaults to -1, which signifies using all available processors.
@@ -162,7 +162,7 @@ class ElasticityBenchmark:
 
     def run(
         self,
-        calculator: PESCalculator,
+        calculator: Calculator,
         model_name: str,
         n_jobs: None | int = -1,
     ) -> pd.DataFrame:
@@ -172,8 +172,8 @@ class ElasticityBenchmark:
         and evaluates absolute error (AE) with respect to the ground truth data
         for each modulus.
 
-        :param calculator: Instance of PESCalculator used for calculation.
-        :type calculator: PESCalculator
+        :param calculator: Instance of Calculator used for calculation.
+        :type calculator: Calculator
         :param model_name: The name of the model being benchmarked.
         :type model_name: str
         :param n_jobs: Number of parallel jobs to execute for elasticity calculation. Since benchmarking is typically
@@ -257,7 +257,7 @@ class PhononBenchmark:
 
     def run(
         self,
-        calculator: PESCalculator,
+        calculator: Calculator,
         model_name: str,
         n_jobs: None | int = -1,
     ) -> pd.DataFrame:
@@ -266,8 +266,8 @@ class PhononBenchmark:
         The benchmarks compute constant-volume heat capacity (CV) for each structure, and evaluates the
         absolute error (AE) with respect to the ground truth data.
 
-        :param calculator: Instance of PESCalculator used for calculation.
-        :type calculator: PESCalculator
+        :param calculator: Instance of Calculator used for calculation.
+        :type calculator: Calculator
         :param model_name: The name of the model being benchmarked.
         :type model_name: str
         :param n_jobs: Number of parallel jobs to execute for phonon calculations. Defaults to -1, which uses
@@ -308,14 +308,14 @@ class BenchmarkSuite:
         """
         self.benchmarks = benchmarks
 
-    def run(self, calculators: dict[str, PESCalculator], n_jobs: int | None = -1) -> list[pd.DataFrame]:
+    def run(self, calculators: dict[str, Calculator], n_jobs: int | None = -1) -> list[pd.DataFrame]:
         """
         Executes the `run` method for each benchmark using the provided PES calculators and the number
         of jobs for parallel processing. The method manages multiple calculations for each benchmark and
         consolidates their results.
 
         :param calculators: A dictionary where keys are model names as strings and values
-            are instances of `PESCalculator`.
+            are instances of `Calculator`.
         :param n_jobs: Number of parallel jobs. Defaults to -1 which typically means using
             all available processors.
         :return: A list of pandas DataFrame objects, each DataFrame representing the consolidated
