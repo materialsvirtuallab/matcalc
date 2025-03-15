@@ -198,6 +198,7 @@ class ElasticityBenchmark:
 
         return results
 
+
 class PhononBenchmark:
     """
     A benchmarking class to process constant-volume heat capacity (CV) data from phonon calculations and evaluate
@@ -241,11 +242,13 @@ class PhononBenchmark:
 
         # Build the DataFrame rows and store the corresponding structures.
         for entry in entries:
-            rows.append({
-                "mp_id": entry["mp_id"],
-                "formula": entry["formula"],
-                "CV_DFT": entry["heat_capacity"],
-            })
+            rows.append(
+                {
+                    "mp_id": entry["mp_id"],
+                    "formula": entry["formula"],
+                    "CV_DFT": entry["heat_capacity"],
+                }
+            )
             structures.append(entry["structure"])
 
         self.structures = structures
@@ -282,8 +285,7 @@ class PhononBenchmark:
         # Compute the phonon property for all structures using parallel processing.
         properties = list(phonon_calc.calc_many(self.structures, n_jobs=n_jobs))
 
-        results[f"CV_{model_name}"] = [d["thermal_properties"]["heat_capacity"][30]
-                                       for d in properties]
+        results[f"CV_{model_name}"] = [d["thermal_properties"]["heat_capacity"][30] for d in properties]
         results[f"AE CV_{model_name}"] = np.abs(results[f"CV_{model_name}"] - results["CV_DFT"])
 
         return results
