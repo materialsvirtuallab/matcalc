@@ -85,6 +85,7 @@ class Benchmark(metaclass=abc.ABCMeta):
         calculator: Calculator,
         model_name: str,
         n_jobs: None | int = -1,
+        **kwargs,  # noqa:ANN003
     ) -> pd.DataFrame:
         """
         Runs the primary execution logic for the Calculator instance, allowing
@@ -95,6 +96,7 @@ class Benchmark(metaclass=abc.ABCMeta):
         :param n_jobs: The number of jobs for parallel computation. If None or omitted,
             defaults to -1, which signifies using all available processors.
         :return: A pandas DataFrame containing the results of the computations.
+        :param kwargs: Keyword arguments passthrough to the ElasticityCalculator.
         """
 
 
@@ -165,6 +167,7 @@ class ElasticityBenchmark:
         calculator: Calculator,
         model_name: str,
         n_jobs: None | int = -1,
+        **kwargs,  # noqa:ANN003
     ) -> pd.DataFrame:
         """
         Runs the elasticity benchmark for a given potential energy surface (PES)
@@ -183,13 +186,14 @@ class ElasticityBenchmark:
             and shear modulus for the given model, as well as their absolute
             errors compared to ground truth data.
         :rtype: pandas.DataFrame
+        :param kwargs: Keyword arguments passthrough to the calc_many.
         """
         results = self.ground_truth.copy()
 
         elastic_calc = ElasticityCalc(calculator, **self.kwargs)
 
         # We use trivial parallel processing in joblib to speed up the computations.
-        properties = list(elastic_calc.calc_many(self.structures, n_jobs=n_jobs))
+        properties = list(elastic_calc.calc_many(self.structures, n_jobs=n_jobs, **kwargs))
 
         results[f"K_{model_name}"] = [d["bulk_modulus_vrh"] * eVA3ToGPa for d in properties]
         results[f"G_{model_name}"] = [d["shear_modulus_vrh"] * eVA3ToGPa for d in properties]
@@ -260,6 +264,7 @@ class PhononBenchmark:
         calculator: Calculator,
         model_name: str,
         n_jobs: None | int = -1,
+        **kwargs,  # noqa:ANN003
     ) -> pd.DataFrame:
         """
         Runs the phonon benchmark for a given potential energy surface (PES) calculator and model name.
@@ -276,6 +281,7 @@ class PhononBenchmark:
         :return: DataFrame containing the computed phonon properties for the given model, along with the absolute
             errors compared to the ground truth data.
         :rtype: pandas.DataFrame
+        :param kwargs: Keyword arguments passthrough to the ElasticityCalculator.
         """
         results = self.ground_truth.copy()
 
@@ -283,7 +289,7 @@ class PhononBenchmark:
         phonon_calc = PhononCalc(calculator, **self.kwargs)
 
         # Compute the phonon property for all structures using parallel processing.
-        properties = list(phonon_calc.calc_many(self.structures, n_jobs=n_jobs))
+        properties = list(phonon_calc.calc_many(self.structures, n_jobs=n_jobs, **kwargs))
 
         results[f"CV_{model_name}"] = [d["thermal_properties"]["heat_capacity"][30] for d in properties]
         results[f"AE CV_{model_name}"] = np.abs(results[f"CV_{model_name}"] - results["CV_DFT"])
