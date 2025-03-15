@@ -5,7 +5,7 @@
 - All available elastic moduli in [Materials Project] downloaded in Mar 2025
 
 ### [alexandria-binary-phonon-2025.1.json.gz](alexandria-binary-phonon-2025.1.json.gz)
-- Phonon data downloaded from Alexandria database.
+- Phonon data of binaries downloaded from Alexandria database.
 
 
 [Materials Project]: http://materialsproject.org
