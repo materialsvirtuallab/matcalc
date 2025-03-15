@@ -29,7 +29,11 @@ class PropCalc(abc.ABC):
         """
 
     def calc_many(
-        self, structures: Sequence[Structure], n_jobs: None | int = None, **kwargs: Any
+        self,
+        structures: Sequence[Structure],
+        n_jobs: None | int = None,
+        allow_errors: bool = False,  # noqa: FBT001,FBT002
+        **kwargs: Any,
     ) -> Generator[dict, None, None]:
         """Performs calc on many structures. The return type is a generator given that the calc method can
         potentially be expensive. It is trivial to convert the generator to a list/tuple.
@@ -40,10 +44,20 @@ class PropCalc(abc.ABC):
                 (n_cpus + 1 + n_jobs) are used. None is a marker for `unset` that will be interpreted as n_jobs=1
                 unless the call is performed under a parallel_config() context manager that sets another value for
                 n_jobs.
+            allow_errors: Whether to skip failed calculatinos. For these calculations, None will be returned.
             **kwargs: Passthrough to joblib.Parallel.
 
         Returns:
             Generator of dicts.
         """
         parallel = Parallel(n_jobs=n_jobs, return_as="generator", **kwargs)
-        return parallel(delayed(self.calc)(s) for s in structures)
+        if allow_errors:
+
+            def _func(s: Structure) -> dict | None:
+                try:
+                    return self.calc(s)
+                except Exception:  # noqa: BLE001
+                    return None
+        else:
+            _func = self.calc  # type: ignore[assignment]
+        return parallel(delayed(_func)(s) for s in structures)

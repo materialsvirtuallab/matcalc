@@ -193,10 +193,14 @@ class ElasticityBenchmark:
         elastic_calc = ElasticityCalc(calculator, **self.kwargs)
 
         # We use trivial parallel processing in joblib to speed up the computations.
-        properties = list(elastic_calc.calc_many(self.structures, n_jobs=n_jobs, **kwargs))
+        properties = list(elastic_calc.calc_many(self.structures, n_jobs=n_jobs, allow_errors=True, **kwargs))
 
-        results[f"K_{model_name}"] = [d["bulk_modulus_vrh"] * eVA3ToGPa for d in properties]
-        results[f"G_{model_name}"] = [d["shear_modulus_vrh"] * eVA3ToGPa for d in properties]
+        results[f"K_{model_name}"] = [
+            d["bulk_modulus_vrh"] * eVA3ToGPa if d is not None else float("nan") for d in properties
+        ]
+        results[f"G_{model_name}"] = [
+            d["shear_modulus_vrh"] * eVA3ToGPa if d is not None else float("nan") for d in properties
+        ]
         results[f"AE K_{model_name}"] = np.abs(results[f"K_{model_name}"] - results["K_DFT"])
         results[f"AE G_{model_name}"] = np.abs(results[f"G_{model_name}"] - results["G_DFT"])
 
