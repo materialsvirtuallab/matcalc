@@ -116,7 +116,7 @@ class ElasticityBenchmark:
     def __init__(
         self,
         index_name: str = "mp_id",
-        benchmark_name: str | Path = "mp-binary-elasticity-2025.1.json.gz",
+        benchmark_name: str | Path = "mp-binary-pbe-elasticity-2025.1.json.gz",
         n_samples: int | None = None,
         seed: int = 42,
         **kwargs,  # noqa:ANN003
@@ -130,7 +130,7 @@ class ElasticityBenchmark:
 
         :param benchmark_name: Name or path of the benchmark file. It is either a string
             or a ``Path`` object depending on the data storage directory. Defaults to
-            "mp-binary-elasticity-2025.1.json.gz".
+            "mp-binary-pbe-elasticity-2025.1.json.gz".
         :param n_samples: Number of samples to extract randomly from entries. This is useful when you just want to
             run a small number of structures for code testing. If `None`, all entries from the file are used.
             Defaults to `None`.
@@ -218,7 +218,7 @@ class PhononBenchmark:
     def __init__(
         self,
         index_name: str = "mp_id",
-        benchmark_name: str | Path = "alexandria-binary-phonon-2025.1.json.gz",
+        benchmark_name: str | Path = "alexandria-binary-pbe-phonon-2025.1.json.gz",
         n_samples: int | None = None,
         seed: int = 42,
         **kwargs,  # noqa:ANN003
@@ -230,7 +230,7 @@ class PhononBenchmark:
         optional random seed.
 
         :param benchmark_name: Name or path of the benchmark file. Defaults to
-            "alexandria-binary-phonon-2025.1.json.gz".
+            "alexandria-binary-pbe-phonon-2025.1.json.gz".
         :param n_samples: Number of samples to extract randomly from entries. If `None`, all entries from the file
             are used.
         :param seed: Random seed used for reproducible sub-sampling of the entry dataset.

@@ -8,9 +8,24 @@ mpr = MPRester()
 docs = mpr.elasticity.search()
 docs_dict = [dict(d) for d in docs]
 for d in docs_dict:
-    for f in ["builder_meta", "state", "fields_not_requested", "nsites", "elements", "nelements", "composition",
-        "composition_reduced", "formula_anonymous", "symmetry", "property_name", "deprecated", "deprecation_reasons",
-        "last_updated", "origins", "warnings", "fitting_data"
+    for f in [
+        "builder_meta",
+        "state",
+        "fields_not_requested",
+        "nsites",
+        "elements",
+        "nelements",
+        "composition",
+        "composition_reduced",
+        "formula_anonymous",
+        "symmetry",
+        "property_name",
+        "deprecated",
+        "deprecation_reasons",
+        "last_updated",
+        "origins",
+        "warnings",
+        "fitting_data",
     ]:
         try:
             del d[f]
@@ -41,7 +56,6 @@ for d in docs_dict:
         del d["bulk_modulus"]
         del d["shear_modulus"]
 
-
         new_docs.append(d)
 
 # There are some wrong values in MP, e.g., bulk moduli exceeding 100000. We will clean the data
@@ -49,8 +63,8 @@ for d in docs_dict:
 
 print(f"Downloaded number of documents: {len(new_docs)}.")
 
-new_docs = [d for d in new_docs if d["bulk_modulus_vrh"] < 500 and d["shear_modulus_vrh"] < 500 ]
+new_docs = [d for d in new_docs if d["bulk_modulus_vrh"] < 500 and d["shear_modulus_vrh"] < 500]
 
 print(f"Final cleaned number of documents: {len(new_docs)}.")
 
-dumpfn(new_docs, "mp-elasticity-2025.3.json.gz")
+dumpfn(new_docs, "mp-pbe-elasticity-2025.3.json.gz")
