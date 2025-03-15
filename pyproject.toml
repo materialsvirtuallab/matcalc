@@ -36,7 +36,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = ["ase>=3.23.0", "joblib", "phonopy", "pymatgen", "numpy<2.0.0"]
-version = "0.0.4"
+version = "0.0.5"
 
 [project.optional-dependencies]
 models = ["chgnet>=0.3.8", "mace-torch>=0.3.6", "matgl>=1.0.0", "sevenn>=0.9.3", "maml>=2024.6.13", "dgl<=2.1.0", "torch<=2.2.1","nequip>=0.6.1"]

@@ -6,6 +6,10 @@ nav_order: 2
 
 # Change Log
 
+## 0.0.5
+
+- Initial release of benchmarking tools with Elasticity and Phonon benchmark data.
+
 ## v0.0.2
 
 - Minor updates to returned dicts.
