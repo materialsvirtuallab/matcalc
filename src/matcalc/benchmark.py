@@ -18,6 +18,7 @@ if typing.TYPE_CHECKING:
     from matcalc.utils import PESCalculator
 
 from .elasticity import ElasticityCalc
+from .phonon import PhononCalc
 
 eVA3ToGPa = constants.e / (constants.angstrom) ** 3 / constants.giga  # noqa: N816
 
@@ -127,7 +128,7 @@ class ElasticityBenchmark:
 
         :param benchmark_name: Name or path of the benchmark file. It is either a string
             or a ``Path`` object depending on the data storage directory. Defaults to
-            "mp-elasticity-2025.1.json.gz".
+            "mp-binary-elasticity-2025.1.json.gz".
         :param n_samples: Number of samples to extract randomly from entries. This is useful when you just want to
             run a small number of structures for code testing. If `None`, all entries from the file are used.
             Defaults to `None`.
@@ -190,10 +191,100 @@ class ElasticityBenchmark:
         # We use trivial parallel processing in joblib to speed up the computations.
         properties = list(elastic_calc.calc_many(self.structures, n_jobs=n_jobs))
 
-        results[f"K_{model_name}"] = [d["bulk_modulus_vrh"] * eVA3ToGPa for d in properties]
-        results[f"G_{model_name}"] = [d["shear_modulus_vrh"] * eVA3ToGPa for d in properties]
+        results[f"K_{model_name}"] = [d.get("bulk_modulus_vrh", np.nan) * eVA3ToGPa for d in properties]
+        results[f"G_{model_name}"] = [d.get("shear_modulus_vrh", np.nan) * eVA3ToGPa for d in properties]
         results[f"AE K_{model_name}"] = np.abs(results[f"K_{model_name}"] - results["K_DFT"])
         results[f"AE G_{model_name}"] = np.abs(results[f"G_{model_name}"] - results["G_DFT"])
+
+        return results
+
+class PhononBenchmark:
+    """
+    A benchmarking class to process constant-volume heat capacity (CV) data from phonon calculations and evaluate
+    potential energy surface models. The class initializes with benchmark data, handles sub-sampling for analytical
+    purposes, and computes phonon properties for evaluation.
+
+    :ivar kwargs: Additional parameters passed for customization.
+    :type kwargs: dict
+    :ivar _ground_truth: DataFrame holding the ground truth phonon properties extracted from the benchmark dataset.
+    :type _ground_truth: pandas.DataFrame
+    """
+
+    def __init__(
+        self,
+        index_name: str = "mp_id",
+        benchmark_name: str | Path = "alexandria-binary-phonon-2025.1.json.gz",
+        n_samples: int | None = None,
+        seed: int = 42,
+        **kwargs,  # noqa:ANN003
+    ) -> None:
+        """
+        Initializes the object by processing benchmark data and creating a DataFrame containing extracted data
+        for further analysis. This includes creating an entry list, extracting required fields from benchmark data,
+        and organizing associated structures. The initialization also supports sampling a subset of entries with an
+        optional random seed.
+
+        :param benchmark_name: Name or path of the benchmark file. Defaults to
+            "alexandria-binary-phonon-2025.1.json.gz".
+        :param n_samples: Number of samples to extract randomly from entries. If `None`, all entries from the file
+            are used.
+        :param seed: Random seed used for reproducible sub-sampling of the entry dataset.
+        :param kwargs: Additional keyword arguments passed through to the PhononCalc.
+        """
+        rows = []
+        structures = []
+        # Load the benchmark data from a file or a given path object.
+        entries = get_benchmark_data(benchmark_name) if isinstance(benchmark_name, str) else loadfn(benchmark_name)
+        if n_samples:
+            random.seed(seed)
+            entries = random.sample(entries, n_samples)
+
+        # Build the DataFrame rows and store the corresponding structures.
+        for entry in entries:
+            rows.append({
+                "mp_id": entry["mp_id"],
+                "formula": entry["formula"],
+                "CV_DFT": entry["heat_capacity"],
+            })
+            structures.append(entry["structure"])
+
+        self.structures = structures
+        self.kwargs = kwargs
+        self.ground_truth = pd.DataFrame(rows).set_index(index_name)
+
+    def run(
+        self,
+        calculator: PESCalculator,
+        model_name: str,
+        n_jobs: None | int = -1,
+    ) -> pd.DataFrame:
+        """
+        Runs the phonon benchmark for a given potential energy surface (PES) calculator and model name.
+        The benchmarks compute constant-volume heat capacity (CV) for each structure, and evaluates the
+        absolute error (AE) with respect to the ground truth data.
+
+        :param calculator: Instance of PESCalculator used for calculation.
+        :type calculator: PESCalculator
+        :param model_name: The name of the model being benchmarked.
+        :type model_name: str
+        :param n_jobs: Number of parallel jobs to execute for phonon calculations. Defaults to -1, which uses
+            all available processors.
+        :type n_jobs: None | int
+        :return: DataFrame containing the computed phonon properties for the given model, along with the absolute
+            errors compared to the ground truth data.
+        :rtype: pandas.DataFrame
+        """
+        results = self.ground_truth.copy()
+
+        # Initialize the phonon calculator with fixed parameters.
+        phonon_calc = PhononCalc(calculator, **self.kwargs)
+
+        # Compute the phonon property for all structures using parallel processing.
+        properties = list(phonon_calc.calc_many(self.structures, n_jobs=n_jobs))
+
+        results[f"CV_{model_name}"] = [d["thermal_properties"]["heat_capacity"][30] if d else np.nan
+                                       for d in properties]
+        results[f"AE CV_{model_name}"] = np.abs(results[f"CV_{model_name}"] - results["CV_DFT"])
 
         return results
 

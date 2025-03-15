@@ -28,6 +28,20 @@ class PropCalc(abc.ABC):
             dict[str, Any]: In the form {"prop_name": value}.
         """
 
+    def safe_calc(self, structure: Structure) -> dict:
+        """Wrapper for calc which catches exceptions. If an error occurs, it returns None.
+
+        Args:
+            structure: Pymatgen structure.
+
+        Returns:
+            dict[str, Any] or None: The result of calc or None if an exception is raised.
+        """
+        try:
+            return self.calc(structure)
+        except Exception: # noqa: BLE001
+            return {}
+
     def calc_many(
         self, structures: Sequence[Structure], n_jobs: None | int = None, **kwargs: Any
     ) -> Generator[dict, None, None]:
@@ -46,4 +60,4 @@ class PropCalc(abc.ABC):
             Generator of dicts.
         """
         parallel = Parallel(n_jobs=n_jobs, return_as="generator", **kwargs)
-        return parallel(delayed(self.calc)(s) for s in structures)
+        return parallel(delayed(self.safe_calc)(s) for s in structures)
