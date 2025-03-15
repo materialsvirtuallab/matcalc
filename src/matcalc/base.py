@@ -44,7 +44,7 @@ class PropCalc(abc.ABC):
                 (n_cpus + 1 + n_jobs) are used. None is a marker for `unset` that will be interpreted as n_jobs=1
                 unless the call is performed under a parallel_config() context manager that sets another value for
                 n_jobs.
-            allow_errors: Whether to skip failed calculatinos. For these calculations, None will be returned.
+            allow_errors: Whether to skip failed calculations. For these calculations, None will be returned.
             **kwargs: Passthrough to joblib.Parallel.
 
         Returns:
