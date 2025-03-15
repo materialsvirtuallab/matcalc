@@ -15,7 +15,7 @@ from monty.serialization import loadfn
 from scipy import constants
 
 if typing.TYPE_CHECKING:
-    from matcalc.utils import PESCalculator
+    from .utils import PESCalculator
 
 from .elasticity import ElasticityCalc
 from .phonon import PhononCalc
@@ -191,8 +191,8 @@ class ElasticityBenchmark:
         # We use trivial parallel processing in joblib to speed up the computations.
         properties = list(elastic_calc.calc_many(self.structures, n_jobs=n_jobs))
 
-        results[f"K_{model_name}"] = [d.get("bulk_modulus_vrh", np.nan) * eVA3ToGPa for d in properties]
-        results[f"G_{model_name}"] = [d.get("shear_modulus_vrh", np.nan) * eVA3ToGPa for d in properties]
+        results[f"K_{model_name}"] = [d["bulk_modulus_vrh"] * eVA3ToGPa for d in properties]
+        results[f"G_{model_name}"] = [d["shear_modulus_vrh"] * eVA3ToGPa for d in properties]
         results[f"AE K_{model_name}"] = np.abs(results[f"K_{model_name}"] - results["K_DFT"])
         results[f"AE G_{model_name}"] = np.abs(results[f"G_{model_name}"] - results["G_DFT"])
 
@@ -282,7 +282,7 @@ class PhononBenchmark:
         # Compute the phonon property for all structures using parallel processing.
         properties = list(phonon_calc.calc_many(self.structures, n_jobs=n_jobs))
 
-        results[f"CV_{model_name}"] = [d["thermal_properties"]["heat_capacity"][30] if d else np.nan
+        results[f"CV_{model_name}"] = [d["thermal_properties"]["heat_capacity"][30]
                                        for d in properties]
         results[f"AE CV_{model_name}"] = np.abs(results[f"CV_{model_name}"] - results["CV_DFT"])
 
