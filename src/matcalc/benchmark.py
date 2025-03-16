@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import abc
 import json
+import logging
 import random
 import typing
 from pathlib import Path
@@ -16,6 +17,7 @@ from scipy import constants
 
 if typing.TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
+    from pymatgen.core import Structure
 
 from .elasticity import ElasticityCalc
 from .phonon import PhononCalc
@@ -26,6 +28,9 @@ BENCHMARK_DATA_URL = "https://api.github.com/repos/materialsvirtuallab/matcalc/c
 BENCHMARK_DATA_DOWNLOAD_URL = "https://raw.githubusercontent.com/materialsvirtuallab/matcalc/main/benchmark_data"
 BENCHMARK_DATA_DIR = Path.home() / ".local" / "matcalc" / "benchmark_data"
 BENCHMARK_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_available_benchmarks() -> list[str]:
@@ -66,6 +71,29 @@ def get_benchmark_data(name: str) -> pd.DataFrame:
         else:
             raise requests.RequestException(f"Bad uri: {uri}")
     return loadfn(BENCHMARK_DATA_DIR / name)
+
+
+def _load_checkpoint(
+    checkpoint_file: str | Path | None, all_data: pd.DataFrame, all_structures: list[Structure], index_name: str
+) -> tuple[pd.DataFrame, list, list]:
+    if checkpoint_file and Path(checkpoint_file).exists():
+        already_done = pd.read_csv(checkpoint_file)
+        logger.info("Loaded %d entries from %s...", len(already_done), checkpoint_file)
+        results = already_done.to_dict("records")
+        done_ids = [d[index_name] for d in results]
+        data = []
+        structures = []
+        for i, d in enumerate(all_data.to_dict("records")):
+            if d[index_name] not in done_ids:
+                data.append(d)
+                structures.append(all_structures[i])
+        return results, data, structures
+    return [], all_data.to_dict("records"), all_structures
+
+
+def _save_checkpoint(checkpoint_file: str | Path | None, results: list, index_name: str) -> None:
+    logger.info("Saving %d entries to %s...", len(results), checkpoint_file)
+    pd.DataFrame(results).set_index(index_name).to_csv(checkpoint_file)
 
 
 class Benchmark(metaclass=abc.ABCMeta):
@@ -158,15 +186,18 @@ class ElasticityBenchmark:
             )
             structures.append(entry["structure"])
 
+        self.index_name = index_name
         self.structures = structures
         self.kwargs = kwargs
-        self.ground_truth = pd.DataFrame(rows).set_index(index_name)
+        self.ground_truth = pd.DataFrame(rows)
 
     def run(
         self,
         calculator: Calculator,
         model_name: str,
         n_jobs: None | int = -1,
+        checkpoint_file: str | Path | None = None,
+        checkpoint_freq: int = 1000,
         **kwargs,  # noqa:ANN003
     ) -> pd.DataFrame:
         """
@@ -188,23 +219,24 @@ class ElasticityBenchmark:
         :rtype: pandas.DataFrame
         :param kwargs: Keyword arguments passthrough to the calc_many.
         """
-        results = self.ground_truth.copy()
+        results, ground_truth, structures = _load_checkpoint(
+            checkpoint_file, self.ground_truth, self.structures, self.index_name
+        )
 
         elastic_calc = ElasticityCalc(calculator, **self.kwargs)
+        for i, d in enumerate(elastic_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs)):
+            r = ground_truth[i]
+            r[f"K_{model_name}"] = d["bulk_modulus_vrh"] * eVA3ToGPa if d is not None else float("nan")
+            r[f"G_{model_name}"] = d["shear_modulus_vrh"] * eVA3ToGPa if d is not None else float("nan")
+            r[f"AE K_{model_name}"] = np.abs(r[f"K_{model_name}"] - r["K_DFT"])
+            r[f"AE G_{model_name}"] = np.abs(r[f"G_{model_name}"] - r["G_DFT"])
 
-        # We use trivial parallel processing in joblib to speed up the computations.
-        properties = list(elastic_calc.calc_many(self.structures, n_jobs=n_jobs, allow_errors=True, **kwargs))
+            results.append(r)
 
-        results[f"K_{model_name}"] = [
-            d["bulk_modulus_vrh"] * eVA3ToGPa if d is not None else float("nan") for d in properties
-        ]
-        results[f"G_{model_name}"] = [
-            d["shear_modulus_vrh"] * eVA3ToGPa if d is not None else float("nan") for d in properties
-        ]
-        results[f"AE K_{model_name}"] = np.abs(results[f"K_{model_name}"] - results["K_DFT"])
-        results[f"AE G_{model_name}"] = np.abs(results[f"G_{model_name}"] - results["G_DFT"])
+            if checkpoint_file and (i + 1) % checkpoint_freq == 0:
+                _save_checkpoint(checkpoint_file, results, self.index_name)
 
-        return results
+        return pd.DataFrame(results)
 
 
 class PhononBenchmark:
