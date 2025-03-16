@@ -1,4 +1,4 @@
-"""This module contains functions for running benchmarks on materials properties."""
+"""This module implements classes for running benchmarks on materials properties."""
 
 from __future__ import annotations
 
@@ -76,6 +76,20 @@ def get_benchmark_data(name: str) -> pd.DataFrame:
 def _load_checkpoint(
     checkpoint_file: str | Path | None, all_data: pd.DataFrame, all_structures: list[Structure], index_name: str
 ) -> tuple[list, list, list]:
+    """
+    Loads a checkpoint file if it exists and filters the remaining data and structures
+    based on the entries already processed. If a checkpoint file is not provided or
+    doesn't exist, the function returns all the provided data and structures.
+
+    :param checkpoint_file: Path to the checkpoint file to load processed entries.
+    :param all_data: DataFrame containing all input data records.
+    :param all_structures: List of structures corresponding to the data records.
+    :param index_name: Name of the index field used to identify already processed entries.
+    :return: A tuple containing three lists:
+             - already processed records from the checkpoint file,
+             - remaining data not processed yet,
+             - remaining structures corresponding to unprocessed data.
+    """
     if checkpoint_file and Path(checkpoint_file).exists():
         already_done = pd.read_csv(checkpoint_file)
         logger.info("Loaded %d entries from %s...", len(already_done), checkpoint_file)
@@ -92,6 +106,17 @@ def _load_checkpoint(
 
 
 def _save_checkpoint(checkpoint_file: str | Path | None, results: list, index_name: str) -> None:
+    """
+    Saves a list of results as a CSV file at the specified checkpoint location. The function
+    takes a list of results, converts it into a pandas DataFrame, sets the specified index
+    column, and writes it to the provided file path.
+
+    :param checkpoint_file: The file path where the checkpoint data will be saved. Can be
+        a string, a Path object, or None. If None, no file is written.
+    :param results: A list of dictionaries or objects to be saved into a CSV file.
+    :param index_name: The name of the column to be set as the index in the resulting DataFrame.
+    :return: None
+    """
     logger.info("Saving %d entries to %s...", len(results), checkpoint_file)
     pd.DataFrame(results).set_index(index_name).to_csv(checkpoint_file)
 
@@ -378,16 +403,18 @@ class BenchmarkSuite:
         checkpoint_freq: int = 1000,
     ) -> list[pd.DataFrame]:
         """
-        Executes the `run` method for each benchmark using the provided PES calculators and the number
-        of jobs for parallel processing. The method manages multiple calculations for each benchmark and
-        consolidates their results.
+        Executes benchmarks using the provided calculators and combines the results into a
+        list of dataframes. Each benchmark runs for all models provided by calculators, collecting
+        individual results and performing validations during data combination.
 
-        :param calculators: A dictionary where keys are model names as strings and values
-            are instances of `Calculator`.
-        :param n_jobs: Number of parallel jobs. Defaults to -1 which typically means using
-            all available processors.
-        :return: A list of pandas DataFrame objects, each DataFrame representing the consolidated
-            results of all models for a particular benchmark.
+        :param calculators: A dictionary where the keys are the model names (str)
+            and the values are the corresponding calculator instances (Calculator).
+        :param n_jobs: The maximum number of concurrent jobs to run. If set to -1,
+            utilizes all available processors. Defaults to -1.
+        :param checkpoint_freq: The frequency at which progress is saved as checkpoints,
+            in terms of calculation steps. Defaults to 1000.
+        :return: A list of pandas DataFrames, each containing combined results
+            for all calculators across the benchmarks.
         """
         all_results = []
         for benchmark in self.benchmarks:
