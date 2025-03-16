@@ -4,24 +4,43 @@ import itertools
 import os
 from typing import TYPE_CHECKING
 
-import pandas as pd
+import numpy as np
 import pytest
-from matcalc.benchmark import BenchmarkSuite, ElasticityBenchmark, PhononBenchmark, get_available_benchmarks
+import requests
+from matcalc.benchmark import (
+    BenchmarkSuite,
+    ElasticityBenchmark,
+    PhononBenchmark,
+    _load_checkpoint,
+    get_available_benchmarks,
+    get_benchmark_data,
+)
 
 if TYPE_CHECKING:
     from matgl.ext.ase import M3GNetCalculator
+
+
+def test_get_benchmark_data() -> None:
+    d = get_benchmark_data("mp-pbe-elasticity-2025.3.json.gz")
+    assert len(d) > 10000
+    with pytest.raises(requests.RequestException) as _:
+        get_benchmark_data("bad_url")
 
 
 def test_elasticity_benchmark(M3GNetCalc: M3GNetCalculator) -> None:
     benchmark = ElasticityBenchmark(n_samples=10)
     results = benchmark.run(M3GNetCalc, "toy")
     assert len(results) == 10
-    assert results["AE K_toy"].mean() == pytest.approx(65.20042336543436, abs=1e-1)
+    # Compute MAE
+    assert np.abs(results["K_toy"] - results["K_DFT"]).mean() == pytest.approx(65.20042336543436, abs=1e-1)
 
     benchmark = ElasticityBenchmark(benchmark_name="mp-pbe-elasticity-2025.3.json.gz", n_samples=10)
     benchmark.run(M3GNetCalc, "toy", checkpoint_file="checkpoint.csv", checkpoint_freq=3)
     assert os.path.exists("checkpoint.csv")
-    assert len(pd.read_csv("checkpoint.csv")) % 3 == 0
+    results, data, structures = _load_checkpoint(
+        "checkpoint.csv", benchmark.ground_truth, benchmark.structures, "mp_id"
+    )
+    assert len(results) % 3 == 0
     os.remove("checkpoint.csv")
 
 
@@ -29,7 +48,7 @@ def test_phonon_benchmark(M3GNetCalc: M3GNetCalculator) -> None:
     benchmark = PhononBenchmark(n_samples=10, write_phonon=False)
     results = benchmark.run(M3GNetCalc, "toy")
     assert len(results) == 10
-    assert results["AE CV_toy"].mean() == pytest.approx(27.636954450580486, abs=1e-1)
+    assert np.abs(results["CV_toy"] - results["CV_DFT"]).mean() == pytest.approx(27.636954450580486, abs=1e-1)
 
 
 def test_benchmark_suite(M3GNetCalc: M3GNetCalculator) -> None:
