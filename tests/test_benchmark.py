@@ -17,6 +17,7 @@ def test_elasticity_benchmark(M3GNetCalc: M3GNetCalculator) -> None:
     assert len(results) == 10
     assert results["AE K_toy"].mean() == pytest.approx(65.20042336543436, abs=1e-1)
 
+    benchmark = ElasticityBenchmark(benchmark_name="mp-pbe-elasticity-2025.3.json.gz", n_samples=10)
     benchmark.run(M3GNetCalc, "toy", checkpoint_file="checkpoint.csv", checkpoint_freq=3)
     assert os.path.exists("checkpoint.csv")
     assert len(pd.read_csv("checkpoint.csv")) % 3 == 0

@@ -351,7 +351,7 @@ class PhononBenchmark:
             if checkpoint_file and (i + 1) % checkpoint_freq == 0:
                 _save_checkpoint(checkpoint_file, results, self.index_name)
 
-        return results
+        return pd.DataFrame(results)
 
 
 class BenchmarkSuite:
