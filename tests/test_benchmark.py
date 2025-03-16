@@ -50,7 +50,9 @@ def test_phonon_benchmark(M3GNetCalc: M3GNetCalculator) -> None:
     benchmark = PhononBenchmark(n_samples=10, write_phonon=False)
     results = benchmark.run(M3GNetCalc, "toy")
     assert len(results) == 10
-    assert np.abs(results["CV_toy"] - results["CV_DFT"]).mean() == pytest.approx(27.636954450580486, abs=1e-1)
+    assert np.abs(results["heat_capacity_toy"] - results["heat_capacity_DFT"]).mean() == pytest.approx(
+        27.636954450580486, abs=1e-1
+    )
 
 
 def test_benchmark_suite(M3GNetCalc: M3GNetCalculator) -> None:
@@ -66,8 +68,8 @@ def test_benchmark_suite(M3GNetCalc: M3GNetCalculator) -> None:
     assert "bulk_modulus_vrh_toy2" in results[0].columns
     assert "shear_modulus_vrh_toy1" in results[0].columns
     assert "shear_modulus_vrh_toy2" in results[0].columns
-    assert "CV_toy1" in results[1].columns
-    assert "CV_toy2" in results[1].columns
+    assert "heat_capacity_toy1" in results[1].columns
+    assert "heat_capacity_toy2" in results[1].columns
 
 
 def test_available_benchmarks() -> None:

@@ -124,44 +124,80 @@ def _save_checkpoint(checkpoint_file: str | Path | None, results: list, index_na
 
 class Benchmark(metaclass=abc.ABCMeta):
     """
-    A benchmarking class to process elasticity data and evaluate potential energy
-    surface models. The class initializes with benchmark data, handles sub-sampling
-    for analytical purposes, and computes elasticity properties for evaluation.
+    Represents an abstract base class for benchmarking elasticity properties of materials.
 
-    :ivar kwargs: Additional parameters passed for customization.
+    This class provides functionality to process benchmark data, create a DataFrame for analysis,
+    and run calculations using a specified potential energy surface (PES) calculator. It is designed
+    to facilitate benchmarking of bulk and shear moduli against pre-defined ground truth data.
+
+    :ivar properties: List of properties to extract and benchmark. These properties
+        are key inputs for analysis tasks.
+    :type properties: list[str]
+    :ivar other_fields: Tuple of additional fields in the benchmark entries to
+        include in the processed data. Useful for metadata or optional attributes.
+    :type other_fields: tuple[str]
+    :ivar index_name: Name of the index field in the benchmark dataset. This is used
+        as the primary key for identifying entries.
+    :type index_name: str
+    :ivar structures: List of structures extracted from the benchmark entries. Structures
+        are objects describing material geometries stored in the dataset.
+    :type structures: list[Structure]
+    :ivar kwargs: Additional keywords passed through to the ElasticityCalculator or associated
+        processes for extended configuration.
     :type kwargs: dict
-    :ivar _ground_truth: DataFrame holding the ground truth elastic properties
-        extracted from the benchmark dataset.
-    :type _ground_truth: pandas.DataFrame
+    :ivar ground_truth: DataFrame containing the processed benchmark data, including ground truth
+        reference values for materials properties.
+    :type ground_truth: pandas.DataFrame
     """
 
     def __init__(
         self,
         benchmark_name: str | Path,
-        properties: list[str],
+        properties: typing.Sequence[str],
         index_name: str,
-        other_fields: tuple[str] = (),
+        other_fields: tuple = (),
         suffix_ground_truth: str = "DFT",
         n_samples: int | None = None,
         seed: int = 42,
         **kwargs,  # noqa:ANN003
     ) -> None:
         """
-        Initializes the object by processing benchmark data and creating a DataFrame
-        containing extracted data for further analysis. This includes creating an
-        entry list, extracting required fields from benchmark data, and organizing
-        associated structures. The initialization also supports sampling a subset
-        of entries with an optional random seed.
+        Initializes an instance for processing benchmark data and constructing a DataFrame
+        representing the ground truth properties of input structures. Additionally, stores
+        information about input structures and other auxiliary data for further usage.
 
-        :param benchmark_name: Name or path of the benchmark file. It is either a string
-            or a ``Path`` object depending on the data storage directory. Defaults to
-            "mp-binary-pbe-elasticity-2025.1.json.gz".
-        :param n_samples: Number of samples to extract randomly from entries. This is useful when you just want to
-            run a small number of structures for code testing. If `None`, all entries from the file are used.
-            Defaults to `None`.
-        :param seed: Random seed used for reproducible sub-sampling of the entry dataset.
-            Defaults to 42.
-        :param kwargs: Keyword arguments passthrough to the ElasticityCalculator.
+        :param benchmark_name: The name of the benchmark dataset or a path to a file containing
+            the benchmark entries.
+        :type benchmark_name: str | Path
+
+        :param properties: A list of property names to extract.
+        :type properties: list[str]
+
+        :param index_name: The name of the field used as the index for the resulting DataFrame (typically a unique id
+            like mp_id).
+        :type index_name: str
+
+        :param other_fields: Additional fields to include in the DataFrame, default is an empty tuple. Useful ones
+            are for example formula or metadata.
+        :type other_fields: tuple[str]
+
+        :param suffix_ground_truth: The suffix added to the property names in the DataFrame for
+            distinguishing ground truth values, default is "DFT".
+        :type suffix_ground_truth: str
+
+        :param n_samples: Number of samples to randomly select from the benchmark dataset, or
+            ``None`` to include all samples, default is ``None``.
+        :type n_samples: int | None
+
+        :param seed: Seed value for random sampling of entries (if `n_samples` is specified), default is ``42``.
+        :type seed: int
+
+        :param kwargs: Additional keyword arguments for configuring the PropCalc..
+        :type kwargs: dict
+
+        :raises FileNotFoundError: If the provided `benchmark_name` is a path that does not exist.
+
+        :raises ValueError: If invalid or incomplete data is encountered in the benchmark entries.
         """
         rows = []
         structures = []
@@ -173,7 +209,7 @@ class Benchmark(metaclass=abc.ABCMeta):
         # We will first create a DataFrame from the required components from the raw data.
         # We also create the list of structures in the order of the entries.
         for entry in entries:
-            row = {k: entry[k] for k in [index_name] + list(other_fields)}
+            row = {k: entry[k] for k in [index_name, *other_fields]}
             for prop in properties:
                 row[f"{prop}_{suffix_ground_truth}"] = entry[prop]
             rows.append(row)
@@ -188,10 +224,37 @@ class Benchmark(metaclass=abc.ABCMeta):
         self.ground_truth = pd.DataFrame(rows)
 
     @abc.abstractmethod
-    def get_prop_calc(self, calculator: Calculator) -> PropCalc:
-        pass
+    def get_prop_calc(self, calculator: Calculator, **kwargs: typing.Any) -> PropCalc:
+        """
+        Abstract method to retrieve a property calculation object using the provided calculator and additional
+        parameters.
+        This method must be implemented by subclasses and will utilize the provided calculator to create a
+        `PropCalc` instance, possibly influenced by additional keyword arguments.
 
-    def process_result(self, result, model_name):
+        :param calculator: The calculator instance to be used for generating the property calculation.
+        :type calculator: Calculator
+        :param kwargs: Additional keyword arguments that can influence the property calculation process.
+        :type kwargs: dict
+        :return: An instance of `PropCalc` representing the property calculation result.
+        :rtype: PropCalc
+        """
+
+    def process_result(self, result: dict, model_name: str) -> dict:
+        """
+        Process a dictionary of results by appending the model name as a suffix to each key.
+
+        This method iterates through a given `result` dictionary, modifies each key by
+        adding the specified `model_name` as a suffix separated by an underscore, and
+        returns a new dictionary containing the updated key-value pairs. The keys to be
+        processed are determined by the `self.properties` attribute.
+
+        :param result: Input dictionary containing key-value pairs to be processed.
+        :type result: dict
+        :param model_name: The name of the model to append to each key as a suffix.
+        :type model_name: str
+        :return: A new dictionary with modified keys based on the model name suffix.
+        :rtype: dict
+        """
         return {f"{k}_{model_name}": result[k] for k in self.properties}
 
     def run(
@@ -204,23 +267,36 @@ class Benchmark(metaclass=abc.ABCMeta):
         **kwargs,  # noqa:ANN003
     ) -> pd.DataFrame:
         """
-        Runs the elasticity benchmark for a given potential energy surface (PES)
-        calculator and model name. The benchmark computes bulk and shear moduli,
-        and evaluates absolute error (AE) with respect to the ground truth data
-        for each modulus.
+        Processes a collection of structures using a calculator, saves intermittent
+        checkpoints, and returns the results in a DataFrame. This function supports
+        parallel computation and allows for error tolerance during processing.
 
-        :param calculator: Instance of Calculator used for calculation.
+        The function also retrieves a property calculator and utilizes it to calculate
+        desired results for the given set of structures. Checkpoints are saved
+        periodically based on the specified frequency, ensuring that progress is not
+        lost in case of interruptions.
+
+        :param calculator: ASE-compatible calculator instance used to provide PES information for PropCalc.
         :type calculator: Calculator
-        :param model_name: The name of the model being benchmarked.
+        :param model_name: Name of the model used for properties' calculation.
+            This name is updated in the results DataFrame.
         :type model_name: str
-        :param n_jobs: Number of parallel jobs to execute for elasticity calculation. Since benchmarking is typically
-            done on a large number of structures, the default is set to -1, which uses all available processors.
-        :type n_jobs: None | int
-        :return: DataFrame containing calculated properties, including bulk modulus
-            and shear modulus for the given model, as well as their absolute
-            errors compared to ground truth data.
-        :rtype: pandas.DataFrame
-        :param kwargs: Keyword arguments passthrough to the calc_many.
+        :param n_jobs: Number of parallel jobs to be used in the computation. Use -1
+            to allocate all cores available on the system. Defaults to -1.
+        :type n_jobs: int | None
+        :param checkpoint_file: File path where checkpoint data is saved periodically.
+            If None, no checkpoints are saved.
+        :type checkpoint_file: str | Path | None
+        :param checkpoint_freq: Frequency after which checkpoint data is saved.
+            Corresponds to the number of structures processed.
+        :type checkpoint_freq: int
+        :param kwargs: Additional keyword arguments passed to the property calculator,
+            for instance, to customize its behavior or computation options.
+        :type kwargs: dict
+        :return: A pandas DataFrame containing the processed results for the given
+            input structures. The DataFrame includes updated results and relevant
+            metrics.
+        :rtype: pd.DataFrame
         """
         results, ground_truth, structures = _load_checkpoint(
             checkpoint_file, self.ground_truth, self.structures, self.index_name
@@ -241,15 +317,22 @@ class Benchmark(metaclass=abc.ABCMeta):
 
 class ElasticityBenchmark(Benchmark):
     """
-    A benchmarking class to process elasticity data and evaluate potential energy
-    surface models. The class initializes with benchmark data, handles sub-sampling
-    for analytical purposes, and computes elasticity properties for evaluation.
+    Represents a benchmark for evaluating and analyzing mechanical properties such as
+    bulk modulus and shear modulus for various materials. The benchmark primarily utilizes
+    a dataset and provides functionality for property calculation and result processing.
 
-    :ivar kwargs: Additional parameters passed for customization.
+    The class is designed to work with a predefined framework for benchmarking mechanical
+    properties. The benchmark dataset contains values such as bulk modulus and shear
+    modulus along with additional metadata. This class supports configurability through
+    metadata files, index names, and additional benchmark properties. It relies on
+    external calculators and utility classes for property computations and result handling.
+
+    :ivar index_name: The name of the index identifying records in the benchmark dataset.
+    :type index_name: str
+    :ivar benchmark_name: The name or path to the benchmark dataset file.
+    :type benchmark_name: str | Path
+    :ivar kwargs: Additional configuration arguments for the benchmark framework.
     :type kwargs: dict
-    :ivar _ground_truth: DataFrame holding the ground truth elastic properties
-        extracted from the benchmark dataset.
-    :type _ground_truth: pandas.DataFrame
     """
 
     def __init__(
@@ -259,21 +342,19 @@ class ElasticityBenchmark(Benchmark):
         **kwargs,  # noqa:ANN003
     ) -> None:
         """
-        Initializes the object by processing benchmark data and creating a DataFrame
-        containing extracted data for further analysis. This includes creating an
-        entry list, extracting required fields from benchmark data, and organizing
-        associated structures. The initialization also supports sampling a subset
-        of entries with an optional random seed.
+        Initializes the ElasticityBenchmark instance by taking benchmark metadata and
+        additional configuration parameters. Sets up the benchmark framework with
+        specified mechanical properties and metadata.
 
-        :param benchmark_name: Name or path of the benchmark file. It is either a string
-            or a ``Path`` object depending on the data storage directory. Defaults to
-            "mp-binary-pbe-elasticity-2025.1.json.gz".
-        :param n_samples: Number of samples to extract randomly from entries. This is useful when you just want to
-            run a small number of structures for code testing. If `None`, all entries from the file are used.
-            Defaults to `None`.
-        :param seed: Random seed used for reproducible sub-sampling of the entry dataset.
-            Defaults to 42.
-        :param kwargs: Keyword arguments passthrough to the ElasticityCalculator.
+        :param index_name: The name of the index used to uniquely identify records
+                           in the benchmark dataset.
+        :type index_name: str
+        :param benchmark_name: The path or name of the benchmark file that contains
+                               the dataset. Can either be a string or a Path object.
+        :type benchmark_name: str | Path
+        :param kwargs: Additional keyword arguments that may be passed to parent
+                       class methods or used for customization.
+        :type kwargs: dict
         """
         super().__init__(
             benchmark_name,
@@ -283,121 +364,135 @@ class ElasticityBenchmark(Benchmark):
             **kwargs,
         )
 
-    def get_prop_calc(self, calculator: Calculator, **kwargs) -> PropCalc:
+    def get_prop_calc(self, calculator: Calculator, **kwargs: typing.Any) -> PropCalc:
+        """
+        Calculates and returns a property calculation object based on the provided
+        calculator and optional parameters. This is useful for initializing and
+        configuring a property calculation.
+
+        :param calculator: A Calculator object responsible for performing numerical
+           operations required for property calculations.
+        :param kwargs: Additional keyword arguments used for configuring the property
+           calculation.
+        :return: An initialized `PropCalc` object configured based on the specified
+           calculator and keyword arguments.
+        :rtype: PropCalc
+        """
         return ElasticityCalc(calculator, **kwargs)
 
-    def process_result(self, result, model_name) -> dict:
-        d = {}
-        d[f"bulk_modulus_vrh_{model_name}"] = (
-            result["bulk_modulus_vrh"] * eVA3ToGPa if result is not None else float("nan")
-        )
-        d[f"shear_modulus_vrh_{model_name}"] = (
-            result["shear_modulus_vrh"] * eVA3ToGPa if result is not None else float("nan")
-        )
-        return d
+    def process_result(self, result: dict, model_name: str) -> dict:
+        """
+        Processes the result dictionary containing bulk and shear modulus values, adjusts
+        them by multiplying with a predefined conversion factor, and formats the keys
+        according to the provided model name. If the result is None, default values of
+        NaN are returned for both bulk and shear modulus.
+
+        :param result:
+            A dictionary containing the bulk and shear modulus values under the keys
+            'bulk_modulus_vrh' and 'shear_modulus_vrh' respectively. It can also be
+            None to indicate missing data.
+        :type result: dict or None
+
+        :param model_name:
+            A string representing the identifier or name of the model. It will be used
+            to format the returned dictionary's keys.
+        :type model_name: str
+
+        :return:
+            A dictionary containing two entries. The keys will be dynamically created
+            by appending the model name to the terms 'bulk_modulus_vrh_' and
+            'shear_modulus_vrh_'. The values will either be scaled modulus values or
+            NaN if the input result is None.
+        :rtype: dict
+        """
+        return {
+            f"bulk_modulus_vrh_{model_name}": (
+                result["bulk_modulus_vrh"] * eVA3ToGPa if result is not None else float("nan")
+            ),
+            f"shear_modulus_vrh_{model_name}": (
+                result["shear_modulus_vrh"] * eVA3ToGPa if result is not None else float("nan")
+            ),
+        }
 
 
-class PhononBenchmark:
+class PhononBenchmark(Benchmark):
     """
-    A benchmarking class to process constant-volume heat capacity (CV) data from phonon calculations and evaluate
-    potential energy surface models. The class initializes with benchmark data, handles sub-sampling for analytical
-    purposes, and computes phonon properties for evaluation.
+    Manages phonon benchmarking tasks, such as initializing benchmark data,
+    performing calculations, and processing results.
 
-    :ivar kwargs: Additional parameters passed for customization.
-    :type kwargs: dict
-    :ivar _ground_truth: DataFrame holding the ground truth phonon properties extracted from the benchmark dataset.
-    :type _ground_truth: pandas.DataFrame
+    This class facilitates constructing and managing phonon benchmarks based on
+    provided data. It supports operations for processing benchmark data,
+    extracting relevant attributes, and computing thermal properties. It is
+    compatible with various calculators and is designed to streamline the
+    benchmarking process for materials' phonon-related properties.
+
+    :ivar index_name: The primary data index used to reference entries in the
+        benchmark data. Defaults to "mp_id".
+    :type index_name: str
+    :ivar benchmark_name: The name or path of the benchmark file containing test
+        cases and data. Defaults to "alexandria-binary-pbe-phonon-2025.1.json.gz".
+    :type benchmark_name: str | Path
+    :ivar properties: List of properties to extract and analyze. Defined as
+        ("heat_capacity",) by default.
+    :type properties: tuple
     """
 
     def __init__(
         self,
         index_name: str = "mp_id",
         benchmark_name: str | Path = "alexandria-binary-pbe-phonon-2025.1.json.gz",
-        n_samples: int | None = None,
-        seed: int = 42,
         **kwargs,  # noqa:ANN003
     ) -> None:
         """
-        Initializes the object by processing benchmark data and creating a DataFrame containing extracted data
-        for further analysis. This includes creating an entry list, extracting required fields from benchmark data,
-        and organizing associated structures. The initialization also supports sampling a subset of entries with an
-        optional random seed.
+        Initializes an instance with specified index and benchmark details.
 
-        :param benchmark_name: Name or path of the benchmark file. Defaults to
-            "alexandria-binary-pbe-phonon-2025.1.json.gz".
-        :param n_samples: Number of samples to extract randomly from entries. If `None`, all entries from the file
-            are used.
-        :param seed: Random seed used for reproducible sub-sampling of the entry dataset.
-        :param kwargs: Additional keyword arguments passed through to the PhononCalc.
+        This constructor sets up an object with predefined properties such as heat
+        capacity and additional fields such as the formula. It supports customizations
+        via keyword arguments for further configurations.
+
+        :param index_name: The name of the index to be used for identification in
+            the dataset.
+        :param benchmark_name: The benchmark file name or path containing
+            the dataset information in JSON or compressed format.
+        :param kwargs: Additional optional parameters for configuration.
         """
-        rows = []
-        structures = []
-        # Load the benchmark data from a file or a given path object.
-        entries = get_benchmark_data(benchmark_name) if isinstance(benchmark_name, str) else loadfn(benchmark_name)
-        if n_samples:
-            random.seed(seed)
-            entries = random.sample(entries, n_samples)
-
-        # Build the DataFrame rows and store the corresponding structures.
-        for entry in entries:
-            rows.append(
-                {
-                    "mp_id": entry["mp_id"],
-                    "formula": entry["formula"],
-                    "CV_DFT": entry["heat_capacity"],
-                }
-            )
-            structures.append(entry["structure"])
-
-        self.index_name = index_name
-        self.structures = structures
-        self.kwargs = kwargs
-        self.ground_truth = pd.DataFrame(rows)
-
-    def run(
-        self,
-        calculator: Calculator,
-        model_name: str,
-        n_jobs: None | int = -1,
-        checkpoint_file: str | Path | None = None,
-        checkpoint_freq: int = 1000,
-        **kwargs,  # noqa:ANN003
-    ) -> pd.DataFrame:
-        """
-        Executes the phonon calculation workflow using the given phonon calculator, model name,
-        and various optional parameters. The function supports checkpointing to save intermediate
-        results during long-running computations. It calculates heat capacity for a list of
-        structures and stores the results in a DataFrame.
-
-        :param calculator: The phonon calculator instance used to perform the calculations.
-        :param model_name: The name of the model being used for the calculations. This will be
-                           used as a key in the resulting DataFrame.
-        :param n_jobs: Number of parallel jobs to run. If None or -1, it uses all available cores.
-        :param checkpoint_file: Path for saving checkpoint files. If provided, intermediate
-                                results will be saved to this file during computation.
-        :param checkpoint_freq: Frequency at which intermediate results are saved to the
-                                checkpoint file. After every 'checkpoint_freq' structures, the
-                                results are saved.
-        :param kwargs: Additional keyword arguments passed to the phonon calculation methods.
-        :return: A DataFrame containing the calculated results, including heat capacities for
-                 the structures processed.
-        """
-        results, data, structures = _load_checkpoint(
-            checkpoint_file, self.ground_truth, self.structures, self.index_name
+        super().__init__(
+            benchmark_name, properties=("heat_capacity",), index_name=index_name, other_fields=("formula",), **kwargs
         )
 
-        # Initialize the phonon calculator with fixed parameters.
-        phonon_calc = PhononCalc(calculator, **self.kwargs)
-        for i, d in enumerate(phonon_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs)):
-            r = data[i]
-            r[f"CV_{model_name}"] = d["thermal_properties"]["heat_capacity"][30]
+    def get_prop_calc(self, calculator: Calculator, **kwargs: typing.Any) -> PropCalc:
+        """
+        Retrieves a phonon calculation instance based on the given calculator and
+        additional keyword arguments.
 
-            results.append(r)
+        This function initializes and returns a `PhononCalc` object using the provided
+        calculator instance and any optional keyword arguments to configure the
+        calculation further.
 
-            if checkpoint_file and (i + 1) % checkpoint_freq == 0:
-                _save_checkpoint(checkpoint_file, results, self.index_name)
+        :param calculator: The calculator instance used to perform the phonon
+            calculation. Must be an instance of the `Calculator` class.
+        :param kwargs: Additional keyword arguments for configuring the resulting
+            `PhononCalc` instance.
+        :return: A new `PhononCalc` object, initialized with the input calculator and
+            optional parameters.
+        :rtype: PropCalc
+        """
+        return PhononCalc(calculator, **kwargs)
 
-        return pd.DataFrame(results)
+    def process_result(self, result: dict, model_name: str) -> dict:
+        """
+        Processes the result dictionary to extract specific thermal property information for the provided model name.
+
+        :param result: Dictionary containing thermal properties, with keys structured to access relevant data
+            like "thermal_properties" and "heat_capacity".
+        :type result: dict
+        :param model_name: The model name used as a prefix in returned result keys.
+        :type model_name: str
+        :return: A dictionary containing the specific heat capacity at a particular index (e.g., 30),
+            prefixed by the model name.
+        :rtype: dict
+        """
+        return {f"heat_capacity_{model_name}": result["thermal_properties"]["heat_capacity"][30]}
 
 
 class BenchmarkSuite:
