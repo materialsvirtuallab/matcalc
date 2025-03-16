@@ -1,3 +1,7 @@
+"""
+Script for generating elasticity data from Materials Project.
+"""
+
 from __future__ import annotations
 
 from monty.serialization import dumpfn
@@ -63,8 +67,21 @@ for d in docs_dict:
 
 print(f"Downloaded number of documents: {len(new_docs)}.")
 
-new_docs = [d for d in new_docs if d["bulk_modulus_vrh"] < 500 and d["shear_modulus_vrh"] < 500]
+clean_docs = []
+for d in new_docs:
+    if (
+        d["bulk_modulus_vrh"] > 500
+        or d["shear_modulus_vrh"] > 500
+        or d["bulk_modulus_vrh"] <= 0
+        or d["shear_modulus_vrh"] <= 0
+    ):
+        continue
+    if d["formula"] in ["H2", "N2", "O2", "F2", "Cl2", "He", "Xe", "Ne", "Kr", "Ar"]:  # Remove known gases
+        continue
+    if d["density"] < 0.5:  # Remove any materials with density lower than Li (the least dense solid element)
+        continue
+    clean_docs.append(d)
 
-print(f"Final cleaned number of documents: {len(new_docs)}.")
+print(f"Final cleaned number of documents: {len(clean_docs)}.")
 
-dumpfn(new_docs, "mp-pbe-elasticity-2025.3.json.gz")
+dumpfn(clean_docs, "mp-pbe-elasticity-2025.3.json.gz")
