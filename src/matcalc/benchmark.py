@@ -387,8 +387,9 @@ class BenchmarkSuite:
         all_results = []
         for benchmark in self.benchmarks:
             results: list[pd.DataFrame] = []
+            chkpt_file = f"{benchmark!s}.csv"
             for model_name, calculator in calculators.items():
-                result = benchmark.run(calculator, model_name, n_jobs=n_jobs)
+                result = benchmark.run(calculator, model_name, n_jobs=n_jobs, checkpoint_file=chkpt_file)
                 if results:
                     # Remove duplicate DFT columns.
                     todrop = [c for c in result.columns if c in results[0].columns]
