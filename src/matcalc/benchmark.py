@@ -9,7 +9,6 @@ import random
 import typing
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import requests
 from monty.serialization import loadfn
@@ -266,8 +265,6 @@ class ElasticityBenchmark:
             r = data[i]
             r[f"K_{model_name}"] = d["bulk_modulus_vrh"] * eVA3ToGPa if d is not None else float("nan")
             r[f"G_{model_name}"] = d["shear_modulus_vrh"] * eVA3ToGPa if d is not None else float("nan")
-            r[f"AE K_{model_name}"] = np.abs(r[f"K_{model_name}"] - r["K_DFT"])
-            r[f"AE G_{model_name}"] = np.abs(r[f"G_{model_name}"] - r["G_DFT"])
 
             results.append(r)
 
@@ -344,21 +341,23 @@ class PhononBenchmark:
         **kwargs,  # noqa:ANN003
     ) -> pd.DataFrame:
         """
-        Runs the phonon benchmark for a given potential energy surface (PES) calculator and model name.
-        The benchmarks compute constant-volume heat capacity (CV) for each structure, and evaluates the
-        absolute error (AE) with respect to the ground truth data.
+        Executes the phonon calculation workflow using the given phonon calculator, model name,
+        and various optional parameters. The function supports checkpointing to save intermediate
+        results during long-running computations. It calculates heat capacity for a list of
+        structures and stores the results in a DataFrame.
 
-        :param calculator: Instance of Calculator used for calculation.
-        :type calculator: Calculator
-        :param model_name: The name of the model being benchmarked.
-        :type model_name: str
-        :param n_jobs: Number of parallel jobs to execute for phonon calculations. Defaults to -1, which uses
-            all available processors.
-        :type n_jobs: None | int
-        :return: DataFrame containing the computed phonon properties for the given model, along with the absolute
-            errors compared to the ground truth data.
-        :rtype: pandas.DataFrame
-        :param kwargs: Keyword arguments passthrough to the ElasticityCalculator.
+        :param calculator: The phonon calculator instance used to perform the calculations.
+        :param model_name: The name of the model being used for the calculations. This will be
+                           used as a key in the resulting DataFrame.
+        :param n_jobs: Number of parallel jobs to run. If None or -1, it uses all available cores.
+        :param checkpoint_file: Path for saving checkpoint files. If provided, intermediate
+                                results will be saved to this file during computation.
+        :param checkpoint_freq: Frequency at which intermediate results are saved to the
+                                checkpoint file. After every 'checkpoint_freq' structures, the
+                                results are saved.
+        :param kwargs: Additional keyword arguments passed to the phonon calculation methods.
+        :return: A DataFrame containing the calculated results, including heat capacities for
+                 the structures processed.
         """
         results, data, structures = _load_checkpoint(
             checkpoint_file, self.ground_truth, self.structures, self.index_name
@@ -369,7 +368,6 @@ class PhononBenchmark:
         for i, d in enumerate(phonon_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs)):
             r = data[i]
             r[f"CV_{model_name}"] = d["thermal_properties"]["heat_capacity"][30]
-            r[f"AE CV_{model_name}"] = np.abs(r[f"CV_{model_name}"] - r["CV_DFT"])
 
             results.append(r)
 
