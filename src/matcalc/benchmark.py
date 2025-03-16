@@ -307,7 +307,7 @@ class PhononBenchmark:
         self.index_name = index_name
         self.structures = structures
         self.kwargs = kwargs
-        self.ground_truth = pd.DataFrame(rows).set_index(index_name)
+        self.ground_truth = pd.DataFrame(rows)
 
     def run(
         self,
@@ -371,7 +371,12 @@ class BenchmarkSuite:
         """
         self.benchmarks = benchmarks
 
-    def run(self, calculators: dict[str, Calculator], n_jobs: int | None = -1) -> list[pd.DataFrame]:
+    def run(
+        self,
+        calculators: dict[str, Calculator],
+        n_jobs: int | None = -1,
+        checkpoint_freq: int = 1000,
+    ) -> list[pd.DataFrame]:
         """
         Executes the `run` method for each benchmark using the provided PES calculators and the number
         of jobs for parallel processing. The method manages multiple calculations for each benchmark and
@@ -387,9 +392,11 @@ class BenchmarkSuite:
         all_results = []
         for benchmark in self.benchmarks:
             results: list[pd.DataFrame] = []
-            chkpt_file = f"{benchmark!s}.csv"
             for model_name, calculator in calculators.items():
-                result = benchmark.run(calculator, model_name, n_jobs=n_jobs, checkpoint_file=chkpt_file)
+                chkpt_file = f"{benchmark.__class__.__name__}_{model_name}.csv"
+                result = benchmark.run(
+                    calculator, model_name, n_jobs=n_jobs, checkpoint_file=chkpt_file, checkpoint_freq=checkpoint_freq
+                )
                 if results:
                     # Remove duplicate DFT columns.
                     todrop = [c for c in result.columns if c in results[0].columns]

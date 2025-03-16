@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 import os
 from typing import TYPE_CHECKING
 
@@ -32,11 +33,13 @@ def test_phonon_benchmark(M3GNetCalc: M3GNetCalculator) -> None:
 
 
 def test_benchmark_suite(M3GNetCalc: M3GNetCalculator) -> None:
-    elasticity_benchmark = ElasticityBenchmark(n_samples=1)
-    phonon_benchmark = PhononBenchmark(n_samples=1, write_phonon=False)
+    elasticity_benchmark = ElasticityBenchmark(n_samples=2)
+    phonon_benchmark = PhononBenchmark(n_samples=2, write_phonon=False)
     suite = BenchmarkSuite(benchmarks=[elasticity_benchmark, phonon_benchmark])
-    results = suite.run({"toy1": M3GNetCalc, "toy2": M3GNetCalc})
-
+    results = suite.run({"toy1": M3GNetCalc, "toy2": M3GNetCalc}, checkpoint_freq=1)
+    for bench, name in itertools.product(["ElasticityBenchmark", "PhononBenchmark"], ["toy1", "toy2"]):
+        assert os.path.exists(f"{bench}_{name}.csv")
+        os.remove(f"{bench}_{name}.csv")
     assert len(results) == 2
     assert "K_toy1" in results[0].columns
     assert "K_toy2" in results[0].columns
