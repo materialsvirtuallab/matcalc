@@ -75,7 +75,7 @@ def get_benchmark_data(name: str) -> pd.DataFrame:
 
 def _load_checkpoint(
     checkpoint_file: str | Path | None, all_data: pd.DataFrame, all_structures: list[Structure], index_name: str
-) -> tuple[pd.DataFrame, list, list]:
+) -> tuple[list, list, list]:
     if checkpoint_file and Path(checkpoint_file).exists():
         already_done = pd.read_csv(checkpoint_file)
         logger.info("Loaded %d entries from %s...", len(already_done), checkpoint_file)
@@ -201,31 +201,44 @@ class ElasticityBenchmark:
         **kwargs,  # noqa:ANN003
     ) -> pd.DataFrame:
         """
-        Runs the elasticity benchmark for a given potential energy surface (PES)
-        calculator and model name. The benchmark computes bulk and shear moduli,
-        and evaluates absolute error (AE) with respect to the ground truth data
-        for each modulus.
+        Executes the calculation of elastic properties for the provided structures using
+        a given calculator, and compares the results with ground truth data.
 
-        :param calculator: Instance of Calculator used for calculation.
+        This function leverages the ElasticityCalc class for the calculation of elastic
+        moduli and performs bulk and shear modulus calculations. Additionally, the absolute
+        errors between the model predictions and DFT reference data are computed. The results
+        can be optionally saved in checkpoint files at regular intervals.
+
+        :param calculator: Calculator instance used to compute elastic properties.
         :type calculator: Calculator
-        :param model_name: The name of the model being benchmarked.
+        :param model_name: Name or identifier for the predictive model.
         :type model_name: str
-        :param n_jobs: Number of parallel jobs to execute for elasticity calculation. Since benchmarking is typically
-            done on a large number of structures, the default is set to -1, which uses all available processors.
+        :param n_jobs: Number of parallel jobs to use for computations. Defaults to -1,
+            meaning it will use all available cores. Can be set to None for single-threaded
+            execution.
         :type n_jobs: None | int
-        :return: DataFrame containing calculated properties, including bulk modulus
-            and shear modulus for the given model, as well as their absolute
-            errors compared to ground truth data.
-        :rtype: pandas.DataFrame
-        :param kwargs: Keyword arguments passthrough to the calc_many.
+        :param checkpoint_file: Path to a file used to store computation checkpoints.
+            If set to None, no checkpointing will occur.
+        :type checkpoint_file: str | Path | None
+        :param checkpoint_freq: Frequency at which checkpoints are saved, defined in terms
+            of the number of processed structures. Defaults to 1000.
+        :type checkpoint_freq: int
+        :param kwargs: Additional keyword arguments passed to the ElasticityCalc instance
+            during computation.
+        :type kwargs: dict
+
+        :return: A Pandas DataFrame containing computed elastic properties (bulk modulus,
+            shear modulus) and their absolute errors compared to ground truth data, for
+            each structure.
+        :rtype: pd.DataFrame
         """
-        results, ground_truth, structures = _load_checkpoint(
+        results, data, structures = _load_checkpoint(
             checkpoint_file, self.ground_truth, self.structures, self.index_name
         )
 
         elastic_calc = ElasticityCalc(calculator, **self.kwargs)
         for i, d in enumerate(elastic_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs)):
-            r = ground_truth[i]
+            r = data[i]
             r[f"K_{model_name}"] = d["bulk_modulus_vrh"] * eVA3ToGPa if d is not None else float("nan")
             r[f"G_{model_name}"] = d["shear_modulus_vrh"] * eVA3ToGPa if d is not None else float("nan")
             r[f"AE K_{model_name}"] = np.abs(r[f"K_{model_name}"] - r["K_DFT"])
@@ -291,6 +304,7 @@ class PhononBenchmark:
             )
             structures.append(entry["structure"])
 
+        self.index_name = index_name
         self.structures = structures
         self.kwargs = kwargs
         self.ground_truth = pd.DataFrame(rows).set_index(index_name)
@@ -300,6 +314,8 @@ class PhononBenchmark:
         calculator: Calculator,
         model_name: str,
         n_jobs: None | int = -1,
+        checkpoint_file: str | Path | None = None,
+        checkpoint_freq: int = 1000,
         **kwargs,  # noqa:ANN003
     ) -> pd.DataFrame:
         """
@@ -319,16 +335,21 @@ class PhononBenchmark:
         :rtype: pandas.DataFrame
         :param kwargs: Keyword arguments passthrough to the ElasticityCalculator.
         """
-        results = self.ground_truth.copy()
+        results, data, structures = _load_checkpoint(
+            checkpoint_file, self.ground_truth, self.structures, self.index_name
+        )
 
         # Initialize the phonon calculator with fixed parameters.
         phonon_calc = PhononCalc(calculator, **self.kwargs)
+        for i, d in enumerate(phonon_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs)):
+            r = data[i]
+            r[f"CV_{model_name}"] = d["thermal_properties"]["heat_capacity"][30]
+            r[f"AE CV_{model_name}"] = np.abs(r[f"CV_{model_name}"] - r["CV_DFT"])
 
-        # Compute the phonon property for all structures using parallel processing.
-        properties = list(phonon_calc.calc_many(self.structures, n_jobs=n_jobs, **kwargs))
+            results.append(r)
 
-        results[f"CV_{model_name}"] = [d["thermal_properties"]["heat_capacity"][30] for d in properties]
-        results[f"AE CV_{model_name}"] = np.abs(results[f"CV_{model_name}"] - results["CV_DFT"])
+            if checkpoint_file and (i + 1) % checkpoint_freq == 0:
+                _save_checkpoint(checkpoint_file, results, self.index_name)
 
         return results
 
