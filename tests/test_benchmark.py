@@ -32,7 +32,9 @@ def test_elasticity_benchmark(M3GNetCalc: M3GNetCalculator) -> None:
     results = benchmark.run(M3GNetCalc, "toy")
     assert len(results) == 10
     # Compute MAE
-    assert np.abs(results["K_toy"] - results["K_DFT"]).mean() == pytest.approx(65.20042336543436, abs=1e-1)
+    assert np.abs(results["bulk_modulus_vrh_toy"] - results["bulk_modulus_vrh_DFT"]).mean() == pytest.approx(
+        65.20042336543436, abs=1e-1
+    )
 
     benchmark = ElasticityBenchmark(benchmark_name="mp-pbe-elasticity-2025.3.json.gz", n_samples=10)
     benchmark.run(M3GNetCalc, "toy", checkpoint_file="checkpoint.csv", checkpoint_freq=3)
@@ -60,10 +62,10 @@ def test_benchmark_suite(M3GNetCalc: M3GNetCalculator) -> None:
         assert os.path.exists(f"{bench}_{name}.csv")
         os.remove(f"{bench}_{name}.csv")
     assert len(results) == 2
-    assert "K_toy1" in results[0].columns
-    assert "K_toy2" in results[0].columns
-    assert "G_toy1" in results[0].columns
-    assert "G_toy2" in results[0].columns
+    assert "bulk_modulus_vrh_toy1" in results[0].columns
+    assert "bulk_modulus_vrh_toy2" in results[0].columns
+    assert "shear_modulus_vrh_toy1" in results[0].columns
+    assert "shear_modulus_vrh_toy2" in results[0].columns
     assert "CV_toy1" in results[1].columns
     assert "CV_toy2" in results[1].columns
 

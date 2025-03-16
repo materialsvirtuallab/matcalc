@@ -18,6 +18,8 @@ if typing.TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
     from pymatgen.core import Structure
 
+    from .base import PropCalc
+
 from .elasticity import ElasticityCalc
 from .phonon import PhononCalc
 
@@ -122,38 +124,6 @@ def _save_checkpoint(checkpoint_file: str | Path | None, results: list, index_na
 
 class Benchmark(metaclass=abc.ABCMeta):
     """
-    Defines an abstract base class for benchmarking implementations.
-
-    This class serves as a blueprint for creating benchmarking tools
-    that operate with a predictive engagement system calculator
-    and model names. Subclasses must implement the abstract
-    `run` method, which is responsible for executing the benchmarking
-    logic.
-    """
-
-    @abc.abstractmethod
-    def run(
-        self,
-        calculator: Calculator,
-        model_name: str,
-        n_jobs: None | int = -1,
-        **kwargs,  # noqa:ANN003
-    ) -> pd.DataFrame:
-        """
-        Runs the primary execution logic for the Calculator instance, allowing
-        for computation using a specific model and optional parallelization.
-
-        :param calculator: The Calculator instance that performs the computations.
-        :param model_name: The name of the model to be used during computation.
-        :param n_jobs: The number of jobs for parallel computation. If None or omitted,
-            defaults to -1, which signifies using all available processors.
-        :return: A pandas DataFrame containing the results of the computations.
-        :param kwargs: Keyword arguments passthrough to the ElasticityCalculator.
-        """
-
-
-class ElasticityBenchmark:
-    """
     A benchmarking class to process elasticity data and evaluate potential energy
     surface models. The class initializes with benchmark data, handles sub-sampling
     for analytical purposes, and computes elasticity properties for evaluation.
@@ -167,8 +137,11 @@ class ElasticityBenchmark:
 
     def __init__(
         self,
-        index_name: str = "mp_id",
-        benchmark_name: str | Path = "mp-binary-pbe-elasticity-2025.1.json.gz",
+        benchmark_name: str | Path,
+        properties: list[str],
+        index_name: str,
+        other_fields: tuple[str] = (),
+        suffix_ground_truth: str = "DFT",
         n_samples: int | None = None,
         seed: int = 42,
         **kwargs,  # noqa:ANN003
@@ -200,20 +173,26 @@ class ElasticityBenchmark:
         # We will first create a DataFrame from the required components from the raw data.
         # We also create the list of structures in the order of the entries.
         for entry in entries:
-            rows.append(
-                {
-                    "mp_id": entry["mp_id"],
-                    "formula": entry["formula"],
-                    "K_DFT": entry["bulk_modulus_vrh"],
-                    "G_DFT": entry["shear_modulus_vrh"],
-                }
-            )
+            row = {k: entry[k] for k in [index_name] + list(other_fields)}
+            for prop in properties:
+                row[f"{prop}_{suffix_ground_truth}"] = entry[prop]
+            rows.append(row)
+
             structures.append(entry["structure"])
 
+        self.properties = properties
+        self.other_fields = other_fields
         self.index_name = index_name
         self.structures = structures
         self.kwargs = kwargs
         self.ground_truth = pd.DataFrame(rows)
+
+    @abc.abstractmethod
+    def get_prop_calc(self, calculator: Calculator) -> PropCalc:
+        pass
+
+    def process_result(self, result, model_name):
+        return {f"{k}_{model_name}": result[k] for k in self.properties}
 
     def run(
         self,
@@ -225,46 +204,32 @@ class ElasticityBenchmark:
         **kwargs,  # noqa:ANN003
     ) -> pd.DataFrame:
         """
-        Executes the calculation of elastic properties for the provided structures using
-        a given calculator, and compares the results with ground truth data.
+        Runs the elasticity benchmark for a given potential energy surface (PES)
+        calculator and model name. The benchmark computes bulk and shear moduli,
+        and evaluates absolute error (AE) with respect to the ground truth data
+        for each modulus.
 
-        This function leverages the ElasticityCalc class for the calculation of elastic
-        moduli and performs bulk and shear modulus calculations. Additionally, the absolute
-        errors between the model predictions and DFT reference data are computed. The results
-        can be optionally saved in checkpoint files at regular intervals.
-
-        :param calculator: Calculator instance used to compute elastic properties.
+        :param calculator: Instance of Calculator used for calculation.
         :type calculator: Calculator
-        :param model_name: Name or identifier for the predictive model.
+        :param model_name: The name of the model being benchmarked.
         :type model_name: str
-        :param n_jobs: Number of parallel jobs to use for computations. Defaults to -1,
-            meaning it will use all available cores. Can be set to None for single-threaded
-            execution.
+        :param n_jobs: Number of parallel jobs to execute for elasticity calculation. Since benchmarking is typically
+            done on a large number of structures, the default is set to -1, which uses all available processors.
         :type n_jobs: None | int
-        :param checkpoint_file: Path to a file used to store computation checkpoints.
-            If set to None, no checkpointing will occur.
-        :type checkpoint_file: str | Path | None
-        :param checkpoint_freq: Frequency at which checkpoints are saved, defined in terms
-            of the number of processed structures. Defaults to 1000.
-        :type checkpoint_freq: int
-        :param kwargs: Additional keyword arguments passed to the ElasticityCalc instance
-            during computation.
-        :type kwargs: dict
-
-        :return: A Pandas DataFrame containing computed elastic properties (bulk modulus,
-            shear modulus) and their absolute errors compared to ground truth data, for
-            each structure.
-        :rtype: pd.DataFrame
+        :return: DataFrame containing calculated properties, including bulk modulus
+            and shear modulus for the given model, as well as their absolute
+            errors compared to ground truth data.
+        :rtype: pandas.DataFrame
+        :param kwargs: Keyword arguments passthrough to the calc_many.
         """
-        results, data, structures = _load_checkpoint(
+        results, ground_truth, structures = _load_checkpoint(
             checkpoint_file, self.ground_truth, self.structures, self.index_name
         )
 
-        elastic_calc = ElasticityCalc(calculator, **self.kwargs)
-        for i, d in enumerate(elastic_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs)):
-            r = data[i]
-            r[f"K_{model_name}"] = d["bulk_modulus_vrh"] * eVA3ToGPa if d is not None else float("nan")
-            r[f"G_{model_name}"] = d["shear_modulus_vrh"] * eVA3ToGPa if d is not None else float("nan")
+        prop_calc = self.get_prop_calc(calculator, **self.kwargs)
+        for i, d in enumerate(prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs)):
+            r = ground_truth[i]
+            r.update(self.process_result(d, model_name))
 
             results.append(r)
 
@@ -272,6 +237,64 @@ class ElasticityBenchmark:
                 _save_checkpoint(checkpoint_file, results, self.index_name)
 
         return pd.DataFrame(results)
+
+
+class ElasticityBenchmark(Benchmark):
+    """
+    A benchmarking class to process elasticity data and evaluate potential energy
+    surface models. The class initializes with benchmark data, handles sub-sampling
+    for analytical purposes, and computes elasticity properties for evaluation.
+
+    :ivar kwargs: Additional parameters passed for customization.
+    :type kwargs: dict
+    :ivar _ground_truth: DataFrame holding the ground truth elastic properties
+        extracted from the benchmark dataset.
+    :type _ground_truth: pandas.DataFrame
+    """
+
+    def __init__(
+        self,
+        index_name: str = "mp_id",
+        benchmark_name: str | Path = "mp-binary-pbe-elasticity-2025.1.json.gz",
+        **kwargs,  # noqa:ANN003
+    ) -> None:
+        """
+        Initializes the object by processing benchmark data and creating a DataFrame
+        containing extracted data for further analysis. This includes creating an
+        entry list, extracting required fields from benchmark data, and organizing
+        associated structures. The initialization also supports sampling a subset
+        of entries with an optional random seed.
+
+        :param benchmark_name: Name or path of the benchmark file. It is either a string
+            or a ``Path`` object depending on the data storage directory. Defaults to
+            "mp-binary-pbe-elasticity-2025.1.json.gz".
+        :param n_samples: Number of samples to extract randomly from entries. This is useful when you just want to
+            run a small number of structures for code testing. If `None`, all entries from the file are used.
+            Defaults to `None`.
+        :param seed: Random seed used for reproducible sub-sampling of the entry dataset.
+            Defaults to 42.
+        :param kwargs: Keyword arguments passthrough to the ElasticityCalculator.
+        """
+        super().__init__(
+            benchmark_name,
+            properties=("bulk_modulus_vrh", "shear_modulus_vrh"),
+            index_name=index_name,
+            other_fields=("formula",),
+            **kwargs,
+        )
+
+    def get_prop_calc(self, calculator: Calculator, **kwargs) -> PropCalc:
+        return ElasticityCalc(calculator, **kwargs)
+
+    def process_result(self, result, model_name) -> dict:
+        d = {}
+        d[f"bulk_modulus_vrh_{model_name}"] = (
+            result["bulk_modulus_vrh"] * eVA3ToGPa if result is not None else float("nan")
+        )
+        d[f"shear_modulus_vrh_{model_name}"] = (
+            result["shear_modulus_vrh"] * eVA3ToGPa if result is not None else float("nan")
+        )
+        return d
 
 
 class PhononBenchmark:
