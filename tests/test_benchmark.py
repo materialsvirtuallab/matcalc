@@ -32,9 +32,7 @@ def test_elasticity_benchmark(M3GNetCalc: M3GNetCalculator) -> None:
     results = benchmark.run(M3GNetCalc, "toy")
     assert len(results) == 10
     # Compute MAE
-    assert np.abs(results["bulk_modulus_vrh_toy"] - results["bulk_modulus_vrh_DFT"]).mean() == pytest.approx(
-        65.20042336543436, abs=1e-1
-    )
+    assert np.abs(results["K_vrh_toy"] - results["K_vrh_DFT"]).mean() == pytest.approx(65.20042336543436, abs=1e-1)
 
     benchmark = ElasticityBenchmark(benchmark_name="mp-pbe-elasticity-2025.3.json.gz", n_samples=10)
     benchmark.run(M3GNetCalc, "toy", checkpoint_file="checkpoint.csv", checkpoint_freq=3)
@@ -50,13 +48,17 @@ def test_phonon_benchmark(M3GNetCalc: M3GNetCalculator) -> None:
     benchmark = PhononBenchmark(n_samples=10, write_phonon=False)
     results = benchmark.run(M3GNetCalc, "toy")
     assert len(results) == 10
-    assert np.abs(results["heat_capacity_toy"] - results["heat_capacity_DFT"]).mean() == pytest.approx(
-        27.636954450580486, abs=1e-1
-    )
+    assert np.abs(results["CV_toy"] - results["CV_DFT"]).mean() == pytest.approx(27.636954450580486, abs=1e-1)
 
 
 def test_benchmark_suite(M3GNetCalc: M3GNetCalculator) -> None:
-    elasticity_benchmark = ElasticityBenchmark(n_samples=2)
+    elasticity_benchmark = ElasticityBenchmark(n_samples=2, benchmark_name="mp-pbe-elasticity-2025.3.json.gz")
+    elasticity_benchmark.run(
+        M3GNetCalc,
+        "toy1",
+        checkpoint_file="checkpoint.csv",
+        checkpoint_freq=1,
+    )
     phonon_benchmark = PhononBenchmark(n_samples=2, write_phonon=False)
     suite = BenchmarkSuite(benchmarks=[elasticity_benchmark, phonon_benchmark])
     results = suite.run({"toy1": M3GNetCalc, "toy2": M3GNetCalc}, checkpoint_freq=1)
@@ -64,12 +66,13 @@ def test_benchmark_suite(M3GNetCalc: M3GNetCalculator) -> None:
         assert os.path.exists(f"{bench}_{name}.csv")
         os.remove(f"{bench}_{name}.csv")
     assert len(results) == 2
-    assert "bulk_modulus_vrh_toy1" in results[0].columns
-    assert "bulk_modulus_vrh_toy2" in results[0].columns
-    assert "shear_modulus_vrh_toy1" in results[0].columns
-    assert "shear_modulus_vrh_toy2" in results[0].columns
-    assert "heat_capacity_toy1" in results[1].columns
-    assert "heat_capacity_toy2" in results[1].columns
+    assert "K_vrh_toy1" in results[0].columns
+    assert "K_vrh_toy2" in results[0].columns
+    assert "G_vrh_toy1" in results[0].columns
+    assert "G_vrh_toy2" in results[0].columns
+    assert "CV_toy1" in results[1].columns
+    assert "CV_toy2" in results[1].columns
+    os.remove("checkpoint.csv")
 
 
 def test_available_benchmarks() -> None:

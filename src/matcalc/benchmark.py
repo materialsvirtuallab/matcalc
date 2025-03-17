@@ -156,6 +156,7 @@ class Benchmark(metaclass=abc.ABCMeta):
         properties: typing.Sequence[str],
         index_name: str,
         other_fields: tuple = (),
+        property_rename_map: dict[str, str] | None = None,
         suffix_ground_truth: str = "DFT",
         n_samples: int | None = None,
         seed: int = 42,
@@ -180,6 +181,9 @@ class Benchmark(metaclass=abc.ABCMeta):
         :param other_fields: Additional fields to include in the DataFrame, default is an empty tuple. Useful ones
             are for example formula or metadata.
         :type other_fields: tuple[str]
+
+        :param property_rename_map: A dict used to rename the properties for easier reading.
+        :type property_rename_map: dict | None
 
         :param suffix_ground_truth: The suffix added to the property names in the DataFrame for
             distinguishing ground truth values, default is "DFT".
@@ -221,6 +225,7 @@ class Benchmark(metaclass=abc.ABCMeta):
         self.index_name = index_name
         self.structures = structures
         self.kwargs = kwargs
+        self.property_rename_map = property_rename_map or {}
         self.ground_truth = pd.DataFrame(rows)
 
     @abc.abstractmethod
@@ -239,14 +244,12 @@ class Benchmark(metaclass=abc.ABCMeta):
         :rtype: PropCalc
         """
 
+    @abc.abstractmethod
     def process_result(self, result: dict, model_name: str) -> dict:
         """
-        Process a dictionary of results by appending the model name as a suffix to each key.
-
-        This method iterates through a given `result` dictionary, modifies each key by
-        adding the specified `model_name` as a suffix separated by an underscore, and
-        returns a new dictionary containing the updated key-value pairs. The keys to be
-        processed are determined by the `self.properties` attribute.
+        Implements post-processing of results. A default implementation is provided that simply appends the model name
+        as a suffix to the key of the input dictionary for all properties. Subclasses can override this method to
+        provide more sophisticated processing.
 
         :param result: Input dictionary containing key-value pairs to be processed.
         :type result: dict
@@ -303,16 +306,24 @@ class Benchmark(metaclass=abc.ABCMeta):
         )
 
         prop_calc = self.get_prop_calc(calculator, **self.kwargs)
-        for i, d in enumerate(prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs)):
-            r = ground_truth[i]
+        # We make sure of the generator from prop_calc.calc_many to do this in a memory efficient manner.
+        # Allow errors typically should be true since some of the calculations may fail.
+        for r, d in zip(ground_truth, prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs)):
             r.update(self.process_result(d, model_name))
-
             results.append(r)
-
-            if checkpoint_file and (i + 1) % checkpoint_freq == 0:
+            if checkpoint_file and len(results) % checkpoint_freq == 0:
                 _save_checkpoint(checkpoint_file, results, self.index_name)
 
-        return pd.DataFrame(results)
+        results_df = pd.DataFrame(results)
+        if self.property_rename_map:
+
+            def _rename_property(col: str) -> str:
+                for k, v in self.property_rename_map.items():
+                    col = col.replace(k, v)
+                return col
+
+            results_df = results_df.rename(columns=_rename_property)
+        return results_df
 
 
 class ElasticityBenchmark(Benchmark):
@@ -359,6 +370,7 @@ class ElasticityBenchmark(Benchmark):
         super().__init__(
             benchmark_name,
             properties=("bulk_modulus_vrh", "shear_modulus_vrh"),
+            property_rename_map={"bulk_modulus": "K", "shear_modulus": "G"},
             index_name=index_name,
             other_fields=("formula",),
             **kwargs,
@@ -457,7 +469,12 @@ class PhononBenchmark(Benchmark):
         :param kwargs: Additional optional parameters for configuration.
         """
         super().__init__(
-            benchmark_name, properties=("heat_capacity",), index_name=index_name, other_fields=("formula",), **kwargs
+            benchmark_name,
+            properties=("heat_capacity",),
+            index_name=index_name,
+            other_fields=("formula",),
+            property_rename_map={"heat_capacity": "CV"},
+            **kwargs,
         )
 
     def get_prop_calc(self, calculator: Calculator, **kwargs: typing.Any) -> PropCalc:

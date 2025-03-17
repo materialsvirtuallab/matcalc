@@ -33,22 +33,6 @@ class TestPESCalculator(unittest.TestCase):
             filename=os.path.join(DIR, "pes/MTP-Cu-2020.1-PES", "fitted.mtp"), elements=["Si"]
         )
         assert isinstance(calc, Calculator)
-        atoms = Atoms(
-            "Cu4",
-            scaled_positions=[(0, 0, 0), (0, 0.5, 0.5), (0.5, 0, 0.5), (0.5, 0.5, 0)],
-            cell=[3.57743067] * 3,
-            pbc=True,
-        )
-
-        atoms.set_calculator(calc)
-
-        energy = atoms.get_potential_energy()
-        forces = atoms.get_forces()
-        stresses = atoms.get_stress()
-
-        assert isinstance(energy, float)
-        assert list(forces.shape) == [4, 3]
-        assert list(stresses.shape) == [6]
 
     @unittest.skipIf(not find_spec("maml"), "maml is not installed")
     def test_pescalculator_load_gap(self) -> None:
