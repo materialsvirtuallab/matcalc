@@ -65,12 +65,15 @@ def get_benchmark_data(name: str) -> pd.DataFrame:
     """
     if not (BENCHMARK_DATA_DIR / name).exists():
         uri = f"{BENCHMARK_DATA_DOWNLOAD_URL}/{name}"
+        logger.info("Downloading benchmark from %s...", uri)
         r = requests.get(uri)  # noqa: S113
         if r.status_code == 200:  # noqa: PLR2004
             with open(BENCHMARK_DATA_DIR / name, "wb") as f:
                 f.write(r.content)
         else:
             raise requests.RequestException(f"Bad uri: {uri}")
+    else:
+        logger.info("Using existing benchmark file %s...", BENCHMARK_DATA_DIR / name)
     return loadfn(BENCHMARK_DATA_DIR / name)
 
 
@@ -307,7 +310,7 @@ class Benchmark(metaclass=abc.ABCMeta):
 
         prop_calc = self.get_prop_calc(calculator, **self.kwargs)
         # We make sure of the generator from prop_calc.calc_many to do this in a memory efficient manner.
-        # Allow errors typically should be true since some of the calculations may fail.
+        # allow_errors typically should be true since some of the calculations may fail.
         for r, d in zip(ground_truth, prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs)):
             r.update(self.process_result(d, model_name))
             results.append(r)
@@ -337,13 +340,6 @@ class ElasticityBenchmark(Benchmark):
     modulus along with additional metadata. This class supports configurability through
     metadata files, index names, and additional benchmark properties. It relies on
     external calculators and utility classes for property computations and result handling.
-
-    :ivar index_name: The name of the index identifying records in the benchmark dataset.
-    :type index_name: str
-    :ivar benchmark_name: The name or path to the benchmark dataset file.
-    :type benchmark_name: str | Path
-    :ivar kwargs: Additional configuration arguments for the benchmark framework.
-    :type kwargs: dict
     """
 
     def __init__(
@@ -437,16 +433,6 @@ class PhononBenchmark(Benchmark):
     extracting relevant attributes, and computing thermal properties. It is
     compatible with various calculators and is designed to streamline the
     benchmarking process for materials' phonon-related properties.
-
-    :ivar index_name: The primary data index used to reference entries in the
-        benchmark data. Defaults to "mp_id".
-    :type index_name: str
-    :ivar benchmark_name: The name or path of the benchmark file containing test
-        cases and data. Defaults to "alexandria-binary-pbe-phonon-2025.1.json.gz".
-    :type benchmark_name: str | Path
-    :ivar properties: List of properties to extract and analyze. Defined as
-        ("heat_capacity",) by default.
-    :type properties: tuple
     """
 
     def __init__(
