@@ -367,12 +367,12 @@ class ElasticityBenchmark(Benchmark):
                        class methods or used for customization.
         :type kwargs: dict
         """
+        kwargs.setdefault("properties", ("bulk_modulus_vrh", "shear_modulus_vrh"))
+        kwargs.setdefault("property_rename_map", {"bulk_modulus": "K", "shear_modulus": "G"})
+        kwargs.setdefault("other_fields", ("formula",))
         super().__init__(
             benchmark_name,
-            properties=("bulk_modulus_vrh", "shear_modulus_vrh"),
-            property_rename_map={"bulk_modulus": "K", "shear_modulus": "G"},
             index_name=index_name,
-            other_fields=("formula",),
             **kwargs,
         )
 
@@ -468,12 +468,12 @@ class PhononBenchmark(Benchmark):
             the dataset information in JSON or compressed format.
         :param kwargs: Additional optional parameters for configuration.
         """
+        kwargs.setdefault("properties", ("heat_capacity",))
+        kwargs.setdefault("property_rename_map", {"heat_capacity": "CV"})
+        kwargs.setdefault("other_fields", ("formula",))
         super().__init__(
             benchmark_name,
-            properties=("heat_capacity",),
             index_name=index_name,
-            other_fields=("formula",),
-            property_rename_map={"heat_capacity": "CV"},
             **kwargs,
         )
 
