@@ -330,7 +330,8 @@ class Benchmark(metaclass=abc.ABCMeta):
                 full_results.append(d)
             if checkpoint_file and len(results) % checkpoint_freq == 0:
                 _save_checkpoint(checkpoint_file, results, self.index_name)
-                dumpfn(full_results, results_save_file)
+                if results_save_file:
+                    dumpfn(full_results, results_save_file)
 
         if results_save_file:
             dumpfn(full_results, results_save_file)
