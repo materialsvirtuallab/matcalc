@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 import requests
-from monty.serialization import loadfn
+from monty.serialization import dumpfn, loadfn
 from scipy import constants
 
 if typing.TYPE_CHECKING:
@@ -78,7 +78,10 @@ def get_benchmark_data(name: str) -> pd.DataFrame:
 
 
 def _load_checkpoint(
-    checkpoint_file: str | Path | None, all_data: pd.DataFrame, all_structures: list[Structure], index_name: str
+    checkpoint_file: str | Path | None,
+    all_data: pd.DataFrame,
+    all_structures: list[Structure],
+    index_name: str,
 ) -> tuple[list, list, list]:
     """
     Loads a checkpoint file if it exists and filters the remaining data and structures
@@ -270,6 +273,7 @@ class Benchmark(metaclass=abc.ABCMeta):
         n_jobs: None | int = -1,
         checkpoint_file: str | Path | None = None,
         checkpoint_freq: int = 1000,
+        results_save_file: str | Path | None = None,
         **kwargs,  # noqa:ANN003
     ) -> pd.DataFrame:
         """
@@ -296,6 +300,10 @@ class Benchmark(metaclass=abc.ABCMeta):
         :param checkpoint_freq: Frequency after which checkpoint data is saved.
             Corresponds to the number of structures processed.
         :type checkpoint_freq: int
+        :param results_save_file: File path where full results data is saved periodically. This is useful when you
+            foresee you want analyze the results afterwards. For instance, the ElasticityProp does not just compute the
+            bulk and shear moduli, but also the full elastic tensors. These can be useful for other kinds of analysis.
+        :type results_save_file: str | Path | None
         :param kwargs: Additional keyword arguments passed to the property calculator,
             for instance, to customize its behavior or computation options.
         :type kwargs: dict
@@ -308,15 +316,24 @@ class Benchmark(metaclass=abc.ABCMeta):
             checkpoint_file, self.ground_truth, self.structures, self.index_name
         )
 
+        full_results = loadfn(results_save_file) if results_save_file and Path(results_save_file).exists() else []
         prop_calc = self.get_prop_calc(calculator, **self.kwargs)
         # We make sure of the generator from prop_calc.calc_many to do this in a memory efficient manner.
         # allow_errors typically should be true since some of the calculations may fail.
-        for r, d in zip(ground_truth, prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs)):
+        for r, d in zip(
+            ground_truth,
+            prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs),
+        ):
             r.update(self.process_result(d, model_name))
             results.append(r)
+            if results_save_file:
+                full_results.append(d)
             if checkpoint_file and len(results) % checkpoint_freq == 0:
                 _save_checkpoint(checkpoint_file, results, self.index_name)
+                dumpfn(full_results, results_save_file)
 
+        if results_save_file:
+            dumpfn(full_results, results_save_file)
         results_df = pd.DataFrame(results)
         if self.property_rename_map:
 
@@ -541,7 +558,11 @@ class BenchmarkSuite:
             for model_name, calculator in calculators.items():
                 chkpt_file = f"{benchmark.__class__.__name__}_{model_name}.csv"
                 result = benchmark.run(
-                    calculator, model_name, n_jobs=n_jobs, checkpoint_file=chkpt_file, checkpoint_freq=checkpoint_freq
+                    calculator,
+                    model_name,
+                    n_jobs=n_jobs,
+                    checkpoint_file=chkpt_file,
+                    checkpoint_freq=checkpoint_freq,
                 )
                 if results:
                     # Remove duplicate DFT columns.

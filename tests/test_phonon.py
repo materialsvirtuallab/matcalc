@@ -7,13 +7,12 @@ import os
 from typing import TYPE_CHECKING
 
 import pytest
-
 from matcalc.phonon import PhononCalc
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from matgl.ext.ase import M3GNetCalculator
+    from matgl.ext.ase import PESCalculator
     from pymatgen.core import Structure
 
 
@@ -23,7 +22,7 @@ if TYPE_CHECKING:
 )
 def test_phonon_calc(
     Li2O: Structure,
-    M3GNetCalc: M3GNetCalculator,
+    pes_calculator: PESCalculator,
     tmp_path: Path,
     force_const_file: str,
     band_struct_file: str,
@@ -45,7 +44,7 @@ def test_phonon_calc(
         "write_phonon": phonon_yaml,
     }
     phonon_calc = PhononCalc(
-        calculator=M3GNetCalc,
+        calculator=pes_calculator,
         supercell_matrix=((2, 0, 0), (0, 2, 0), (0, 0, 2)),
         fmax=0.1,
         t_step=50,

@@ -5,14 +5,13 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 from ase.filters import ExpCellFilter, FrechetCellFilter
-
 from matcalc.relaxation import RelaxCalc
 
 if TYPE_CHECKING:
     from pathlib import Path
 
     from ase.filters import Filter
-    from matgl.ext.ase import M3GNetCalculator
+    from matgl.ext.ase import PESCalculator
     from nuampy.typing import ArrayLike
     from pymatgen.core import Structure
 
@@ -23,14 +22,14 @@ if TYPE_CHECKING:
 )
 def test_relax_calc_relax_cell(
     Li2O: Structure,
-    M3GNetCalc: M3GNetCalculator,
+    pes_calculator: PESCalculator,
     tmp_path: Path,
     cell_filter: Filter,
     expected_a: float,
     expected_energy: float,
 ) -> None:
     relax_calc = RelaxCalc(
-        M3GNetCalc,
+        pes_calculator,
         traj_file=f"{tmp_path}/li2o_relax.txt",
         optimizer="FIRE",
         cell_filter=cell_filter,
@@ -56,10 +55,18 @@ def test_relax_calc_relax_cell(
 
 @pytest.mark.parametrize(("expected_a", "expected_energy"), [(3.291072, -14.176713)])
 def test_relax_calc_relax_atoms(
-    Li2O: Structure, M3GNetCalc: M3GNetCalculator, tmp_path: Path, expected_a: float, expected_energy: float
+    Li2O: Structure,
+    pes_calculator: PESCalculator,
+    tmp_path: Path,
+    expected_a: float,
+    expected_energy: float,
 ) -> None:
     relax_calc = RelaxCalc(
-        M3GNetCalc, traj_file=f"{tmp_path}/li2o_relax.txt", optimizer="FIRE", relax_atoms=True, relax_cell=False
+        pes_calculator,
+        traj_file=f"{tmp_path}/li2o_relax.txt",
+        optimizer="FIRE",
+        relax_atoms=True,
+        relax_cell=False,
     )
     result = relax_calc.calc(Li2O)
     final_struct: Structure = result["final_structure"]
@@ -91,18 +98,21 @@ def test_relax_calc_relax_atoms(
                 ],
                 dtype=np.float32,
             ),
-            np.array([0.003883, 0.004126, 0.003089, -0.000617, -0.000839, -0.000391], dtype=np.float32),
+            np.array(
+                [0.003883, 0.004126, 0.003089, -0.000617, -0.000839, -0.000391],
+                dtype=np.float32,
+            ),
         ),
     ],
 )
 def test_static_calc(
     Li2O: Structure,
-    M3GNetCalc: M3GNetCalculator,
+    pes_calculator: PESCalculator,
     expected_energy: float,
     expected_forces: ArrayLike,
     expected_stresses: ArrayLike,
 ) -> None:
-    relax_calc = RelaxCalc(M3GNetCalc, relax_atoms=False, relax_cell=False)
+    relax_calc = RelaxCalc(pes_calculator, relax_atoms=False, relax_cell=False)
     result = relax_calc.calc(Li2O)
 
     energy: float = result["energy"]
@@ -114,14 +124,22 @@ def test_static_calc(
     assert np.allclose(stresses, expected_stresses, rtol=1e-3)
 
 
-@pytest.mark.parametrize(("cell_filter", "expected_a"), [(ExpCellFilter, 3.288585), (FrechetCellFilter, 3.291072)])
-def test_relax_calc_many(Li2O: Structure, M3GNetCalc: M3GNetCalculator, cell_filter: Filter, expected_a: float) -> None:
-    relax_calc = RelaxCalc(M3GNetCalc, optimizer="FIRE", cell_filter=cell_filter)
+@pytest.mark.parametrize(
+    ("cell_filter", "expected_a"),
+    [(ExpCellFilter, 3.288585), (FrechetCellFilter, 3.291072)],
+)
+def test_relax_calc_many(
+    Li2O: Structure,
+    pes_calculator: PESCalculator,
+    cell_filter: Filter,
+    expected_a: float,
+) -> None:
+    relax_calc = RelaxCalc(pes_calculator, optimizer="FIRE", cell_filter=cell_filter)
     results = list(relax_calc.calc_many([Li2O] * 2))
     assert len(results) == 2
     assert results[-1]["a"] == pytest.approx(expected_a, rel=1e-3)
 
 
-def test_relax_calc_invalid_optimizer(M3GNetCalc: M3GNetCalculator) -> None:
+def test_relax_calc_invalid_optimizer(pes_calculator: PESCalculator) -> None:
     with pytest.raises(ValueError, match="Unknown optimizer='invalid', must be one of "):
-        RelaxCalc(M3GNetCalc, optimizer="invalid")
+        RelaxCalc(pes_calculator, optimizer="invalid")

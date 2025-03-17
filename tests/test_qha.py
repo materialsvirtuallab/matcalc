@@ -7,13 +7,12 @@ import os
 from typing import TYPE_CHECKING
 
 import pytest
-
 from matcalc.qha import QHACalc
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from matgl.ext.ase import M3GNetCalculator
+    from matgl.ext.ase import PESCalculator
     from pymatgen.core import Structure
 
 
@@ -44,7 +43,7 @@ if TYPE_CHECKING:
 )
 def test_qha_calc(
     Li2O: Structure,
-    M3GNetCalc: M3GNetCalculator,
+    pes_calculator: PESCalculator,
     tmp_path: Path,
     helmholtz_file: str,
     volume_temp_file: str,
@@ -81,7 +80,7 @@ def test_qha_calc(
 
     # Initialize QHACalc
     qha_calc = QHACalc(
-        calculator=M3GNetCalc,
+        calculator=pes_calculator,
         t_step=50,
         t_max=1000,
         scale_factors=[0.97, 0.98, 0.99, 1.00, 1.01, 1.02, 1.03],

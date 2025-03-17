@@ -15,9 +15,10 @@ from matcalc.benchmark import (
     get_available_benchmarks,
     get_benchmark_data,
 )
+from monty.serialization import loadfn
 
 if TYPE_CHECKING:
-    from matgl.ext.ase import M3GNetCalculator
+    from matgl.ext.ase import PESCalculator
 
 
 def test_get_benchmark_data() -> None:
@@ -27,41 +28,57 @@ def test_get_benchmark_data() -> None:
         get_benchmark_data("bad_url")
 
 
-def test_elasticity_benchmark(M3GNetCalc: M3GNetCalculator) -> None:
+def test_elasticity_benchmark(pes_calculator: PESCalculator) -> None:
     benchmark = ElasticityBenchmark(n_samples=10)
-    results = benchmark.run(M3GNetCalc, "toy")
+    results = benchmark.run(pes_calculator, "toy")
     assert len(results) == 10
     # Compute MAE
     assert np.abs(results["K_vrh_toy"] - results["K_vrh_DFT"]).mean() == pytest.approx(65.20042336543436, abs=1e-1)
 
     benchmark = ElasticityBenchmark(benchmark_name="mp-pbe-elasticity-2025.3.json.gz", n_samples=10)
-    benchmark.run(M3GNetCalc, "toy", checkpoint_file="checkpoint.csv", checkpoint_freq=3)
-    assert os.path.exists("checkpoint.csv")
-    results, data, structures = _load_checkpoint(
-        "checkpoint.csv", benchmark.ground_truth, benchmark.structures, "mp_id"
+
+    chkpt_file = "checkpoint.csv"
+    results_save_file = "elasticity.json.gz"
+
+    benchmark.run(
+        pes_calculator,
+        "toy",
+        checkpoint_file=chkpt_file,
+        checkpoint_freq=3,
+        results_save_file=results_save_file,
     )
+
+    assert os.path.exists(chkpt_file)
+    assert os.path.exists(results_save_file)
+    results, data, structures = _load_checkpoint(chkpt_file, benchmark.ground_truth, benchmark.structures, "mp_id")
     assert len(results) % 3 == 0
+
+    full_results = loadfn(results_save_file)
+
+    assert len(full_results) == 10
+
     os.remove("checkpoint.csv")
+    os.remove("elasticity.json.gz")
 
 
-def test_phonon_benchmark(M3GNetCalc: M3GNetCalculator) -> None:
+def test_phonon_benchmark(pes_calculator: PESCalculator) -> None:
     benchmark = PhononBenchmark(n_samples=10, write_phonon=False)
-    results = benchmark.run(M3GNetCalc, "toy")
+    results = benchmark.run(pes_calculator, "toy")
     assert len(results) == 10
     assert np.abs(results["CV_toy"] - results["CV_DFT"]).mean() == pytest.approx(27.636954450580486, abs=1e-1)
 
 
-def test_benchmark_suite(M3GNetCalc: M3GNetCalculator) -> None:
+def test_benchmark_suite(pes_calculator: PESCalculator) -> None:
     elasticity_benchmark = ElasticityBenchmark(n_samples=2, benchmark_name="mp-pbe-elasticity-2025.3.json.gz")
     elasticity_benchmark.run(
-        M3GNetCalc,
+        pes_calculator,
         "toy1",
         checkpoint_file="checkpoint.csv",
         checkpoint_freq=1,
     )
     phonon_benchmark = PhononBenchmark(n_samples=2, write_phonon=False)
     suite = BenchmarkSuite(benchmarks=[elasticity_benchmark, phonon_benchmark])
-    results = suite.run({"toy1": M3GNetCalc, "toy2": M3GNetCalc}, checkpoint_freq=1)
+    results = suite.run({"toy1": pes_calculator, "toy2": pes_calculator}, checkpoint_freq=1)
     for bench, name in itertools.product(["ElasticityBenchmark", "PhononBenchmark"], ["toy1", "toy2"]):
         assert os.path.exists(f"{bench}_{name}.csv")
         os.remove(f"{bench}_{name}.csv")

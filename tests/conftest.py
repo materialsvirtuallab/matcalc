@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 
 import matgl
 import pytest
-from matgl.ext.ase import M3GNetCalculator
+from matgl.ext.ase import PESCalculator
 from pymatgen.util.testing import PymatgenTest
 
 if TYPE_CHECKING:
@@ -39,7 +39,7 @@ def Li2O() -> Structure:
 
 
 @pytest.fixture(scope="session")
-def M3GNetCalc() -> M3GNetCalculator:
+def pes_calculator() -> PESCalculator:
     """M3GNet calculator as session-scoped fixture."""
     potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
-    return M3GNetCalculator(potential=potential, stress_weight=0.01)
+    return PESCalculator(potential=potential, stress_weight=0.01)
