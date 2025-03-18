@@ -77,55 +77,75 @@ def get_benchmark_data(name: str) -> pd.DataFrame:
     return loadfn(BENCHMARK_DATA_DIR / name)
 
 
-def _load_checkpoint(
-    checkpoint_file: str | Path | None,
-    all_data: pd.DataFrame,
-    all_structures: list[Structure],
-    index_name: str,
-) -> tuple[list, list, list]:
+class CheckpointFile:
     """
-    Loads a checkpoint file if it exists and filters the remaining data and structures
-    based on the entries already processed. If a checkpoint file is not provided or
-    doesn't exist, the function returns all the provided data and structures.
+    CheckpointFile class encapsulates functionality to handle checkpoint files for processing data.
 
-    :param checkpoint_file: Path to the checkpoint file to load processed entries.
-    :param all_data: DataFrame containing all input data records.
-    :param all_structures: List of structures corresponding to the data records.
-    :param index_name: Name of the index field used to identify already processed entries.
-    :return: A tuple containing three lists:
-             - already processed records from the checkpoint file,
-             - remaining data not processed yet,
-             - remaining structures corresponding to unprocessed data.
+    The class constructor initializes the CheckpointFile object with the provided path, all data to be processed, list
+    of structures, and index name for data identification.
+
+    load() method loads a checkpoint file if it exists, filtering the remaining data and structures based on entries
+    already processed. It returns a tuple containing three lists: already processed records, remaining data, and
+    remaining structures.
+
+    save() method saves a list of results at the specified checkpoint location.
     """
-    if checkpoint_file and Path(checkpoint_file).exists():
-        already_done = pd.read_csv(checkpoint_file)
-        logger.info("Loaded %d entries from %s...", len(already_done), checkpoint_file)
-        results = already_done.to_dict("records")
-        done_ids = [d[index_name] for d in results]
-        data = []
-        structures = []
-        for i, d in enumerate(all_data.to_dict("records")):
-            if d[index_name] not in done_ids:
-                data.append(d)
-                structures.append(all_structures[i])
-        return results, data, structures
-    return [], all_data.to_dict("records"), all_structures
 
+    def __init__(
+        self,
+        path: str | Path,
+        all_data: list[dict[str, typing.Any]],
+        all_structures: list[Structure],
+        index_name: str,
+    ) -> None:
+        """
+        Initialize the object with the given parameters.
 
-def _save_checkpoint(checkpoint_file: str | Path | None, results: list, index_name: str) -> None:
-    """
-    Saves a list of results as a CSV file at the specified checkpoint location. The function
-    takes a list of results, converts it into a pandas DataFrame, sets the specified index
-    column, and writes it to the provided file path.
+        Parameters:
+            path: str | Path - The path to the data.
+            all_data: list[dict[str, typing.Any]] - A list of dictionaries containing all data.
+            all_structures: list[Structure] - A list of structures.
+            index_name: str - The name of the index.
+        """
+        self.path = Path(path)
+        self.all_data = all_data
+        self.all_structures = all_structures
+        self.index_name = index_name
 
-    :param checkpoint_file: The file path where the checkpoint data will be saved. Can be
-        a string, a Path object, or None. If None, no file is written.
-    :param results: A list of dictionaries or objects to be saved into a CSV file.
-    :param index_name: The name of the column to be set as the index in the resulting DataFrame.
-    :return: None
-    """
-    logger.info("Saving %d entries to %s...", len(results), checkpoint_file)
-    pd.DataFrame(results).set_index(index_name).to_csv(checkpoint_file)
+    def load(self) -> tuple[list, list, list]:
+        """
+        Loads a checkpoint file if it exists and filters the remaining data and structures
+        based on the entries already processed. If a checkpoint file is not provided or
+        doesn't exist, the function returns all the provided data and structures.
+
+        :return: A tuple containing three lists:
+                 - already processed records from the checkpoint file,
+                 - remaining data not processed yet,
+                 - remaining structures corresponding to unprocessed data.
+        """
+        if self.path.exists():
+            already_done = loadfn(self.path)
+            logger.info("Loaded %d entries from %s...", len(already_done), self.path)
+            results = already_done
+            done_ids = [d[self.index_name] for d in results]
+            data = []
+            structures = []
+            for i, d in enumerate(self.all_data):
+                if d[self.index_name] not in done_ids:
+                    data.append(d)
+                    structures.append(self.all_structures[i])
+            return results, data, structures
+        return [], self.all_data, self.all_structures
+
+    def save(self, results: list[dict[str, typing.Any]]) -> None:
+        """
+        Saves a list of results at the specified checkpoint location.
+
+        :param results: A list of dictionaries or objects to be saved.
+        :return: None
+        """
+        logger.info("Saving %d entries to %s...", len(results), self.path)
+        dumpfn(results, self.path)
 
 
 class Benchmark(metaclass=abc.ABCMeta):
@@ -232,7 +252,7 @@ class Benchmark(metaclass=abc.ABCMeta):
         self.structures = structures
         self.kwargs = kwargs
         self.property_rename_map = property_rename_map or {}
-        self.ground_truth = pd.DataFrame(rows)
+        self.ground_truth = rows
 
     @abc.abstractmethod
     def get_prop_calc(self, calculator: Calculator, **kwargs: typing.Any) -> PropCalc:
@@ -312,9 +332,14 @@ class Benchmark(metaclass=abc.ABCMeta):
             metrics.
         :rtype: pd.DataFrame
         """
-        results, ground_truth, structures = _load_checkpoint(
-            checkpoint_file, self.ground_truth, self.structures, self.index_name
-        )
+        checkpoint = None
+        if checkpoint_file:
+            checkpoint = CheckpointFile(checkpoint_file, self.ground_truth, self.structures, self.index_name)
+            results, ground_truth, structures = checkpoint.load()
+        else:
+            results = []
+            ground_truth = self.ground_truth
+            structures = self.structures
 
         full_results = loadfn(results_save_file) if results_save_file and Path(results_save_file).exists() else []
         prop_calc = self.get_prop_calc(calculator, **self.kwargs)
@@ -328,8 +353,8 @@ class Benchmark(metaclass=abc.ABCMeta):
             results.append(r)
             if results_save_file:
                 full_results.append(d)
-            if checkpoint_file and len(results) % checkpoint_freq == 0:
-                _save_checkpoint(checkpoint_file, results, self.index_name)
+            if checkpoint and len(results) % checkpoint_freq == 0:
+                checkpoint.save(results)
                 if results_save_file:
                     dumpfn(full_results, results_save_file)
 

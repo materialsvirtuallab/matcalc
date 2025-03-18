@@ -9,9 +9,9 @@ import pytest
 import requests
 from matcalc.benchmark import (
     BenchmarkSuite,
+    CheckpointFile,
     ElasticityBenchmark,
     PhononBenchmark,
-    _load_checkpoint,
     get_available_benchmarks,
     get_benchmark_data,
 )
@@ -37,7 +37,7 @@ def test_elasticity_benchmark(pes_calculator: PESCalculator) -> None:
 
     benchmark = ElasticityBenchmark(benchmark_name="mp-pbe-elasticity-2025.3.json.gz", n_samples=10)
 
-    chkpt_file = "checkpoint.csv"
+    chkpt_file = "checkpoint.json"
     results_save_file = "elasticity.json.gz"
 
     benchmark.run(
@@ -50,14 +50,14 @@ def test_elasticity_benchmark(pes_calculator: PESCalculator) -> None:
 
     assert os.path.exists(chkpt_file)
     assert os.path.exists(results_save_file)
-    results, data, structures = _load_checkpoint(chkpt_file, benchmark.ground_truth, benchmark.structures, "mp_id")
+    results, data, structures = CheckpointFile(chkpt_file, benchmark.ground_truth, benchmark.structures, "mp_id").load()
     assert len(results) % 3 == 0
 
     full_results = loadfn(results_save_file)
 
     assert len(full_results) == 10
 
-    os.remove("checkpoint.csv")
+    os.remove("checkpoint.json")
     os.remove("elasticity.json.gz")
 
 
@@ -73,7 +73,7 @@ def test_benchmark_suite(pes_calculator: PESCalculator) -> None:
     elasticity_benchmark.run(
         pes_calculator,
         "toy1",
-        checkpoint_file="checkpoint.csv",
+        checkpoint_file="checkpoint.json",
         checkpoint_freq=1,
     )
     phonon_benchmark = PhononBenchmark(n_samples=2, write_phonon=False)
@@ -89,7 +89,7 @@ def test_benchmark_suite(pes_calculator: PESCalculator) -> None:
     assert "G_vrh_toy2" in results[0].columns
     assert "CV_toy1" in results[1].columns
     assert "CV_toy2" in results[1].columns
-    os.remove("checkpoint.csv")
+    os.remove("checkpoint.json")
 
 
 def test_available_benchmarks() -> None:
