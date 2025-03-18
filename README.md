@@ -106,8 +106,8 @@ results = suite.run({"M3GNet": m3gnet, "TensorNet": tensornet})
 results.to_csv("benchmark_results.csv")
 ```
 
-These will usually take a long time to run. Please use `n_samples` to limit the benchmark to do some testing before
-running the full benchmark.
+These will usually take a long time to run. Running these on HPC resources is recommended. Please use `n_samples` to
+limit the number of structures to do some testing before running the full benchmark.
 
 ## Cite `matcalc`
 

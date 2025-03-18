@@ -136,8 +136,3 @@ print(ttest_rel(df["AE G_TensorNet"], df["AE G_M3GNet"]))
 
 
 At an alpha of 5%, the p value show that we **reject the null hypothesis that the MAEs in K of the two models are the same**, i.e., the difference in MAEs in K of the two models is statistically significant. However, we **do not reject the null hypothesis that the MAEs in G of the two models are the same**, i.e., the difference in MAEs in G of the two models is not statistically significant.
-
-
-```python
-
-```

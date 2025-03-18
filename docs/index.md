@@ -97,6 +97,24 @@ results = benchmark.run(calculator, "TensorNet-MatPES")
 
 The entire run takes ~ 16mins when parallelized over 10 CPUs on a Mac.
 
+You can even run entire suites of benchmarks on multiple models, as follows:
+
+```python
+from matcalc.utils import PESCalculator
+tensornet = PESCalculator.load_universal("TensorNet-MatPES-PBE-v2025.1-PES")
+m3gnet = PESCalculator.load_universal("M3GNet-MatPES-PBE-v2025.1-PES")
+from matcalc.benchmark import BenchmarkSuite, ElasticityBenchmark, PhononBenchmark
+
+elasticity_benchmark = ElasticityBenchmark(fmax=0.5, relax_structure=True)
+phonon_benchmark = PhononBenchmark(write_phonon=False)
+suite = BenchmarkSuite(benchmarks=[elasticity_benchmark, phonon_benchmark])
+results = suite.run({"M3GNet": m3gnet, "TensorNet": tensornet})
+results.to_csv("benchmark_results.csv")
+```
+
+These will usually take a long time to run. Running these on HPC resources is recommended. Please use `n_samples` to
+limit the number of structures to do some testing before running the full benchmark.
+
 ## Cite `matcalc`
 
 If you use `matcalc` in your research, see [`citation.cff`](citation.cff) or the GitHub sidebar for a BibTeX and APA citation.
