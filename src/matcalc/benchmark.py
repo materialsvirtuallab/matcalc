@@ -16,7 +16,6 @@ from scipy import constants
 
 if typing.TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
-    from pymatgen.core import Structure
 
     from .base import PropCalc
 
@@ -94,48 +93,40 @@ class CheckpointFile:
     def __init__(
         self,
         path: str | Path,
-        all_data: list[dict[str, typing.Any]],
-        all_structures: list[Structure],
-        index_name: str,
     ) -> None:
         """
-        Initialize the object with the given parameters.
+        Represents an initialization process for handling a filesystem path. The
+        provided path is converted into a `Path` object for standardized path
+        management in the application.
 
-        Parameters:
-            path: str | Path - The path to the data.
-            all_data: list[dict[str, typing.Any]] - A list of dictionaries containing all data.
-            all_structures: list[Structure] - A list of structures.
-            index_name: str - The name of the index.
+        :param path: The filesystem path to be managed. Can be provided as a
+            string or as a `Path` object.
         """
         self.path = Path(path)
-        self.all_data = all_data
-        self.all_structures = all_structures
-        self.index_name = index_name
 
-    def load(self) -> tuple[list, list, list]:
+    def load(self, *args: list) -> tuple:
         """
-        Loads a checkpoint file if it exists and filters the remaining data and structures
-        based on the entries already processed. If a checkpoint file is not provided or
-        doesn't exist, the function returns all the provided data and structures.
+        Loads data from a specified path if it exists, returning the loaded data along with
+        remaining portions of the given input arguments.
 
-        :return: A tuple containing three lists:
-                 - already processed records from the checkpoint file,
-                 - remaining data not processed yet,
-                 - remaining structures corresponding to unprocessed data.
+        The method checks if the file path exists, and if so, it loads data from the specified
+        file using a predefined `loadfn` function. It logs the number of loaded entries and
+        returns the successfully loaded data alongside sliced input arguments based on the
+        number of loaded entries. If the file path does not exist, it returns empty results
+        and the original input arguments unchanged.
+
+        :param args: List of lists where each list corresponds to additional data to
+            process in conjunction with the loaded file content.
+        :return: A tuple where the first element is the loaded data (list) from the specified
+            file path (or an empty list if the path does not exist), and subsequent elements
+            are the remaining unsliced portions of each input list from `args` or the entire
+            original lists if nothing was loaded.
         """
         if self.path.exists():
-            already_done = loadfn(self.path)
-            logger.info("Loaded %d entries from %s...", len(already_done), self.path)
-            results = already_done
-            done_ids = [d[self.index_name] for d in results]
-            data = []
-            structures = []
-            for i, d in enumerate(self.all_data):
-                if d[self.index_name] not in done_ids:
-                    data.append(d)
-                    structures.append(self.all_structures[i])
-            return results, data, structures
-        return [], self.all_data, self.all_structures
+            results = loadfn(self.path)
+            logger.info("Loaded %d entries from %s...", len(results), self.path)
+            return results, *[a[len(results) :] for a in args]
+        return [], *args
 
     def save(self, results: list[dict[str, typing.Any]]) -> None:
         """
@@ -290,10 +281,11 @@ class Benchmark(metaclass=abc.ABCMeta):
         self,
         calculator: Calculator,
         model_name: str,
+        *,
         n_jobs: None | int = -1,
         checkpoint_file: str | Path | None = None,
         checkpoint_freq: int = 1000,
-        results_save_file: str | Path | None = None,
+        include_full_results: bool = False,
         **kwargs,  # noqa:ANN003
     ) -> pd.DataFrame:
         """
@@ -320,10 +312,10 @@ class Benchmark(metaclass=abc.ABCMeta):
         :param checkpoint_freq: Frequency after which checkpoint data is saved.
             Corresponds to the number of structures processed.
         :type checkpoint_freq: int
-        :param results_save_file: File path where full results data is saved periodically. This is useful when you
-            foresee you want analyze the results afterwards. For instance, the ElasticityProp does not just compute the
-            bulk and shear moduli, but also the full elastic tensors. These can be useful for other kinds of analysis.
-        :type results_save_file: str | Path | None
+        :param include_full_results: Whether to save full results from PropCalc.calc for analysis afterwards. For
+            instance, the ElasticityProp does not just compute the bulk and shear moduli, but also the full elastic
+            tensors, which can be used for other kinds of analysis. Defaults to False.
+        :type include_full_results: bool
         :param kwargs: Additional keyword arguments passed to the property calculator,
             for instance, to customize its behavior or computation options.
         :type kwargs: dict
@@ -334,14 +326,13 @@ class Benchmark(metaclass=abc.ABCMeta):
         """
         checkpoint = None
         if checkpoint_file:
-            checkpoint = CheckpointFile(checkpoint_file, self.ground_truth, self.structures, self.index_name)
-            results, ground_truth, structures = checkpoint.load()
+            checkpoint = CheckpointFile(checkpoint_file)
+            results, ground_truth, structures = checkpoint.load(self.ground_truth, self.structures)
         else:
             results = []
             ground_truth = self.ground_truth
             structures = self.structures
 
-        full_results = loadfn(results_save_file) if results_save_file and Path(results_save_file).exists() else []
         prop_calc = self.get_prop_calc(calculator, **self.kwargs)
         # We make sure of the generator from prop_calc.calc_many to do this in a memory efficient manner.
         # allow_errors typically should be true since some of the calculations may fail.
@@ -350,16 +341,12 @@ class Benchmark(metaclass=abc.ABCMeta):
             prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs),
         ):
             r.update(self.process_result(d, model_name))
+            if include_full_results:
+                r.update({k: v for k, v in d.items() if k not in self.properties})
             results.append(r)
-            if results_save_file:
-                full_results.append(d)
             if checkpoint and len(results) % checkpoint_freq == 0:
                 checkpoint.save(results)
-                if results_save_file:
-                    dumpfn(full_results, results_save_file)
 
-        if results_save_file:
-            dumpfn(full_results, results_save_file)
         results_df = pd.DataFrame(results)
         if self.property_rename_map:
 

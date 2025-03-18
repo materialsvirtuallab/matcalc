@@ -15,7 +15,6 @@ from matcalc.benchmark import (
     get_available_benchmarks,
     get_benchmark_data,
 )
-from monty.serialization import loadfn
 
 if TYPE_CHECKING:
     from matgl.ext.ase import PESCalculator
@@ -38,27 +37,23 @@ def test_elasticity_benchmark(pes_calculator: PESCalculator) -> None:
     benchmark = ElasticityBenchmark(benchmark_name="mp-pbe-elasticity-2025.3.json.gz", n_samples=10)
 
     chkpt_file = "checkpoint.json"
-    results_save_file = "elasticity.json.gz"
 
-    benchmark.run(
+    results = benchmark.run(
         pes_calculator,
         "toy",
         checkpoint_file=chkpt_file,
         checkpoint_freq=3,
-        results_save_file=results_save_file,
+        include_full_results=True,
     )
 
+    assert len(results.columns) == 10
+    assert "structure" in results.columns
+
     assert os.path.exists(chkpt_file)
-    assert os.path.exists(results_save_file)
-    results, data, structures = CheckpointFile(chkpt_file, benchmark.ground_truth, benchmark.structures, "mp_id").load()
+    results, *_ = CheckpointFile(chkpt_file).load()
     assert len(results) % 3 == 0
 
-    full_results = loadfn(results_save_file)
-
-    assert len(full_results) == 10
-
-    os.remove("checkpoint.json")
-    os.remove("elasticity.json.gz")
+    os.remove(chkpt_file)
 
 
 def test_phonon_benchmark(pes_calculator: PESCalculator) -> None:
