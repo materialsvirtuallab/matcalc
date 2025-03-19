@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 from importlib.util import find_spec
 
 import ase.optimize
@@ -22,27 +21,34 @@ from matcalc.utils import (
 DIR = os.path.abspath(os.path.dirname(__file__))
 
 
-class TestPESCalculator(unittest.TestCase):
-    @unittest.skipIf(not find_spec("matgl"), "matgl is not installed")
-    def test_pescalculator_load_matgl(self) -> None:
-        calc = PESCalculator.load_matgl(path=os.path.join(DIR, "pes/M3GNet-MP-2021.2.8-PES"))
-        assert isinstance(calc, Calculator)
-
-    @unittest.skipIf(not find_spec("maml"), "maml is not installed")
-    def test_pescalculator_load_mtp(self) -> None:
+class TestPESCalculator:
+    @pytest.mark.parametrize(
+        ("expected_unit", "expected_weight"),
+        [
+            ("eV/A3", 0.006241509125883258),
+            ("GPa", 1.0),
+        ],
+    )
+    @pytest.mark.skipif(not find_spec("maml"), reason="maml is not installed")
+    def test_pescalculator_load_mtp(self, expected_unit: str, expected_weight: float) -> None:
         calc = PESCalculator.load_mtp(
-            filename=os.path.join(DIR, "pes/MTP-Cu-2020.1-PES", "fitted.mtp"), elements=["Si"]
+            filename=os.path.join(DIR, "pes/MTP-Cu-2020.1-PES", "fitted.mtp"),
+            elements=["Cu"],
         )
         assert isinstance(calc, Calculator)
+        assert PESCalculator(
+            potential=calc.potential,
+            stress_unit=expected_unit,
+        ).stress_weight == pytest.approx(expected_weight)
         with pytest.raises(ValueError, match="Unsupported stress_unit: Pa. Must be 'GPa' or 'eV/A3'."):
             PESCalculator(potential=calc.potential, stress_unit="Pa")
 
-    @unittest.skipIf(not find_spec("maml"), "maml is not installed")
+    @pytest.mark.skipif(not find_spec("maml"), reason="maml is not installed")
     def test_pescalculator_load_gap(self) -> None:
         calc = PESCalculator.load_gap(filename=os.path.join(DIR, "pes/GAP-NiMo-2020.3-PES", "gap.xml"))
         assert isinstance(calc, Calculator)
 
-    @unittest.skipIf(not find_spec("maml"), "maml is not installed")
+    @pytest.mark.skipif(not find_spec("maml"), reason="maml is not installed")
     def test_pescalculator_load_nnp(self) -> None:
         calc = PESCalculator.load_nnp(
             input_filename=os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "input.nn"),
@@ -51,8 +57,8 @@ class TestPESCalculator(unittest.TestCase):
         )
         assert isinstance(calc, Calculator)
 
-    @unittest.skipIf(not find_spec("maml"), "maml is not installed")
-    @unittest.skipIf(not find_spec("lammps"), "lammps is not installed")
+    @pytest.mark.skipif(not find_spec("maml"), reason="maml is not installed")
+    @pytest.mark.skipif(not find_spec("lammps"), reason="lammps is not installed")
     def test_pescalculator_load_snap(self) -> None:
         for name in ("SNAP", "qSNAP"):
             calc = PESCalculator.load_snap(
@@ -61,20 +67,25 @@ class TestPESCalculator(unittest.TestCase):
             )
             assert isinstance(calc, Calculator)
 
-    @unittest.skipIf(not find_spec("pyace"), "pyace is not installed")
+    @pytest.mark.skipif(not find_spec("pyace"), reason="pyace is not installed")
     def test_pescalculator_load_ace(self) -> None:
         calc = PESCalculator.load_ace(basis_set=os.path.join(DIR, "pes/ACE-Cu-2021.5.15-PES", "Cu-III.yaml"))
         assert isinstance(calc, Calculator)
 
-    @unittest.skipIf(not find_spec("nequip"), "nequip is not installed")
+    @pytest.mark.skipif(not find_spec("nequip"), reason="nequip is not installed")
     def test_pescalculator_load_nequip(self) -> None:
         calc = PESCalculator.load_nequip(model_path=os.path.join(DIR, "pes/NequIP-am-Al2O3-2023.9-PES", "default.pth"))
         assert isinstance(calc, Calculator)
 
-    @unittest.skipIf(not find_spec("matgl"), "matgl is not installed")
-    @unittest.skipIf(not find_spec("chgnet"), "chgnet is not installed")
-    @unittest.skipIf(not find_spec("mace"), "mace is not installed")
-    @unittest.skipIf(not find_spec("sevenn"), "sevenn is not installed")
+    @pytest.mark.skipif(not find_spec("matgl"), reason="matgl is not installed")
+    def test_pescalculator_load_matgl(self) -> None:
+        calc = PESCalculator.load_matgl(path=os.path.join(DIR, "pes/M3GNet-MP-2021.2.8-PES"))
+        assert isinstance(calc, Calculator)
+
+    @pytest.mark.skipif(not find_spec("matgl"), reason="matgl is not installed")
+    @pytest.mark.skipif(not find_spec("chgnet"), reason="chgnet is not installed")
+    @pytest.mark.skipif(not find_spec("mace"), reason="mace is not installed")
+    @pytest.mark.skipif(not find_spec("sevenn"), reason="sevenn is not installed")
     def test_pescalculator_load_universal(self) -> None:
         for name in UNIVERSAL_CALCULATORS:
             calc = PESCalculator.load_universal(name)
@@ -91,7 +102,7 @@ class TestPESCalculator(unittest.TestCase):
         # where non-str and non-ASE Calculator instances are passed in
         assert get_universal_calculator(42) == 42  # test non-str input is returned as-is
 
-    @unittest.skipIf(not find_spec("lammps"), "lammps is not installed")
+    @pytest.mark.skipif(not find_spec("lammps"), reason="lammps is not installed")
     def test_pescalculator_calculate(self) -> None:
         calc = PESCalculator.load_snap(
             param_file=os.path.join(DIR, "pes/SNAP-Cu-2020.1-PES", "SNAPotential.snapparam"),
@@ -116,10 +127,10 @@ class TestPESCalculator(unittest.TestCase):
         assert list(stresses.shape) == [6]
 
 
-@unittest.skipIf(not find_spec("matgl"), "matgl is not installed")
-@unittest.skipIf(not find_spec("chgnet"), "chgnet is not installed")
-@unittest.skipIf(not find_spec("mace"), "mace is not installed")
-@unittest.skipIf(not find_spec("sevenn"), "sevenn is not installed")
+@pytest.mark.skipif(not find_spec("matgl"), reason="matgl is not installed")
+@pytest.mark.skipif(not find_spec("chgnet"), reason="chgnet is not installed")
+@pytest.mark.skipif(not find_spec("mace"), reason="mace is not installed")
+@pytest.mark.skipif(not find_spec("sevenn"), reason="sevenn is not installed")
 def test_get_universal_calculator() -> None:
     for name in UNIVERSAL_CALCULATORS:
         calc = get_universal_calculator(name)
