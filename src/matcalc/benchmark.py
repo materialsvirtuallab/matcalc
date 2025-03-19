@@ -262,7 +262,7 @@ class Benchmark(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def process_result(self, result: dict, model_name: str) -> dict:
+    def process_result(self, result: dict | None, model_name: str) -> dict:
         """
         Implements post-processing of results. A default implementation is provided that simply appends the model name
         as a suffix to the key of the input dictionary for all properties. Subclasses can override this method to
@@ -275,7 +275,11 @@ class Benchmark(metaclass=abc.ABCMeta):
         :return: A new dictionary with modified keys based on the model name suffix.
         :rtype: dict
         """
-        return {f"{k}_{model_name}": result[k] for k in self.properties}
+        return (
+            {f"{k}_{model_name}": result[k] for k in self.properties}
+            if result is not None
+            else {f"{k}_{model_name}": None for k in self.properties}
+        )
 
     def run(
         self,
@@ -341,8 +345,9 @@ class Benchmark(metaclass=abc.ABCMeta):
             prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs),
         ):
             r.update(self.process_result(d, model_name))
-            if include_full_results:
+            if include_full_results and d is not None:
                 r.update({k: v for k, v in d.items() if k not in self.properties})
+
             results.append(r)
             if checkpoint and len(results) % checkpoint_freq == 0:
                 checkpoint.save(results)
@@ -418,7 +423,7 @@ class ElasticityBenchmark(Benchmark):
         """
         return ElasticityCalc(calculator, **kwargs)
 
-    def process_result(self, result: dict, model_name: str) -> dict:
+    def process_result(self, result: dict | None, model_name: str) -> dict:
         """
         Processes the result dictionary containing bulk and shear modulus values, adjusts
         them by multiplying with a predefined conversion factor, and formats the keys
@@ -512,7 +517,7 @@ class PhononBenchmark(Benchmark):
         """
         return PhononCalc(calculator, **kwargs)
 
-    def process_result(self, result: dict, model_name: str) -> dict:
+    def process_result(self, result: dict | None, model_name: str) -> dict:
         """
         Processes the result dictionary to extract specific thermal property information for the provided model name.
 
@@ -525,7 +530,11 @@ class PhononBenchmark(Benchmark):
             prefixed by the model name.
         :rtype: dict
         """
-        return {f"heat_capacity_{model_name}": result["thermal_properties"]["heat_capacity"][30]}
+        return {
+            f"heat_capacity_{model_name}": (
+                result["thermal_properties"]["heat_capacity"][30] if result is not None else float("nan")
+            )
+        }
 
 
 class BenchmarkSuite:
