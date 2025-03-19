@@ -34,7 +34,7 @@ class PropCalc(abc.ABC):
         n_jobs: None | int = None,
         allow_errors: bool = False,  # noqa: FBT001,FBT002
         **kwargs: Any,
-    ) -> Generator[dict, None, None]:
+    ) -> Generator[dict | None]:
         """Performs calc on many structures. The return type is a generator given that the calc method can
         potentially be expensive. It is trivial to convert the generator to a list/tuple.
 
@@ -58,6 +58,7 @@ class PropCalc(abc.ABC):
                     return self.calc(s)
                 except Exception:  # noqa: BLE001
                     return None
+
         else:
             _func = self.calc  # type: ignore[assignment]
         return parallel(delayed(_func)(s) for s in structures)
