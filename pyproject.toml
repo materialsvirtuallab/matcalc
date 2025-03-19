@@ -47,6 +47,9 @@ phonon = ["seekpath"]
 where = ["src"]
 include = ["matcalc", "matcalc.*"]
 
+[tool.setuptools.package-data]
+"matcalc" = ["elemental_refs/*.json.gz"]
+
 [build-system]
 requires = ["oldest-supported-numpy", "setuptools>=58.0.3"]
 build-backend = "setuptools.build_meta"

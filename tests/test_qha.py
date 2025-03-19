@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 )
 def test_qha_calc(
     Li2O: Structure,
-    pes_calculator: PESCalculator,
+    m3gnet_calculator: PESCalculator,
     tmp_path: Path,
     helmholtz_file: str,
     volume_temp_file: str,
@@ -80,7 +80,7 @@ def test_qha_calc(
 
     # Initialize QHACalc
     qha_calc = QHACalc(
-        calculator=pes_calculator,
+        calculator=m3gnet_calculator,
         t_step=50,
         t_max=1000,
         scale_factors=[0.97, 0.98, 0.99, 1.00, 1.01, 1.02, 1.03],
@@ -117,3 +117,8 @@ def test_qha_calc(
             assert os.path.isfile(str(instance_val))
         elif not default_path and not instance_val:
             assert not os.path.isfile(default_path)
+
+    import glob
+
+    for f in glob.glob("*.dat"):
+        os.remove(f)

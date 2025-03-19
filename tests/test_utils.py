@@ -30,7 +30,8 @@ class TestPESCalculator(unittest.TestCase):
     @unittest.skipIf(not find_spec("maml"), "maml is not installed")
     def test_pescalculator_load_mtp(self) -> None:
         calc = PESCalculator.load_mtp(
-            filename=os.path.join(DIR, "pes/MTP-Cu-2020.1-PES", "fitted.mtp"), elements=["Si"]
+            filename=os.path.join(DIR, "pes/MTP-Cu-2020.1-PES", "fitted.mtp"),
+            elements=["Si"],
         )
         assert isinstance(calc, Calculator)
 
@@ -43,8 +44,8 @@ class TestPESCalculator(unittest.TestCase):
     def test_pescalculator_load_nnp(self) -> None:
         calc = PESCalculator.load_nnp(
             input_filename=os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "input.nn"),
-            scaling_filename=os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "scaling.data"),
-            weights_filenames=[os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "weights.029.data")],
+            scaling_filename=os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "scaling.elemental_refs"),
+            weights_filenames=[os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "weights.029.elemental_refs")],
         )
         assert isinstance(calc, Calculator)
 
