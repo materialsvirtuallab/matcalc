@@ -24,6 +24,10 @@ def test_energetics_calc(
     assert result["formation_energy_per_atom"] == pytest.approx(-1.8243033091227214, rel=1e-3)
     assert result["cohesive_energy_per_atom"] == pytest.approx(-4.047695591427408, rel=1e-3)
 
+    # Note that the value differs from MP primarily because of the correction. A correction of -0.70 eV is applied to
+    # each O atom, which accounts almost entirely for the difference between this predicted formation energy and the
+    # MP calculated value of -2.0 eV.
+
     result = EnergeticsCalc(matpes_calculator, use_dft_gs_reference=True).calc(Li2O)
     for key in (
         "final_structure",
