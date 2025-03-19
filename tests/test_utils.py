@@ -9,6 +9,7 @@ import pytest
 from ase import Atoms
 from ase.calculators.calculator import Calculator
 from ase.optimize.optimize import Optimizer
+
 from matcalc.utils import (
     UNIVERSAL_CALCULATORS,
     VALID_OPTIMIZERS,
@@ -33,6 +34,8 @@ class TestPESCalculator(unittest.TestCase):
             filename=os.path.join(DIR, "pes/MTP-Cu-2020.1-PES", "fitted.mtp"), elements=["Si"]
         )
         assert isinstance(calc, Calculator)
+        with pytest.raises(ValueError, match="Unsupported stress_unit: Pa. Must be 'GPa' or 'eV/A3'."):
+            PESCalculator(potential=calc.potential, stress_unit="Pa")
 
     @unittest.skipIf(not find_spec("maml"), "maml is not installed")
     def test_pescalculator_load_gap(self) -> None:
@@ -49,7 +52,6 @@ class TestPESCalculator(unittest.TestCase):
         assert isinstance(calc, Calculator)
 
     @unittest.skipIf(not find_spec("maml"), "maml is not installed")
-    @unittest.skipIf(not find_spec("lammps"), "lammps is not installed")
     def test_pescalculator_load_snap(self) -> None:
         for name in ("SNAP", "qSNAP"):
             calc = PESCalculator.load_snap(
