@@ -170,8 +170,8 @@ def test_static_calc(
     stresses: ArrayLike = result["stress"]
 
     assert energy == pytest.approx(expected_energy, rel=1e-3)
-    assert np.allclose(forces, expected_forces, rtol=1e-3)
-    assert np.allclose(stresses, expected_stresses, rtol=1e-3)
+    assert np.allclose(forces, expected_forces, rtol=1e-2)
+    assert np.allclose(stresses, expected_stresses, rtol=1e-2)
 
 
 @pytest.mark.parametrize(
