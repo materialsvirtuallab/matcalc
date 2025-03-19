@@ -44,8 +44,8 @@ class TestPESCalculator(unittest.TestCase):
     def test_pescalculator_load_nnp(self) -> None:
         calc = PESCalculator.load_nnp(
             input_filename=os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "input.nn"),
-            scaling_filename=os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "scaling.elemental_refs"),
-            weights_filenames=[os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "weights.029.elemental_refs")],
+            scaling_filename=os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "scaling.data"),
+            weights_filenames=[os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "weights.029.data")],
         )
         assert isinstance(calc, Calculator)
 
