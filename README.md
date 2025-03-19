@@ -41,8 +41,7 @@ MatCalc provides convenient methods to quickly compute properties, using a minim
 an example of a computation of the elastic constants of Si using the `TensorNet-MatPES-PBE-v2025.1-PES` universal MLIP.
 
 ```python
-from matcalc.utils import PESCalculator
-from matcalc.elasticity import ElasticityCalc
+from matcalc import PESCalculator, ElasticityCalc
 from pymatgen.ext.matproj import MPRester
 
 mpr = MPRester()
@@ -82,7 +81,7 @@ the `MatCalc-Benchmark`.
 For example, the following code can be used to run the ElasticityBenchmark on `TensorNet-MatPES-PBE-v2025.1-PES` UMLIP.
 
 ```python
-from matcalc.utils import PESCalculator
+from matcalc import PESCalculator
 calculator = PESCalculator.load_universal("TensorNet-MatPES-PBE-v2025.1-PES")
 from matcalc.benchmark import ElasticityBenchmark
 benchmark = ElasticityBenchmark(fmax=0.05, relax_structure=True)
@@ -94,7 +93,7 @@ The entire run takes ~ 16mins when parallelized over 10 CPUs on a Mac.
 You can even run entire suites of benchmarks on multiple models, as follows:
 
 ```python
-from matcalc.utils import PESCalculator
+from matcalc import PESCalculator
 tensornet = PESCalculator.load_universal("TensorNet-MatPES-PBE-v2025.1-PES")
 m3gnet = PESCalculator.load_universal("M3GNet-MatPES-PBE-v2025.1-PES")
 from matcalc.benchmark import BenchmarkSuite, ElasticityBenchmark, PhononBenchmark
