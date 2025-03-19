@@ -16,4 +16,5 @@ from .neb import NEBCalc
 from .phonon import PhononCalc
 from .qha import QHACalc
 from .relaxation import RelaxCalc
+from .stability import EnergeticsCalc
 from .utils import PESCalculator
