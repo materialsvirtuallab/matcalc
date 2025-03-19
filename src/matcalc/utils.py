@@ -267,8 +267,9 @@ class PESCalculator(Calculator):
 
             # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
             # TensorNet is shorthand for latest TensorNet trained on MatPES.
-            name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES",
-                    "tensornet": "TensorNet-MatPES-PBE-v2025.1-PES"}.get(name.lower(), name)
+            name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES", "tensornet": "TensorNet-MatPES-PBE-v2025.1-PES"}.get(
+                name.lower(), name
+            )
             model = matgl.load_model(name)
             kwargs.setdefault("stress_unit", "eV/A3")
             return PESCalculator_(potential=model, **kwargs)
@@ -326,12 +327,12 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
 
         # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
         # TensorNet is shorthand for latest TensorNet trained on MatPES.
-        name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES",
-                "tensornet": "TensorNet-MatPES-PBE-v2025.1-PES"}.get(name.lower(), name)
+        name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES", "tensornet": "TensorNet-MatPES-PBE-v2025.1-PES"}.get(
+            name.lower(), name
+        )
         model = matgl.load_model(name)
         kwargs.setdefault("stress_unit", "eV/A3")
         return PESCalculator_(potential=model, **kwargs)
-
 
     if name.lower() == "chgnet":
         from chgnet.model.dynamics import CHGNetCalculator

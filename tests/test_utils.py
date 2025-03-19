@@ -52,6 +52,7 @@ class TestPESCalculator(unittest.TestCase):
         assert isinstance(calc, Calculator)
 
     @unittest.skipIf(not find_spec("maml"), "maml is not installed")
+    @unittest.skipIf(not find_spec("lammps"), "lammps is not installed")
     def test_pescalculator_load_snap(self) -> None:
         for name in ("SNAP", "qSNAP"):
             calc = PESCalculator.load_snap(
