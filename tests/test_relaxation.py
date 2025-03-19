@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
     from ase.filters import Filter
     from matgl.ext.ase import PESCalculator
-    from nuampy.typing import ArrayLike
+    from numpy.typing import ArrayLike
     from pymatgen.core import Structure
 
 
@@ -37,6 +37,20 @@ def test_relax_calc_relax_cell(
         relax_cell=True,
     )
     result = relax_calc.calc(Li2O)
+    for key in (
+        "final_structure",
+        "energy",
+        "forces",
+        "stress",
+        "a",
+        "b",
+        "c",
+        "alpha",
+        "beta",
+        "gamma",
+        "volume",
+    ):
+        assert key in result, f"{key=} not in result"
     final_struct: Structure = result["final_structure"]
     energy: float = result["energy"]
     missing_keys = {*final_struct.lattice.params_dict} - {*result}
@@ -69,6 +83,22 @@ def test_relax_calc_relax_atoms(
         relax_cell=False,
     )
     result = relax_calc.calc(Li2O)
+
+    for key in (
+        "final_structure",
+        "energy",
+        "forces",
+        "stress",
+        "a",
+        "b",
+        "c",
+        "alpha",
+        "beta",
+        "gamma",
+        "volume",
+    ):
+        assert key in result, f"{key=} not in result"
+
     final_struct: Structure = result["final_structure"]
     energy: float = result["energy"]
     missing_keys = {*final_struct.lattice.params_dict} - {*result}
@@ -114,7 +144,20 @@ def test_static_calc(
 ) -> None:
     relax_calc = RelaxCalc(pes_calculator, relax_atoms=False, relax_cell=False)
     result = relax_calc.calc(Li2O)
-
+    for key in (
+        "final_structure",
+        "energy",
+        "forces",
+        "stress",
+        "a",
+        "b",
+        "c",
+        "alpha",
+        "beta",
+        "gamma",
+        "volume",
+    ):
+        assert key in result, f"{key=} not in result"
     energy: float = result["energy"]
     forces: ArrayLike = result["forces"]
     stresses: ArrayLike = result["stress"]
