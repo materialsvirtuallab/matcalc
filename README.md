@@ -10,26 +10,31 @@
 [![PyPI](https://img.shields.io/pypi/v/matcalc?logo=pypi&logoColor=white)](https://pypi.org/project/matcalc?logo=pypi&logoColor=white)
 [![GitHub license](https://img.shields.io/github/license/materialsvirtuallab/matcalc)](https://github.com/materialsvirtuallab/matcalc/blob/main/LICENSE)
 
-## Docs
-
-[materialsvirtuallab.github.io/matcalc](https://materialsvirtuallab.github.io/matcalc)
-
 ## Introduction
 
-MatCalc is a Python library for calculating material properties from the potential energy surface (PES). The
-PES can come from DFT or, more commonly, from machine learning interatomic potentials (MLIPs).
+MatCalc is a Python library for calculating and benchmarking material properties from the potential energy surface
+(PES). The PES can come from DFT or, more commonly, from machine learning interatomic potentials (MLIPs).
 
 Calculating material properties often requires involved setups of various simulation codes. The
 goal of MatCalc is to provide a simplified, consistent interface to access these properties with any
 parameterization of the PES.
+
+MatCalc is part of the MatML ecosystem, which includes the [MatGL] (Materials Graph Library) and [maml] (MAterials
+Machine Learning) packages, the [MatPES] (Materials Potential Energy Surface) dataset, and the [MatCalc] (Materials
+Calculator).
+
+## Documentation
+
+The API documentation and tutorials are available at https://matcalc.ai.
 
 ## Outline
 
 The main base class in MatCalc is `PropCalc` (property calculator). [All `PropCalc` subclasses](https://github.com/search?q=repo%3Amaterialsvirtuallab%2Fmatcalc%20%22(PropCalc)%22) should implement a
 `calc(pymatgen.Structure) -> dict` method that returns a dictionary of properties.
 
-In general, `PropCalc` should be initialized with an ML model or ASE calculator, which is then used by either ASE,
-LAMMPS or some other simulation code to perform calculations of properties.
+In general, `PropCalc` should be initialized with an ML model or [ASE] calculator, which is then used by either ASE,
+LAMMPS or some other simulation code to perform calculations of properties. The `matcalc.PESCalculator` class
+provides easy access to many universal MLIPs as well as an interface to
 
 # Basic Usage
 
@@ -101,9 +106,16 @@ results = suite.run({"M3GNet": m3gnet, "TensorNet": tensornet})
 results.to_csv("benchmark_results.csv")
 ```
 
-These will usually take a long time to run. Running these on HPC resources is recommended. Please use `n_samples` to
-limit the number of structures to do some testing before running the full benchmark.
+These will usually take a long time to run. Running on HPC resources is recommended. Please set `n_samples` when
+initializing the benchmark to limit the number of calculations to do some testing before running the full benchmark.
 
-## Cite `matcalc`
+## Citing
 
-If you use `matcalc` in your research, see [`citation.cff`](citation.cff) or the GitHub sidebar for a BibTeX and APA citation.
+A manuscript on `matcalc` is currently in the works. In the meantime, please see [`citation.cff`](citation.cff) or the GitHub
+sidebar for a BibTeX and APA citation.
+
+[maml]: https://materialsvirtuallab.github.io/maml/
+[MatGL]: https://matgl.ai
+[MatPES]: https://matpes.ai
+[MatCalc]: https://matcalc.ai
+[ASE]: https://wiki.fysik.dtu.dk/ase/
