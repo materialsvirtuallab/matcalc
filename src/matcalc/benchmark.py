@@ -56,7 +56,7 @@ def get_benchmark_data(name: str) -> pd.DataFrame:
         downloaded from the specified URL
     """
     uri = f"filecache::{BENCHMARK_DATA_DOWNLOAD_URL}/{name}"
-    with fsspec.open(uri, compression="gzip", cache_storage=str(BENCHMARK_DATA_DIR), same_names=True) as f:
+    with fsspec.open(uri, compression="infer", cache_storage=str(BENCHMARK_DATA_DIR), same_names=True) as f:
         return json.load(f, cls=MontyDecoder)
 
 
