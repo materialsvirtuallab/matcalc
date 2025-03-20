@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 from ase.filters import ExpCellFilter, FrechetCellFilter
+
 from matcalc.relaxation import RelaxCalc
 
 if TYPE_CHECKING:
@@ -17,14 +18,14 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.parametrize(
-    ("cell_filter", "expected_a", "expected_energy"),
-    [(ExpCellFilter, 3.288585, -14.176867), (FrechetCellFilter, 3.291072, -14.176713)],
+    ("perturb_distance", "expected_a", "expected_energy"),
+    [(0, 3.291072, -14.176680), (2, 3.291072, -14.176716)],
 )
 def test_relax_calc_relax_cell(
     Li2O: Structure,
     m3gnet_calculator: PESCalculator,
     tmp_path: Path,
-    cell_filter: Filter,
+    perturb_distance: float | None,
     expected_a: float,
     expected_energy: float,
 ) -> None:
@@ -32,9 +33,9 @@ def test_relax_calc_relax_cell(
         m3gnet_calculator,
         traj_file=f"{tmp_path}/li2o_relax.txt",
         optimizer="FIRE",
-        cell_filter=cell_filter,
         relax_atoms=True,
         relax_cell=True,
+        perturb_distance=perturb_distance,
     )
     result = relax_calc.calc(Li2O)
     for key in (
@@ -57,7 +58,7 @@ def test_relax_calc_relax_cell(
     assert len(missing_keys) == 0, f"{missing_keys=}"
     a, b, c, alpha, beta, gamma = final_struct.lattice.parameters
 
-    assert energy == pytest.approx(expected_energy, rel=1e-3)
+    assert energy == pytest.approx(expected_energy, rel=1e-6)
     assert a == pytest.approx(expected_a, rel=1e-3)
     assert b == pytest.approx(expected_a, rel=1e-3)
     assert c == pytest.approx(expected_a, rel=1e-3)
@@ -122,9 +123,9 @@ def test_relax_calc_relax_atoms(
             -14.176713,
             np.array(
                 [
-                    [6.5967033e-06, 1.8323772e-06, -7.0156530e-06],
-                    [-4.5075584e-03, -3.3107302e-03, -7.0910780e-03],
-                    [4.5009544e-03, 3.3088622e-03, 7.0980825e-03],
+                    [-1.3674755e-05, 1.1991244e-05, 3.5874080e-05],
+                    [-4.4652373e-03, -3.3178329e-03, -7.0904046e-03],
+                    [4.4788923e-03, 3.3057651e-03, 7.0545170e-03],
                 ],
                 dtype=np.float32,
             ),
