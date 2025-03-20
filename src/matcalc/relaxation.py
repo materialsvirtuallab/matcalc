@@ -95,7 +95,7 @@ class RelaxCalc(PropCalc):
             relax_atoms (bool): Whether to relax the atoms (or just static calculation).
             relax_cell (bool): Whether to relax the cell (or just atoms).
             cell_filter (Filter): The ASE Filter used to relax the cell. Default is FrechetCellFilter.
-            perturb_distance (float): Distance in angstrom to randomly perturb each site to break symmetry.
+            perturb_distance (float | None): Distance in angstrom to randomly perturb each site to break symmetry.
                 Defaults to None.
 
         Raises:
