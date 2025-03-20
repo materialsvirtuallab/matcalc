@@ -14,10 +14,7 @@ import matplotlib.pyplot as plt
 from mp_api.client import MPRester
 from tqdm import tqdm
 
-from matcalc.elasticity import ElasticityCalc
-from matcalc.eos import EOSCalc
-from matcalc.phonon import PhononCalc
-from matcalc.relaxation import RelaxCalc
+from matcalc import ElasticityCalc, EOSCalc, PhononCalc, RelaxCalc
 from matcalc.utils import get_universal_calculator
 
 warnings.filterwarnings("ignore", category=UserWarning, module="matgl")

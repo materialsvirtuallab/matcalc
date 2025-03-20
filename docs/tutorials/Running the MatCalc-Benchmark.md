@@ -15,7 +15,7 @@ from __future__ import annotations
 import warnings
 import pandas as pd
 
-from matcalc.utils import PESCalculator
+from matcalc import PESCalculator
 from matcalc.benchmark import ElasticityBenchmark
 ```
 

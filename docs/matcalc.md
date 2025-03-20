@@ -33,7 +33,7 @@ and returns a dict. The method can return more than one property.
 * **Return type:**
   dict[str, Any]
 
-#### calc_many(structures: Sequence[Structure], n_jobs: None | int = None, allow_errors: bool = False, \*\*kwargs: Any) → Generator[dict, None, None]
+#### calc_many(structures: Sequence[Structure], n_jobs: None | int = None, allow_errors: bool = False, \*\*kwargs: Any) → Generator[dict | None]
 
 Performs calc on many structures. The return type is a generator given that the calc method can
 potentially be expensive. It is trivial to convert the generator to a list/tuple.
@@ -44,7 +44,9 @@ potentially be expensive. It is trivial to convert the generator to a list/tuple
     (n_cpus + 1 + n_jobs) are used. None is a marker for unset that will be interpreted as n_jobs=1
     unless the call is performed under a parallel_config() context manager that sets another value for
     n_jobs.
-  * **allow_errors** – Whether to skip failed calculations. For these calculations, None will be returned.
+  * **allow_errors** – Whether to skip failed calculations. For these calculations, None will be returned. For
+    large scale calculations, you may want this to be True to avoid the entire calculation failing.
+    Defaults to False.
   * **\*\*kwargs** – Passthrough to joblib.Parallel.
 * **Returns:**
   Generator of dicts.
@@ -59,27 +61,27 @@ Bases: `object`
 
 Represents an abstract base class for benchmarking elasticity properties of materials.
 
-This class provides functionality to process benchmark data, create a DataFrame for analysis,
+This class provides functionality to process benchmark elemental_refs, create a DataFrame for analysis,
 and run calculations using a specified potential energy surface (PES) calculator. It is designed
-to facilitate benchmarking of bulk and shear moduli against pre-defined ground truth data.
+to facilitate benchmarking of bulk and shear moduli against pre-defined ground truth elemental_refs.
 
 * **Variables:**
   * **properties** – List of properties to extract and benchmark. These properties
     are key inputs for analysis tasks.
   * **other_fields** – Tuple of additional fields in the benchmark entries to
-    include in the processed data. Useful for metadata or optional attributes.
+    include in the processed elemental_refs. Useful for metadata or optional attributes.
   * **index_name** – Name of the index field in the benchmark dataset. This is used
     as the primary key for identifying entries.
   * **structures** – List of structures extracted from the benchmark entries. Structures
     are objects describing material geometries stored in the dataset.
   * **kwargs** – Additional keywords passed through to the ElasticityCalculator or associated
     processes for extended configuration.
-  * **ground_truth** – DataFrame containing the processed benchmark data, including ground truth
+  * **ground_truth** – DataFrame containing the processed benchmark elemental_refs, including ground truth
     reference values for materials properties.
 
-Initializes an instance for processing benchmark data and constructing a DataFrame
+Initializes an instance for processing benchmark elemental_refs and constructing a DataFrame
 representing the ground truth properties of input structures. Additionally, stores
-information about input structures and other auxiliary data for further usage.
+information about input structures and other auxiliary elemental_refs for further usage.
 
 * **Parameters:**
   * **benchmark_name** (*str* *|* *Path*) – The name of the benchmark dataset or a path to a file containing
@@ -98,7 +100,7 @@ information about input structures and other auxiliary data for further usage.
   * **kwargs** (*dict*) – Additional keyword arguments for configuring the PropCalc..
 * **Raises:**
   * **FileNotFoundError** – If the provided benchmark_name is a path that does not exist.
-  * **ValueError** – If invalid or incomplete data is encountered in the benchmark entries.
+  * **ValueError** – If invalid or incomplete elemental_refs is encountered in the benchmark entries.
 
 #### \_abc_impl *= <_abc._abc_data object>*
 
@@ -117,7 +119,7 @@ PropCalc instance, possibly influenced by additional keyword arguments.
 * **Return type:**
   [PropCalc](#matcalc.base.PropCalc)
 
-#### *abstractmethod* process_result(result: dict, model_name: str) → dict
+#### *abstractmethod* process_result(result: dict | None, model_name: str) → dict
 
 Implements post-processing of results. A default implementation is provided that simply appends the model name
 as a suffix to the key of the input dictionary for all properties. Subclasses can override this method to
@@ -148,9 +150,9 @@ lost in case of interruptions.
     This name is updated in the results DataFrame.
   * **n_jobs** (*int* *|* *None*) – Number of parallel jobs to be used in the computation. Use -1
     to allocate all cores available on the system. Defaults to -1.
-  * **checkpoint_file** (*str* *|* *Path* *|* *None*) – File path where checkpoint data is saved periodically.
+  * **checkpoint_file** (*str* *|* *Path* *|* *None*) – File path where checkpoint elemental_refs is saved periodically.
     If None, no checkpoints are saved.
-  * **checkpoint_freq** (*int*) – Frequency after which checkpoint data is saved.
+  * **checkpoint_freq** (*int*) – Frequency after which checkpoint elemental_refs is saved.
     Corresponds to the number of structures processed.
   * **include_full_results** (*bool*) – Whether to save full results from PropCalc.calc for analysis afterwards. For
     instance, the ElasticityProp does not just compute the bulk and shear moduli, but also the full elastic
@@ -175,7 +177,7 @@ to initialize with a specified list of benchmarks.
 
 #### benchmarks
 
-A list containing benchmark configurations or data for
+A list containing benchmark configurations or elemental_refs for
 
 * **Type:**
   list
@@ -189,7 +191,7 @@ A list containing benchmark configurations or data for
 
 Executes benchmarks using the provided calculators and combines the results into a
 list of dataframes. Each benchmark runs for all models provided by calculators, collecting
-individual results and performing validations during data combination.
+individual results and performing validations during elemental_refs combination.
 
 * **Parameters:**
   * **calculators** – A dictionary where the keys are the model names (str)
@@ -206,14 +208,14 @@ individual results and performing validations during data combination.
 
 Bases: `object`
 
-CheckpointFile class encapsulates functionality to handle checkpoint files for processing data.
+CheckpointFile class encapsulates functionality to handle checkpoint files for processing elemental_refs.
 
-The class constructor initializes the CheckpointFile object with the provided path, all data to be processed, list
-of structures, and index name for data identification.
+The class constructor initializes the CheckpointFile object with the provided path, all elemental_refs to be
+processed, list of structures, and index name for elemental_refs identification.
 
-load() method loads a checkpoint file if it exists, filtering the remaining data and structures based on entries
-already processed. It returns a tuple containing three lists: already processed records, remaining data, and
-remaining structures.
+load() method loads a checkpoint file if it exists, filtering the remaining elemental_refs and structures based on
+entries already processed. It returns a tuple containing three lists: already processed records, remaining
+elemental_refs, and remaining structures.
 
 save() method saves a list of results at the specified checkpoint location.
 
@@ -227,20 +229,20 @@ management in the application.
 
 #### load(\*args: list) → tuple
 
-Loads data from a specified path if it exists, returning the loaded data along with
+Loads elemental_refs from a specified path if it exists, returning the loaded elemental_refs along with
 remaining portions of the given input arguments.
 
-The method checks if the file path exists, and if so, it loads data from the specified
+The method checks if the file path exists, and if so, it loads elemental_refs from the specified
 file using a predefined loadfn function. It logs the number of loaded entries and
-returns the successfully loaded data alongside sliced input arguments based on the
+returns the successfully loaded elemental_refs alongside sliced input arguments based on the
 number of loaded entries. If the file path does not exist, it returns empty results
 and the original input arguments unchanged.
 
 * **Parameters:**
-  **args** – List of lists where each list corresponds to additional data to
+  **args** – List of lists where each list corresponds to additional elemental_refs to
   process in conjunction with the loaded file content.
 * **Returns:**
-  A tuple where the first element is the loaded data (list) from the specified
+  A tuple where the first element is the loaded elemental_refs (list) from the specified
   file path (or an empty list if the path does not exist), and subsequent elements
   are the remaining unsliced portions of each input list from args or the entire
   original lists if nothing was loaded.
@@ -299,7 +301,7 @@ configuring a property calculation.
 * **Return type:**
   [PropCalc](#matcalc.base.PropCalc)
 
-#### process_result(result: dict, model_name: str) → dict
+#### process_result(result: dict | None, model_name: str) → dict
 
 Processes the result dictionary containing bulk and shear modulus values, adjusts
 them by multiplying with a predefined conversion factor, and formats the keys
@@ -309,7 +311,7 @@ NaN are returned for both bulk and shear modulus.
 * **Parameters:**
   * **result** (*dict* *or* *None*) – A dictionary containing the bulk and shear modulus values under the keys
     ‘bulk_modulus_vrh’ and ‘shear_modulus_vrh’ respectively. It can also be
-    None to indicate missing data.
+    None to indicate missing elemental_refs.
   * **model_name** (*str*) – A string representing the identifier or name of the model. It will be used
     to format the returned dictionary’s keys.
 * **Returns:**
@@ -336,11 +338,11 @@ NaN are returned for both bulk and shear modulus.
 
 Bases: [`Benchmark`](#matcalc.benchmark.Benchmark)
 
-Manages phonon benchmarking tasks, such as initializing benchmark data,
+Manages phonon benchmarking tasks, such as initializing benchmark elemental_refs,
 performing calculations, and processing results.
 
 This class facilitates constructing and managing phonon benchmarks based on
-provided data. It supports operations for processing benchmark data,
+provided elemental_refs. It supports operations for processing benchmark elemental_refs,
 extracting relevant attributes, and computing thermal properties. It is
 compatible with various calculators and is designed to streamline the
 benchmarking process for materials’ phonon-related properties.
@@ -380,12 +382,12 @@ calculation further.
 * **Return type:**
   [PropCalc](#matcalc.base.PropCalc)
 
-#### process_result(result: dict, model_name: str) → dict
+#### process_result(result: dict | None, model_name: str) → dict
 
 Processes the result dictionary to extract specific thermal property information for the provided model name.
 
 * **Parameters:**
-  * **result** (*dict*) – Dictionary containing thermal properties, with keys structured to access relevant data
+  * **result** (*dict*) – Dictionary containing thermal properties, with keys structured to access relevant elemental_refs
     like “thermal_properties” and “heat_capacity”.
   * **model_name** (*str*) – The model name used as a prefix in returned result keys.
 * **Returns:**
@@ -403,24 +405,24 @@ Checks Github for available benchmarks for download.
 
 ### get_benchmark_data(name: str) → DataFrame
 
-Retrieve benchmark data as a Pandas DataFrame by downloading it if not already
+Retrieve benchmark elemental_refs as a Pandas DataFrame by downloading it if not already
 available locally.
 
-The function checks if the specified benchmark data file exists in the
+The function checks if the specified benchmark elemental_refs file exists in the
 BENCHMARK_DATA_DIR directory. If the file does not exist, it attempts to
-download the data from a predefined URL using the benchmark name. In the case
+download the elemental_refs from a predefined URL using the benchmark name. In the case
 of a successful download, the file is saved locally. If the download fails,
 a RequestException is raised. Upon successful retrieval or download of the
-benchmark file, the data is read and returned as a Pandas DataFrame.
+benchmark file, the elemental_refs is read and returned as a Pandas DataFrame.
 
 * **Parameters:**
-  **name** (*str*) – Name of the benchmark data file to be retrieved
+  **name** (*str*) – Name of the benchmark elemental_refs file to be retrieved
 * **Returns:**
-  Benchmark data loaded as a Pandas DataFrame
+  Benchmark elemental_refs loaded as a Pandas DataFrame
 * **Return type:**
   pd.DataFrame
 * **Raises:**
-  **requests.RequestException** – If the benchmark data file cannot be
+  **requests.RequestException** – If the benchmark elemental_refs file cannot be
   downloaded from the specified URL
 
 ## matcalc.elasticity module
@@ -929,6 +931,52 @@ Save the trajectory to file.
 
 * **Parameters:**
   **filename** (*str*) – filename to save the trajectory.
+
+## matcalc.stability module
+
+Calculator for stability related properties.
+
+### *class* EnergeticsCalc(calculator: Calculator, elemental_refs: Literal['MatPES-PBE', 'MatPES-r2SCAN'] | dict = 'MatPES-PBE', , use_dft_gs_reference: bool = False, relax_calc_kwargs: dict | None = None)
+
+Bases: [`PropCalc`](#matcalc.base.PropCalc)
+
+Calculator for energetic properties.
+
+Initialize the class with the required computational parameters to set up properties
+and configurations. This class is used to perform calculations and provides an interface
+to manage computational settings such as calculator setup, elemental references, ground
+state relaxation, and additional calculation parameters.
+
+* **Parameters:**
+  * **calculator** (*Calculator*) – The computational calculator object implementing specific calculation
+    protocols or methods for performing numerical simulations.
+  * **elemental_refs** (*Literal* *[* *"MatPES-PBE"* *,*  *"MatPES-r2SCAN"* *]*  *|* *dict*) – Specifies the elemental reference data source. It can either be a
+    predefined identifier (“MatPES-PBE” or “MatPES-r2SCAN”) to load default references or,
+    alternatively, it can be a dictionary directly providing custom reference data. The dict should be of the
+    format {element_symbol: {“structure”: structure_object, “energy_per_atom”: energy_per_atom,
+    “energy_atomic”: energy_atomic}}
+  * **use_dft_gs_reference** (*bool*) – Whether to use the ground state reference from DFT
+    calculations for energetics or other property computations.
+  * **relax_calc_kwargs** (*dict* *|* *None*) – Optional dictionary containing additional keyword arguments
+    for customizing the configurations and execution of the relaxation calculations.
+
+#### \_abc_impl *= <_abc._abc_data object>*
+
+#### calc(structure: Structure) → dict[str, Any]
+
+Calculates the formation energy per atom, cohesive energy per atom, and final
+relaxed structure for a given input structure using a relaxation calculation
+and reference elemental data. This function also optionally utilizes DFT
+ground-state references for formation energy calculations. The cohesive energy is always referenced to the
+DFT atomic energies.
+
+* **Parameters:**
+  **structure** (*Structure*) – The input structure to be relaxed and analyzed.
+* **Returns:**
+  A dictionary containing the formation energy per atom, cohesive
+  energy per atom, and the final relaxed structure.
+* **Return type:**
+  dict[str, Any]
 
 ## matcalc.utils module
 
