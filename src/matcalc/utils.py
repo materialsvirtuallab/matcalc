@@ -4,14 +4,13 @@ from __future__ import annotations
 
 import functools
 from inspect import isclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import ase.optimize
+from ase import units
 from ase.calculators.calculator import Calculator
 from ase.optimize.optimize import Optimizer
-from scipy import constants
 
-eVA3ToGPa = constants.e / (constants.angstrom) ** 3 / constants.giga  # noqa:N816
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -47,7 +46,8 @@ class PESCalculator(Calculator):
     def __init__(
         self,
         potential: LMPStaticCalculator,
-        stress_weight: float = 1 / eVA3ToGPa,
+        stress_unit: Literal["eV/A3", "GPa"] = "GPa",
+        stress_weight: float = 1.0,
         **kwargs: Any,
     ) -> None:
         """
@@ -55,13 +55,23 @@ class PESCalculator(Calculator):
 
         Args:
             potential (LMPStaticCalculator): maml.apps.pes._lammps.LMPStaticCalculator
+            stress_unit (str): The unit of stress. Default to "GPa"
             stress_weight (float): The conversion factor from GPa to eV/A^3, if it is set to 1.0, the unit is in GPa.
-                Default to 1 / 160.21766208.
+                Default to 1.0.
             **kwargs: Additional keyword arguments passed to super().__init__().
         """
         super().__init__(**kwargs)
         self.potential = potential
-        self.stress_weight = stress_weight
+
+        # Handle stress unit conversion
+        if stress_unit == "eV/A3":
+            conversion_factor = units.GPa / (units.eV / units.Angstrom**3)  # Conversion factor from GPa to eV/A^3
+        elif stress_unit == "GPa":
+            conversion_factor = 1.0  # No conversion needed if stress is already in GPa
+        else:
+            raise ValueError(f"Unsupported stress_unit: {stress_unit}. Must be 'GPa' or 'eV/A3'.")
+
+        self.stress_weight = stress_weight * conversion_factor
 
     def calculate(
         self,
@@ -113,7 +123,7 @@ class PESCalculator(Calculator):
         from matgl.ext.ase import PESCalculator as PESCalculator_
 
         model = matgl.load_model(path=path)
-        kwargs.setdefault("stress_weight", 1 / eVA3ToGPa)
+        kwargs.setdefault("stress_unit", "eV/A3")
         return PESCalculator_(potential=model, **kwargs)
 
     @staticmethod
@@ -251,14 +261,17 @@ class PESCalculator(Calculator):
         if not isinstance(name, str):  # e.g. already an ase Calculator instance
             return name
 
-        if name.lower().startswith("m3gnet") or name.lower().startswith("tensornet-matpes"):
+        if name.lower().startswith("m3gnet") or name.lower().startswith("tensornet"):
             import matgl
             from matgl.ext.ase import PESCalculator as PESCalculator_
 
             # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
-            name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES"}.get(name.lower(), name)
+            # TensorNet is shorthand for latest TensorNet trained on MatPES.
+            name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES", "tensornet": "TensorNet-MatPES-PBE-v2025.1-PES"}.get(
+                name.lower(), name
+            )
             model = matgl.load_model(name)
-            kwargs.setdefault("stress_weight", 1 / eVA3ToGPa)
+            kwargs.setdefault("stress_unit", "eV/A3")
             return PESCalculator_(potential=model, **kwargs)
 
         if name.lower() == "chgnet":
@@ -308,14 +321,17 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
     if not isinstance(name, str):  # e.g. already an ase Calculator instance
         return name
 
-    if name.lower().startswith("m3gnet") or name.lower().startswith("tensornet-matpes"):
+    if name.lower().startswith("m3gnet") or name.lower().startswith("tensornet"):
         import matgl
         from matgl.ext.ase import PESCalculator as PESCalculator_
 
         # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
-        name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES"}.get(name.lower(), name)
+        # TensorNet is shorthand for latest TensorNet trained on MatPES.
+        name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES", "tensornet": "TensorNet-MatPES-PBE-v2025.1-PES"}.get(
+            name.lower(), name
+        )
         model = matgl.load_model(name)
-        kwargs.setdefault("stress_weight", 1 / eVA3ToGPa)
+        kwargs.setdefault("stress_unit", "eV/A3")
         return PESCalculator_(potential=model, **kwargs)
 
     if name.lower() == "chgnet":
