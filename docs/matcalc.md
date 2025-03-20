@@ -982,7 +982,7 @@ DFT atomic energies.
 
 Some utility methods, e.g., for getting calculators from well-known sources.
 
-### *class* PESCalculator(potential: LMPStaticCalculator, stress_weight: float = 0.006241509074460764, \*\*kwargs: Any)
+### *class* PESCalculator(potential: LMPStaticCalculator, stress_unit: Literal['eV/A3', 'GPa'] = 'GPa', stress_weight: float = 1.0, \*\*kwargs: Any)
 
 Bases: `Calculator`
 
@@ -997,8 +997,9 @@ Initialize PESCalculator with a potential from maml.
 
 * **Parameters:**
   * **potential** (*LMPStaticCalculator*) – maml.apps.pes._lammps.LMPStaticCalculator
+  * **stress_unit** (*str*) – The unit of stress. Default to “GPa”
   * **stress_weight** (*float*) – The conversion factor from GPa to eV/A^3, if it is set to 1.0, the unit is in GPa.
-    Default to 1 / 160.21766208.
+    Default to 1.0.
   * **\*\*kwargs** – Additional keyword arguments passed to super()._\_init_\_().
 
 #### \_abc_impl *= <_abc._abc_data object>*
