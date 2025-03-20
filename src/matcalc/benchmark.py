@@ -9,8 +9,10 @@ import random
 import typing
 from pathlib import Path
 
+import fsspec
 import pandas as pd
 import requests
+from monty.json import MontyDecoder
 from monty.serialization import dumpfn, loadfn
 from scipy import constants
 
@@ -45,15 +47,7 @@ def get_available_benchmarks() -> list[str]:
 
 def get_benchmark_data(name: str) -> pd.DataFrame:
     """
-    Retrieve benchmark elemental_refs as a Pandas DataFrame by downloading it if not already
-    available locally.
-
-    The function checks if the specified benchmark elemental_refs file exists in the
-    `BENCHMARK_DATA_DIR` directory. If the file does not exist, it attempts to
-    download the elemental_refs from a predefined URL using the benchmark name. In the case
-    of a successful download, the file is saved locally. If the download fails,
-    a RequestException is raised. Upon successful retrieval or download of the
-    benchmark file, the elemental_refs is read and returned as a Pandas DataFrame.
+    Retrieve benchmark data as a Pandas DataFrame. Uses fsspec to cache files locally if possible.
 
     :param name: Name of the benchmark elemental_refs file to be retrieved
     :type name: str
@@ -62,18 +56,9 @@ def get_benchmark_data(name: str) -> pd.DataFrame:
     :raises requests.RequestException: If the benchmark elemental_refs file cannot be
         downloaded from the specified URL
     """
-    if not (BENCHMARK_DATA_DIR / name).exists():
-        uri = f"{BENCHMARK_DATA_DOWNLOAD_URL}/{name}"
-        logger.info("Downloading benchmark from %s...", uri)
-        r = requests.get(uri)  # noqa: S113
-        if r.status_code == 200:  # noqa: PLR2004
-            with open(BENCHMARK_DATA_DIR / name, "wb") as f:
-                f.write(r.content)
-        else:
-            raise requests.RequestException(f"Bad uri: {uri}")
-    else:
-        logger.info("Using existing benchmark file %s...", BENCHMARK_DATA_DIR / name)
-    return loadfn(BENCHMARK_DATA_DIR / name)
+    uri = f"filecache::{BENCHMARK_DATA_DOWNLOAD_URL}/{name}"
+    with fsspec.open(uri, compression="gzip", cache_storage=str(BENCHMARK_DATA_DIR)) as f:
+        return json.load(f, cls=MontyDecoder)
 
 
 class CheckpointFile:

@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
-import requests
 from matcalc.benchmark import (
     BenchmarkSuite,
     CheckpointFile,
@@ -23,7 +22,7 @@ if TYPE_CHECKING:
 def test_get_benchmark_data() -> None:
     d = get_benchmark_data("mp-pbe-elasticity-2025.3.json.gz")
     assert len(d) > 10000
-    with pytest.raises(requests.RequestException) as _:
+    with pytest.raises(FileNotFoundError) as _:
         get_benchmark_data("bad_url")
 
 
