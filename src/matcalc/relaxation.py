@@ -146,27 +146,28 @@ class RelaxCalc(PropCalc):
             if self.relax_cell:
                 atoms = atoms.atoms
             energy = obs.energies[-1]
+            forces = obs.forces[-1]
+            stress = obs.stresses[-1]
             final_structure = AseAtomsAdaptor.get_structure(atoms)
-            lattice = final_structure.lattice
 
-            return {
-                "final_structure": final_structure,
-                "energy": energy,
-                "a": lattice.a,
-                "b": lattice.b,
-                "c": lattice.c,
-                "alpha": lattice.alpha,
-                "beta": lattice.beta,
-                "gamma": lattice.gamma,
-                "volume": lattice.volume,
-            }
+        else:
+            final_structure = structure
+            energy = atoms.get_potential_energy()
+            forces = atoms.get_forces()
+            stress = atoms.get_stress()
 
-        energy = atoms.get_potential_energy()
-        forces = atoms.get_forces()
-        stresses = atoms.get_stress()
+        lattice = final_structure.lattice
 
         return {
+            "final_structure": final_structure,
             "energy": energy,
             "forces": forces,
-            "stress": stresses,
+            "stress": stress,
+            "a": lattice.a,
+            "b": lattice.b,
+            "c": lattice.c,
+            "alpha": lattice.alpha,
+            "beta": lattice.beta,
+            "gamma": lattice.gamma,
+            "volume": lattice.volume,
         }

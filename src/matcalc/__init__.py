@@ -8,3 +8,13 @@ try:
     __version__ = version("matcalc")
 except PackageNotFoundError:
     pass  # package not installed
+
+from .base import PropCalc
+from .elasticity import ElasticityCalc
+from .eos import EOSCalc
+from .neb import NEBCalc
+from .phonon import PhononCalc
+from .qha import QHACalc
+from .relaxation import RelaxCalc
+from .stability import EnergeticsCalc
+from .utils import PESCalculator

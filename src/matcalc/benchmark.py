@@ -45,21 +45,21 @@ def get_available_benchmarks() -> list[str]:
 
 def get_benchmark_data(name: str) -> pd.DataFrame:
     """
-    Retrieve benchmark data as a Pandas DataFrame by downloading it if not already
+    Retrieve benchmark elemental_refs as a Pandas DataFrame by downloading it if not already
     available locally.
 
-    The function checks if the specified benchmark data file exists in the
+    The function checks if the specified benchmark elemental_refs file exists in the
     `BENCHMARK_DATA_DIR` directory. If the file does not exist, it attempts to
-    download the data from a predefined URL using the benchmark name. In the case
+    download the elemental_refs from a predefined URL using the benchmark name. In the case
     of a successful download, the file is saved locally. If the download fails,
     a RequestException is raised. Upon successful retrieval or download of the
-    benchmark file, the data is read and returned as a Pandas DataFrame.
+    benchmark file, the elemental_refs is read and returned as a Pandas DataFrame.
 
-    :param name: Name of the benchmark data file to be retrieved
+    :param name: Name of the benchmark elemental_refs file to be retrieved
     :type name: str
-    :return: Benchmark data loaded as a Pandas DataFrame
+    :return: Benchmark elemental_refs loaded as a Pandas DataFrame
     :rtype: pd.DataFrame
-    :raises requests.RequestException: If the benchmark data file cannot be
+    :raises requests.RequestException: If the benchmark elemental_refs file cannot be
         downloaded from the specified URL
     """
     if not (BENCHMARK_DATA_DIR / name).exists():
@@ -78,14 +78,14 @@ def get_benchmark_data(name: str) -> pd.DataFrame:
 
 class CheckpointFile:
     """
-    CheckpointFile class encapsulates functionality to handle checkpoint files for processing data.
+    CheckpointFile class encapsulates functionality to handle checkpoint files for processing elemental_refs.
 
-    The class constructor initializes the CheckpointFile object with the provided path, all data to be processed, list
-    of structures, and index name for data identification.
+    The class constructor initializes the CheckpointFile object with the provided path, all elemental_refs to be
+    processed, list of structures, and index name for elemental_refs identification.
 
-    load() method loads a checkpoint file if it exists, filtering the remaining data and structures based on entries
-    already processed. It returns a tuple containing three lists: already processed records, remaining data, and
-    remaining structures.
+    load() method loads a checkpoint file if it exists, filtering the remaining elemental_refs and structures based on
+    entries already processed. It returns a tuple containing three lists: already processed records, remaining
+    elemental_refs, and remaining structures.
 
     save() method saves a list of results at the specified checkpoint location.
     """
@@ -106,18 +106,18 @@ class CheckpointFile:
 
     def load(self, *args: list) -> tuple:
         """
-        Loads data from a specified path if it exists, returning the loaded data along with
+        Loads elemental_refs from a specified path if it exists, returning the loaded elemental_refs along with
         remaining portions of the given input arguments.
 
-        The method checks if the file path exists, and if so, it loads data from the specified
+        The method checks if the file path exists, and if so, it loads elemental_refs from the specified
         file using a predefined `loadfn` function. It logs the number of loaded entries and
-        returns the successfully loaded data alongside sliced input arguments based on the
+        returns the successfully loaded elemental_refs alongside sliced input arguments based on the
         number of loaded entries. If the file path does not exist, it returns empty results
         and the original input arguments unchanged.
 
-        :param args: List of lists where each list corresponds to additional data to
+        :param args: List of lists where each list corresponds to additional elemental_refs to
             process in conjunction with the loaded file content.
-        :return: A tuple where the first element is the loaded data (list) from the specified
+        :return: A tuple where the first element is the loaded elemental_refs (list) from the specified
             file path (or an empty list if the path does not exist), and subsequent elements
             are the remaining unsliced portions of each input list from `args` or the entire
             original lists if nothing was loaded.
@@ -143,15 +143,15 @@ class Benchmark(metaclass=abc.ABCMeta):
     """
     Represents an abstract base class for benchmarking elasticity properties of materials.
 
-    This class provides functionality to process benchmark data, create a DataFrame for analysis,
+    This class provides functionality to process benchmark elemental_refs, create a DataFrame for analysis,
     and run calculations using a specified potential energy surface (PES) calculator. It is designed
-    to facilitate benchmarking of bulk and shear moduli against pre-defined ground truth data.
+    to facilitate benchmarking of bulk and shear moduli against pre-defined ground truth elemental_refs.
 
     :ivar properties: List of properties to extract and benchmark. These properties
         are key inputs for analysis tasks.
     :type properties: list[str]
     :ivar other_fields: Tuple of additional fields in the benchmark entries to
-        include in the processed data. Useful for metadata or optional attributes.
+        include in the processed elemental_refs. Useful for metadata or optional attributes.
     :type other_fields: tuple[str]
     :ivar index_name: Name of the index field in the benchmark dataset. This is used
         as the primary key for identifying entries.
@@ -162,7 +162,7 @@ class Benchmark(metaclass=abc.ABCMeta):
     :ivar kwargs: Additional keywords passed through to the ElasticityCalculator or associated
         processes for extended configuration.
     :type kwargs: dict
-    :ivar ground_truth: DataFrame containing the processed benchmark data, including ground truth
+    :ivar ground_truth: DataFrame containing the processed benchmark elemental_refs, including ground truth
         reference values for materials properties.
     :type ground_truth: pandas.DataFrame
     """
@@ -180,9 +180,9 @@ class Benchmark(metaclass=abc.ABCMeta):
         **kwargs,  # noqa:ANN003
     ) -> None:
         """
-        Initializes an instance for processing benchmark data and constructing a DataFrame
+        Initializes an instance for processing benchmark elemental_refs and constructing a DataFrame
         representing the ground truth properties of input structures. Additionally, stores
-        information about input structures and other auxiliary data for further usage.
+        information about input structures and other auxiliary elemental_refs for further usage.
 
         :param benchmark_name: The name of the benchmark dataset or a path to a file containing
             the benchmark entries.
@@ -218,7 +218,7 @@ class Benchmark(metaclass=abc.ABCMeta):
 
         :raises FileNotFoundError: If the provided `benchmark_name` is a path that does not exist.
 
-        :raises ValueError: If invalid or incomplete data is encountered in the benchmark entries.
+        :raises ValueError: If invalid or incomplete elemental_refs is encountered in the benchmark entries.
         """
         rows = []
         structures = []
@@ -227,7 +227,7 @@ class Benchmark(metaclass=abc.ABCMeta):
             random.seed(seed)
             entries = random.sample(entries, n_samples)
 
-        # We will first create a DataFrame from the required components from the raw data.
+        # We will first create a DataFrame from the required components from the raw elemental_refs.
         # We also create the list of structures in the order of the entries.
         for entry in entries:
             row = {k: entry[k] for k in [index_name, *other_fields]}
@@ -262,7 +262,7 @@ class Benchmark(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def process_result(self, result: dict, model_name: str) -> dict:
+    def process_result(self, result: dict | None, model_name: str) -> dict:
         """
         Implements post-processing of results. A default implementation is provided that simply appends the model name
         as a suffix to the key of the input dictionary for all properties. Subclasses can override this method to
@@ -275,7 +275,11 @@ class Benchmark(metaclass=abc.ABCMeta):
         :return: A new dictionary with modified keys based on the model name suffix.
         :rtype: dict
         """
-        return {f"{k}_{model_name}": result[k] for k in self.properties}
+        return (
+            {f"{k}_{model_name}": result[k] for k in self.properties}
+            if result is not None
+            else {f"{k}_{model_name}": None for k in self.properties}
+        )
 
     def run(
         self,
@@ -306,10 +310,10 @@ class Benchmark(metaclass=abc.ABCMeta):
         :param n_jobs: Number of parallel jobs to be used in the computation. Use -1
             to allocate all cores available on the system. Defaults to -1.
         :type n_jobs: int | None
-        :param checkpoint_file: File path where checkpoint data is saved periodically.
+        :param checkpoint_file: File path where checkpoint elemental_refs is saved periodically.
             If None, no checkpoints are saved.
         :type checkpoint_file: str | Path | None
-        :param checkpoint_freq: Frequency after which checkpoint data is saved.
+        :param checkpoint_freq: Frequency after which checkpoint elemental_refs is saved.
             Corresponds to the number of structures processed.
         :type checkpoint_freq: int
         :param include_full_results: Whether to save full results from PropCalc.calc for analysis afterwards. For
@@ -341,8 +345,9 @@ class Benchmark(metaclass=abc.ABCMeta):
             prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs),
         ):
             r.update(self.process_result(d, model_name))
-            if include_full_results:
+            if include_full_results and d is not None:
                 r.update({k: v for k, v in d.items() if k not in self.properties})
+
             results.append(r)
             if checkpoint and len(results) % checkpoint_freq == 0:
                 checkpoint.save(results)
@@ -418,7 +423,7 @@ class ElasticityBenchmark(Benchmark):
         """
         return ElasticityCalc(calculator, **kwargs)
 
-    def process_result(self, result: dict, model_name: str) -> dict:
+    def process_result(self, result: dict | None, model_name: str) -> dict:
         """
         Processes the result dictionary containing bulk and shear modulus values, adjusts
         them by multiplying with a predefined conversion factor, and formats the keys
@@ -428,7 +433,7 @@ class ElasticityBenchmark(Benchmark):
         :param result:
             A dictionary containing the bulk and shear modulus values under the keys
             'bulk_modulus_vrh' and 'shear_modulus_vrh' respectively. It can also be
-            None to indicate missing data.
+            None to indicate missing elemental_refs.
         :type result: dict or None
 
         :param model_name:
@@ -455,11 +460,11 @@ class ElasticityBenchmark(Benchmark):
 
 class PhononBenchmark(Benchmark):
     """
-    Manages phonon benchmarking tasks, such as initializing benchmark data,
+    Manages phonon benchmarking tasks, such as initializing benchmark elemental_refs,
     performing calculations, and processing results.
 
     This class facilitates constructing and managing phonon benchmarks based on
-    provided data. It supports operations for processing benchmark data,
+    provided elemental_refs. It supports operations for processing benchmark elemental_refs,
     extracting relevant attributes, and computing thermal properties. It is
     compatible with various calculators and is designed to streamline the
     benchmarking process for materials' phonon-related properties.
@@ -512,11 +517,11 @@ class PhononBenchmark(Benchmark):
         """
         return PhononCalc(calculator, **kwargs)
 
-    def process_result(self, result: dict, model_name: str) -> dict:
+    def process_result(self, result: dict | None, model_name: str) -> dict:
         """
         Processes the result dictionary to extract specific thermal property information for the provided model name.
 
-        :param result: Dictionary containing thermal properties, with keys structured to access relevant data
+        :param result: Dictionary containing thermal properties, with keys structured to access relevant elemental_refs
             like "thermal_properties" and "heat_capacity".
         :type result: dict
         :param model_name: The model name used as a prefix in returned result keys.
@@ -525,7 +530,11 @@ class PhononBenchmark(Benchmark):
             prefixed by the model name.
         :rtype: dict
         """
-        return {f"heat_capacity_{model_name}": result["thermal_properties"]["heat_capacity"][30]}
+        return {
+            f"heat_capacity_{model_name}": (
+                result["thermal_properties"]["heat_capacity"][30] if result is not None else float("nan")
+            )
+        }
 
 
 class BenchmarkSuite:
@@ -537,7 +546,7 @@ class BenchmarkSuite:
         to initialize with a specified list of benchmarks.
 
         Attributes:
-            benchmarks (list): A list containing benchmark configurations or data for
+            benchmarks (list): A list containing benchmark configurations or elemental_refs for
             evaluation.
 
         :param benchmarks: A list of benchmarks for configuration or evaluation.
@@ -554,7 +563,7 @@ class BenchmarkSuite:
         """
         Executes benchmarks using the provided calculators and combines the results into a
         list of dataframes. Each benchmark runs for all models provided by calculators, collecting
-        individual results and performing validations during data combination.
+        individual results and performing validations during elemental_refs combination.
 
         :param calculators: A dictionary where the keys are the model names (str)
             and the values are the corresponding calculator instances (Calculator).

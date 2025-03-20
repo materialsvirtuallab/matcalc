@@ -34,7 +34,7 @@ class PropCalc(abc.ABC):
         n_jobs: None | int = None,
         allow_errors: bool = False,  # noqa: FBT001,FBT002
         **kwargs: Any,
-    ) -> Generator[dict, None, None]:
+    ) -> Generator[dict | None]:
         """Performs calc on many structures. The return type is a generator given that the calc method can
         potentially be expensive. It is trivial to convert the generator to a list/tuple.
 
@@ -44,7 +44,9 @@ class PropCalc(abc.ABC):
                 (n_cpus + 1 + n_jobs) are used. None is a marker for `unset` that will be interpreted as n_jobs=1
                 unless the call is performed under a parallel_config() context manager that sets another value for
                 n_jobs.
-            allow_errors: Whether to skip failed calculations. For these calculations, None will be returned.
+            allow_errors: Whether to skip failed calculations. For these calculations, None will be returned. For
+                large scale calculations, you may want this to be True to avoid the entire calculation failing.
+                Defaults to False.
             **kwargs: Passthrough to joblib.Parallel.
 
         Returns:
@@ -58,6 +60,7 @@ class PropCalc(abc.ABC):
                     return self.calc(s)
                 except Exception:  # noqa: BLE001
                     return None
+
         else:
             _func = self.calc  # type: ignore[assignment]
         return parallel(delayed(_func)(s) for s in structures)

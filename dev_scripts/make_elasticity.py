@@ -1,5 +1,5 @@
 """
-Script for generating elasticity data from Materials Project.
+Script for generating elasticity elemental_refs from Materials Project.
 """
 
 from __future__ import annotations
@@ -62,7 +62,7 @@ for d in docs_dict:
 
         new_docs.append(d)
 
-# There are some wrong values in MP, e.g., bulk moduli exceeding 100000. We will clean the data
+# There are some wrong values in MP, e.g., bulk moduli exceeding 100000. We will clean the elemental_refs
 # removing nonsensical values.
 
 print(f"Downloaded number of documents: {len(new_docs)}.")
@@ -76,7 +76,18 @@ for d in new_docs:
         or d["shear_modulus_vrh"] <= 0
     ):
         continue
-    if d["formula"] in ["H2", "N2", "O2", "F2", "Cl2", "He", "Xe", "Ne", "Kr", "Ar"]:  # Remove known gases
+    if d["formula"] in [
+        "H2",
+        "N2",
+        "O2",
+        "F2",
+        "Cl2",
+        "He",
+        "Xe",
+        "Ne",
+        "Kr",
+        "Ar",
+    ]:  # Remove known gases
         continue
     if d["density"] < 0.5:  # Remove any materials with density lower than Li (the least dense solid element)
         continue
