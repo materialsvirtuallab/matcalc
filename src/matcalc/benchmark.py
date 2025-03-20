@@ -28,8 +28,7 @@ eVA3ToGPa = constants.e / (constants.angstrom) ** 3 / constants.giga  # noqa: N8
 
 BENCHMARK_DATA_URL = "https://api.github.com/repos/materialsvirtuallab/matcalc/contents/benchmark_data"
 BENCHMARK_DATA_DOWNLOAD_URL = "https://raw.githubusercontent.com/materialsvirtuallab/matcalc/main/benchmark_data"
-BENCHMARK_DATA_DIR = Path.home() / ".local" / "matcalc" / "benchmark_data"
-BENCHMARK_DATA_DIR.mkdir(parents=True, exist_ok=True)
+BENCHMARK_DATA_DIR = Path.home() / ".local" / "matcalc"
 
 
 logger = logging.getLogger(__name__)
