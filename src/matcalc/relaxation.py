@@ -82,6 +82,7 @@ class RelaxCalc(PropCalc):
         relax_atoms: bool = True,
         relax_cell: bool = True,
         cell_filter: Filter = FrechetCellFilter,
+        perturb_distance: float | None = 0.1,
     ) -> None:
         """Args:
             calculator: ASE Calculator to use.
@@ -94,6 +95,8 @@ class RelaxCalc(PropCalc):
             relax_atoms (bool): Whether to relax the atoms (or just static calculation).
             relax_cell (bool): Whether to relax the cell (or just atoms).
             cell_filter (Filter): The ASE Filter used to relax the cell. Default is FrechetCellFilter.
+            perturb_distance (float): Distance in angstrom to randomly perturb each site to break symmetry.
+                Defaults to None.
 
         Raises:
             ValueError: If the optimizer is not a valid ASE optimizer.
@@ -108,6 +111,7 @@ class RelaxCalc(PropCalc):
         self.relax_cell = relax_cell
         self.relax_atoms = relax_atoms
         self.cell_filter = cell_filter
+        self.perturb_distance = perturb_distance
 
     def calc(self, structure: Structure) -> dict:
         """Perform relaxation to obtain properties.
@@ -129,6 +133,8 @@ class RelaxCalc(PropCalc):
             gamma: lattice.gamma in degrees,
         }
         """
+        if self.perturb_distance is not None:
+            structure = structure.perturb(distance=self.perturb_distance, seed=42)
         atoms = AseAtomsAdaptor.get_atoms(structure)
         atoms.calc = self.calculator
         if self.relax_atoms:
