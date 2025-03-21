@@ -23,8 +23,8 @@ class EnergeticsCalc(PropCalc):
     def __init__(
         self,
         calculator: Calculator,
-        elemental_refs: Literal["MatPES-PBE", "MatPES-r2SCAN"] | dict = "MatPES-PBE",
         *,
+        elemental_refs: Literal["MatPES-PBE", "MatPES-r2SCAN"] | dict = "MatPES-PBE",
         use_dft_gs_reference: bool = False,
         relax_calc_kwargs: dict | None = None,
     ) -> None:

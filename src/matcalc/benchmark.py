@@ -14,22 +14,16 @@ import pandas as pd
 import requests
 from monty.json import MontyDecoder
 from monty.serialization import dumpfn, loadfn
-from scipy import constants
 
 if typing.TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
 
     from .base import PropCalc
 
+from .config import BENCHMARK_DATA_DIR, BENCHMARK_DATA_DOWNLOAD_URL, BENCHMARK_DATA_URL
 from .elasticity import ElasticityCalc
 from .phonon import PhononCalc
-
-eVA3ToGPa = constants.e / (constants.angstrom) ** 3 / constants.giga  # noqa: N816
-
-BENCHMARK_DATA_URL = "https://api.github.com/repos/materialsvirtuallab/matcalc/contents/benchmark_data"
-BENCHMARK_DATA_DOWNLOAD_URL = "https://raw.githubusercontent.com/materialsvirtuallab/matcalc/main/benchmark_data"
-BENCHMARK_DATA_DIR = Path.home() / ".local" / "matcalc"
-
+from .units import eVA3ToGPa
 
 logger = logging.getLogger(__name__)
 

@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
-import functools
 from inspect import isclass
 from typing import TYPE_CHECKING, Any, Literal
 
 import ase.optimize
-from ase import units
 from ase.calculators.calculator import Calculator
 from ase.optimize.optimize import Optimizer
+from monty.dev import deprecated
+
+from .units import eVA3ToGPa
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -20,19 +21,28 @@ if TYPE_CHECKING:
 
 
 # Listing of supported universal calculators.
-UNIVERSAL_CALCULATORS = (
+UNIVERSAL_CALCULATORS = [
     "M3GNet",
-    "M3GNet-MP-2021.2.8-PES",
-    "M3GNet-MP-2021.2.8-DIRECT-PES",
     "CHGNet",
     "MACE",
     "SevenNet",
-    "TensorNet-MatPES-PBE-v2025.1-PES",
-    "TensorNet-MatPES-r2SCAN-v2025.1-PES",
+    "TensorNet",
     "GRACE",
     "TensorPotential",
     "ORB",
-)
+]
+
+try:
+    # Auto-load all available PES models from matgl if installed.
+    import matgl
+
+    UNIVERSAL_CALCULATORS += [m for m in matgl.get_available_pretrained_models() if "PES" in m]
+    UNIVERSAL_CALCULATORS = sorted(set(UNIVERSAL_CALCULATORS))
+except ImportError:
+    pass
+
+# Name mappings from short-hand to default calculators.
+NAME_MAPPINGS = {"TensorNet": "TensorNet-MatPES-PBE-v2025.1-PES", "M3GNet": "M3GNet-MatPES-PBE-v2025.1-PES"}
 
 
 class PESCalculator(Calculator):
@@ -68,7 +78,7 @@ class PESCalculator(Calculator):
 
         # Handle stress unit conversion
         if stress_unit == "eV/A3":
-            conversion_factor = units.GPa / (units.eV / units.Angstrom**3)  # Conversion factor from GPa to eV/A^3
+            conversion_factor = 1 / eVA3ToGPa  # Conversion factor from GPa to eV/A^3
         elif stress_unit == "GPa":
             conversion_factor = 1.0  # No conversion needed if stress is already in GPa
         else:
@@ -272,14 +282,13 @@ class PESCalculator(Calculator):
 
             # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
             # TensorNet is shorthand for latest TensorNet trained on MatPES.
-            name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES", "tensornet": "TensorNet-MatPES-PBE-v2025.1-PES"}.get(
-                name.lower(), name
-            )
+            name = NAME_MAPPINGS.get(name, name)
             model = matgl.load_model(name)
             kwargs.setdefault("stress_unit", "eV/A3")
             result = PESCalculator_(potential=model, **kwargs)
 
         elif name.lower() == "chgnet":
+            # TODO: Switch to using MatGL implementation?  #noqa: TD002,TD003,FIX002
             from chgnet.model.dynamics import CHGNetCalculator
 
             result = CHGNetCalculator(**kwargs)
@@ -316,7 +325,7 @@ class PESCalculator(Calculator):
         return result
 
 
-@functools.lru_cache
+@deprecated(PESCalculator, "Use PESCalculator.load_universal instead.")
 def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculator:
     """Helper method to get some well-known **universal** calculators.
     Imports should be inside if statements to ensure that all models are optional dependencies.
@@ -334,14 +343,6 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
     Returns:
         Calculator
     """
-    import warnings
-
-    warnings.warn(
-        "get_universal_calculator() will be deprecated in the future. Use PESCalculator.load_YOUR_MODEL() instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-
     result: Calculator
 
     if not isinstance(name, str):  # e.g. already an ase Calculator instance

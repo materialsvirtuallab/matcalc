@@ -10,6 +10,7 @@ except PackageNotFoundError:
     pass  # package not installed
 
 from .base import PropCalc
+from .config import clear_cache
 from .elasticity import ElasticityCalc
 from .eos import EOSCalc
 from .neb import NEBCalc
@@ -17,4 +18,4 @@ from .phonon import PhononCalc
 from .qha import QHACalc
 from .relaxation import RelaxCalc
 from .stability import EnergeticsCalc
-from .utils import PESCalculator
+from .utils import UNIVERSAL_CALCULATORS, PESCalculator

@@ -44,6 +44,9 @@ models = ["chgnet>=0.3.8", "mace-torch>=0.3.6", "matgl>=1.2.1", "sevenn>=0.9.3",
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "coverage", "coveralls"]
 phonon = ["seekpath"]
 
+[project.scripts]
+matcalc = "matcalc.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["matcalc", "matcalc.*"]
