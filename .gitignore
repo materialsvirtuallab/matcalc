@@ -1,4 +1,5 @@
 __pycache__/
+.coverage*
 *.egg-info
 .DS_Store
 *.o
