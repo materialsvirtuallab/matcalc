@@ -91,6 +91,7 @@ docstring-code-format = true
 "__init__.py" = ["F401"]
 "tasks.py" = ["ANN", "D", "T203"]
 "tests/*" = ["D", "INP001", "N802", "N803", "PLR2004", "S101"]
+"tests/test_cli.py" = ["S603", "S607"]
 
 [tool.pytest.ini_options]
 addopts = "--durations=30 --quiet -rXs --color=yes -p no:warnings"
