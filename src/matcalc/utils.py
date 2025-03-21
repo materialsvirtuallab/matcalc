@@ -303,17 +303,17 @@ class PESCalculator(Calculator):
 
             result = SevenNetCalculator(**kwargs)
 
-        elif name.lower().startswith("grace") or name.lower().startswith("tensorpotential"):
+        elif name.lower() == "grace" or name.lower() == "tensorpotential":
             from tensorpotential.calculator.foundation_models import grace_fm
 
             kwargs.setdefault("model", "GRACE-2L-OAM")
             result = grace_fm(**kwargs)
 
-        elif name.lower().startswith("orb"):
+        elif name.lower() == "orb":
             from orb_models.forcefield.calculator import ORBCalculator
             from orb_models.forcefield.pretrained import ORB_PRETRAINED_MODELS
 
-            model = kwargs.get("model", "orb-v2")
+            model = kwargs.pop("model", "orb-v2")
             device = kwargs.get("device", "cpu")
 
             orbff = ORB_PRETRAINED_MODELS[model](device=device)
@@ -376,17 +376,17 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
 
         result = SevenNetCalculator(**kwargs)
 
-    elif name.lower().startswith("grace") or name.lower().startswith("tensorpotential"):
+    elif name.lower() == "grace" or name.lower() == "tensorpotential":
         from tensorpotential.calculator.foundation_models import grace_fm
 
         kwargs.setdefault("model", "GRACE-2L-OAM")
         result = grace_fm(**kwargs)
 
-    elif name.lower().startswith("orb"):
+    elif name.lower() == "orb":
         from orb_models.forcefield.calculator import ORBCalculator
         from orb_models.forcefield.pretrained import ORB_PRETRAINED_MODELS
 
-        model = kwargs.get("model", "orb-v2")
+        model = kwargs.pop("model", "orb-v2")
         device = kwargs.get("device", "cpu")
 
         orbff = ORB_PRETRAINED_MODELS[model](device=device)
