@@ -417,6 +417,41 @@ Retrieve benchmark data as a Pandas DataFrame. Uses fsspec to cache files locall
   **requests.RequestException** – If the benchmark elemental_refs file cannot be
   downloaded from the specified URL
 
+## matcalc.cli module
+
+Command line interface to matcalc.
+
+### calculate_property(args: Any) → None
+
+Implements calculate property.
+
+* **Parameters:**
+  **args**
+* **Returns:**
+
+### clear_cache(args: Any) → None
+
+Clear the benchmark cache.
+
+* **Parameters:**
+  **args**
+* **Returns:**
+
+### main() → None
+
+Handle main.
+
+## matcalc.config module
+
+Sets some configuration global variables and locations for matcalc.
+
+### clear_cache(, confirm: bool = True) → None
+
+Deletes all files in the matgl.cache. This is used to clean out downloaded models.
+
+* **Parameters:**
+  **confirm** – Whether to ask for confirmation. Default is True.
+
 ## matcalc.elasticity module
 
 Calculator for elastic properties.
@@ -930,7 +965,7 @@ Save the trajectory to file.
 
 Calculator for stability related properties.
 
-### *class* EnergeticsCalc(calculator: Calculator, elemental_refs: Literal['MatPES-PBE', 'MatPES-r2SCAN'] | dict = 'MatPES-PBE', , use_dft_gs_reference: bool = False, relax_calc_kwargs: dict | None = None)
+### *class* EnergeticsCalc(calculator: Calculator, , elemental_refs: Literal['MatPES-PBE', 'MatPES-r2SCAN'] | dict = 'MatPES-PBE', use_dft_gs_reference: bool = False, relax_calc_kwargs: dict | None = None)
 
 Bases: [`PropCalc`](#matcalc.base.PropCalc)
 
@@ -971,6 +1006,10 @@ DFT atomic energies.
   energy per atom, and the final relaxed structure.
 * **Return type:**
   dict[str, Any]
+
+## matcalc.units module
+
+Useful constants for unit conversions.
 
 ## matcalc.utils module
 

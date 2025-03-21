@@ -30,6 +30,8 @@ UNIVERSAL_CALCULATORS = [
     "GRACE",
     "TensorPotential",
     "ORB",
+    "PBE",
+    "r2SCAN",
 ]
 
 try:
@@ -41,11 +43,13 @@ try:
 except ImportError:
     pass
 
-# Name mappings from short-hand to default calculators.
-NAME_MAPPINGS = {
-    "TensorNet": "TensorNet-MatPES-PBE-v2025.1-PES",
-    "M3GNet": "M3GNet-MatPES-PBE-v2025.1-PES",
-    "CHGNet": "CHGNet-MatPES-PBE-2025.2.10-PES-2.7M",
+# Provide simple aliases for some common models. The key in MODEL_ALIASES must be lower case.
+MODEL_ALIASES = {
+    "tensornet": "TensorNet-MatPES-PBE-v2025.1-PES",
+    "m3gnet": "M3GNet-MatPES-PBE-v2025.1-PES",
+    "chgnet": "CHGNet-MatPES-PBE-2025.2.10-PES-2.7M",
+    "pbe": "TensorNet-MatPES-PBE-v2025.1-PES",
+    "r2scan": "TensorNet-MatPES-r2SCAN-v2025.1-PES",
 }
 
 
@@ -280,17 +284,11 @@ class PESCalculator(Calculator):
         if not isinstance(name, str):  # e.g. already an ase Calculator instance
             result = name
 
-        elif (
-            name.lower().startswith("m3gnet")
-            or name.lower().startswith("chgnet")
-            or name.lower().startswith("tensornet")
-        ):
+        elif any(name.lower().startswith(m) for m in ("m3gnet", "chgnet", "tensornet", "pbe", "r2scan")):
             import matgl
             from matgl.ext.ase import PESCalculator as PESCalculator_
 
-            # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
-            # TensorNet is shorthand for latest TensorNet trained on MatPES.
-            name = NAME_MAPPINGS.get(name, name)
+            name = MODEL_ALIASES.get(name.lower(), name)
             model = matgl.load_model(name)
             kwargs.setdefault("stress_unit", "eV/A3")
             result = PESCalculator_(potential=model, **kwargs)

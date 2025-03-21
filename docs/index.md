@@ -80,6 +80,14 @@ def parallel_calc():
 # This was run on 10 CPUs on a Mac.
 ```
 
+### CLI tool
+
+A CLI tool provides a means to use universal MLIPs to obtain properties for any structure. Example usage:
+
+```shell
+matcalc calc -p ElasticityCalc -s Li2O.cif
+```
+
 ## Benchmarking
 
 MatCalc makes it easy to perform a large number of calculations rapidly. With the release of MatPES, we have released

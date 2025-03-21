@@ -6,6 +6,10 @@ nav_order: 2
 
 # Change Log
 
+## v0.1.1
+- Provide model aliases "PBE" and "R2SCAN" which defaults to the TensorNet MatPES models.
+- New CLI tools to quickly use prop calculators to compute properties from structure files.
+
 ## v0.1.0
 - Added support for ORB and GRACE universal calculators (@atulcthakur)
 - Option to perturb structure before relaxation (@rul048)
