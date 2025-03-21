@@ -47,7 +47,7 @@ except ImportError:
 MODEL_ALIASES = {
     "tensornet": "TensorNet-MatPES-PBE-v2025.1-PES",
     "m3gnet": "M3GNet-MatPES-PBE-v2025.1-PES",
-    "chgnet": "CHGNet-MatPES-PBE-2025.2.10-PES-2.7M",
+    "chgnet": "CHGNet-MatPES-PBE-2025.2.10-2.7M-PES",
     "pbe": "TensorNet-MatPES-PBE-v2025.1-PES",
     "r2scan": "TensorNet-MatPES-r2SCAN-v2025.1-PES",
 }
