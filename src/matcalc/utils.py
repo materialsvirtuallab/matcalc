@@ -42,7 +42,11 @@ except ImportError:
     pass
 
 # Name mappings from short-hand to default calculators.
-NAME_MAPPINGS = {"TensorNet": "TensorNet-MatPES-PBE-v2025.1-PES", "M3GNet": "M3GNet-MatPES-PBE-v2025.1-PES"}
+NAME_MAPPINGS = {
+    "TensorNet": "TensorNet-MatPES-PBE-v2025.1-PES",
+    "M3GNet": "M3GNet-MatPES-PBE-v2025.1-PES",
+    "CHGNet": "CHGNet-MatPES-PBE-v2025.1",
+}
 
 
 class PESCalculator(Calculator):
@@ -276,7 +280,11 @@ class PESCalculator(Calculator):
         if not isinstance(name, str):  # e.g. already an ase Calculator instance
             result = name
 
-        elif name.lower().startswith("m3gnet") or name.lower().startswith("tensornet"):
+        elif (
+            name.lower().startswith("m3gnet")
+            or name.lower().startswith("chgnet")
+            or name.lower().startswith("tensornet")
+        ):
             import matgl
             from matgl.ext.ase import PESCalculator as PESCalculator_
 
@@ -286,12 +294,6 @@ class PESCalculator(Calculator):
             model = matgl.load_model(name)
             kwargs.setdefault("stress_unit", "eV/A3")
             result = PESCalculator_(potential=model, **kwargs)
-
-        elif name.lower() == "chgnet":
-            # TODO: Switch to using MatGL implementation?  #noqa: TD002,TD003,FIX002
-            from chgnet.model.dynamics import CHGNetCalculator
-
-            result = CHGNetCalculator(**kwargs)
 
         elif name.lower() == "mace":
             from mace.calculators import mace_mp
