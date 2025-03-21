@@ -45,7 +45,7 @@ except ImportError:
 NAME_MAPPINGS = {
     "TensorNet": "TensorNet-MatPES-PBE-v2025.1-PES",
     "M3GNet": "M3GNet-MatPES-PBE-v2025.1-PES",
-    "CHGNet": "CHGNet-MatPES-PBE-v2025.1",
+    "CHGNet": "CHGNet-MatPES-PBE-2025.2.10-PES-2.7M",
 }
 
 
