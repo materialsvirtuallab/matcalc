@@ -1,4 +1,4 @@
-name: Testing
+name: Release
 
 on:
   release:
@@ -10,6 +10,9 @@ on:
         options: [tests, release]
         default: tests
         description: Only run tests or release a new version to PyPI after tests pass.
+
+permissions:
+  contents: read
 
 jobs:
   test:

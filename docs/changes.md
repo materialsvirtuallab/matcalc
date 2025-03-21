@@ -6,6 +6,12 @@ nav_order: 2
 
 # Change Log
 
+## v0.1.0
+- Added support for ORB and GRACE universal calculators (@atulcthakur)
+- Option to perturb structure before relaxation (@rul048)
+- Improved handling of stress units (@rul048)
+- Option to relax strained structures in ElasticityCalc (@lbluque)
+
 ## v0.0.6
 - Checkpointing and better handling of benchmarking.
 - Most PropCalc can now be imported from the root level, e.g., `from matcalc import ElasticityCalc` instead of the more

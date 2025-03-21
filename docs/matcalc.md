@@ -405,15 +405,7 @@ Checks Github for available benchmarks for download.
 
 ### get_benchmark_data(name: str) → DataFrame
 
-Retrieve benchmark elemental_refs as a Pandas DataFrame by downloading it if not already
-available locally.
-
-The function checks if the specified benchmark elemental_refs file exists in the
-BENCHMARK_DATA_DIR directory. If the file does not exist, it attempts to
-download the elemental_refs from a predefined URL using the benchmark name. In the case
-of a successful download, the file is saved locally. If the download fails,
-a RequestException is raised. Upon successful retrieval or download of the
-benchmark file, the elemental_refs is read and returned as a Pandas DataFrame.
+Retrieve benchmark data as a Pandas DataFrame. Uses fsspec to cache files locally if possible.
 
 * **Parameters:**
   **name** (*str*) – Name of the benchmark elemental_refs file to be retrieved
@@ -869,7 +861,7 @@ Returns:
 
 Relaxation properties.
 
-### *class* RelaxCalc(calculator: Calculator, \*, optimizer: Optimizer | str = 'FIRE', max_steps: int = 500, traj_file: str | None = None, interval: int = 1, fmax: float = 0.1, relax_atoms: bool = True, relax_cell: bool = True, cell_filter: Filter = <class 'ase.filters.FrechetCellFilter'>)
+### *class* RelaxCalc(calculator: Calculator, \*, optimizer: Optimizer | str = 'FIRE', max_steps: int = 500, traj_file: str | None = None, interval: int = 1, fmax: float = 0.1, relax_atoms: bool = True, relax_cell: bool = True, cell_filter: Filter = <class 'ase.filters.FrechetCellFilter'>, perturb_distance: float | None = 0.1)
 
 Bases: [`PropCalc`](#matcalc.base.PropCalc)
 
@@ -886,6 +878,8 @@ Relaxes and computes the relaxed parameters of a structure.
   * **relax_atoms** (*bool*) – Whether to relax the atoms (or just static calculation).
   * **relax_cell** (*bool*) – Whether to relax the cell (or just atoms).
   * **cell_filter** (*Filter*) – The ASE Filter used to relax the cell. Default is FrechetCellFilter.
+  * **perturb_distance** (*float* *|* *None*) – Distance in angstrom to randomly perturb each site to break symmetry.
+    Defaults to None.
 * **Raises:**
   **ValueError** – If the optimizer is not a valid ASE optimizer.
 

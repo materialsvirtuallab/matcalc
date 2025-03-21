@@ -12,6 +12,7 @@ on:
         options: [tests, release]
         default: tests
         description: Only run tests or release a new version to PyPI after tests pass.
+  workflow_call: # make this workflow reusable by release.yml
 
 jobs:
   test:
