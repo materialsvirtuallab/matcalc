@@ -60,6 +60,18 @@ print(f"K_VRH = {props['bulk_modulus_vrh'] * 160.2176621} GPa")
 
 The output is `K_VRH = 102.08363100102596 GPa`.
 
+While we generally recommend users to specify exactly the model they would like to use, MatCalc provides useful
+(case-insensitive) aliases to our recommended models for PBE and r2SCAN predictions. These can be loaded using:
+
+```python
+from matcalc import PESCalculator
+pbe_calculator = PESCalculator.load_universal("pbe")
+r2scan_calculator = PESCalculator.load_universal("r2scan")
+```
+
+At the time of writing, these are the TensorNet-MatPES models. However, these recommendations may updated as newer
+models become available.
+
 MatCalc also supports trivial parallelization using joblib via the `calc_many` method.
 
 ```python
