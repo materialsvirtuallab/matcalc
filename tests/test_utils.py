@@ -8,7 +8,6 @@ import pytest
 from ase import Atoms
 from ase.calculators.calculator import Calculator
 from ase.optimize.optimize import Optimizer
-
 from matcalc.utils import (
     UNIVERSAL_CALCULATORS,
     VALID_OPTIMIZERS,
@@ -131,6 +130,8 @@ class TestPESCalculator:
 @pytest.mark.skipif(not find_spec("chgnet"), reason="chgnet is not installed")
 @pytest.mark.skipif(not find_spec("mace"), reason="mace is not installed")
 @pytest.mark.skipif(not find_spec("sevenn"), reason="sevenn is not installed")
+@pytest.mark.skipif(not find_spec("tensorpotential"), reason="tensorpotential / grace is not installed")
+@pytest.mark.skipif(not find_spec("orb_models"), reason="orb-models is not installed")
 def test_get_universal_calculator() -> None:
     for name in UNIVERSAL_CALCULATORS:
         calc = get_universal_calculator(name)
