@@ -36,7 +36,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install git+https://github.com/materialsvirtuallab/maml.git
-          pip install -e '.[models,ci,phonon]'
+          pip install -e '.[models,ci,phonon,benchmark]'
       - name: pytest
         run: |
           pytest --cov=matcalc tests --color=yes
