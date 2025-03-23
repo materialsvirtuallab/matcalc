@@ -1,3 +1,8 @@
+### [wbm-random-pbe-equilibrium-2025.1.json.gz](wbm-random-pbe-equilibrium-2025.1.json.gz)
+- Relaxe structure, un- and corrected energy of random sampled structures in [WBM] downloaded in Jan 2025
+- Corrects energy using MaterialsProject2020Compatibility.
+- 1000 structures.
+
 ### [mp-binary-pbe-elasticity-2025.1.json.gz](mp-binary-pbe-elasticity-2025.1.json.gz)
 - Elastic moduli of binaries in [Materials Project] downloaded in Jan 2025
 - Excludes K > 500 and G > 500 structures as well as a few bad structures.
@@ -20,5 +25,6 @@
 - Excludes deprecated structures.
 - 9865 structures.
 
+[WBM]: https://figshare.com/articles/dataset/Matbench_Discovery_v1_0_0/22715158
 [Materials Project]: http://materialsproject.org
 [Alexandria Materials Database]: https://alexandria.icams.rub.de
