@@ -134,7 +134,7 @@ class RelaxCalc(PropCalc):
         }
         """
         if self.perturb_distance is not None:
-            structure = structure.perturb(distance=self.perturb_distance, seed=42)
+            structure = structure.perturb(distance=self.perturb_distance)
         atoms = AseAtomsAdaptor.get_atoms(structure)
         atoms.calc = self.calculator
         if self.relax_atoms:
