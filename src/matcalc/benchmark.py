@@ -8,6 +8,7 @@ import logging
 import random
 import typing
 from pathlib import Path
+from urllib.parse import urlparse
 
 import fsspec
 import pandas as pd
@@ -50,8 +51,15 @@ def get_benchmark_data(name: str) -> pd.DataFrame:
     :raises requests.RequestException: If the benchmark elemental_refs file cannot be
         downloaded from the specified URL
     """
-    uri = f"filecache::{BENCHMARK_DATA_DOWNLOAD_URL}/{name}"
-    with fsspec.open(uri, compression="infer", cache_storage=str(BENCHMARK_DATA_DIR), same_names=True) as f:
+    uri = f"{BENCHMARK_DATA_DOWNLOAD_URL}/{name}"
+    parsed = urlparse(str(uri))
+    fs = fsspec.filesystem(
+        "filecache",
+        target_protocol=parsed.scheme,
+        cache_storage=str(BENCHMARK_DATA_DIR),
+        same_names=True,
+    )
+    with fs.open(uri, compression="infer") as f:
         return json.load(f, cls=MontyDecoder)
 
 
