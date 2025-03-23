@@ -6,6 +6,9 @@ nav_order: 2
 
 # Change Log
 
+## v0.1.2
+- Emergency bug fix for bad default perturb_distance parameter in Relaxation.
+
 ## v0.1.1
 - Provide model aliases "PBE" and "R2SCAN" which defaults to the TensorNet MatPES models.
 - New CLI tools to quickly use prop calculators to compute properties from structure files.
