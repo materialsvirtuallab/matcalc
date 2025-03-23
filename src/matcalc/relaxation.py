@@ -82,7 +82,7 @@ class RelaxCalc(PropCalc):
         relax_atoms: bool = True,
         relax_cell: bool = True,
         cell_filter: Filter = FrechetCellFilter,
-        perturb_distance: float | None = 0.1,
+        perturb_distance: float | None = None,
     ) -> None:
         """Args:
             calculator: ASE Calculator to use.
