@@ -36,7 +36,8 @@ def test_relax_calc_relax_cell(
         relax_cell=True,
         perturb_distance=perturb_distance,
     )
-    result = relax_calc.calc(Li2O)
+    temp_structure = Li2O
+    result = relax_calc.calc(temp_structure)
     for key in (
         "final_structure",
         "energy",
