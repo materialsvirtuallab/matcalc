@@ -396,6 +396,61 @@ Processes the result dictionary to extract specific thermal property information
 * **Return type:**
   dict
 
+### *class* RelaxationBenchmark(index_name: str = 'material_id', benchmark_name: str | Path = 'wbm-random-pbe54-equilibrium-2025.1.json.gz', folder_name: str = 'default_folder', \*\*kwargs)
+
+Bases: [`Benchmark`](#matcalc.benchmark.Benchmark)
+
+Represents a benchmark for evaluating and analyzing relaxation properties of materials.
+This benchmark utilizes a dataset and provides functionality for property calculation
+and result processing. The class is designed to work with a predefined framework for
+benchmarking relaxation properties. The benchmark dataset contains data such as relaxed
+structures along with additional metadata. This class supports configurability through
+metadata files, index names, and additional benchmark properties. It relies on external
+calculators and utility classes for property computations and result handling.
+
+Initializes the RelaxationBenchmark instance with specified benchmark metadata and
+configuration parameters. It sets up the benchmark with the necessary properties
+required for relaxation analysis.
+
+* **Parameters:**
+  * **index_name** (*str*) – The name of the index used to uniquely identify records in the dataset.
+  * **benchmark_name** (*str* *|* *Path*) – The path or name of the benchmark file that contains the dataset.
+  * **folder_name** (*str*) – The folder name used for file operations related to structure files.
+  * **kwargs** (*dict*) – Additional keyword arguments for customization.
+
+#### \_abc_impl *= <_abc._abc_data object>*
+
+#### get_prop_calc(calculator: Calculator, \*\*kwargs: Any) → [PropCalc](#matcalc.base.PropCalc)
+
+Returns a property calculation object for performing relaxation calculations.
+This method initializes the relaxation calculator using the provided Calculator
+object and any additional configuration parameters.
+
+* **Parameters:**
+  * **calculator** (*Calculator*) – A Calculator object responsible for performing the relaxation calculation.
+  * **kwargs** (*dict*) – Additional keyword arguments used for configuration.
+* **Returns:**
+  An initialized PropCalc object configured for relaxation calculations.
+* **Return type:**
+  [PropCalc](#matcalc.base.PropCalc)
+
+#### process_result(result: dict | None, model_name: str) → dict
+
+Processes the result dictionary containing final relaxed structures, formats the keys
+according to the provided model name. If the result is None, default values of
+NaN are returned for final structures.
+
+* **Parameters:**
+  * **result** (*dict* *or* *None*) – A dictionary containing the final relaxed structures under the keys
+    ‘final_structure’. It can also be None to indicate missing elemental_refs.
+  * **model_name** (*str*) – A string representing the identifier or name of the model. It will be used
+    to format the returned dictionary’s keys.
+* **Returns:**
+  A dictionary containing the specific final relaxed structure prefixed by the model name.
+  The values will be NaN if the input result is None.
+* **Return type:**
+  dict
+
 ### get_available_benchmarks() → list[str]
 
 Checks Github for available benchmarks for download.
@@ -896,7 +951,7 @@ Returns:
 
 Relaxation properties.
 
-### *class* RelaxCalc(calculator: Calculator, \*, optimizer: Optimizer | str = 'FIRE', max_steps: int = 500, traj_file: str | None = None, interval: int = 1, fmax: float = 0.1, relax_atoms: bool = True, relax_cell: bool = True, cell_filter: Filter = <class 'ase.filters.FrechetCellFilter'>, perturb_distance: float | None = 0.1)
+### *class* RelaxCalc(calculator: Calculator, \*, optimizer: Optimizer | str = 'FIRE', max_steps: int = 500, traj_file: str | None = None, interval: int = 1, fmax: float = 0.1, relax_atoms: bool = True, relax_cell: bool = True, cell_filter: Filter = <class 'ase.filters.FrechetCellFilter'>, perturb_distance: float | None = None)
 
 Bases: [`PropCalc`](#matcalc.base.PropCalc)
 
