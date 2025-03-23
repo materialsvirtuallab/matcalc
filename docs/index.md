@@ -25,7 +25,7 @@ Calculating material properties often requires involved setups of various simula
 goal of MatCalc is to provide a simplified, consistent interface to access these properties with any
 parameterization of the PES.
 
-MatCalc is part of the MatML ecosystem, which includes the [MatGL] (Materials Graph Library) and [maml] (MAterials
+MatCalc is part of the MatML ecosystem, which includes the [MatGL] (Materials Graph Library) and [MAML] (MAterials
 Machine Learning) packages, the [MatPES] (Materials Potential Energy Surface) dataset, and the [MatCalc] (Materials
 Calculator).
 
@@ -140,7 +140,7 @@ initializing the benchmark to limit the number of calculations to do some testin
 A manuscript on `matcalc` is currently in the works. In the meantime, please see [`citation.cff`](citation.cff) or the GitHub
 sidebar for a BibTeX and APA citation.
 
-[maml]: https://materialsvirtuallab.github.io/maml/
+[MAML]: https://materialsvirtuallab.github.io/maml/
 [MatGL]: https://matgl.ai
 [MatPES]: https://matpes.ai
 [MatCalc]: https://matcalc.ai

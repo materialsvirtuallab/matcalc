@@ -6,11 +6,15 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
+from matminer.featurizers.site import CrystalNNFingerprint
+from matminer.featurizers.structure import SiteStatsFingerprint
+
 from matcalc.benchmark import (
     BenchmarkSuite,
     CheckpointFile,
     ElasticityBenchmark,
     PhononBenchmark,
+    RelaxationBenchmark,
     get_available_benchmarks,
     get_benchmark_data,
 )
@@ -26,12 +30,30 @@ def test_get_benchmark_data() -> None:
         get_benchmark_data("bad_url")
 
 
+def test_relaxation_benchmark(m3gnet_calculator: PESCalculator) -> None:
+    benchmark = RelaxationBenchmark(n_samples=10, perturb_distance=0.1)
+    results = benchmark.run(m3gnet_calculator, "toy")
+    assert len(results) == 10
+
+    ssf = SiteStatsFingerprint(
+        CrystalNNFingerprint.from_preset("ops", distance_cutoffs=None, x_diff_weight=0),
+        stats=("mean", "std_dev", "minimum", "maximum"),
+    )
+
+    distances = np.linalg.norm(
+        np.array([ssf.featurize(s) for s in results["structure_toy"]])
+        - np.array([ssf.featurize(s) for s in results["structure_DFT"]]),
+        axis=1,
+    )
+    assert np.abs(distances).mean() == pytest.approx(0.25, abs=1e-1)
+
+
 def test_elasticity_benchmark(m3gnet_calculator: PESCalculator) -> None:
     benchmark = ElasticityBenchmark(n_samples=10)
     results = benchmark.run(m3gnet_calculator, "toy")
     assert len(results) == 10
     # Compute MAE
-    assert np.abs(results["K_vrh_toy"] - results["K_vrh_DFT"]).mean() == pytest.approx(33, abs=10)
+    assert np.abs(results["K_vrh_toy"] - results["K_vrh_DFT"]).mean() == pytest.approx(38.05842028695785, abs=1e-1)
 
     benchmark = ElasticityBenchmark(benchmark_name="mp-pbe-elasticity-2025.3.json.gz", n_samples=10)
 
@@ -59,7 +81,7 @@ def test_phonon_benchmark(m3gnet_calculator: PESCalculator) -> None:
     benchmark = PhononBenchmark(n_samples=10, write_phonon=False)
     results = benchmark.run(m3gnet_calculator, "toy")
     assert len(results) == 10
-    assert np.abs(results["CV_toy"] - results["CV_DFT"]).mean() == pytest.approx(28, abs=10)
+    assert np.abs(results["CV_toy"] - results["CV_DFT"]).mean() == pytest.approx(27.372493175124838, abs=1e-1)
 
 
 def test_benchmark_suite(m3gnet_calculator: PESCalculator) -> None:

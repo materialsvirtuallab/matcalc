@@ -46,7 +46,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install git+https://github.com/materialsvirtuallab/maml.git
-          pip install -e '.[${{ matrix.extras-group }},ci,phonon]'
+          pip install -e '.[${{ matrix.extras-group }},ci,phonon,benchmark]'
       - name: pytest
         run: |
           pytest --cov=matcalc tests --color=yes
