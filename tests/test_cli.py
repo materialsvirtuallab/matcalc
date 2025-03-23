@@ -3,16 +3,18 @@ from __future__ import annotations
 import os
 import subprocess
 from collections import namedtuple
+from importlib.util import find_spec
 from typing import TYPE_CHECKING
 
 import pytest
-from matcalc.cli import calculate_property
 from monty.tempfile import ScratchDir
+
+from matcalc.cli import calculate_property
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
 
-
+@pytest.mark.skipif(not find_spec("matgl"), reason="matgl is not installed")
 def test_calculate_property(LiFePO4: Structure) -> None:
     args = namedtuple("args", ["model", "property", "structure", "outfile"])  # noqa: PYI024
 

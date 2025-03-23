@@ -14,16 +14,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from matcalc.utils import PESCalculator
 from pymatgen.util.testing import PymatgenTest
+
+from matcalc.utils import PESCalculator
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
-
-import matgl
-
-matgl.clear_cache(confirm=False)
-
 
 @pytest.fixture(scope="session")
 def LiFePO4() -> Structure:
@@ -42,10 +38,20 @@ def Li2O() -> Structure:
 @pytest.fixture(scope="session")
 def m3gnet_calculator() -> PESCalculator:
     """M3GNet calculator as session-scoped fixture."""
+    try:
+        import matgl
+        matgl.clear_cache(confirm=False)
+    except ImportError:
+        pytest.skip("matgl is not installed. Skipping m3gnet_calculator fixture.")
     return PESCalculator.load_matgl("M3GNet-MP-2021.2.8-PES")
 
 
 @pytest.fixture(scope="session")
 def matpes_calculator() -> PESCalculator:
     """TensorNet calculator as session-scoped fixture."""
+    try:
+        import matgl
+        matgl.clear_cache(confirm=False)
+    except ImportError:
+        pytest.skip("matgl is not installed. Skipping matpes_calculator fixture.")
     return PESCalculator.load_matgl("TensorNet-MatPES-PBE-v2025.1-PES")

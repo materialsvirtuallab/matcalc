@@ -21,6 +21,8 @@ if TYPE_CHECKING:
 
 
 # Listing of supported universal calculators.
+# If you update UNIVERSAL_CALCULATORS, you must also update the mapping in
+# map_calculators_to_packages in test_utils.py, unless already covered.
 UNIVERSAL_CALCULATORS = [
     "M3GNet",
     "CHGNet",
@@ -32,6 +34,9 @@ UNIVERSAL_CALCULATORS = [
     "ORB",
     "PBE",
     "r2SCAN",
+    "Mattersim",
+    "FairChem",
+    "PETMAD",
 ]
 
 try:
@@ -268,6 +273,23 @@ class PESCalculator(Calculator):
         return NequIPCalculator.from_deployed_model(model_path=model_path, **kwargs)
 
     @staticmethod
+    def load_deepmd(model_path: str | Path, **kwargs: Any) -> Calculator:
+        """
+        Loads the custom deep potential model for use in ASE as a calculator.
+
+        Args:
+            model_path (str | Path): The file storing the configuration of
+                potential, filename should end with ".pth"
+            **kwargs (Any): Additional keyword arguments for the PESCalculator.
+
+        Returns:
+            Calculator: ASE calculator compatible with the DeepMD model.
+        """
+        from deepmd.calculator import DP
+
+        return DP(model=model_path, **kwargs)
+
+    @staticmethod
     def load_universal(name: str | Calculator, **kwargs: Any) -> Calculator:
         """
         Load the universal model for use in ASE as a calculator.
@@ -319,6 +341,24 @@ class PESCalculator(Calculator):
             orbff = ORB_PRETRAINED_MODELS[model](device=device)
             result = ORBCalculator(orbff, **kwargs)
 
+        elif name.lower() == "mattersim":
+            from mattersim.forcefield import MatterSimCalculator
+
+            result = MatterSimCalculator(**kwargs)
+
+        elif name.lower() == "fairchem":
+            from fairchem.core import OCPCalculator
+            # Technically, this supports all models that are in fairchem,
+            # not just equiformer.
+            kwargs.setdefault("model_name","EquiformerV2-31M-S2EF-OC20-All+MD")
+            kwargs.setdefault("local_cache","./pretrained_models")
+            result = OCPCalculator(**kwargs)
+
+        elif name.lower() == "petmad":
+            from pet_mad.calculator import PETMADCalculator
+
+            result = PETMADCalculator(**kwargs)
+
         else:
             raise ValueError(f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}")
 
@@ -326,7 +366,7 @@ class PESCalculator(Calculator):
 
 
 @deprecated(PESCalculator, "Use PESCalculator.load_universal instead.")
-def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculator:
+def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculator: # noqa: C901
     """Helper method to get some well-known **universal** calculators.
     Imports should be inside if statements to ensure that all models are optional dependencies.
     All calculators must be universal, i.e. encompass a wide swath of the periodic table.
@@ -391,6 +431,22 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
 
         orbff = ORB_PRETRAINED_MODELS[model](device=device)
         result = ORBCalculator(orbff, **kwargs)
+
+    elif name.lower() == "mattersim":
+        from mattersim.forcefield import MatterSimCalculator
+
+        result = MatterSimCalculator(**kwargs)
+
+    elif name.lower() == "fairchem":
+        from fairchem.core import OCPCalculator
+        # Technically, this supports all models that are in fairchem,
+        # not just equiformer.
+        result = OCPCalculator(**kwargs)
+
+    elif name.lower() == "petmad":
+        from pet_mad.calculator import PETMADCalculator
+
+        result = PETMADCalculator(**kwargs)
 
     else:
         raise ValueError(f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}")
