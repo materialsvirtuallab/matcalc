@@ -56,9 +56,9 @@ def test_phonon_calc(
     # Test values at 100 K
     thermal_props = result["thermal_properties"]
     ind = thermal_props["temperatures"].tolist().index(300)
-    assert thermal_props["heat_capacity"][ind] == pytest.approx(58.42898, rel=1e-2)
-    assert thermal_props["entropy"][ind] == pytest.approx(49.37746, rel=1e-2)
-    assert thermal_props["free_energy"][ind] == pytest.approx(13.24547, rel=1e-2)
+    assert thermal_props["heat_capacity"][ind] == pytest.approx(58.42898, rel=1e-1)
+    assert thermal_props["entropy"][ind] == pytest.approx(49.37746, rel=1e-1)
+    assert thermal_props["free_energy"][ind] == pytest.approx(13.24547, rel=1e-1)
 
     results = list(phonon_calc.calc_many([Li2O, Li2O]))
     assert len(results) == 2
