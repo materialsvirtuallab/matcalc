@@ -36,7 +36,7 @@ def test_relax_calc_relax_cell(
         relax_cell=True,
         perturb_distance=perturb_distance,
     )
-    temp_structure = Li2O
+    temp_structure = Li2O.copy()
     result = relax_calc.calc(temp_structure)
     for key in (
         "final_structure",
@@ -123,9 +123,9 @@ def test_relax_calc_relax_atoms(
             -14.176713,
             np.array(
                 [
-                    [-0.07168529,  0.70114386, -0.14754209],
-                    [ 0.17073876, -0.25225997, -0.29080456],
-                    [-0.09905344, -0.44888404,  0.43834668],
+                    [ 1.8242281e-05,  2.4344306e-05,  3.7683349e-06],
+                    [-4.4811210e-03, -3.3081709e-03, -7.0969444e-03],
+                    [ 4.4629276e-03,  3.2838816e-03,  7.0931362e-03],
                 ],
                 dtype=np.float32,
             ),
