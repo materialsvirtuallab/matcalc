@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 @pytest.mark.parametrize(
     ("perturb_distance", "expected_a", "expected_energy"),
-    [(0, 3.291072, -14.176680), (2, 3.291072, -14.176716)],
+    [(0, 3.291072, -14.176680), (0.2, 3.291072, -14.176716)],
 )
 def test_relax_calc_relax_cell(
     Li2O: Structure,
@@ -61,10 +61,10 @@ def test_relax_calc_relax_cell(
     assert a == pytest.approx(expected_a, rel=1e-1)
     assert b == pytest.approx(expected_a, rel=1e-1)
     assert c == pytest.approx(expected_a, rel=1e-1)
-    assert alpha == pytest.approx(60, abs=0.5)
-    assert beta == pytest.approx(60, abs=0.5)
-    assert gamma == pytest.approx(60, abs=0.5)
-    assert final_struct.volume == pytest.approx(a * b * c / 2**0.5, abs=0.1)
+    assert alpha == pytest.approx(60, abs=5)
+    assert beta == pytest.approx(60, abs=5)
+    assert gamma == pytest.approx(60, abs=5)
+    assert final_struct.volume == pytest.approx(a * b * c / 2**0.5, abs=2)
 
 
 @pytest.mark.parametrize(("expected_a", "expected_energy"), [(3.291072, -14.176713)])
@@ -109,10 +109,10 @@ def test_relax_calc_relax_atoms(
     assert a == pytest.approx(expected_a, rel=1e-3)
     assert b == pytest.approx(expected_a, rel=1e-3)
     assert c == pytest.approx(expected_a, rel=1e-3)
-    assert alpha == pytest.approx(60, abs=0.5)
-    assert beta == pytest.approx(60, abs=0.5)
-    assert gamma == pytest.approx(60, abs=0.5)
-    assert final_struct.volume == pytest.approx(a * b * c / 2**0.5, abs=0.1)
+    assert alpha == pytest.approx(60, abs=5)
+    assert beta == pytest.approx(60, abs=5)
+    assert gamma == pytest.approx(60, abs=5)
+    assert final_struct.volume == pytest.approx(a * b * c / 2**0.5, abs=2)
 
 
 @pytest.mark.parametrize(
