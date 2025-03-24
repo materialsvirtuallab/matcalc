@@ -7,7 +7,7 @@ import shutil
 
 BENCHMARK_DATA_URL = "https://api.github.com/repos/materialsvirtuallab/matcalc/contents/benchmark_data"
 BENCHMARK_DATA_DOWNLOAD_URL = "https://raw.githubusercontent.com/materialsvirtuallab/matcalc/main/benchmark_data"
-BENCHMARK_DATA_DIR = pathlib.Path.home() / ".local" / "matcalc"
+BENCHMARK_DATA_DIR = pathlib.Path.home() / ".cache" / "matcalc"
 
 
 def clear_cache(*, confirm: bool = True) -> None:

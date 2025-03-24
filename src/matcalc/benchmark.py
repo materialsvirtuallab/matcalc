@@ -8,6 +8,7 @@ import logging
 import random
 import typing
 from pathlib import Path
+from urllib.parse import urlparse
 
 import fsspec
 import pandas as pd
@@ -23,6 +24,7 @@ if typing.TYPE_CHECKING:
 from .config import BENCHMARK_DATA_DIR, BENCHMARK_DATA_DOWNLOAD_URL, BENCHMARK_DATA_URL
 from .elasticity import ElasticityCalc
 from .phonon import PhononCalc
+from .relaxation import RelaxCalc
 from .units import eVA3ToGPa
 
 logger = logging.getLogger(__name__)
@@ -49,8 +51,15 @@ def get_benchmark_data(name: str) -> pd.DataFrame:
     :raises requests.RequestException: If the benchmark elemental_refs file cannot be
         downloaded from the specified URL
     """
-    uri = f"filecache::{BENCHMARK_DATA_DOWNLOAD_URL}/{name}"
-    with fsspec.open(uri, compression="infer", cache_storage=str(BENCHMARK_DATA_DIR), same_names=True) as f:
+    uri = f"{BENCHMARK_DATA_DOWNLOAD_URL}/{name}"
+    parsed = urlparse(str(uri))
+    fs = fsspec.filesystem(
+        "filecache",
+        target_protocol=parsed.scheme,
+        cache_storage=str(BENCHMARK_DATA_DIR),
+        same_names=True,
+    )
+    with fs.open(uri, compression="infer") as f:
         return json.load(f, cls=MontyDecoder)
 
 
@@ -340,6 +349,87 @@ class Benchmark(metaclass=abc.ABCMeta):
 
             results_df = results_df.rename(columns=_rename_property)
         return results_df
+
+
+class RelaxationBenchmark(Benchmark):
+    """
+    Represents a benchmark for evaluating and analyzing relaxation properties of materials.
+    This benchmark utilizes a dataset and provides functionality for property calculation
+    and result processing. The class is designed to work with a predefined framework for
+    benchmarking relaxation properties. The benchmark dataset contains data such as relaxed
+    structures along with additional metadata. This class supports configurability through
+    metadata files, index names, and additional benchmark properties. It relies on external
+    calculators and utility classes for property computations and result handling.
+    """
+
+    def __init__(
+        self,
+        index_name: str = "material_id",
+        benchmark_name: str | Path = "wbm-random-pbe54-equilibrium-2025.1.json.gz",
+        folder_name: str = "default_folder",
+        **kwargs,  # noqa:ANN003
+    ) -> None:
+        """
+        Initializes the RelaxationBenchmark instance with specified benchmark metadata and
+        configuration parameters. It sets up the benchmark with the necessary properties
+        required for relaxation analysis.
+
+        :param index_name: The name of the index used to uniquely identify records in the dataset.
+        :type index_name: str
+        :param benchmark_name: The path or name of the benchmark file that contains the dataset.
+        :type benchmark_name: str | Path
+        :param folder_name: The folder name used for file operations related to structure files.
+        :type folder_name: str
+        :param kwargs: Additional keyword arguments for customization.
+        :type kwargs: dict
+        """
+        self.folder_name = folder_name
+        # Define the expected property from the relaxation calculator.
+        kwargs.setdefault("properties", ("structure",))
+        # Other fields such as the material formula may be included.
+        kwargs.setdefault("other_fields", ("formula",))
+        super().__init__(benchmark_name, index_name=index_name, **kwargs)
+
+    def get_prop_calc(self, calculator: Calculator, **kwargs: typing.Any) -> PropCalc:
+        """
+        Returns a property calculation object for performing relaxation calculations.
+        This method initializes the relaxation calculator using the provided Calculator
+        object and any additional configuration parameters.
+
+        :param calculator: A Calculator object responsible for performing the relaxation calculation.
+        :type calculator: Calculator
+        :param kwargs: Additional keyword arguments used for configuration.
+        :type kwargs: dict
+        :return: An initialized PropCalc object configured for relaxation calculations.
+        :rtype: PropCalc
+        """
+        return RelaxCalc(calculator, **kwargs)
+
+    def process_result(self, result: dict | None, model_name: str) -> dict:
+        """
+        Processes the result dictionary containing final relaxed structures, formats the keys
+        according to the provided model name. If the result is None, default values of
+        NaN are returned for final structures.
+
+        :param result:
+            A dictionary containing the final relaxed structures under the keys
+            'final_structure'. It can also be None to indicate missing elemental_refs.
+        :type result: dict or None
+
+        :param model_name:
+            A string representing the identifier or name of the model. It will be used
+            to format the returned dictionary's keys.
+        :type model_name: str
+
+        :return:
+            A dictionary containing the specific final relaxed structure prefixed by the model name.
+            The values will be NaN if the input result is None.
+
+        :rtype: dict
+        """
+        return {
+            f"structure_{model_name}": (result["final_structure"] if result is not None else float("nan")),
+        }
 
 
 class ElasticityBenchmark(Benchmark):

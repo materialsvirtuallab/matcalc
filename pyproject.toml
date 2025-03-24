@@ -36,13 +36,14 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = ["ase>=3.23.0", "joblib", "phonopy", "pymatgen", "numpy<2.0.0", "fsspec"]
-version = "0.1.1"
+version = "0.1.2"
 
 [project.optional-dependencies]
 models = ["chgnet>=0.3.8", "mace-torch>=0.3.6", "matgl>=1.2.1", "sevenn>=0.9.3", "maml>=2024.6.13", "dgl<=2.1.0",
 "torch<=2.2.1", "nequip>=0.6.1", "tensorpotential>=0.5.1", "orb-models>=0.4.1", "pynanoflann==0.10.0"]
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "coverage", "coveralls"]
 phonon = ["seekpath"]
+benchmark = ["matminer>=0.9.3"]
 
 [project.scripts]
 matcalc = "matcalc.cli:main"
@@ -91,6 +92,7 @@ docstring-code-format = true
 "__init__.py" = ["F401"]
 "tasks.py" = ["ANN", "D", "T203"]
 "tests/*" = ["D", "INP001", "N802", "N803", "PLR2004", "S101"]
+"tests/test_cli.py" = ["S603", "S607"]
 
 [tool.pytest.ini_options]
 addopts = "--durations=30 --quiet -rXs --color=yes -p no:warnings"

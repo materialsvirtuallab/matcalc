@@ -9,6 +9,7 @@ from ase import Atoms
 from ase.calculators.calculator import Calculator
 from ase.optimize.optimize import Optimizer
 from matcalc.utils import (
+    MODEL_ALIASES,
     UNIVERSAL_CALCULATORS,
     VALID_OPTIMIZERS,
     PESCalculator,
@@ -147,3 +148,9 @@ def test_is_ase_optimizer() -> None:
 
     for name in ("whatever", 42, -3.14):
         assert not is_ase_optimizer(name)
+
+
+def test_aliases() -> None:
+    # Ensures that model aliases always point to valid models.
+    for v in MODEL_ALIASES.values():
+        assert v in UNIVERSAL_CALCULATORS

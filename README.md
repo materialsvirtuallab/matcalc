@@ -19,7 +19,7 @@ Calculating material properties often requires involved setups of various simula
 goal of MatCalc is to provide a simplified, consistent interface to access these properties with any
 parameterization of the PES.
 
-MatCalc is part of the MatML ecosystem, which includes the [MatGL] (Materials Graph Library) and [maml] (MAterials
+MatCalc is part of the MatML ecosystem, which includes the [MatGL] (Materials Graph Library) and [MAML] (MAterials
 Machine Learning) packages, the [MatPES] (Materials Potential Energy Surface) dataset, and the [MatCalc] (Materials
 Calculator).
 
@@ -53,6 +53,18 @@ print(f"K_VRH = {props['bulk_modulus_vrh'] * 160.2176621} GPa")
 ```
 
 The output is `K_VRH = 102.08363100102596 GPa`.
+
+While we generally recommend users to specify exactly the model they would like to use, MatCalc provides useful
+(case-insensitive) aliases to our recommended models for PBE and r2SCAN predictions. These can be loaded using:
+
+```python
+from matcalc import PESCalculator
+pbe_calculator = PESCalculator.load_universal("pbe")
+r2scan_calculator = PESCalculator.load_universal("r2scan")
+```
+
+At the time of writing, these are the TensorNet-MatPES models. However, these recommendations may updated as newer
+models become available.
 
 MatCalc also supports trivial parallelization using joblib via the `calc_many` method.
 
@@ -122,7 +134,7 @@ initializing the benchmark to limit the number of calculations to do some testin
 A manuscript on `matcalc` is currently in the works. In the meantime, please see [`citation.cff`](citation.cff) or the GitHub
 sidebar for a BibTeX and APA citation.
 
-[maml]: https://materialsvirtuallab.github.io/maml/
+[MAML]: https://materialsvirtuallab.github.io/maml/
 [MatGL]: https://matgl.ai
 [MatPES]: https://matpes.ai
 [MatCalc]: https://matcalc.ai

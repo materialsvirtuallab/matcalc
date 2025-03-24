@@ -82,7 +82,7 @@ class RelaxCalc(PropCalc):
         relax_atoms: bool = True,
         relax_cell: bool = True,
         cell_filter: Filter = FrechetCellFilter,
-        perturb_distance: float | None = 0.1,
+        perturb_distance: float | None = None,
     ) -> None:
         """Args:
             calculator: ASE Calculator to use.
@@ -134,7 +134,7 @@ class RelaxCalc(PropCalc):
         }
         """
         if self.perturb_distance is not None:
-            structure = structure.perturb(distance=self.perturb_distance, seed=42)
+            structure = structure.perturb(distance=self.perturb_distance)
         atoms = AseAtomsAdaptor.get_atoms(structure)
         atoms.calc = self.calculator
         if self.relax_atoms:

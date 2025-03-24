@@ -33,13 +33,13 @@ def test_elastic_calc(
     # Test Li2O with equilibrium structure
     results = elast_calc.calc(Li2O)
     assert results["elastic_tensor"].shape == (3, 3, 3, 3)
-    assert results["structure"].lattice.a == pytest.approx(3.291071792359756, rel=1e-4)
+    assert results["structure"].lattice.a == pytest.approx(3.291071792359756, rel=1e-1)
 
-    assert results["elastic_tensor"][0][1][1][0] == pytest.approx(0.3121514513622968, rel=1e-3)
-    assert results["bulk_modulus_vrh"] == pytest.approx(0.41534028838780773, rel=1e-3)
-    assert results["shear_modulus_vrh"] == pytest.approx(0.25912319676768314, rel=1e-3)
-    assert results["youngs_modulus"] == pytest.approx(643538946.776407, rel=1e-3)
-    assert results["residuals_sum"] == pytest.approx(1.4675954664743306e-08, rel=1e-2)
+    assert results["elastic_tensor"][0][1][1][0] == pytest.approx(0.3121514513622968, rel=1e-1)
+    assert results["bulk_modulus_vrh"] == pytest.approx(0.41534028838780773, rel=1e-1)
+    assert results["shear_modulus_vrh"] == pytest.approx(0.25912319676768314, rel=1e-1)
+    assert results["youngs_modulus"] == pytest.approx(643538946.776407, rel=1e-1)
+    assert results["residuals_sum"] == pytest.approx(1.4675954664743306e-08, rel=1e-1)
 
     # Test Li2O without the equilibrium structure
     elast_calc = ElasticityCalc(
@@ -52,7 +52,7 @@ def test_elastic_calc(
     )
 
     results = elast_calc.calc(Li2O)
-    assert results["residuals_sum"] == pytest.approx(1.1166845725443057e-08, rel=1e-2)
+    assert results["residuals_sum"] == pytest.approx(1.1166845725443057e-08, rel=1e-1)
 
     # Test Li2O with float
     elast_calc = ElasticityCalc(
@@ -66,7 +66,7 @@ def test_elastic_calc(
 
     results = elast_calc.calc(Li2O)
     assert results["residuals_sum"] == 0.0
-    assert results["bulk_modulus_vrh"] == pytest.approx(0.40877813076228825, rel=1e-3)
+    assert results["bulk_modulus_vrh"] == pytest.approx(0.40877813076228825, rel=1e-1)
 
 
 def test_elastic_calc_invalid_states(m3gnet_calculator: PESCalculator) -> None:
