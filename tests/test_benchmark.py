@@ -15,6 +15,7 @@ from matcalc.benchmark import (
     ElasticityBenchmark,
     PhononBenchmark,
     RelaxationBenchmark,
+    SofteningBenchmark,
     get_available_benchmarks,
     get_benchmark_data,
 )
@@ -82,6 +83,13 @@ def test_phonon_benchmark(m3gnet_calculator: PESCalculator) -> None:
     results = benchmark.run(m3gnet_calculator, "toy")
     assert len(results) == 10
     assert np.abs(results["CV_toy"] - results["CV_DFT"]).mean() == pytest.approx(27.372493175124838, abs=1e-1)
+
+
+def test_softening_benchmark(m3gnet_calculator: PESCalculator) -> None:
+    benchmark = SofteningBenchmark(n_samples=3)
+    results = benchmark.run(m3gnet_calculator, "toy")
+    assert len(results) == 3
+    assert "softening_scale_toy" in results
 
 
 def test_benchmark_suite(m3gnet_calculator: PESCalculator) -> None:
