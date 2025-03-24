@@ -129,7 +129,7 @@ class CheckpointFile:
         dumpfn(results, self.path)
 
 
-class Benchmark:
+class Benchmark(metaclass=abc.ABCMeta):
     """
     Represents an abstract base class for benchmarking elasticity properties of materials.
 
