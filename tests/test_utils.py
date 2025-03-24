@@ -29,7 +29,7 @@ def map_calculators_to_packages(calculators: list[str]) -> dict[str, str]:
         (("grace", "tensorpotential"), "tensorpotential"),
         (("orb",), "orb_models"),
         (("mattersim",), "mattersim"),
-        (("fairchem",), "fairchem.core"),
+        (("fairchem",), "fairchem"),
         (("petmad",), "pet_mad"),
     ]
 
