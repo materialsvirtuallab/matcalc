@@ -11,10 +11,13 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import fsspec
+import numpy as np
 import pandas as pd
 import requests
 from monty.json import MontyDecoder
 from monty.serialization import dumpfn, loadfn
+from pymatgen.io.ase import AseAtomsAdaptor
+from scipy.optimize import curve_fit
 
 if typing.TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
@@ -603,6 +606,144 @@ class PhononBenchmark(Benchmark):
                 result["thermal_properties"]["heat_capacity"][30] if result is not None else float("nan")
             )
         }
+
+
+class SofteningBenchmark:
+    """
+    A benchmark for the systematic softening of a PES, as described in:
+        B. Deng, et al. npj Comput. Mater. 11, 9 (2025).
+        doi: 10.1038/s41524-024-01500-6
+    The dataset used here can be found in figshare through:
+        https://figshare.com/articles/dataset/WBM_high_energy_states/27307776?file=50005317
+    This benchmark essentially performs static calculation on pre-sampled high-energy
+    PES configurations, and then compare the systematic underestimation of forces
+    predicted between GGA-DFT and the provided force field.
+    """
+
+    def __init__(
+        self,
+        benchmark_name: str | Path = "wbm-high-energy-states.json.gz",
+        index_name: str = "wbm_id",
+        n_samples: int | None = None,
+        seed: int = 42,
+        **kwargs,  # noqa:ANN003
+    ) -> None:
+        """
+        Initializes an instance with specified index and benchmark details.
+
+        :param index_name: The name of the index to be used for identification in
+            the dataset.
+        :param benchmark_name: The benchmark file name or path containing
+            the dataset information in JSON or compressed format.
+        :param kwargs: Additional optional parameters for configuration.
+        """
+        self.index_name = index_name
+        self.data = get_benchmark_data(benchmark_name) if isinstance(benchmark_name, str) else loadfn(benchmark_name)
+        if n_samples:
+            random.seed(seed)
+            self.material_ids = random.sample(list(self.data.keys()), n_samples)
+        else:
+            self.material_ids = list(self.data.keys())
+        self.kwargs = kwargs
+
+    @staticmethod
+    def get_linear_fitted_slope(x: list, y: list) -> float:
+        """
+        Return the linearly fitted slope of x and y using a simple linear model (y = ax).
+        :param x: A list of the x values.
+        :param y: A list of the y values.
+        :return: A float of the fitted slope.
+        """
+        x = np.array(x).flatten()
+        y = np.array(y).flatten()
+
+        def linear_model(x: float, a: float) -> float:
+            return a * x
+
+        popt, _ = curve_fit(linear_model, x, y)
+        return popt[0]
+
+    def run(
+        self,
+        calculator: Calculator,
+        model_name: str,
+        checkpoint_file: str | Path | None = None,
+        checkpoint_freq: int = 10,
+        *,
+        include_full_results: bool = False,
+    ) -> pd.DataFrame:
+        """
+        Process all the material ids by
+        1. calculate the forces on all the sampled structures.
+        2. perform a linear fit on the predicted forces w.r.t. provided DFT forces.
+        3. returning the fitted slopes as the softening scales.
+
+        :param calculator: The ASE-compatible calculator instance
+        :type calculator: Calculator
+        :param model_name: Name of the model used for properties' calculation.
+            This name is updated in the results DataFrame.
+        :type model_name: str
+        :param checkpoint_file: File path where checkpoint is saved periodically.
+            If None, no checkpoints are saved.
+        :type checkpoint_file: str | Path | None
+        :param checkpoint_freq: Frequency after which checkpoint is saved.
+            Corresponds to the number of structures processed.
+        :type checkpoint_freq: int
+        :param include_full_results: Whether to include the raw force prediction in the
+            returned dataframe
+        :type include_full_results: bool
+
+        :return: A dataframe containing the softening scales.
+        :rtype: pd.DataFrame
+        """
+        checkpoint = None
+        if checkpoint_file:
+            checkpoint = CheckpointFile(checkpoint_file)
+            results, material_ids = checkpoint.load(self.material_ids)
+        else:
+            results = []
+            material_ids = self.material_ids
+
+        for material_id in material_ids:
+            frames = self.data[material_id]
+            # Check whether the calculator supports all the elements in this structure
+            support = True
+            test_structure = next(iter(frames.values()))["structure"]
+            for elem in test_structure.composition.elements:
+                if str(elem) not in calculator.element_types:
+                    support = False
+            if not support:
+                # skipping this structure
+                continue
+
+            force_ground_truth, force_prediction = [], []
+            for frame in frames.values():
+                atoms = AseAtomsAdaptor.get_atoms(frame["structure"])
+                atoms.calc = calculator
+                forces = atoms.get_forces().tolist()
+                force_prediction.append(forces)
+                force_ground_truth.append(frame["vasp_f"])
+
+            softening_scale = self.get_linear_fitted_slope(force_ground_truth, force_prediction)
+
+            results.append(
+                {
+                    "material_id": material_id,
+                    "formula": test_structure.composition.reduced_formula,
+                    f"softening_scale_{model_name}": softening_scale,
+                    "raw_force_predictions": force_prediction,
+                }
+            )
+            if checkpoint and (len(results) % checkpoint_freq == 0 or material_id == self.material_ids[-1]):
+                checkpoint.save(results)
+
+        if include_full_results:
+            results_df = pd.DataFrame(results)
+        else:
+            results_df = pd.DataFrame(
+                [{k: v for k, v in res.items() if k != "raw_force_predictions"} for res in results]
+            )
+        return results_df
 
 
 class BenchmarkSuite:
