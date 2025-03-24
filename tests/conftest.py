@@ -35,15 +35,18 @@ def Li2O() -> Structure:
     return PymatgenTest.get_structure("Li2O")
 
 
-@pytest.fixture(scope="session")
-def m3gnet_calculator() -> PESCalculator:
-    """M3GNet calculator as session-scoped fixture."""
-    try:
-        import matgl
-        matgl.clear_cache(confirm=False)
-    except ImportError:
-        pytest.skip("matgl is not installed. Skipping m3gnet_calculator fixture.")
-    return PESCalculator.load_matgl("M3GNet-MP-2021.2.8-PES")
+try:
+    import matgl
+    matgl.clear_cache(confirm=False)
+    @pytest.fixture(scope="session")
+    def m3gnet_calculator() -> PESCalculator:
+        """M3GNet calculator as session-scoped fixture."""
+        return PESCalculator.load_matgl("M3GNet-MP-2021.2.8-PES")
+except ImportError:
+    @pytest.fixture(scope="session")
+    def m3gnet_calculator() -> PESCalculator:
+        """M3GNet calculator as session-scoped fixture."""
+        return PESCalculator.load_universal("mattersim")
 
 
 @pytest.fixture(scope="session")

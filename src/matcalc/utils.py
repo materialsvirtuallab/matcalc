@@ -348,10 +348,11 @@ class PESCalculator(Calculator):
 
         elif name.lower() == "fairchem":
             from fairchem.core import OCPCalculator
+
             # Technically, this supports all models that are in fairchem,
             # not just equiformer.
-            kwargs.setdefault("model_name","EquiformerV2-31M-S2EF-OC20-All+MD")
-            kwargs.setdefault("local_cache","./pretrained_models")
+            kwargs.setdefault("model_name", "EquiformerV2-31M-S2EF-OC20-All+MD")
+            kwargs.setdefault("local_cache", "./pretrained_models")
             result = OCPCalculator(**kwargs)
 
         elif name.lower() == "petmad":
@@ -366,7 +367,7 @@ class PESCalculator(Calculator):
 
 
 @deprecated(PESCalculator, "Use PESCalculator.load_universal instead.")
-def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculator: # noqa: C901
+def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculator:  # noqa: C901
     """Helper method to get some well-known **universal** calculators.
     Imports should be inside if statements to ensure that all models are optional dependencies.
     All calculators must be universal, i.e. encompass a wide swath of the periodic table.
@@ -439,6 +440,7 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
 
     elif name.lower() == "fairchem":
         from fairchem.core import OCPCalculator
+
         # Technically, this supports all models that are in fairchem,
         # not just equiformer.
         result = OCPCalculator(**kwargs)
