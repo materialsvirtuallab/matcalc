@@ -34,6 +34,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
+          uv pip install dgl -f https://data.dgl.ai/wheels/torch-2.3/repo.html
           uv pip install -e .
       - name: pytest
         run: |

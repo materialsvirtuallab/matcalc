@@ -1,7 +1,0 @@
-pymatgen==2025.3.10
-ase==3.24.0
-joblib==1.4.2
-phonopy==2.38.0
-scikit-learn==1.6.1
-seekpath==2.1.0
-numpy==1.26.4
