@@ -120,7 +120,6 @@ def test_benchmark_suite(m3gnet_calculator: PESCalculator) -> None:
     assert "G_vrh_toy2" in results[0].columns
     assert "CV_toy1" in results[1].columns
     assert "CV_toy2" in results[1].columns
-    os.remove("checkpoint.json")
 
 
 def test_available_benchmarks() -> None:
