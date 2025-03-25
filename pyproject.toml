@@ -87,8 +87,11 @@ dev = [
     "coverage>=7.7.1",
     "coveralls>=4.0.1",
     "jupyter>=1.1.1",
+    "matgl>=1.2.1",
+    "matminer>=0.9.3",
     "pytest>=8.3.5",
     "pytest-cov>=6.0.0",
+    "seekpath>=2.1.0",
 ]
 lint = [
     "ruff>=0.11.2",

@@ -2061,8 +2061,11 @@ dev = [
     { name = "coverage" },
     { name = "coveralls" },
     { name = "jupyter" },
+    { name = "matgl" },
+    { name = "matminer" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "seekpath" },
 ]
 lint = [
     { name = "ruff" },
@@ -2093,8 +2096,11 @@ dev = [
     { name = "coverage", specifier = ">=7.7.1" },
     { name = "coveralls", specifier = ">=4.0.1" },
     { name = "jupyter", specifier = ">=1.1.1" },
+    { name = "matgl", specifier = ">=1.2.1" },
+    { name = "matminer", specifier = ">=0.9.3" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-cov", specifier = ">=6.0.0" },
+    { name = "seekpath", specifier = ">=2.1.0" },
 ]
 lint = [{ name = "ruff", specifier = ">=0.11.2" }]
 
