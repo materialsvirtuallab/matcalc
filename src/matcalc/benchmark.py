@@ -308,6 +308,9 @@ class Benchmark(metaclass=abc.ABCMeta):
         :param checkpoint_freq: Frequency after which checkpoint elemental_refs is saved.
             Corresponds to the number of structures processed.
         :type checkpoint_freq: int
+        :param delete_checkpoint_on_finish: Whether to delete checkpoint files when the benchmark finishes. Defaults to
+            True.
+        :type delete_checkpoint_on_finish: bool
         :param include_full_results: Whether to save full results from PropCalc.calc for analysis afterwards. For
             instance, the ElasticityProp does not just compute the bulk and shear moduli, but also the full elastic
             tensors, which can be used for other kinds of analysis. Defaults to False.
@@ -775,8 +778,10 @@ class BenchmarkSuite:
     def run(
         self,
         calculators: dict[str, Calculator],
+        *,
         n_jobs: int | None = -1,
         checkpoint_freq: int = 1000,
+        delete_checkpoint_on_finish: bool = True,
     ) -> list[pd.DataFrame]:
         """
         Executes benchmarks using the provided calculators and combines the results into a
@@ -789,6 +794,9 @@ class BenchmarkSuite:
             utilizes all available processors. Defaults to -1.
         :param checkpoint_freq: The frequency at which progress is saved as checkpoints,
             in terms of calculation steps. Defaults to 1000.
+        :param delete_checkpoint_on_finish: Whether to delete checkpoint files when the benchmark finishes. Defaults to
+            True.
+        :type delete_checkpoint_on_finish: bool
         :return: A list of pandas DataFrames, each containing combined results
             for all calculators across the benchmarks.
         """
@@ -803,6 +811,7 @@ class BenchmarkSuite:
                     n_jobs=n_jobs,
                     checkpoint_file=chkpt_file,
                     checkpoint_freq=checkpoint_freq,
+                    delete_checkpoint_on_finish=delete_checkpoint_on_finish,
                 )
                 if results:
                     # Remove duplicate DFT columns.

@@ -50,14 +50,19 @@ def test_relaxation_benchmark(m3gnet_calculator: PESCalculator) -> None:
 
 def test_elasticity_benchmark(m3gnet_calculator: PESCalculator) -> None:
     benchmark = ElasticityBenchmark(n_samples=10)
-    results = benchmark.run(m3gnet_calculator, "toy")
+    chkpt_file = "checkpoint.json"
+
+    results = benchmark.run(
+        m3gnet_calculator, "toy", checkpoint_file=chkpt_file, checkpoint_freq=3, delete_checkpoint_on_finish=True
+    )
+
+    # Makes sure that checkpoint file is deleted upon completion.
+    assert not os.path.exists(chkpt_file)
     assert len(results) == 10
     # Compute MAE
     assert np.abs(results["K_vrh_toy"] - results["K_vrh_DFT"]).mean() == pytest.approx(38.05842028695785, abs=1e-1)
 
     benchmark = ElasticityBenchmark(benchmark_name="mp-pbe-elasticity-2025.3.json.gz", n_samples=10)
-
-    chkpt_file = "checkpoint.json"
 
     results = benchmark.run(
         m3gnet_calculator,
@@ -97,13 +102,14 @@ def test_benchmark_suite(m3gnet_calculator: PESCalculator) -> None:
     elasticity_benchmark.run(
         m3gnet_calculator,
         "toy1",
-        checkpoint_file="checkpoint.json",
         checkpoint_freq=1,
         delete_checkpoint_on_finish=False,
     )
     phonon_benchmark = PhononBenchmark(n_samples=2, write_phonon=False)
     suite = BenchmarkSuite(benchmarks=[elasticity_benchmark, phonon_benchmark])
-    results = suite.run({"toy1": m3gnet_calculator, "toy2": m3gnet_calculator}, checkpoint_freq=1)
+    results = suite.run(
+        {"toy1": m3gnet_calculator, "toy2": m3gnet_calculator}, checkpoint_freq=1, delete_checkpoint_on_finish=False
+    )
     for bench, name in itertools.product(["ElasticityBenchmark", "PhononBenchmark"], ["toy1", "toy2"]):
         assert os.path.exists(f"{bench}_{name}.csv")
         os.remove(f"{bench}_{name}.csv")
