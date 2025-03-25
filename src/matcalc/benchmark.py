@@ -15,6 +15,8 @@ import fsspec
 import numpy as np
 import pandas as pd
 import requests
+from matminer.featurizers.site import CrystalNNFingerprint
+from matminer.featurizers.structure import SiteStatsFingerprint
 from monty.json import MontyDecoder
 from monty.serialization import dumpfn, loadfn
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -445,6 +447,85 @@ class RelaxationBenchmark(Benchmark):
         return {
             f"structure_{model_name}": (result["final_structure"] if result is not None else float("nan")),
         }
+
+    def run(
+        self,
+        calculator: Calculator,
+        model_name: str,
+        *,
+        n_jobs: None | int = -1,
+        checkpoint_file: str | Path | None = None,
+        checkpoint_freq: int = 1000,
+        delete_checkpoint_on_finish: bool = True,
+        include_full_results: bool = False,
+        **kwargs,  # noqa:ANN003
+    ) -> pd.DataFrame:
+        """S
+        Processes a collection of relaxation structures using a calculator, saves intermittent
+        checkpoints, and returns the results in a DataFrame. In addition to the base processing
+        performed by the parent class, this method computes the Euclidean distance between the
+        relaxed structure (obtained from the property calculation) and the reference DFT structure,
+        using a fixed SiteStatsFingerprint. The computed distance is added as a new column in the
+        results DataFrame with the key "distance_{model_name}".
+
+        This function supports parallel computation and allows for error tolerance during processing.
+        It retrieves a property calculator and utilizes it to calculate desired results for the given
+        set of structures. Checkpoints are saved periodically based on the specified frequency,
+        ensuring that progress is not lost in case of interruptions.
+
+        :param calculator: ASE-compatible calculator instance used to provide PES information for PropCalc.
+        :type calculator: Calculator
+        :param model_name: Name of the model used for properties' calculation.
+            This name is updated in the results DataFrame.
+        :type model_name: str
+        :param n_jobs: Number of parallel jobs to be used in the computation. Use -1
+            to allocate all cores available on the system. Defaults to -1.
+        :type n_jobs: int | None
+        :param checkpoint_file: File path where checkpoint elemental_refs is saved periodically.
+            If None, no checkpoints are saved.
+        :type checkpoint_file: str | Path | None
+        :param checkpoint_freq: Frequency after which checkpoint elemental_refs is saved.
+            Corresponds to the number of structures processed.
+        :type checkpoint_freq: int
+        :param delete_checkpoint_on_finish: Whether to delete checkpoint files when the benchmark finishes. Defaults to
+            True.
+        :type delete_checkpoint_on_finish: bool
+        :param include_full_results: Whether to save full results from PropCalc.calc for analysis afterwards. For
+            instance, the ElasticityProp does not just compute the bulk and shear moduli, but also the full elastic
+            tensors, which can be used for other kinds of analysis. Defaults to False.
+        :type include_full_results: bool
+        :param kwargs: Additional keyword arguments passed to the property calculator,
+            for instance, to customize its behavior or computation options.
+        :type kwargs: dict
+        :return: A pandas DataFrame containing the processed results for the given
+            input structures. The DataFrame includes updated results and relevant
+            metrics.
+        :rtype: pd.DataFrame
+        """
+        results_df = super().run(
+            calculator,
+            model_name,
+            n_jobs=n_jobs,
+            checkpoint_file=checkpoint_file,
+            checkpoint_freq=checkpoint_freq,
+            delete_checkpoint_on_finish=delete_checkpoint_on_finish,
+            include_full_results=include_full_results,
+            **kwargs,
+        )
+
+        ssf = SiteStatsFingerprint(
+            CrystalNNFingerprint.from_preset("ops", distance_cutoffs=None, x_diff_weight=0),
+            stats=("mean", "std_dev", "minimum", "maximum"),
+        )
+
+        results_df[f"distance_{model_name}"] = [
+            np.linalg.norm(np.array(ssf.featurize(model)) - np.array(ssf.featurize(dft)))
+            if model is not None and dft is not None
+            else np.nan
+            for model, dft in zip(results_df[f"structure_{model_name}"], results_df["structure_DFT"])
+        ]
+
+        return results_df
 
 
 class ElasticityBenchmark(Benchmark):
