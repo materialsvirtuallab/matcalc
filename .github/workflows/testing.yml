@@ -37,7 +37,7 @@ jobs:
           uv pip install -e '.[models,ci,phonon,benchmark]'
       - name: pytest
         run: |
-          uv run --frozen pytest --cov=matcalc tests --color=yes
+          uv run pytest --cov=matcalc tests --color=yes
       - name: Execute all notebook examples
         # Ensures that all notebooks are still functioning as intended.
         run: |
