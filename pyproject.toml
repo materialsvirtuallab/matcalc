@@ -48,7 +48,7 @@ models_torch_26 = ["sevenn>=0.9.3", "maml>=2024.6.13",
 
 models_torch_24 = ["sevenn>=0.9.3", "maml>=2024.6.13", 
 "torch>=2.2.1", "nequip>=0.6.1", "tensorpotential>=0.5.1", "orb-models>=0.4.1", "pynanoflann==0.10.0",
-"mattersim>=1.1.2", "fairchem-core>=1.8.1"]
+"mattersim>=1.1.2", "fairchem-core>=1.8.1", "torch-scatter>=2.1.2", "torch-sparse>=0.6.18"]
 
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "coverage", "coveralls"]
 

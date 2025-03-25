@@ -113,7 +113,7 @@ class TestPESCalculator:
     @pytest.mark.skipif(not find_spec("deepmd"), reason="deepmd-kit is not installed")
     def test_pescalculator_load_deepmd(self) -> None:
         calc = PESCalculator.load_deepmd(
-            model_path=os.path.join(DIR, "pes/DPA2-medium-28-10M-rc0-MPTraj-PES", "frozen_model.pth")
+            model_path=os.path.join(DIR, "pes/DPA3-LAM-2025.3.14-PES", "2025-03-14-dpa3-openlam.pth")
         )
         assert isinstance(calc, Calculator)
 

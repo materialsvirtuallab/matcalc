@@ -367,7 +367,7 @@ class PESCalculator(Calculator):
             from deepmd.calculator import DP
 
             cwd = os.path.abspath(os.path.dirname(__file__))
-            model_path = os.path.join(cwd, "../tests/pes/DPA3-LAM-2025.3.14-PES", "2025-03-14-dpa3-openlam.pth")
+            model_path = os.path.join(cwd, "../../tests/pes/DPA3-LAM-2025.3.14-PES", "2025-03-14-dpa3-openlam.pth")
             model_path = os.path.abspath(model_path)
             kwargs.setdefault("model", model_path)
             result = DP(**kwargs)
@@ -468,7 +468,7 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
         from deepmd.calculator import DP
 
         cwd = os.path.abspath(os.path.dirname(__file__))
-        model_path = os.path.join(cwd, "../tests/pes/DPA3-LAM-2025.3.14-PES", "2025-03-14-dpa3-openlam.pth")
+        model_path = os.path.join(cwd, "../../tests/pes/DPA3-LAM-2025.3.14-PES", "2025-03-14-dpa3-openlam.pth")
         model_path = os.path.abspath(model_path)
         kwargs.setdefault("model", model_path)
         result = DP(**kwargs)
