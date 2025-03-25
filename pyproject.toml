@@ -35,7 +35,15 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = ["ase>=3.23.0", "joblib", "phonopy", "pymatgen", "numpy<2.0.0", "fsspec"]
+dependencies = [
+    "ase>=3.23.0",
+ "joblib",
+ "phonopy",
+ "pymatgen",
+ "numpy<2.0.0",
+ "fsspec",
+ "scikit-learn>=1.6.1",
+]
 version = "0.1.2"
 
 [project.optional-dependencies]
