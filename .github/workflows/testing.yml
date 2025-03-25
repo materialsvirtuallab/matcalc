@@ -38,11 +38,11 @@ jobs:
           uv pip install -e .
       - name: pytest
         run: |
-          uv run pytest --cov=matcalc tests --color=yes
+          pytest --cov=matcalc tests --color=yes
       - name: Execute all notebook examples
         # Ensures that all notebooks are still functioning as intended.
         run: |
-          uv run jupyter execute examples/*.ipynb
+          jupyter execute examples/*.ipynb
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         env:
