@@ -41,7 +41,7 @@ jobs:
       - name: Execute all notebook examples
         # Ensures that all notebooks are still functioning as intended.
         run: |
-          uv run  jupyter execute examples/*.ipynb
+          uv run  jupyter execute --ExecutePreprocessor.kernel_name=python3 examples/*.ipynb
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         env:
