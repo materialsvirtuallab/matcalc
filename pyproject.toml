@@ -43,6 +43,9 @@ models = ["mace-torch>=0.3.6", "matgl>=1.2.1", "sevenn>=0.9.3", "maml>=2024.6.13
 "torch<=2.2.1", "nequip>=0.6.1", "tensorpotential>=0.5.1", "orb-models>=0.4.1", "pynanoflann==0.10.0"]
 phonon = ["seekpath"]
 benchmark = ["matminer>=0.9.3"]
+maml = [
+    "maml>=2025.2.25",
+]
 
 [project.scripts]
 matcalc = "matcalc.cli:main"
