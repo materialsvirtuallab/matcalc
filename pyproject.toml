@@ -39,14 +39,14 @@ dependencies = ["ase>=3.23.0", "joblib", "phonopy", "pymatgen", "numpy<2.0.0", "
 version = "0.1.2"
 
 [project.optional-dependencies]
-models = ["chgnet>=0.3.8", "mace-torch>=0.3.6", "matgl>=1.2.1", "sevenn>=0.9.3", "maml>=2024.6.13", "dgl<=2.1.0",
+models = ["mace-torch>=0.3.6", "matgl>=1.2.1", "sevenn>=0.9.3", "maml>=2024.6.13", "dgl<=2.1.0",
 "torch<=2.2.1", "nequip>=0.6.1", "tensorpotential>=0.5.1", "orb-models>=0.4.1", "pynanoflann==0.10.0"]
 
-models_torch_26 = ["chgnet>=0.3.8", "sevenn>=0.9.3", "maml>=2024.6.13", 
+models_torch_26 = ["sevenn>=0.9.3", "maml>=2024.6.13", 
 "torch>=2.2.1", "nequip>=0.6.1", "tensorpotential>=0.5.1", "orb-models>=0.4.1", "pynanoflann==0.10.0",
 "mattersim>=1.1.2", "deepmd-kit>=3.0.2", "pet-mad@git+https://github.com/lab-cosmo/pet-mad.git"]
 
-models_torch_24 = ["chgnet>=0.3.8", "sevenn>=0.9.3", "maml>=2024.6.13", 
+models_torch_24 = ["sevenn>=0.9.3", "maml>=2024.6.13", 
 "torch>=2.2.1", "nequip>=0.6.1", "tensorpotential>=0.5.1", "orb-models>=0.4.1", "pynanoflann==0.10.0",
 "mattersim>=1.1.2", "fairchem-core>=1.8.1"]
 

@@ -37,6 +37,7 @@ UNIVERSAL_CALCULATORS = [
     "Mattersim",
     "FairChem",
     "PETMAD",
+    "DeepMD",
 ]
 
 try:
@@ -290,7 +291,7 @@ class PESCalculator(Calculator):
         return DP(model=model_path, **kwargs)
 
     @staticmethod
-    def load_universal(name: str | Calculator, **kwargs: Any) -> Calculator:
+    def load_universal(name: str | Calculator, **kwargs: Any) -> Calculator:  # noqa: C901
         """
         Load the universal model for use in ASE as a calculator.
 
@@ -359,6 +360,16 @@ class PESCalculator(Calculator):
             from pet_mad.calculator import PETMADCalculator
 
             result = PETMADCalculator(**kwargs)
+
+        elif name.lower().startswith("deepmd"):
+            import os
+            from deepmd.calculator import DP
+
+            cwd = os.path.abspath(os.path.dirname(__file__))
+            model_path = os.path.join(cwd, "../tests/pes/DPA3-LAM-2025.3.14-PES", "2025-03-14-dpa3-openlam.pth")
+            model_path = os.path.abspath(model_path)
+            kwargs.setdefault("model", model_path)
+            result = DP(**kwargs)
 
         else:
             raise ValueError(f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}")
@@ -449,6 +460,17 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
         from pet_mad.calculator import PETMADCalculator
 
         result = PETMADCalculator(**kwargs)
+
+    elif name.lower().startswith("deepmd"):
+        import os
+
+        from deepmd.calculator import DP
+
+        cwd = os.path.abspath(os.path.dirname(__file__))
+        model_path = os.path.join(cwd, "../tests/pes/DPA3-LAM-2025.3.14-PES", "2025-03-14-dpa3-openlam.pth")
+        model_path = os.path.abspath(model_path)
+        kwargs.setdefault("model", model_path)
+        result = DP(**kwargs)
 
     else:
         raise ValueError(f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}")

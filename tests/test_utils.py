@@ -21,7 +21,8 @@ from matcalc.utils import (
 
 DIR = os.path.abspath(os.path.dirname(__file__))
 
-def map_calculators_to_packages(calculators: list[str]) -> dict[str, str]:
+
+def _map_calculators_to_packages(calculators: list[str]) -> dict[str, str]:
     prefix_package_map: list[tuple[tuple[str, ...], str]] = [
         (("m3gnet", "chgnet", "tensornet", "pbe", "r2scan"), "matgl"),
         (("mace",), "mace"),
@@ -31,6 +32,7 @@ def map_calculators_to_packages(calculators: list[str]) -> dict[str, str]:
         (("mattersim",), "mattersim"),
         (("fairchem",), "fairchem"),
         (("petmad",), "pet_mad"),
+        (("deepmd",), "deepmd"),
     ]
 
     calculator_to_package: dict[str, str] = {}
@@ -43,7 +45,9 @@ def map_calculators_to_packages(calculators: list[str]) -> dict[str, str]:
                 break
     return calculator_to_package
 
-UNIVERSAL_TO_PACKAGE = map_calculators_to_packages(UNIVERSAL_CALCULATORS)
+
+UNIVERSAL_TO_PACKAGE = _map_calculators_to_packages(UNIVERSAL_CALCULATORS)
+
 
 class TestPESCalculator:
     @pytest.mark.parametrize(
@@ -108,21 +112,25 @@ class TestPESCalculator:
 
     @pytest.mark.skipif(not find_spec("deepmd"), reason="deepmd-kit is not installed")
     def test_pescalculator_load_deepmd(self) -> None:
-        calc = PESCalculator.load_deepmd(model_path=os.path.join(DIR,
-                                        "pes/DPA2-medium-28-10M-rc0-MPTraj-PES", "frozen_model.pth"))
+        calc = PESCalculator.load_deepmd(
+            model_path=os.path.join(DIR, "pes/DPA2-medium-28-10M-rc0-MPTraj-PES", "frozen_model.pth")
+        )
         assert isinstance(calc, Calculator)
 
-    def test_pescalculator_load_universal(self) -> None:
-        for name in UNIVERSAL_CALCULATORS:
-            if name not in UNIVERSAL_TO_PACKAGE:
-                pytest.fail(f"No package mapping found for {name}. Please add it to UNIVERSAL_TO_PACKAGE.")
-            pkg_name = UNIVERSAL_TO_PACKAGE[name]
-            if not find_spec(pkg_name):
-                pytest.skip(f"{pkg_name} is not installed. Skipping {name} test.")
-            calc = PESCalculator.load_universal(name)
-            assert isinstance(calc, Calculator)
-            same_calc = PESCalculator.load_universal(calc)  # test ASE Calculator classes are returned as-is
-            assert calc is same_calc
+    @pytest.mark.parametrize("name", UNIVERSAL_CALCULATORS)
+    def test_pescalculator_load_universal(self, name: str) -> None:
+        if name not in UNIVERSAL_TO_PACKAGE:
+            pytest.fail(f"No package mapping found for {name}. Please add it to UNIVERSAL_TO_PACKAGE.")
+
+        pkg_name = UNIVERSAL_TO_PACKAGE[name]
+
+        if not find_spec(pkg_name):
+            pytest.skip(f"{pkg_name} is not installed. Skipping {name} test.")
+
+        calc = PESCalculator.load_universal(name)
+        assert isinstance(calc, Calculator)
+        same_calc = PESCalculator.load_universal(calc)  # test ASE Calculator classes are returned as-is
+        assert calc is same_calc
 
         name = "whatever"
         with pytest.raises(ValueError, match=f"Unrecognized {name=}") as exc:
@@ -179,6 +187,7 @@ def test_is_ase_optimizer() -> None:
 
     for name in ("whatever", 42, -3.14):
         assert not is_ase_optimizer(name)
+
 
 @pytest.mark.skipif(not find_spec("matgl"), reason="matgl is not installed")
 def test_aliases() -> None:
