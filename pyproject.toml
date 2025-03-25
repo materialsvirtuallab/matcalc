@@ -64,6 +64,9 @@ nequip = [
 grace = [
     "tensorpotential>=0.5.1",
 ]
+matgl = [
+    "matgl>=1.2.1",
+]
 
 [project.scripts]
 matcalc = "matcalc.cli:main"
