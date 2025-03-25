@@ -41,6 +41,7 @@ jobs:
         run: |
           pytest --cov=matcalc tests --color=yes
       - name: Execute all notebook examples
+        # Ensures that all notebooks are still functioning as intended.
         run: |
           jupyter execute examples/*.ipynb
       - name: Upload coverage reports to Codecov
