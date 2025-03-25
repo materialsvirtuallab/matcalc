@@ -6,9 +6,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
-from matminer.featurizers.site import CrystalNNFingerprint
-from matminer.featurizers.structure import SiteStatsFingerprint
-
 from matcalc.benchmark import (
     BenchmarkSuite,
     CheckpointFile,
@@ -19,6 +16,8 @@ from matcalc.benchmark import (
     get_available_benchmarks,
     get_benchmark_data,
 )
+from matminer.featurizers.site import CrystalNNFingerprint
+from matminer.featurizers.structure import SiteStatsFingerprint
 
 if TYPE_CHECKING:
     from matgl.ext.ase import PESCalculator
@@ -65,6 +64,7 @@ def test_elasticity_benchmark(m3gnet_calculator: PESCalculator) -> None:
         "toy",
         checkpoint_file=chkpt_file,
         checkpoint_freq=3,
+        delete_checkpoint_on_finish=False,
         include_full_results=True,
     )
 
@@ -99,6 +99,7 @@ def test_benchmark_suite(m3gnet_calculator: PESCalculator) -> None:
         "toy1",
         checkpoint_file="checkpoint.json",
         checkpoint_freq=1,
+        delete_checkpoint_on_finish=False,
     )
     phonon_benchmark = PhononBenchmark(n_samples=2, write_phonon=False)
     suite = BenchmarkSuite(benchmarks=[elasticity_benchmark, phonon_benchmark])

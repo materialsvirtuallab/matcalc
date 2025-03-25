@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import warnings
 from inspect import isclass
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -40,8 +41,8 @@ try:
 
     UNIVERSAL_CALCULATORS += [m for m in matgl.get_available_pretrained_models() if "PES" in m]
     UNIVERSAL_CALCULATORS = sorted(set(UNIVERSAL_CALCULATORS))
-except ImportError:
-    pass
+except Exception:  # noqa: BLE001
+    warnings.warn("Unable to get pre-trained MatGL universal calculators.", stacklevel=1)
 
 # Provide simple aliases for some common models. The key in MODEL_ALIASES must be lower case.
 MODEL_ALIASES = {

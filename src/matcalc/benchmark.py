@@ -5,6 +5,7 @@ from __future__ import annotations
 import abc
 import json
 import logging
+import os
 import random
 import typing
 from pathlib import Path
@@ -279,6 +280,7 @@ class Benchmark(metaclass=abc.ABCMeta):
         n_jobs: None | int = -1,
         checkpoint_file: str | Path | None = None,
         checkpoint_freq: int = 1000,
+        delete_checkpoint_on_finish: bool = True,
         include_full_results: bool = False,
         **kwargs,  # noqa:ANN003
     ) -> pd.DataFrame:
@@ -325,15 +327,16 @@ class Benchmark(metaclass=abc.ABCMeta):
         else:
             results = []
             ground_truth = self.ground_truth
-            structures = self.structures
+            structures = list(self.structures)
 
         prop_calc = self.get_prop_calc(calculator, **self.kwargs)
         # We make sure of the generator from prop_calc.calc_many to do this in a memory efficient manner.
         # allow_errors typically should be true since some of the calculations may fail.
-        for r, d in zip(
+        for row, d in zip(
             ground_truth,
             prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs),
         ):
+            r = dict(row)
             r.update(self.process_result(d, model_name))
             if include_full_results and d is not None:
                 r.update({k: v for k, v in d.items() if k not in self.properties})
@@ -341,6 +344,12 @@ class Benchmark(metaclass=abc.ABCMeta):
             results.append(r)
             if checkpoint and len(results) % checkpoint_freq == 0:
                 checkpoint.save(results)
+
+        if delete_checkpoint_on_finish and checkpoint_file:
+            try:
+                os.remove(checkpoint_file)
+            except FileNotFoundError:
+                pass
 
         results_df = pd.DataFrame(results)
         if self.property_rename_map:
