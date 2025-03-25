@@ -10,7 +10,7 @@ authors = [
 ]
 description = "Calculators for materials properties from the potential energy surface."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">3.9"
 keywords = [
     "AI",
     "deep learning",
