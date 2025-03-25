@@ -2060,6 +2060,7 @@ sevennet = [
 dev = [
     { name = "coverage" },
     { name = "coveralls" },
+    { name = "dgl" },
     { name = "jupyter" },
     { name = "matgl" },
     { name = "matminer" },
@@ -2095,6 +2096,7 @@ provides-extras = ["phonon", "benchmark", "maml", "sevennet", "mace", "nequip", 
 dev = [
     { name = "coverage", specifier = ">=7.7.1" },
     { name = "coveralls", specifier = ">=4.0.1" },
+    { name = "dgl", specifier = ">=2.2.0" },
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "matgl", specifier = ">=1.2.1" },
     { name = "matminer", specifier = ">=0.9.3" },

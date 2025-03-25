@@ -86,6 +86,7 @@ build-backend = "setuptools.build_meta"
 dev = [
     "coverage>=7.7.1",
     "coveralls>=4.0.1",
+    "dgl>=2.2.0",
     "jupyter>=1.1.1",
     "matgl>=1.2.1",
     "matminer>=0.9.3",
