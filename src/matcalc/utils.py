@@ -363,6 +363,7 @@ class PESCalculator(Calculator):
 
         elif name.lower().startswith("deepmd"):
             import os
+
             from deepmd.calculator import DP
 
             cwd = os.path.abspath(os.path.dirname(__file__))
