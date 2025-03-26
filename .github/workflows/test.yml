@@ -16,9 +16,6 @@ on:
 
 jobs:
   test:
-    strategy:
-      max-parallel: 20
-
     runs-on: ubuntu-latest
     env:
       PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
