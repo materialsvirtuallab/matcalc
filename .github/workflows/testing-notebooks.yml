@@ -1,0 +1,32 @@
+name: Testing
+
+on:
+  release:
+    types: [published]
+  workflow_call: # make this workflow reusable by release.yml
+
+jobs:
+  test:
+    strategy:
+      max-parallel: 20
+      matrix:
+        python-version: ["3.10"]
+
+    runs-on: ubuntu-latest
+    env:
+      PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
+      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv with python version.
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          uv sync
+      - name: Execute all notebook examples
+        # Ensures that all notebooks are still functioning as intended.
+        run: |
+          uv run  jupyter execute --ExecutePreprocessor.kernel_name=python3 examples/*.ipynb
