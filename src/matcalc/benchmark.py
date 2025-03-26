@@ -374,9 +374,10 @@ class EquilibriumBenchmark(Benchmark):
     This benchmark utilizes a dataset and provides functionality for property calculation
     and result processing. The class is designed to work with a predefined framework for
     benchmarking equilibrium properties. The benchmark dataset contains data such as relaxed
-    structures along with additional metadata. This class supports configurability through
-    metadata files, index names, and additional benchmark properties. It relies on external
-    calculators and utility classes for property computations and result handling.
+    structures, un-/corrected formation energy along with additional metadata. This class
+    supports configurability through metadata files, index names, and additional benchmark
+    properties. It relies on external calculators and utility classes for property computations
+    and result handling.
     """
 
     def __init__(
@@ -408,28 +409,31 @@ class EquilibriumBenchmark(Benchmark):
 
     def get_prop_calc(self, calculator: Calculator, **kwargs: typing.Any) -> PropCalc:
         """
-        Returns a property calculation object for performing relaxation calculations.
-        This method initializes the relaxation calculator using the provided Calculator
-        object and any additional configuration parameters.
+        Returns a property calculation object for performing relaxation and formation energy
+        calculations. This method initializes the stability calculator using the provided
+        Calculator object and any additional configuration parameters.
 
-        :param calculator: A Calculator object responsible for performing the relaxation calculation.
+        :param calculator: A Calculator object responsible for performing the relaxation and
+            formation energy calculation.
         :type calculator: Calculator
         :param kwargs: Additional keyword arguments used for configuration.
         :type kwargs: dict
-        :return: An initialized PropCalc object configured for relaxation calculations.
+        :return: An initialized PropCalc object configured for relaxation and formation energy
+            calculations.
         :rtype: PropCalc
         """
         return EnergeticsCalc(calculator, relax_calc_kwargs={"perturb_distance": 0.1}, **kwargs)
 
     def process_result(self, result: dict | None, model_name: str) -> dict:
         """
-        Processes the result dictionary containing final relaxed structures, formats the keys
-        according to the provided model name. If the result is None, default values of
-        NaN are returned for final structures.
+        Processes the result dictionary containing final structures and formation energy per atom,
+        formats the keys according to the provided model name. If the result is None, default values
+        of NaN are returned for final structures or formation energy per atom.
 
         :param result:
-            A dictionary containing the final relaxed structures under the keys
-            'final_structure'. It can also be None to indicate missing elemental_refs.
+            A dictionary containing the final structures and formation energy per atom under the keys
+            'final_structure' and 'formation energy per atom'. It can also be None to indicate missing
+            elemental_refs.
         :type result: dict or None
 
         :param model_name:
@@ -438,8 +442,8 @@ class EquilibriumBenchmark(Benchmark):
         :type model_name: str
 
         :return:
-            A dictionary containing the specific final relaxed structure prefixed by the model name.
-            The values will be NaN if the input result is None.
+            A dictionary containing the specific final structure and formation energy per atomprefixed
+            by the model name. The values will be NaN if the input result is None.
 
         :rtype: dict
         """
@@ -462,12 +466,12 @@ class EquilibriumBenchmark(Benchmark):
         include_full_results: bool = False,
         **kwargs,  # noqa:ANN003
     ) -> pd.DataFrame:
-        """S
-        Processes a collection of relaxation structures using a calculator, saves intermittent
-        checkpoints, and returns the results in a DataFrame. In addition to the base processing
-        performed by the parent class, this method computes the Euclidean distance between the
-        relaxed structure (obtained from the property calculation) and the reference DFT structure,
-        using a fixed SiteStatsFingerprint. The computed distance is added as a new column in the
+        """
+        Processes a collection of structures using a calculator, saves intermittent checkpoints,
+        and returns the results in a DataFrame. In addition to the base processing performed
+        by the parent class, this method computes the Euclidean distance between the relaxed
+        structure (obtained from the property calculation) and the reference DFT structure,
+        using SiteStatsFingerprint. The computed distance is added as a new column in the
         results DataFrame with the key "distance_{model_name}".
 
         This function supports parallel computation and allows for error tolerance during processing.

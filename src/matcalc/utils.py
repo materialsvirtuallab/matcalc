@@ -63,7 +63,7 @@ class PESCalculator(Calculator):
     Imports should be inside if statements to ensure that all models are optional dependencies.
     """
 
-    implemented_properties = ("energy", "forces", "stress")
+    implemented_properties = ["energy", "forces", "stress"]
 
     def __init__(
         self,
