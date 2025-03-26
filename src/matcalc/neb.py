@@ -13,6 +13,7 @@ from matcalc.base import PropCalc
 from matcalc.utils import get_ase_optimizer, get_universal_calculator
 
 if TYPE_CHECKING:
+    from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
 
@@ -41,7 +42,6 @@ class NEBCalc(PropCalc):
             climb(bool): Whether to enable climb image NEB. Defaults to True.
             kwargs: Other arguments passed to ASE NEB object.
         """
-        self.images = images
         self.calculator = get_universal_calculator(calculator)
 
         self.optimizer = get_ase_optimizer(optimizer)
@@ -49,7 +49,7 @@ class NEBCalc(PropCalc):
         self.interval = interval
         self.climb = climb
 
-        self.images = []
+        self.images: list[Atoms] = []
         for image in images:
             atoms = image.to_ase_atoms() if isinstance(image, Structure) else image
             atoms.calc = self.calculator

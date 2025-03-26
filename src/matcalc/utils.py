@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import warnings
 from inspect import isclass
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 import ase.optimize
 from ase.calculators.calculator import Calculator
@@ -119,7 +119,7 @@ class PESCalculator(Calculator):
         system_changes = system_changes or all_changes
         super().calculate(atoms=atoms, properties=properties, system_changes=system_changes)
 
-        structure = AseAtomsAdaptor.get_structure(atoms)
+        structure = AseAtomsAdaptor.get_structure(atoms)  # type: ignore[arg-type]
         efs_calculator = EnergyForceStress(ff_settings=self.potential)
         energy, forces, stresses = efs_calculator.calculate([structure])[0]
 
@@ -144,7 +144,7 @@ class PESCalculator(Calculator):
         import matgl
         from matgl.ext.ase import PESCalculator as PESCalculator_
 
-        model = matgl.load_model(path=path)
+        model = matgl.load_model(path=path)  # type:ignore[arg-type]
         kwargs.setdefault("stress_unit", "eV/A3")
         return PESCalculator_(potential=model, **kwargs)
 
@@ -290,7 +290,7 @@ class PESCalculator(Calculator):
             from matgl.ext.ase import PESCalculator as PESCalculator_
 
             name = MODEL_ALIASES.get(name.lower(), name)
-            model = matgl.load_model(name)
+            model = matgl.load_model(name)  # type: ignore[arg-type]
             kwargs.setdefault("stress_unit", "eV/A3")
             result = PESCalculator_(potential=model, **kwargs)
 
@@ -358,7 +358,7 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
         name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES", "tensornet": "TensorNet-MatPES-PBE-v2025.1-PES"}.get(
             name.lower(), name
         )
-        model = matgl.load_model(name)
+        model = matgl.load_model(name)  # type: ignore[arg-type]
         kwargs.setdefault("stress_unit", "eV/A3")
         result = PESCalculator_(potential=model, **kwargs)
 
