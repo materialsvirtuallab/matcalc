@@ -114,11 +114,13 @@ class PhononCalc(PropCalc):
             )
             structure = relaxer.calc(structure)["final_structure"]
         cell = get_phonopy_structure(structure)
-        phonon = phonopy.Phonopy(cell, self.supercell_matrix)
+        phonon = phonopy.Phonopy(cell, self.supercell_matrix)  # type: ignore[arg-type]
         phonon.generate_displacements(distance=self.atom_disp)
         disp_supercells = phonon.supercells_with_displacements
-        phonon.forces = [
-            _calc_forces(self.calculator, supercell) for supercell in disp_supercells if supercell is not None
+        phonon.forces = [  # type: ignore[assignment]
+            _calc_forces(self.calculator, supercell)
+            for supercell in disp_supercells  # type:ignore[union-attr]
+            if supercell is not None
         ]
         phonon.produce_force_constants()
         phonon.run_mesh()

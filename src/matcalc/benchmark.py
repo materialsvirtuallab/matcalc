@@ -659,7 +659,7 @@ class SofteningBenchmark:
         self.kwargs = kwargs
 
     @staticmethod
-    def get_linear_fitted_slope(x: list, y: list) -> float:
+    def get_linear_fitted_slope(x: list | np.ndarray, y: list | np.ndarray) -> float:
         """
         Return the linearly fitted slope of x and y using a simple linear model (y = ax).
         :param x: A list of the x values.
@@ -722,7 +722,7 @@ class SofteningBenchmark:
             support = True
             test_structure = next(iter(frames.values()))["structure"]
             for elem in test_structure.composition.elements:
-                if str(elem) not in calculator.element_types:
+                if str(elem) not in calculator.element_types:  # type: ignore[attr-defined]
                     support = False
             if not support:
                 # skipping this structure

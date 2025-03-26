@@ -170,11 +170,11 @@ class QHACalc(PropCalc):
         temperatures = np.arange(self.t_min, self.t_max + self.t_step, self.t_step)
         volumes, electronic_energies, free_energies, entropies, heat_capacities = self._collect_properties(structure)
 
-        qha = self._create_qha(volumes, electronic_energies, temperatures, free_energies, entropies, heat_capacities)
+        qha = self._create_qha(volumes, electronic_energies, temperatures, free_energies, entropies, heat_capacities)  # type: ignore[arg-type]
 
         self._write_output_files(qha)
 
-        return self._generate_output_dict(qha, volumes, electronic_energies, temperatures)
+        return self._generate_output_dict(qha, volumes, electronic_energies, temperatures)  # type: ignore[arg-type]
 
     def _collect_properties(self, structure: Structure) -> tuple[list, list, list, list, list]:
         """Helper to collect properties like volumes, electronic energies, and thermal properties.
