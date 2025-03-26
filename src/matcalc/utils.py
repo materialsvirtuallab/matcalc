@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import warnings
 from inspect import isclass
-from typing import TYPE_CHECKING, Any, ClassVar, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import ase.optimize
 from ase.calculators.calculator import Calculator
@@ -63,7 +63,7 @@ class PESCalculator(Calculator):
     Imports should be inside if statements to ensure that all models are optional dependencies.
     """
 
-    implemented_properties: ClassVar = ["energy", "forces", "stress"]
+    implemented_properties = ["energy", "forces", "stress"]  # noqa:RUF012
 
     def __init__(
         self,
