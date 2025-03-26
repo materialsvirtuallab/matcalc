@@ -6,6 +6,9 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
+from matminer.featurizers.site import CrystalNNFingerprint
+from matminer.featurizers.structure import SiteStatsFingerprint
+
 from matcalc.benchmark import (
     BenchmarkSuite,
     CheckpointFile,
@@ -16,8 +19,6 @@ from matcalc.benchmark import (
     get_available_benchmarks,
     get_benchmark_data,
 )
-from matminer.featurizers.site import CrystalNNFingerprint
-from matminer.featurizers.structure import SiteStatsFingerprint
 
 if TYPE_CHECKING:
     from matgl.ext.ase import PESCalculator
@@ -73,7 +74,7 @@ def test_elasticity_benchmark(m3gnet_calculator: PESCalculator) -> None:
         include_full_results=True,
     )
 
-    assert len(results.columns) == 10
+    assert len(results.columns) == 11
     assert "structure" in results.columns
 
     assert os.path.exists(chkpt_file)

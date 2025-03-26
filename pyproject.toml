@@ -176,3 +176,4 @@ exclude_lines = [
 reportMissingImports = false
 reportPossiblyUnboundVariable = true
 reportUnboundVariable = true
+exclude = ["tests"]
