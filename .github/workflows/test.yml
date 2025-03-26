@@ -18,8 +18,6 @@ jobs:
   test:
     strategy:
       max-parallel: 20
-      matrix:
-        python-version: ["3.10"]
 
     runs-on: ubuntu-latest
     env:
@@ -31,7 +29,6 @@ jobs:
       - name: Install uv with python version.
         uses: astral-sh/setup-uv@v5
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
           cache-dependency-glob: "uv.lock"
       - name: Install dependencies
