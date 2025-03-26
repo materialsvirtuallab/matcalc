@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-import os
 from importlib.util import find_spec
+from pathlib import Path
 
 import ase.optimize
 import pytest
 from ase import Atoms
 from ase.calculators.calculator import Calculator
 from ase.optimize.optimize import Optimizer
+
 from matcalc.utils import (
     MODEL_ALIASES,
     UNIVERSAL_CALCULATORS,
@@ -18,7 +19,7 @@ from matcalc.utils import (
     is_ase_optimizer,
 )
 
-DIR = os.path.abspath(os.path.dirname(__file__))
+DIR = Path(__file__).parent.absolute()
 
 
 class TestPESCalculator:
@@ -32,7 +33,7 @@ class TestPESCalculator:
     @pytest.mark.skipif(not find_spec("maml"), reason="maml is not installed")
     def test_pescalculator_load_mtp(self, expected_unit: str, expected_weight: float) -> None:
         calc = PESCalculator.load_mtp(
-            filename=os.path.join(DIR, "pes/MTP-Cu-2020.1-PES", "fitted.mtp"),
+            filename=DIR / "pes" / "MTP-Cu-2020.1-PES" / "fitted.mtp",
             elements=["Cu"],
         )
         assert isinstance(calc, Calculator)
@@ -45,15 +46,15 @@ class TestPESCalculator:
 
     @pytest.mark.skipif(not find_spec("maml"), reason="maml is not installed")
     def test_pescalculator_load_gap(self) -> None:
-        calc = PESCalculator.load_gap(filename=os.path.join(DIR, "pes/GAP-NiMo-2020.3-PES", "gap.xml"))
+        calc = PESCalculator.load_gap(filename=DIR / "pes" / "GAP-NiMo-2020.3-PES" / "gap.xml")
         assert isinstance(calc, Calculator)
 
     @pytest.mark.skipif(not find_spec("maml"), reason="maml is not installed")
     def test_pescalculator_load_nnp(self) -> None:
         calc = PESCalculator.load_nnp(
-            input_filename=os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "input.nn"),
-            scaling_filename=os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "scaling.data"),
-            weights_filenames=[os.path.join(DIR, "pes/NNP-Cu-2020.1-PES", "weights.029.data")],
+            input_filename=DIR / "pes" / "NNP-Cu-2020.1-PES" / "input.nn",
+            scaling_filename=DIR / "pes" / "NNP-Cu-2020.1-PES" / "scaling.data",
+            weights_filenames=[DIR / "pes" / "NNP-Cu-2020.1-PES" / "weights.029.data"],
         )
         assert isinstance(calc, Calculator)
 
@@ -62,24 +63,24 @@ class TestPESCalculator:
     def test_pescalculator_load_snap(self) -> None:
         for name in ("SNAP", "qSNAP"):
             calc = PESCalculator.load_snap(
-                param_file=os.path.join(DIR, f"pes/{name}-Cu-2020.1-PES", "SNAPotential.snapparam"),
-                coeff_file=os.path.join(DIR, f"pes/{name}-Cu-2020.1-PES", "SNAPotential.snapcoeff"),
+                param_file=DIR / "pes" / f"{name}-Cu-2020.1-PES" / "SNAPotential.snapparam",
+                coeff_file=DIR / "pes" / f"{name}-Cu-2020.1-PES" / "SNAPotential.snapcoeff",
             )
             assert isinstance(calc, Calculator)
 
     @pytest.mark.skipif(not find_spec("pyace"), reason="pyace is not installed")
     def test_pescalculator_load_ace(self) -> None:
-        calc = PESCalculator.load_ace(basis_set=os.path.join(DIR, "pes/ACE-Cu-2021.5.15-PES", "Cu-III.yaml"))
+        calc = PESCalculator.load_ace(basis_set=DIR / "pes" / "ACE-Cu-2021.5.15-PES" / "Cu-III.yaml")
         assert isinstance(calc, Calculator)
 
     @pytest.mark.skipif(not find_spec("nequip"), reason="nequip is not installed")
     def test_pescalculator_load_nequip(self) -> None:
-        calc = PESCalculator.load_nequip(model_path=os.path.join(DIR, "pes/NequIP-am-Al2O3-2023.9-PES", "default.pth"))
+        calc = PESCalculator.load_nequip(model_path=DIR / "pes" / "NequIP-am-Al2O3-2023.9-PES" / "default.pth")
         assert isinstance(calc, Calculator)
 
     @pytest.mark.skipif(not find_spec("matgl"), reason="matgl is not installed")
     def test_pescalculator_load_matgl(self) -> None:
-        calc = PESCalculator.load_matgl(path=os.path.join(DIR, "pes/M3GNet-MP-2021.2.8-PES"))
+        calc = PESCalculator.load_matgl(path=DIR / "pes" / "M3GNet-MP-2021.2.8-PES")
         assert isinstance(calc, Calculator)
 
     @pytest.mark.skipif(not find_spec("matgl"), reason="matgl is not installed")
@@ -105,8 +106,8 @@ class TestPESCalculator:
     @pytest.mark.skipif(not find_spec("lammps"), reason="lammps is not installed")
     def test_pescalculator_calculate(self) -> None:
         calc = PESCalculator.load_snap(
-            param_file=os.path.join(DIR, "pes/SNAP-Cu-2020.1-PES", "SNAPotential.snapparam"),
-            coeff_file=os.path.join(DIR, "pes/SNAP-Cu-2020.1-PES", "SNAPotential.snapcoeff"),
+            param_file=DIR / "pes" / "SNAP-Cu-2020.1-PES" / "SNAPotential.snapparam",
+            coeff_file=DIR / "pes" / "SNAP-Cu-2020.1-PES" / "SNAPotential.snapcoeff",
         )
 
         atoms = Atoms(

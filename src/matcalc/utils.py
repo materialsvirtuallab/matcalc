@@ -180,7 +180,7 @@ class PESCalculator(Calculator):
         """
         from maml.apps.pes import GAPotential
 
-        model = GAPotential.from_config(filename=filename)
+        model = GAPotential.from_config(filename=str(filename))
         return PESCalculator(potential=model, **kwargs)
 
     @staticmethod
