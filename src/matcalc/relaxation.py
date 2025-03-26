@@ -143,7 +143,7 @@ class RelaxCalc(PropCalc):
                 obs = TrajectoryObserver(atoms)
                 if self.relax_cell:
                     atoms = self.cell_filter(atoms)  # type:ignore[operator]
-                optimizer = self.optimizer(atoms)
+                optimizer = self.optimizer(atoms)  # type:ignore[operator]
                 optimizer.attach(obs, interval=self.interval)
                 optimizer.run(fmax=self.fmax, steps=self.max_steps)
                 if self.traj_file is not None:

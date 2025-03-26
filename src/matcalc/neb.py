@@ -56,7 +56,7 @@ class NEBCalc(PropCalc):
             self.images.append(atoms)
 
         self.neb = NEB(self.images, climb=self.climb, allow_shared_calculator=True, **kwargs)
-        self.optimizer = self.optimizer(self.neb)
+        self.optimizer = self.optimizer(self.neb)  # type:ignore[operator]
 
     @classmethod
     def from_end_images(
