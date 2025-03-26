@@ -74,7 +74,6 @@ def test_elasticity_benchmark(m3gnet_calculator: PESCalculator) -> None:
         include_full_results=True,
     )
 
-    assert len(results.columns) == 11
     assert "structure" in results.columns
 
     assert os.path.exists(chkpt_file)

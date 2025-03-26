@@ -63,7 +63,7 @@ pbe_calculator = PESCalculator.load_universal("pbe")
 r2scan_calculator = PESCalculator.load_universal("r2scan")
 ```
 
-At the time of writing, these are the TensorNet-MatPES models. However, these recommendations may updated as newer
+At the time of writing, these are the TensorNet-MatPES models. However, these recommendations may updated as improved
 models become available.
 
 MatCalc also supports trivial parallelization using joblib via the `calc_many` method.
@@ -85,6 +85,39 @@ def parallel_calc():
 # Output is 2.08 s ± 0 ns per loop (mean ± std. dev. of 1 run, 5 loops each)
 # This was run on 10 CPUs on a Mac.
 ```
+
+MatCalc also supports chaining of calculators. Typically, you will start with a relaxation calc, followed by a series
+of other calculators to get the properties you need. For example, the following does a relaxation calculation,
+followed by an energetics calculation and then an elasticity calculation. The final `results` contains the results from
+all steps. Note that the `relax_structure` should be set to False in subsequent `PropCalc` to ensure that you do not
+redo the relaxation.
+
+```python
+from matcalc import PESCalculator, ElasticityCalc, RelaxCalc, EnergeticsCalc
+import numpy as np
+calculator = PESCalculator.load_universal("pbe")
+relax_calc = RelaxCalc(
+    calculator,
+    optimizer="FIRE",
+    relax_atoms=True,
+    relax_cell=True,
+)
+energetics_calc = EnergeticsCalc(calculator, relax_structure=False)
+elast_calc = ElasticityCalc(
+    calculator,
+    fmax=0.1,
+    norm_strains=list(np.linspace(-0.004, 0.004, num=4)),
+    shear_strains=list(np.linspace(-0.004, 0.004, num=4)),
+    use_equilibrium=True,
+    relax_structure=False,  # Since we are chaining, we do not need to relax
+    relax_deformed_structures=True,
+)
+results = elast_calc.calc(energetics_calc.calc(relax_calc.calc(structure)))
+```
+
+
+
+
 
 ### CLI tool
 

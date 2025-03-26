@@ -57,3 +57,7 @@ def test_chain_calc(
     assert results["alpha"] == pytest.approx(60, abs=5)
 
     assert results["formation_energy_per_atom"] == pytest.approx(-1.8127431869506836, abs=1e-3)
+
+    results = list(elast_calc.calc_many(energetics_calc.calc_many(relax_calc.calc_many([Li2O] * 3))))
+    assert len(results) == 3
+    assert results[0]["energy"] == pytest.approx(-14.176680, rel=1e-1)
