@@ -24,15 +24,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        name: Install Python
+      - name: Install uv with python version.
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.11"
-      - run: python -m pip install build
-      - name: Build sdist
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - name: Build
         run: |
-          python -m build --sdist
-          python -m build --wheel
+          uv build
       - uses: actions/upload-artifact@v4
         with:
           path: dist/*.*

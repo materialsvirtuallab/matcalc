@@ -12,6 +12,8 @@ from .base import PropCalc
 from .relaxation import RelaxCalc
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
     from pymatgen.core import Structure
@@ -53,7 +55,7 @@ class EOSCalc(PropCalc):
         self.max_steps = max_steps
         self.relax_calc_kwargs = relax_calc_kwargs
 
-    def calc(self, structure: Structure) -> dict:
+    def calc(self, structure: Structure | dict[str, Any]) -> dict:
         """Fit the Birch-Murnaghan equation of state.
 
         Args:
@@ -69,6 +71,9 @@ class EOSCalc(PropCalc):
             calculations. This value should be at least around 1 - 1e-4 to 1 - 1e-5.
         }
         """
+        result = super().calc(structure)
+        structure_in: Structure = result["final_structure"]
+
         if self.relax_structure:
             relaxer = RelaxCalc(
                 self.calculator,
@@ -77,7 +82,8 @@ class EOSCalc(PropCalc):
                 max_steps=self.max_steps,
                 **(self.relax_calc_kwargs or {}),
             )
-            structure = relaxer.calc(structure)["final_structure"]
+            result |= relaxer.calc(structure_in)
+            structure_in = result["final_structure"]
 
         volumes, energies = [], []
         relaxer = RelaxCalc(
@@ -89,11 +95,11 @@ class EOSCalc(PropCalc):
             **(self.relax_calc_kwargs or {}),
         )
 
-        temp_structure = structure.copy()
+        temp_structure = structure_in.copy()
         for idx in np.linspace(-self.max_abs_strain, self.max_abs_strain, self.n_points)[self.n_points // 2 :]:
             structure_strained = temp_structure.copy()
             structure_strained.apply_strain(
-                (((1 + idx) ** 3 * structure.volume) / (structure_strained.volume)) ** (1 / 3) - 1
+                (((1 + idx) ** 3 * structure_in.volume) / (structure_strained.volume)) ** (1 / 3) - 1
             )
             result = relaxer.calc(structure_strained)
             volumes.append(result["final_structure"].volume)
@@ -101,9 +107,9 @@ class EOSCalc(PropCalc):
             temp_structure = result["final_structure"]
 
         for idx in np.flip(np.linspace(-self.max_abs_strain, self.max_abs_strain, self.n_points)[: self.n_points // 2]):
-            structure_strained = structure.copy()
+            structure_strained = structure_in.copy()
             structure_strained.apply_strain(
-                (((1 + idx) ** 3 * structure.volume) / (structure_strained.volume)) ** (1 / 3) - 1
+                (((1 + idx) ** 3 * structure_in.volume) / (structure_strained.volume)) ** (1 / 3) - 1
             )
             result = relaxer.calc(structure_strained)
             volumes.append(result["final_structure"].volume)
@@ -115,7 +121,7 @@ class EOSCalc(PropCalc):
 
         volumes, energies = map(list, zip(*sorted(zip(volumes, energies), key=lambda i: i[0])))
 
-        return {
+        return result | {
             "eos": {"volumes": volumes, "energies": energies},
             "bulk_modulus_bm": bm.b0_GPa,
             "r2_score_bm": r2_score(energies, bm.func(volumes)),

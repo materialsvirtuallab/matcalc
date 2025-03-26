@@ -15,6 +15,7 @@ from .relaxation import RelaxCalc
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
+    from typing import Any
 
     from ase.calculators.calculator import Calculator
     from pymatgen.core import Structure
@@ -137,7 +138,7 @@ class QHACalc(PropCalc):
         ):
             setattr(self, key, str({True: default_path, False: ""}.get(val, val)))  # type: ignore[arg-type]
 
-    def calc(self, structure: Structure) -> dict:
+    def calc(self, structure: Structure | dict[str, Any]) -> dict:
         """Calculates thermal properties of Pymatgen structure with phonopy under quasi-harmonic approximation.
 
         Args:
@@ -158,6 +159,9 @@ class QHACalc(PropCalc):
             "gruneisen_parameters": List of Gruneisen parameters at corresponding temperatures,
         }
         """
+        result = super().calc(structure)
+        structure_in: Structure = result["final_structure"]
+
         if self.relax_structure:
             relaxer = RelaxCalc(
                 self.calculator,
@@ -165,16 +169,17 @@ class QHACalc(PropCalc):
                 optimizer=self.optimizer,
                 **(self.relax_calc_kwargs or {}),
             )
-            structure = relaxer.calc(structure)["final_structure"]
+            result |= relaxer.calc(structure_in)
+            structure_in = result["final_structure"]
 
         temperatures = np.arange(self.t_min, self.t_max + self.t_step, self.t_step)
-        volumes, electronic_energies, free_energies, entropies, heat_capacities = self._collect_properties(structure)
+        volumes, electronic_energies, free_energies, entropies, heat_capacities = self._collect_properties(structure_in)
 
         qha = self._create_qha(volumes, electronic_energies, temperatures, free_energies, entropies, heat_capacities)  # type: ignore[arg-type]
 
         self._write_output_files(qha)
 
-        return self._generate_output_dict(qha, volumes, electronic_energies, temperatures)  # type: ignore[arg-type]
+        return result | self._generate_output_dict(qha, volumes, electronic_energies, temperatures)  # type: ignore[arg-type]
 
     def _collect_properties(self, structure: Structure) -> tuple[list, list, list, list, list]:
         """Helper to collect properties like volumes, electronic energies, and thermal properties.

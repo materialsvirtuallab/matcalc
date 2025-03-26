@@ -113,7 +113,7 @@ class RelaxCalc(PropCalc):
         self.cell_filter = cell_filter
         self.perturb_distance = perturb_distance
 
-    def calc(self, structure: Structure) -> dict:
+    def calc(self, structure: Structure | dict) -> dict:
         """Perform relaxation to obtain properties.
 
         Args:
@@ -133,9 +133,12 @@ class RelaxCalc(PropCalc):
             gamma: lattice.gamma in degrees,
         }
         """
+        result = super().calc(structure)
+        structure_in: Structure = result["final_structure"]
+
         if self.perturb_distance is not None:
-            structure = structure.perturb(distance=self.perturb_distance)
-        atoms = AseAtomsAdaptor.get_atoms(structure)
+            structure_in = structure_in.perturb(distance=self.perturb_distance)
+        atoms = AseAtomsAdaptor.get_atoms(structure_in)
         atoms.calc = self.calculator
         if self.relax_atoms:
             stream = io.StringIO()
@@ -143,7 +146,7 @@ class RelaxCalc(PropCalc):
                 obs = TrajectoryObserver(atoms)
                 if self.relax_cell:
                     atoms = self.cell_filter(atoms)  # type:ignore[operator]
-                optimizer = self.optimizer(atoms)
+                optimizer = self.optimizer(atoms)  # type:ignore[operator]
                 optimizer.attach(obs, interval=self.interval)
                 optimizer.run(fmax=self.fmax, steps=self.max_steps)
                 if self.traj_file is not None:
@@ -157,23 +160,26 @@ class RelaxCalc(PropCalc):
             final_structure = AseAtomsAdaptor.get_structure(atoms)
 
         else:
-            final_structure = structure
+            final_structure = structure_in
             energy = atoms.get_potential_energy()
             forces = atoms.get_forces()
             stress = atoms.get_stress()
 
         lattice = final_structure.lattice
+        result.update(
+            {
+                "final_structure": final_structure,
+                "energy": energy,
+                "forces": forces,
+                "stress": stress,
+                "a": lattice.a,
+                "b": lattice.b,
+                "c": lattice.c,
+                "alpha": lattice.alpha,
+                "beta": lattice.beta,
+                "gamma": lattice.gamma,
+                "volume": lattice.volume,
+            }
+        )
 
-        return {
-            "final_structure": final_structure,
-            "energy": energy,
-            "forces": forces,
-            "stress": stress,
-            "a": lattice.a,
-            "b": lattice.b,
-            "c": lattice.c,
-            "alpha": lattice.alpha,
-            "beta": lattice.beta,
-            "gamma": lattice.gamma,
-            "volume": lattice.volume,
-        }
+        return result

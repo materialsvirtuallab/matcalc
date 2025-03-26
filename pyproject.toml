@@ -36,15 +36,15 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
- "ase>=3.23.0",
- "joblib",
- "phonopy",
- "pymatgen",
- "numpy<2.0.0",
- "fsspec",
- "scikit-learn>=1.6.1",
+    "ase>=3.23.0",
+    "joblib",
+    "phonopy",
+    "pymatgen",
+    "numpy<2.0.0",
+    "fsspec",
+    "scikit-learn>=1.6.1",
 ]
-version = "0.1.2"
+version = "0.2.0"
 
 [project.optional-dependencies]
 phonon = ["seekpath"]
@@ -91,13 +91,20 @@ dev = [
     "matgl>=1.2.3",
     "matminer>=0.9.3",
     "mp-api>=0.45.3",
+    "pre-commit>=4.2.0",
     "pytest>=8.3.5",
     "pytest-cov>=6.0.0",
     "seekpath>=2.1.0",
 ]
 lint = [
     "mypy>=1.15.0",
+    "pyright>=1.1.398",
     "ruff>=0.11.2",
+]
+maintain = [
+    "invoke>=2.2.0",
+    "sphinx>=8.1.3",
+    "sphinx-markdown-builder>=0.6.8",
 ]
 
 [tool.ruff]
@@ -108,18 +115,17 @@ extend-include = ["*.ipynb"]
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "ANN101",
     "ANN401",
-    "COM812",  # trailing comma missing
-    "D205",    # 1 blank line required between summary line and description
-    "D212",    # Multi-line docstring summary should start at the first line
+    "COM812", # trailing comma missing
+    "D205", # 1 blank line required between summary line and description
+    "D212", # Multi-line docstring summary should start at the first line
     "EM101",
     "EM102",
     "ISC001",
     "PLR0913", # too many arguments
     "PLW0603", # Using the global statement to update variables is discouraged
-    "PTH",     # prefer Path to os.path
-    "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
+    "PTH", # prefer Path to os.path
+    "SIM105", # Use contextlib.suppress(OSError) instead of try-except-pass
     "TRY003",
 ]
 exclude = ["docs/conf.py"]
@@ -175,3 +181,4 @@ exclude_lines = [
 reportMissingImports = false
 reportPossiblyUnboundVariable = true
 reportUnboundVariable = true
+exclude = ["tests"]

@@ -13,6 +13,7 @@ from .relaxation import RelaxCalc
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from ase.calculators.calculator import Calculator
     from numpy.typing import ArrayLike
@@ -70,7 +71,7 @@ class ElasticityCalc(PropCalc):
             self.use_equilibrium = True
         self.relax_calc_kwargs = relax_calc_kwargs
 
-    def calc(self, structure: Structure) -> dict[str, Any]:
+    def calc(self, structure: Structure | dict[str, Any]) -> dict[str, Any]:
         """Calculates elastic properties of Pymatgen structure with units determined by the calculator,
         (often the stress_weight).
 
@@ -87,20 +88,24 @@ class ElasticityCalc(PropCalc):
             structure: The equilibrium structure used for the computation.
         }
         """
+        result = super().calc(structure)
+        structure_in: Structure = result["final_structure"]
+
         if self.relax_structure or self.relax_deformed_structures:
             relax_calc = RelaxCalc(self.calculator, fmax=self.fmax, **(self.relax_calc_kwargs or {}))
-            structure = relax_calc.calc(structure)["final_structure"]
+            result |= relax_calc.calc(structure_in)
+            structure_in = result["final_structure"]
             relax_calc.relax_cell = False
 
         deformed_structure_set = DeformedStructureSet(
-            structure,
+            structure_in,
             self.norm_strains,
             self.shear_strains,
         )
         stresses = []
         for deformed_structure in deformed_structure_set:
             if self.relax_deformed_structures:
-                deformed_structure_relaxed = relax_calc.calc(deformed_structure)["final_structure"]
+                deformed_structure_relaxed = relax_calc.calc(deformed_structure)["final_structure"]  # pyright:ignore (reportPossiblyUnboundVariable)
                 atoms = deformed_structure_relaxed.to_ase_atoms()
             else:
                 atoms = deformed_structure.to_ase_atoms()
@@ -109,20 +114,20 @@ class ElasticityCalc(PropCalc):
             stresses.append(atoms.get_stress(voigt=False))
 
         strains = [Strain.from_deformation(deformation) for deformation in deformed_structure_set.deformations]
-        atoms = structure.to_ase_atoms()
+        atoms = structure_in.to_ase_atoms()
         atoms.calc = self.calculator
         elastic_tensor, residuals_sum = self._elastic_tensor_from_strains(
             strains,
             stresses,
             eq_stress=atoms.get_stress(voigt=False) if self.use_equilibrium else None,
         )
-        return {
+        return result | {
             "elastic_tensor": elastic_tensor,
             "shear_modulus_vrh": elastic_tensor.g_vrh,
             "bulk_modulus_vrh": elastic_tensor.k_vrh,
             "youngs_modulus": elastic_tensor.y_mod,
             "residuals_sum": residuals_sum,
-            "structure": structure,
+            "structure": structure_in,
         }
 
     def _elastic_tensor_from_strains(

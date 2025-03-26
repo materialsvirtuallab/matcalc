@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 from ase.filters import ExpCellFilter
+
 from matcalc.eos import EOSCalc
 
 if TYPE_CHECKING:
@@ -23,7 +24,6 @@ def test_eos_calc(
     eos_calc = EOSCalc(m3gnet_calculator, fmax=0.1, relax_calc_kwargs={"cell_filter": ExpCellFilter})
     result = eos_calc.calc(Li2O)
 
-    assert {*result} == {"eos", "r2_score_bm", "bulk_modulus_bm"}
     assert result["bulk_modulus_bm"] == pytest.approx(65.57980045603279, rel=1e-1)
     assert {*result["eos"]} == {"volumes", "energies"}
     assert result["eos"]["volumes"] == pytest.approx(

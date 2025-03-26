@@ -17,20 +17,34 @@ class PropCalc(abc.ABC):
     """API for a property calculator."""
 
     @abc.abstractmethod
-    def calc(self, structure: Structure) -> dict:
+    def calc(self, structure: Structure | dict[str, Any]) -> dict[str, Any]:
         """All PropCalc subclasses should implement a calc method that takes in a pymatgen structure
-        and returns a dict. The method can return more than one property.
+        and returns a dict. The method can return more than one property. Generally, subclasses should have a super()
+        call to the abstract base method to obtain an initial result dict.
 
         Args:
-            structure: Pymatgen structure.
+            structure: Pymatgen structure or a dict containing a pymatgen Structure under a "final_structure" or
+                "structure" key. Allowing dicts provide the means to chain calculators, e.g., do a relaxation followed
+                by an elasticity calculation.
 
         Returns:
             dict[str, Any]: In the form {"prop_name": value}.
         """
+        if isinstance(structure, dict):
+            if "final_structure" in structure:
+                return structure
+            if "structure" in structure:
+                return structure | {"final_structure": structure["structure"]}
+
+            raise ValueError(
+                "Structure must be either a pymatgen Structure or a dict containing a Structure in the"
+                "final_structure or structure"
+            )
+        return {"final_structure": structure}
 
     def calc_many(
         self,
-        structures: Sequence[Structure],
+        structures: Sequence[Structure | dict[str, Any]],
         n_jobs: None | int = None,
         allow_errors: bool = False,  # noqa: FBT001,FBT002
         **kwargs: Any,
