@@ -30,6 +30,7 @@ class ElasticityCalc(PropCalc):
         norm_strains: Sequence[float] | float = (-0.01, -0.005, 0.005, 0.01),
         shear_strains: Sequence[float] | float = (-0.06, -0.03, 0.03, 0.06),
         fmax: float = 0.1,
+        symmetry: bool = True,
         relax_structure: bool = True,
         relax_deformed_structures: bool = False,
         use_equilibrium: bool = True,
@@ -65,6 +66,7 @@ class ElasticityCalc(PropCalc):
         self.relax_structure = relax_structure
         self.relax_deformed_structures = relax_deformed_structures
         self.fmax = fmax
+        self.symmetry = symmetry
         if len(self.norm_strains) > 1 and len(self.shear_strains) > 1:
             self.use_equilibrium = use_equilibrium
         else:
@@ -93,14 +95,17 @@ class ElasticityCalc(PropCalc):
 
         if self.relax_structure or self.relax_deformed_structures:
             relax_calc = RelaxCalc(self.calculator, fmax=self.fmax, **(self.relax_calc_kwargs or {}))
-            result |= relax_calc.calc(structure_in)
-            structure_in = result["final_structure"]
-            relax_calc.relax_cell = False
+            if self.relax_structure:
+                result |= relax_calc.calc(structure_in)
+                structure_in = result["final_structure"]
+            if self.relax_deformed_structures:
+                relax_calc.relax_cell = False
 
         deformed_structure_set = DeformedStructureSet(
             structure_in,
             self.norm_strains,
             self.shear_strains,
+            self.symmetry,
         )
         stresses = []
         for deformed_structure in deformed_structure_set:
