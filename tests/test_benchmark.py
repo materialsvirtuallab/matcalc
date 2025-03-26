@@ -94,7 +94,7 @@ def test_benchmark_suite(m3gnet_calculator: PESCalculator) -> None:
         checkpoint_freq=1,
         delete_checkpoint_on_finish=False,
     )
-    phonon_benchmark = PhononBenchmark(n_samples=2, write_phonon=False)
+    phonon_benchmark = PhononBenchmark(n_samples=2)
     suite = BenchmarkSuite(benchmarks=[elasticity_benchmark, phonon_benchmark])
     results = suite.run(
         {"toy1": m3gnet_calculator, "toy2": m3gnet_calculator}, checkpoint_freq=1, delete_checkpoint_on_finish=False

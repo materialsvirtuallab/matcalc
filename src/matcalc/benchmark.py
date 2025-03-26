@@ -419,9 +419,7 @@ class EquilibriumBenchmark(Benchmark):
         :return: An initialized PropCalc object configured for relaxation calculations.
         :rtype: PropCalc
         """
-        return EnergeticsCalc(
-            calculator, relax_calc_kwargs={"perturb_distance": 0.1}, **kwargs
-        )
+        return EnergeticsCalc(calculator, relax_calc_kwargs={"perturb_distance": 0.1}, **kwargs)
 
     def process_result(self, result: dict | None, model_name: str) -> dict:
         """
