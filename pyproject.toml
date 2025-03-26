@@ -36,13 +36,13 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
- "ase>=3.23.0",
- "joblib",
- "phonopy",
- "pymatgen",
- "numpy<2.0.0",
- "fsspec",
- "scikit-learn>=1.6.1",
+    "ase>=3.23.0",
+    "joblib",
+    "phonopy",
+    "pymatgen",
+    "numpy<2.0.0",
+    "fsspec",
+    "scikit-learn>=1.6.1",
 ]
 version = "0.1.2"
 
@@ -110,16 +110,16 @@ select = ["ALL"]
 ignore = [
     "ANN101",
     "ANN401",
-    "COM812",  # trailing comma missing
-    "D205",    # 1 blank line required between summary line and description
-    "D212",    # Multi-line docstring summary should start at the first line
+    "COM812", # trailing comma missing
+    "D205", # 1 blank line required between summary line and description
+    "D212", # Multi-line docstring summary should start at the first line
     "EM101",
     "EM102",
     "ISC001",
     "PLR0913", # too many arguments
     "PLW0603", # Using the global statement to update variables is discouraged
-    "PTH",     # prefer Path to os.path
-    "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
+    "PTH", # prefer Path to os.path
+    "SIM105", # Use contextlib.suppress(OSError) instead of try-except-pass
     "TRY003",
 ]
 exclude = ["docs/conf.py"]
