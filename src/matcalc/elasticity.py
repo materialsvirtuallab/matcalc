@@ -30,7 +30,7 @@ class ElasticityCalc(PropCalc):
         norm_strains: Sequence[float] | float = (-0.01, -0.005, 0.005, 0.01),
         shear_strains: Sequence[float] | float = (-0.06, -0.03, 0.03, 0.06),
         fmax: float = 0.1,
-        symmetry: bool = True,
+        symmetry: bool = False,
         relax_structure: bool = True,
         relax_deformed_structures: bool = False,
         use_equilibrium: bool = True,
@@ -44,10 +44,11 @@ class ElasticityCalc(PropCalc):
             shear_strains: single or multiple strain values to apply to each shear mode.
                 Defaults to (-0.06, -0.03, 0.03, 0.06).
             fmax: maximum force in the relaxed structure (if relax_structure). Defaults to 0.1.
+            symmetry: whether or not to use symmetry reduction. Defaults to False.
             relax_structure: whether to relax the provided structure with the given calculator.
                 Defaults to True.
             relax_deformed_structures: whether to relax the atomic positions of the deformed/strained structures
-                with the given calculator. Defaults to True.
+                with the given calculator. Defaults to False.
             use_equilibrium: whether to use the equilibrium stress and strain. Ignored and set
                 to True if either norm_strains or shear_strains has length 1 or is a float.
                 Defaults to True.
