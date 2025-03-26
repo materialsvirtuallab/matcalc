@@ -1,5 +1,5 @@
 ### [wbm-random-pbe54-equilibrium-2025.1.json.gz](wbm-random-pbe54-equilibrium-2025.1.json.gz)
-- Relaxed structure, un- and corrected energy of random sampled structures in [WBM] downloaded in Jan 2025
+- Relaxed structure, un-/corrected energy and un-/corrected formation energy per atom of random sampled structures in [WBM] downloaded in Jan 2025
 - Corrects energy using MaterialsProject2020Compatibility.
 - Uses PBE PAW datasets version 54.
 - 1000 materials.
