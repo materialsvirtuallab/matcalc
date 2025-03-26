@@ -116,7 +116,7 @@ class PhononCalc(PropCalc):
             relaxer = RelaxCalc(
                 self.calculator, fmax=self.fmax, optimizer=self.optimizer, **(self.relax_calc_kwargs or {})
             )
-            result = relaxer.calc(structure_in)
+            result |= relaxer.calc(structure_in)
             structure_in = result["final_structure"]
         cell = get_phonopy_structure(structure_in)
         phonon = phonopy.Phonopy(cell, self.supercell_matrix)  # type: ignore[arg-type]

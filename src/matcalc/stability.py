@@ -87,7 +87,7 @@ class EnergeticsCalc(PropCalc):
             **(self.relax_calc_kwargs or {}),
         )
         if self.relax_structure:
-            result = relaxer.calc(structure_in)
+            result |= relaxer.calc(structure_in)
             structure_in = result["final_structure"]
 
         atoms = AseAtomsAdaptor.get_atoms(structure_in)

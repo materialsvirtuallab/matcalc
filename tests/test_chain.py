@@ -10,6 +10,7 @@ from ase.filters import ExpCellFilter
 
 from matcalc.elasticity import ElasticityCalc
 from matcalc.relaxation import RelaxCalc
+from matcalc.stability import EnergeticsCalc
 
 if TYPE_CHECKING:
     from matgl.ext.ase import PESCalculator
@@ -21,12 +22,14 @@ def test_chain_calc(
     m3gnet_calculator: PESCalculator,
 ) -> None:
     """Tests for ElasticCalc class"""
+
     relax_calc = RelaxCalc(
         m3gnet_calculator,
         optimizer="FIRE",
         relax_atoms=True,
         relax_cell=True,
     )
+    energetics_calc = EnergeticsCalc(m3gnet_calculator, relax_structure=False)
     elast_calc = ElasticityCalc(
         m3gnet_calculator,
         fmax=0.1,
@@ -38,7 +41,7 @@ def test_chain_calc(
         relax_calc_kwargs={"cell_filter": ExpCellFilter},
     )
     # Test Li2O with equilibrium structure
-    results = elast_calc.calc(relax_calc.calc(Li2O))
+    results = elast_calc.calc(energetics_calc.calc(relax_calc.calc(Li2O)))
     assert results["elastic_tensor"].shape == (3, 3, 3, 3)
     assert results["structure"].lattice.a == pytest.approx(3.291071792359756, rel=1e-1)
 
@@ -52,3 +55,5 @@ def test_chain_calc(
     assert results["energy"] == pytest.approx(-14.176680, rel=1e-1)
     assert results["a"] == pytest.approx(3.291072, rel=1e-1)
     assert results["alpha"] == pytest.approx(60, abs=5)
+
+    assert results["formation_energy_per_atom"] == pytest.approx(-1.8127431869506836, abs=1e-3)
