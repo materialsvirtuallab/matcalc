@@ -33,3 +33,6 @@ jobs:
           uv run mypy --version
           uv run rm -rf .mypy_cache
           uv run mypy -p matcalc
+
+      - name: pyright
+        run: uv run pyright
