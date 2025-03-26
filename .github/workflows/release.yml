@@ -17,7 +17,7 @@ permissions:
 jobs:
   test:
     # run test.yml first to ensure that the test suite is passing
-    uses: ./.github/workflows/testing.yml
+    uses: ./.github/workflows/test.yml
 
   build:
     needs: test
