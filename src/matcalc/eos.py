@@ -82,7 +82,8 @@ class EOSCalc(PropCalc):
                 max_steps=self.max_steps,
                 **(self.relax_calc_kwargs or {}),
             )
-            structure_in = relaxer.calc(structure_in)["final_structure"]
+            result = relaxer.calc(structure_in)
+            structure_in = result["final_structure"]
 
         volumes, energies = [], []
         relaxer = RelaxCalc(

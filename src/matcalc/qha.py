@@ -169,7 +169,8 @@ class QHACalc(PropCalc):
                 optimizer=self.optimizer,
                 **(self.relax_calc_kwargs or {}),
             )
-            structure_in = relaxer.calc(structure_in)["final_structure"]
+            result = relaxer.calc(structure_in)
+            structure_in = result["final_structure"]
 
         temperatures = np.arange(self.t_min, self.t_max + self.t_step, self.t_step)
         volumes, electronic_energies, free_energies, entropies, heat_capacities = self._collect_properties(structure_in)

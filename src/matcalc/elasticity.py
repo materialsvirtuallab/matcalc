@@ -93,7 +93,8 @@ class ElasticityCalc(PropCalc):
 
         if self.relax_structure or self.relax_deformed_structures:
             relax_calc = RelaxCalc(self.calculator, fmax=self.fmax, **(self.relax_calc_kwargs or {}))
-            structure_in = relax_calc.calc(structure_in)["final_structure"]
+            result = relax_calc.calc(structure_in)
+            structure_in = result["final_structure"]
             relax_calc.relax_cell = False
 
         deformed_structure_set = DeformedStructureSet(
@@ -104,7 +105,7 @@ class ElasticityCalc(PropCalc):
         stresses = []
         for deformed_structure in deformed_structure_set:
             if self.relax_deformed_structures:
-                deformed_structure_relaxed = relax_calc.calc(deformed_structure)["final_structure"]
+                deformed_structure_relaxed = relax_calc.calc(deformed_structure)["final_structure"]  # pyright:ignore (reportPossiblyUnboundVariable)
                 atoms = deformed_structure_relaxed.to_ase_atoms()
             else:
                 atoms = deformed_structure.to_ase_atoms()
