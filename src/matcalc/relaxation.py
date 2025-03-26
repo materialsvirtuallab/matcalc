@@ -81,7 +81,7 @@ class RelaxCalc(PropCalc):
         fmax: float = 0.1,
         relax_atoms: bool = True,
         relax_cell: bool = True,
-        cell_filter: Filter = FrechetCellFilter,
+        cell_filter: Filter = FrechetCellFilter,  # type: ignore[assignment]
         perturb_distance: float | None = None,
     ) -> None:
         """Args:
@@ -142,7 +142,7 @@ class RelaxCalc(PropCalc):
             with contextlib.redirect_stdout(stream):
                 obs = TrajectoryObserver(atoms)
                 if self.relax_cell:
-                    atoms = self.cell_filter(atoms)
+                    atoms = self.cell_filter(atoms)  # type:ignore[operator]
                 optimizer = self.optimizer(atoms)
                 optimizer.attach(obs, interval=self.interval)
                 optimizer.run(fmax=self.fmax, steps=self.max_steps)
@@ -150,7 +150,7 @@ class RelaxCalc(PropCalc):
                     obs()
                     obs.save(self.traj_file)
             if self.relax_cell:
-                atoms = atoms.atoms
+                atoms = atoms.atoms  # type:ignore[attr-defined]
             energy = obs.energies[-1]
             forces = obs.forces[-1]
             stress = obs.stresses[-1]
