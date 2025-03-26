@@ -13,6 +13,7 @@ from .relaxation import RelaxCalc
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from ase.calculators.calculator import Calculator
     from numpy.typing import ArrayLike
@@ -70,7 +71,7 @@ class ElasticityCalc(PropCalc):
             self.use_equilibrium = True
         self.relax_calc_kwargs = relax_calc_kwargs
 
-    def calc(self, structure: Structure) -> dict[str, Any]:
+    def calc(self, structure: Structure | dict[str, Any]) -> dict[str, Any]:
         """Calculates elastic properties of Pymatgen structure with units determined by the calculator,
         (often the stress_weight).
 
@@ -87,6 +88,9 @@ class ElasticityCalc(PropCalc):
             structure: The equilibrium structure used for the computation.
         }
         """
+        result = super().calc(structure)
+        structure = result["final_structure"]
+
         if self.relax_structure or self.relax_deformed_structures:
             relax_calc = RelaxCalc(self.calculator, fmax=self.fmax, **(self.relax_calc_kwargs or {}))
             structure = relax_calc.calc(structure)["final_structure"]
@@ -116,7 +120,7 @@ class ElasticityCalc(PropCalc):
             stresses,
             eq_stress=atoms.get_stress(voigt=False) if self.use_equilibrium else None,
         )
-        return {
+        return result | {
             "elastic_tensor": elastic_tensor,
             "shear_modulus_vrh": elastic_tensor.g_vrh,
             "bulk_modulus_vrh": elastic_tensor.k_vrh,

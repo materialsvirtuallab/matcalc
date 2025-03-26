@@ -109,7 +109,6 @@ extend-include = ["*.ipynb"]
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "ANN101",
     "ANN401",
     "COM812", # trailing comma missing
     "D205", # 1 blank line required between summary line and description

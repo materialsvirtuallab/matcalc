@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 from ase.filters import ExpCellFilter, FrechetCellFilter
+
 from matcalc.relaxation import RelaxCalc
 
 if TYPE_CHECKING:
@@ -123,9 +124,9 @@ def test_relax_calc_relax_atoms(
             -14.176713,
             np.array(
                 [
-                    [ 6.5772183e-06,  1.8514693e-06, -7.0808455e-06],
+                    [6.5772183e-06, 1.8514693e-06, -7.0808455e-06],
                     [-4.5074150e-03, -3.3108518e-03, -7.0908130e-03],
-                    [ 4.5009712e-03,  3.3089996e-03,  7.0979437e-03],
+                    [4.5009712e-03, 3.3089996e-03, 7.0979437e-03],
                 ],
                 dtype=np.float32,
             ),
@@ -151,7 +152,7 @@ def test_static_calc(
     expected_stresses: ArrayLike,
 ) -> None:
     relax_calc = RelaxCalc(m3gnet_calculator, relax_atoms=False, relax_cell=False)
-    result = relax_calc.calc(Li2O)
+    result = relax_calc.calc({"structure": Li2O})
     for key in (
         "final_structure",
         "energy",
@@ -164,6 +165,7 @@ def test_static_calc(
         "beta",
         "gamma",
         "volume",
+        "structure",
     ):
         assert key in result, f"{key=} not in result"
     energy: float = result["energy"]

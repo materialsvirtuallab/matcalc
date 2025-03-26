@@ -11,6 +11,8 @@ from .base import PropCalc
 from .relaxation import RelaxCalc
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from ase.calculators.calculator import Calculator
     from pymatgen.core import Element, Species, Structure
 
@@ -61,7 +63,7 @@ class EnergeticsCalc(PropCalc):
         self.use_dft_gs_reference = use_dft_gs_reference
         self.relax_calc_kwargs = relax_calc_kwargs
 
-    def calc(self, structure: Structure) -> dict[str, Any]:
+    def calc(self, structure: Structure | dict[str, Any]) -> dict[str, Any]:
         """
         Calculates the formation energy per atom, cohesive energy per atom, and final
         relaxed structure for a given input structure using a relaxation calculation
@@ -75,6 +77,9 @@ class EnergeticsCalc(PropCalc):
                  energy per atom, and the final relaxed structure.
         :rtype: dict[str, Any]
         """
+        result = super().calc(structure)
+        structure = result["final_structure"]
+
         relax_calc = RelaxCalc(self.calculator, **(self.relax_calc_kwargs or {}))
         data = relax_calc.calc(structure)
         nsites = len(structure)
@@ -100,7 +105,7 @@ class EnergeticsCalc(PropCalc):
             [self.elemental_refs[el.symbol]["energy_atomic"] * amt for el, amt in comp.items()]
         )
 
-        return {
+        return result | {
             "formation_energy_per_atom": e_form / nsites,
             "cohesive_energy_per_atom": e_coh / nsites,
             "final_structure": data["final_structure"],

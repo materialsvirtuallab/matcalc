@@ -12,6 +12,8 @@ from .base import PropCalc
 from .relaxation import RelaxCalc
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
     from pymatgen.core import Structure
@@ -53,7 +55,7 @@ class EOSCalc(PropCalc):
         self.max_steps = max_steps
         self.relax_calc_kwargs = relax_calc_kwargs
 
-    def calc(self, structure: Structure) -> dict:
+    def calc(self, structure: Structure | dict[str, Any]) -> dict:
         """Fit the Birch-Murnaghan equation of state.
 
         Args:
@@ -69,6 +71,9 @@ class EOSCalc(PropCalc):
             calculations. This value should be at least around 1 - 1e-4 to 1 - 1e-5.
         }
         """
+        result = super().calc(structure)
+        structure = result["final_structure"]
+
         if self.relax_structure:
             relaxer = RelaxCalc(
                 self.calculator,
@@ -115,7 +120,7 @@ class EOSCalc(PropCalc):
 
         volumes, energies = map(list, zip(*sorted(zip(volumes, energies), key=lambda i: i[0])))
 
-        return {
+        return result | {
             "eos": {"volumes": volumes, "energies": energies},
             "bulk_modulus_bm": bm.b0_GPa,
             "r2_score_bm": r2_score(energies, bm.func(volumes)),

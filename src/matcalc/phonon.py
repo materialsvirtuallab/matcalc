@@ -15,6 +15,7 @@ from .relaxation import RelaxCalc
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import Any
 
     from ase.calculators.calculator import Calculator
     from numpy.typing import ArrayLike
@@ -79,7 +80,7 @@ class PhononCalc(PropCalc):
         ):
             setattr(self, key, str({True: default_path, False: ""}.get(val, val)))  # type: ignore[arg-type]
 
-    def calc(self, structure: Structure) -> dict:
+    def calc(self, structure: Structure | dict[str, Any]) -> dict:
         """Calculates thermal properties of Pymatgen structure with phonopy.
 
         Args:
@@ -108,6 +109,8 @@ class PhononCalc(PropCalc):
                 }
         }
         """
+        result = super().calc(structure)
+        structure = result["final_structure"]
         if self.relax_structure:
             relaxer = RelaxCalc(
                 self.calculator, fmax=self.fmax, optimizer=self.optimizer, **(self.relax_calc_kwargs or {})
@@ -133,7 +136,7 @@ class PhononCalc(PropCalc):
             phonon.auto_total_dos(write_dat=True, filename=self.write_total_dos)
         if self.write_phonon:
             phonon.save(filename=self.write_phonon)
-        return {"phonon": phonon, "thermal_properties": phonon.get_thermal_properties_dict()}
+        return result | {"phonon": phonon, "thermal_properties": phonon.get_thermal_properties_dict()}
 
 
 def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:

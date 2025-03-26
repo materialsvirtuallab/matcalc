@@ -113,7 +113,7 @@ class RelaxCalc(PropCalc):
         self.cell_filter = cell_filter
         self.perturb_distance = perturb_distance
 
-    def calc(self, structure: Structure) -> dict:
+    def calc(self, structure: Structure | dict) -> dict:
         """Perform relaxation to obtain properties.
 
         Args:
@@ -133,6 +133,9 @@ class RelaxCalc(PropCalc):
             gamma: lattice.gamma in degrees,
         }
         """
+        result = super().calc(structure)
+        structure = result["final_structure"]
+
         if self.perturb_distance is not None:
             structure = structure.perturb(distance=self.perturb_distance)
         atoms = AseAtomsAdaptor.get_atoms(structure)
@@ -163,17 +166,20 @@ class RelaxCalc(PropCalc):
             stress = atoms.get_stress()
 
         lattice = final_structure.lattice
+        result.update(
+            {
+                "final_structure": final_structure,
+                "energy": energy,
+                "forces": forces,
+                "stress": stress,
+                "a": lattice.a,
+                "b": lattice.b,
+                "c": lattice.c,
+                "alpha": lattice.alpha,
+                "beta": lattice.beta,
+                "gamma": lattice.gamma,
+                "volume": lattice.volume,
+            }
+        )
 
-        return {
-            "final_structure": final_structure,
-            "energy": energy,
-            "forces": forces,
-            "stress": stress,
-            "a": lattice.a,
-            "b": lattice.b,
-            "c": lattice.c,
-            "alpha": lattice.alpha,
-            "beta": lattice.beta,
-            "gamma": lattice.gamma,
-            "volume": lattice.volume,
-        }
+        return result
