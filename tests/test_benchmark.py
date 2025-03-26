@@ -75,6 +75,7 @@ def test_elasticity_benchmark(m3gnet_calculator: PESCalculator) -> None:
     )
 
     assert "structure" in results.columns
+    assert "elastic_tensor" in results.columns
 
     assert os.path.exists(chkpt_file)
     results, *_ = CheckpointFile(chkpt_file).load()
