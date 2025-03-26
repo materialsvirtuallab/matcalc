@@ -78,11 +78,11 @@ class EnergeticsCalc(PropCalc):
         :rtype: dict[str, Any]
         """
         result = super().calc(structure)
-        structure = result["final_structure"]
+        structure_in: Structure = result["final_structure"]
 
         relax_calc = RelaxCalc(self.calculator, **(self.relax_calc_kwargs or {}))
-        data = relax_calc.calc(structure)
-        nsites = len(structure)
+        data = relax_calc.calc(structure_in)
+        nsites = len(structure_in)
 
         def get_gs_energy(el: Element | Species) -> float:
             """
@@ -98,7 +98,7 @@ class EnergeticsCalc(PropCalc):
             eldata = relax_calc.calc(self.elemental_refs[el.symbol]["structure"])
             return eldata["energy"] / eldata["final_structure"].num_sites
 
-        comp = structure.composition
+        comp = structure_in.composition
         e_form = data["energy"] - sum([get_gs_energy(el) * amt for el, amt in comp.items()])
 
         e_coh = data["energy"] - sum(

@@ -110,13 +110,14 @@ class PhononCalc(PropCalc):
         }
         """
         result = super().calc(structure)
-        structure = result["final_structure"]
+        structure_in: Structure = result["final_structure"]
+
         if self.relax_structure:
             relaxer = RelaxCalc(
                 self.calculator, fmax=self.fmax, optimizer=self.optimizer, **(self.relax_calc_kwargs or {})
             )
-            structure = relaxer.calc(structure)["final_structure"]
-        cell = get_phonopy_structure(structure)
+            structure_in = relaxer.calc(structure_in)["final_structure"]
+        cell = get_phonopy_structure(structure_in)
         phonon = phonopy.Phonopy(cell, self.supercell_matrix)  # type: ignore[arg-type]
         phonon.generate_displacements(distance=self.atom_disp)
         disp_supercells = phonon.supercells_with_displacements

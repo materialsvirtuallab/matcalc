@@ -134,11 +134,11 @@ class RelaxCalc(PropCalc):
         }
         """
         result = super().calc(structure)
-        structure = result["final_structure"]
+        structure_in: Structure = result["final_structure"]
 
         if self.perturb_distance is not None:
-            structure = structure.perturb(distance=self.perturb_distance)
-        atoms = AseAtomsAdaptor.get_atoms(structure)
+            structure_in = structure_in.perturb(distance=self.perturb_distance)
+        atoms = AseAtomsAdaptor.get_atoms(structure_in)
         atoms.calc = self.calculator
         if self.relax_atoms:
             stream = io.StringIO()
@@ -160,7 +160,7 @@ class RelaxCalc(PropCalc):
             final_structure = AseAtomsAdaptor.get_structure(atoms)
 
         else:
-            final_structure = structure
+            final_structure = structure_in
             energy = atoms.get_potential_energy()
             forces = atoms.get_forces()
             stress = atoms.get_stress()

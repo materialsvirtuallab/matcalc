@@ -89,15 +89,15 @@ class ElasticityCalc(PropCalc):
         }
         """
         result = super().calc(structure)
-        structure = result["final_structure"]
+        structure_in: Structure = result["final_structure"]
 
         if self.relax_structure or self.relax_deformed_structures:
             relax_calc = RelaxCalc(self.calculator, fmax=self.fmax, **(self.relax_calc_kwargs or {}))
-            structure = relax_calc.calc(structure)["final_structure"]
+            structure_in = relax_calc.calc(structure_in)["final_structure"]
             relax_calc.relax_cell = False
 
         deformed_structure_set = DeformedStructureSet(
-            structure,
+            structure_in,
             self.norm_strains,
             self.shear_strains,
         )
@@ -113,7 +113,7 @@ class ElasticityCalc(PropCalc):
             stresses.append(atoms.get_stress(voigt=False))
 
         strains = [Strain.from_deformation(deformation) for deformation in deformed_structure_set.deformations]
-        atoms = structure.to_ase_atoms()
+        atoms = structure_in.to_ase_atoms()
         atoms.calc = self.calculator
         elastic_tensor, residuals_sum = self._elastic_tensor_from_strains(
             strains,
@@ -126,7 +126,7 @@ class ElasticityCalc(PropCalc):
             "bulk_modulus_vrh": elastic_tensor.k_vrh,
             "youngs_modulus": elastic_tensor.y_mod,
             "residuals_sum": residuals_sum,
-            "structure": structure,
+            "structure": structure_in,
         }
 
     def _elastic_tensor_from_strains(
