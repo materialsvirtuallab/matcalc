@@ -86,11 +86,11 @@ def parallel_calc():
 # This was run on 10 CPUs on a Mac.
 ```
 
-MatCalc also supports chaining of calculators. Typically, you will start with a relaxation calc, followed by a series
-of other calculators to get the properties you need. For example, the following does a relaxation calculation,
-followed by an energetics calculation and then an elasticity calculation. The final `results` contains the results from
-all steps. Note that the `relax_structure` should be set to False in subsequent `PropCalc` to ensure that you do not
-redo the relaxation.
+MatCalc also supports chaining of `PropCalc`. Typically, you will start with a relaxation calc, followed by a series
+of other calculators to get the properties you need. For example, the following snippet performs a relaxation,
+followed by an energetics calculation and then an elasticity calculation. The final `results` contain all properties
+computed by all steps. Note that the `relax_structure` should be set to False in later `PropCalc` to ensure that you
+do not redo the relatively expensive relaxation.
 
 ```python
 from matcalc import PESCalculator, ElasticityCalc, RelaxCalc, EnergeticsCalc
@@ -102,22 +102,23 @@ relax_calc = RelaxCalc(
     relax_atoms=True,
     relax_cell=True,
 )
-energetics_calc = EnergeticsCalc(calculator, relax_structure=False)
+energetics_calc = EnergeticsCalc(
+    calculator,
+    relax_structure=False  # Since we are chaining, we do not need to relax structure in later steps.
+)
 elast_calc = ElasticityCalc(
     calculator,
     fmax=0.1,
     norm_strains=list(np.linspace(-0.004, 0.004, num=4)),
     shear_strains=list(np.linspace(-0.004, 0.004, num=4)),
     use_equilibrium=True,
-    relax_structure=False,  # Since we are chaining, we do not need to relax
+    relax_structure=False,  # Since we are chaining, we do not need to relax structure in later steps.
     relax_deformed_structures=True,
 )
 results = elast_calc.calc(energetics_calc.calc(relax_calc.calc(structure)))
 ```
 
-
-
-
+Chaining can also be used with the `calc_many` method, with parallelization.
 
 ### CLI tool
 

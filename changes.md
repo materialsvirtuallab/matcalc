@@ -9,6 +9,7 @@ nav_order: 2
 ## v0.2.0
 - Major new feature: Most PropCalc now supports chaining. This allows someone to obtain multiple properties at once.
 - SofteningBenchmark added. (@bowen-bd)
+- Major expansion in the number of supported calculators, including Orb and GRACE models.
 
 ## v0.1.2
 - Emergency bug fix for bad default perturb_distance parameter in Relaxation.

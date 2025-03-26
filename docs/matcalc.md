@@ -21,19 +21,22 @@ API for a property calculator.
 
 #### \_abc_impl *= <_abc._abc_data object>*
 
-#### *abstractmethod* calc(structure: Structure) → dict
+#### *abstractmethod* calc(structure: Structure | dict[str, Any]) → dict[str, Any]
 
 All PropCalc subclasses should implement a calc method that takes in a pymatgen structure
-and returns a dict. The method can return more than one property.
+and returns a dict. The method can return more than one property. Generally, subclasses should have a super()
+call to the abstract base method to obtain an initial result dict.
 
 * **Parameters:**
-  **structure** – Pymatgen structure.
+  **structure** – Pymatgen structure or a dict containing a pymatgen Structure under a “final_structure” or
+  “structure” key. Allowing dicts provide the means to chain calculators, e.g., do a relaxation followed
+  by an elasticity calculation.
 * **Returns:**
   In the form {“prop_name”: value}.
 * **Return type:**
   dict[str, Any]
 
-#### calc_many(structures: Sequence[Structure], n_jobs: None | int = None, allow_errors: bool = False, \*\*kwargs: Any) → Generator[dict | None]
+#### calc_many(structures: Sequence[Structure | dict[str, Any]], n_jobs: None | int = None, allow_errors: bool = False, \*\*kwargs: Any) → Generator[dict | None]
 
 Performs calc on many structures. The return type is a generator given that the calc method can
 potentially be expensive. It is trivial to convert the generator to a list/tuple.
@@ -133,7 +136,7 @@ provide more sophisticated processing.
 * **Return type:**
   dict
 
-#### run(calculator: Calculator, model_name: str, , n_jobs: None | int = -1, checkpoint_file: str | Path | None = None, checkpoint_freq: int = 1000, include_full_results: bool = False, \*\*kwargs) → pd.DataFrame
+#### run(calculator: Calculator, model_name: str, , n_jobs: None | int = -1, checkpoint_file: str | Path | None = None, checkpoint_freq: int = 1000, delete_checkpoint_on_finish: bool = True, include_full_results: bool = False, \*\*kwargs) → pd.DataFrame
 
 Processes a collection of structures using a calculator, saves intermittent
 checkpoints, and returns the results in a DataFrame. This function supports
@@ -154,6 +157,8 @@ lost in case of interruptions.
     If None, no checkpoints are saved.
   * **checkpoint_freq** (*int*) – Frequency after which checkpoint elemental_refs is saved.
     Corresponds to the number of structures processed.
+  * **delete_checkpoint_on_finish** (*bool*) – Whether to delete checkpoint files when the benchmark finishes. Defaults to
+    True.
   * **include_full_results** (*bool*) – Whether to save full results from PropCalc.calc for analysis afterwards. For
     instance, the ElasticityProp does not just compute the bulk and shear moduli, but also the full elastic
     tensors, which can be used for other kinds of analysis. Defaults to False.
@@ -187,7 +192,7 @@ A list containing benchmark configurations or elemental_refs for
 * **Parameters:**
   **benchmarks** (*list*) – A list of benchmarks for configuration or evaluation.
 
-#### run(calculators: dict[str, Calculator], n_jobs: int | None = -1, checkpoint_freq: int = 1000) → list[pd.DataFrame]
+#### run(calculators: dict[str, Calculator], , n_jobs: int | None = -1, checkpoint_freq: int = 1000, delete_checkpoint_on_finish: bool = True) → list[pd.DataFrame]
 
 Executes benchmarks using the provided calculators and combines the results into a
 list of dataframes. Each benchmark runs for all models provided by calculators, collecting
@@ -200,6 +205,8 @@ individual results and performing validations during elemental_refs combination.
     utilizes all available processors. Defaults to -1.
   * **checkpoint_freq** – The frequency at which progress is saved as checkpoints,
     in terms of calculation steps. Defaults to 1000.
+  * **delete_checkpoint_on_finish** (*bool*) – Whether to delete checkpoint files when the benchmark finishes. Defaults to
+    True.
 * **Returns:**
   A list of pandas DataFrames, each containing combined results
   for all calculators across the benchmarks.
@@ -451,6 +458,59 @@ NaN are returned for final structures.
 * **Return type:**
   dict
 
+### *class* SofteningBenchmark(benchmark_name: str | Path = 'wbm-high-energy-states.json.gz', index_name: str = 'wbm_id', n_samples: int | None = None, seed: int = 42, \*\*kwargs)
+
+Bases: `object`
+
+A benchmark for the systematic softening of a PES, as described in:
+: B. Deng, et al. npj Comput. Mater. 11, 9 (2025).
+  doi: 10.1038/s41524-024-01500-6
+
+The dataset used here can be found in figshare through:
+: [https://figshare.com/articles/dataset/WBM_high_energy_states/27307776?file=50005317](https://figshare.com/articles/dataset/WBM_high_energy_states/27307776?file=50005317)
+
+This benchmark essentially performs static calculation on pre-sampled high-energy
+PES configurations, and then compare the systematic underestimation of forces
+predicted between GGA-DFT and the provided force field.
+
+Initializes an instance with specified index and benchmark details.
+
+* **Parameters:**
+  * **index_name** – The name of the index to be used for identification in
+    the dataset.
+  * **benchmark_name** – The benchmark file name or path containing
+    the dataset information in JSON or compressed format.
+  * **kwargs** – Additional optional parameters for configuration.
+
+#### *static* get_linear_fitted_slope(x: list | ndarray, y: list | ndarray) → float
+
+Return the linearly fitted slope of x and y using a simple linear model (y = ax).
+:param x: A list of the x values.
+:param y: A list of the y values.
+:return: A float of the fitted slope.
+
+#### run(calculator: Calculator, model_name: str, checkpoint_file: str | Path | None = None, checkpoint_freq: int = 10, , include_full_results: bool = False) → pd.DataFrame
+
+Process all the material ids by
+1. calculate the forces on all the sampled structures.
+2. perform a linear fit on the predicted forces w.r.t. provided DFT forces.
+3. returning the fitted slopes as the softening scales.
+
+* **Parameters:**
+  * **calculator** (*Calculator*) – The ASE-compatible calculator instance
+  * **model_name** (*str*) – Name of the model used for properties’ calculation.
+    This name is updated in the results DataFrame.
+  * **checkpoint_file** (*str* *|* *Path* *|* *None*) – File path where checkpoint is saved periodically.
+    If None, no checkpoints are saved.
+  * **checkpoint_freq** (*int*) – Frequency after which checkpoint is saved.
+    Corresponds to the number of structures processed.
+  * **include_full_results** (*bool*) – Whether to include the raw force prediction in the
+    returned dataframe
+* **Returns:**
+  A dataframe containing the softening scales.
+* **Return type:**
+  pd.DataFrame
+
 ### get_available_benchmarks() → list[str]
 
 Checks Github for available benchmarks for download.
@@ -545,7 +605,7 @@ much lower than neighboring points.
 Also has option to return the sum of the squares of the residuals
 for all of the linear fits done to compute the entries of the tensor.
 
-#### calc(structure: Structure) → dict[str, Any]
+#### calc(structure: Structure | dict[str, Any]) → dict[str, Any]
 
 Calculates elastic properties of Pymatgen structure with units determined by the calculator,
 (often the stress_weight).
@@ -587,7 +647,7 @@ Equation of state calculator.
 
 #### \_abc_impl *= <_abc._abc_data object>*
 
-#### calc(structure: Structure) → dict
+#### calc(structure: Structure | dict[str, Any]) → dict
 
 Fit the Birch-Murnaghan equation of state.
 
@@ -697,7 +757,7 @@ Calculator for phonon properties.
 
 #### atom_disp *: float* *= 0.015*
 
-#### calc(structure: Structure) → dict
+#### calc(structure: Structure | dict[str, Any]) → dict
 
 Calculates thermal properties of Pymatgen structure with phonopy.
 
@@ -883,7 +943,7 @@ Helper to write various output files based on the QHA calculation.
 * **Parameters:**
   **qha** – Phonopy.qha object
 
-#### calc(structure: Structure) → dict
+#### calc(structure: Structure | dict[str, Any]) → dict
 
 Calculates thermal properties of Pymatgen structure with phonopy under quasi-harmonic approximation.
 
@@ -975,7 +1035,7 @@ Relaxes and computes the relaxed parameters of a structure.
 
 #### \_abc_impl *= <_abc._abc_data object>*
 
-#### calc(structure: Structure) → dict
+#### calc(structure: Structure | dict) → dict
 
 Perform relaxation to obtain properties.
 
@@ -1020,7 +1080,7 @@ Save the trajectory to file.
 
 Calculator for stability related properties.
 
-### *class* EnergeticsCalc(calculator: Calculator, , elemental_refs: Literal['MatPES-PBE', 'MatPES-r2SCAN'] | dict = 'MatPES-PBE', use_dft_gs_reference: bool = False, relax_calc_kwargs: dict | None = None)
+### *class* EnergeticsCalc(calculator: Calculator, , elemental_refs: Literal['MatPES-PBE', 'MatPES-r2SCAN'] | dict = 'MatPES-PBE', use_dft_gs_reference: bool = False, relax_structure: bool = True, relax_calc_kwargs: dict | None = None)
 
 Bases: [`PropCalc`](#matcalc.base.PropCalc)
 
@@ -1046,7 +1106,7 @@ state relaxation, and additional calculation parameters.
 
 #### \_abc_impl *= <_abc._abc_data object>*
 
-#### calc(structure: Structure) → dict[str, Any]
+#### calc(structure: Structure | dict[str, Any]) → dict[str, Any]
 
 Calculates the formation energy per atom, cohesive energy per atom, and final
 relaxed structure for a given input structure using a relaxation calculation
@@ -1103,7 +1163,7 @@ Perform calculation for an input Atoms.
     changed for new calculation. If not, the previous calculation
     results will be loaded.
 
-#### implemented_properties *: List[str]* *= ('energy', 'forces', 'stress')*
+#### implemented_properties *: List[str]* *= ['energy', 'forces', 'stress']*
 
 Properties calculator can handle (energy, forces, …)
 
