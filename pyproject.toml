@@ -84,6 +84,7 @@ build-backend = "setuptools.build_meta"
 
 [dependency-groups]
 dev = [
+    "codecov-cli>=10.3.0",
     "coverage>=7.7.1",
     "coveralls>=4.0.1",
     "jupyter>=1.1.1",
