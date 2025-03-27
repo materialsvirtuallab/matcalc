@@ -6,15 +6,14 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
-from matminer.featurizers.site import CrystalNNFingerprint
-from matminer.featurizers.structure import SiteStatsFingerprint
+
 
 from matcalc.benchmark import (
     BenchmarkSuite,
     CheckpointFile,
     ElasticityBenchmark,
+    EquilibriumBenchmark,
     PhononBenchmark,
-    RelaxationBenchmark,
     SofteningBenchmark,
     get_available_benchmarks,
     get_benchmark_data,
@@ -31,22 +30,12 @@ def test_get_benchmark_data() -> None:
         get_benchmark_data("bad_url")
 
 
-def test_relaxation_benchmark(m3gnet_calculator: PESCalculator) -> None:
-    benchmark = RelaxationBenchmark(n_samples=10, perturb_distance=0.1)
-    results = benchmark.run(m3gnet_calculator, "toy")
+def test_equilibrium_benchmark(matpes_calculator: PESCalculator) -> None:
+    benchmark = EquilibriumBenchmark(n_samples=10)
+    results = benchmark.run(matpes_calculator, "toy")
     assert len(results) == 10
-
-    ssf = SiteStatsFingerprint(
-        CrystalNNFingerprint.from_preset("ops", distance_cutoffs=None, x_diff_weight=0),
-        stats=("mean", "std_dev", "minimum", "maximum"),
-    )
-
-    distances = np.linalg.norm(
-        np.array([ssf.featurize(s) for s in results["structure_toy"]])
-        - np.array([ssf.featurize(s) for s in results["structure_DFT"]]),
-        axis=1,
-    )
-    assert np.abs(distances).mean() == pytest.approx(0.25, abs=1e-1)
+    assert results["d_toy"].mean() == pytest.approx(0.1, abs=1e-1)
+    assert np.abs(results["Eform_toy"] - results["Eform_DFT"]).mean() == pytest.approx(0.045, abs=1e-2)
 
 
 def test_elasticity_benchmark(m3gnet_calculator: PESCalculator) -> None:
@@ -85,7 +74,7 @@ def test_elasticity_benchmark(m3gnet_calculator: PESCalculator) -> None:
 
 
 def test_phonon_benchmark(m3gnet_calculator: PESCalculator) -> None:
-    benchmark = PhononBenchmark(n_samples=10, write_phonon=False)
+    benchmark = PhononBenchmark(n_samples=10)
     results = benchmark.run(m3gnet_calculator, "toy")
     assert len(results) == 10
     assert np.abs(results["CV_toy"] - results["CV_DFT"]).mean() == pytest.approx(27.372493175124838, abs=1e-1)
@@ -106,7 +95,7 @@ def test_benchmark_suite(m3gnet_calculator: PESCalculator) -> None:
         checkpoint_freq=1,
         delete_checkpoint_on_finish=False,
     )
-    phonon_benchmark = PhononBenchmark(n_samples=2, write_phonon=False)
+    phonon_benchmark = PhononBenchmark(n_samples=2)
     suite = BenchmarkSuite(benchmarks=[elasticity_benchmark, phonon_benchmark])
     results = suite.run(
         {"toy1": m3gnet_calculator, "toy2": m3gnet_calculator}, checkpoint_freq=1, delete_checkpoint_on_finish=False

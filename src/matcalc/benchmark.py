@@ -15,6 +15,8 @@ import fsspec
 import numpy as np
 import pandas as pd
 import requests
+from matminer.featurizers.site import CrystalNNFingerprint
+from matminer.featurizers.structure import SiteStatsFingerprint
 from monty.json import MontyDecoder
 from monty.serialization import dumpfn, loadfn
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -28,7 +30,7 @@ if typing.TYPE_CHECKING:
 from .config import BENCHMARK_DATA_DIR, BENCHMARK_DATA_DOWNLOAD_URL, BENCHMARK_DATA_URL
 from .elasticity import ElasticityCalc
 from .phonon import PhononCalc
-from .relaxation import RelaxCalc
+from .stability import EnergeticsCalc
 from .units import eVA3ToGPa
 
 logger = logging.getLogger(__name__)
@@ -366,15 +368,16 @@ class Benchmark(metaclass=abc.ABCMeta):
         return results_df
 
 
-class RelaxationBenchmark(Benchmark):
+class EquilibriumBenchmark(Benchmark):
     """
-    Represents a benchmark for evaluating and analyzing relaxation properties of materials.
+    Represents a benchmark for evaluating and analyzing equilibrium properties of materials.
     This benchmark utilizes a dataset and provides functionality for property calculation
     and result processing. The class is designed to work with a predefined framework for
-    benchmarking relaxation properties. The benchmark dataset contains data such as relaxed
-    structures along with additional metadata. This class supports configurability through
-    metadata files, index names, and additional benchmark properties. It relies on external
-    calculators and utility classes for property computations and result handling.
+    benchmarking equilibrium properties. The benchmark dataset contains data such as relaxed
+    structures, un-/corrected formation energy along with additional metadata. This class
+    supports configurability through metadata files, index names, and additional benchmark
+    properties. It relies on external calculators and utility classes for property computations
+    and result handling.
     """
 
     def __init__(
@@ -385,9 +388,9 @@ class RelaxationBenchmark(Benchmark):
         **kwargs,  # noqa:ANN003
     ) -> None:
         """
-        Initializes the RelaxationBenchmark instance with specified benchmark metadata and
+        Initializes the EquilibriumBenchmark instance with specified benchmark metadata and
         configuration parameters. It sets up the benchmark with the necessary properties
-        required for relaxation analysis.
+        required for equilibrium benchmark analysis.
 
         :param index_name: The name of the index used to uniquely identify records in the dataset.
         :type index_name: str
@@ -399,36 +402,38 @@ class RelaxationBenchmark(Benchmark):
         :type kwargs: dict
         """
         self.folder_name = folder_name
-        # Define the expected property from the relaxation calculator.
-        kwargs.setdefault("properties", ("structure",))
-        # Other fields such as the material formula may be included.
+        kwargs.setdefault("properties", ("structure", "formation_energy_per_atom"))
+        kwargs.setdefault("property_rename_map", {"formation_energy_per_atom": "Eform"})
         kwargs.setdefault("other_fields", ("formula",))
         super().__init__(benchmark_name, index_name=index_name, **kwargs)
 
     def get_prop_calc(self, calculator: Calculator, **kwargs: typing.Any) -> PropCalc:
         """
-        Returns a property calculation object for performing relaxation calculations.
-        This method initializes the relaxation calculator using the provided Calculator
-        object and any additional configuration parameters.
+        Returns a property calculation object for performing relaxation and formation energy
+        calculations. This method initializes the stability calculator using the provided
+        Calculator object and any additional configuration parameters.
 
-        :param calculator: A Calculator object responsible for performing the relaxation calculation.
+        :param calculator: A Calculator object responsible for performing the relaxation and
+            formation energy calculation.
         :type calculator: Calculator
         :param kwargs: Additional keyword arguments used for configuration.
         :type kwargs: dict
-        :return: An initialized PropCalc object configured for relaxation calculations.
+        :return: An initialized PropCalc object configured for relaxation and formation energy
+            calculations.
         :rtype: PropCalc
         """
-        return RelaxCalc(calculator, **kwargs)
+        return EnergeticsCalc(calculator, relax_calc_kwargs={"perturb_distance": 0.1}, **kwargs)
 
     def process_result(self, result: dict | None, model_name: str) -> dict:
         """
-        Processes the result dictionary containing final relaxed structures, formats the keys
-        according to the provided model name. If the result is None, default values of
-        NaN are returned for final structures.
+        Processes the result dictionary containing final structures and formation energy per atom,
+        formats the keys according to the provided model name. If the result is None, default values
+        of NaN are returned for final structures or formation energy per atom.
 
         :param result:
-            A dictionary containing the final relaxed structures under the keys
-            'final_structure'. It can also be None to indicate missing elemental_refs.
+            A dictionary containing the final structures and formation energy per atom under the keys
+            'final_structure' and 'formation energy per atom'. It can also be None to indicate missing
+            elemental_refs.
         :type result: dict or None
 
         :param model_name:
@@ -437,14 +442,96 @@ class RelaxationBenchmark(Benchmark):
         :type model_name: str
 
         :return:
-            A dictionary containing the specific final relaxed structure prefixed by the model name.
-            The values will be NaN if the input result is None.
+            A dictionary containing the specific final structure and formation energy per atomprefixed
+            by the model name. The values will be NaN if the input result is None.
 
         :rtype: dict
         """
         return {
             f"structure_{model_name}": (result["final_structure"] if result is not None else float("nan")),
+            f"formation_energy_per_atom_{model_name}": (
+                result["formation_energy_per_atom"] if result is not None else float("nan")
+            ),
         }
+
+    def run(
+        self,
+        calculator: Calculator,
+        model_name: str,
+        *,
+        n_jobs: None | int = -1,
+        checkpoint_file: str | Path | None = None,
+        checkpoint_freq: int = 1000,
+        delete_checkpoint_on_finish: bool = True,
+        include_full_results: bool = False,
+        **kwargs,  # noqa:ANN003
+    ) -> pd.DataFrame:
+        """
+        Processes a collection of structures using a calculator, saves intermittent checkpoints,
+        and returns the results in a DataFrame. In addition to the base processing performed
+        by the parent class, this method computes the Euclidean distance between the relaxed
+        structure (obtained from the property calculation) and the reference DFT structure,
+        using SiteStatsFingerprint. The computed distance is added as a new column in the
+        results DataFrame with the key "distance_{model_name}".
+
+        This function supports parallel computation and allows for error tolerance during processing.
+        It retrieves a property calculator and utilizes it to calculate desired results for the given
+        set of structures. Checkpoints are saved periodically based on the specified frequency,
+        ensuring that progress is not lost in case of interruptions.
+
+        :param calculator: ASE-compatible calculator instance used to provide PES information for PropCalc.
+        :type calculator: Calculator
+        :param model_name: Name of the model used for properties' calculation.
+            This name is updated in the results DataFrame.
+        :type model_name: str
+        :param n_jobs: Number of parallel jobs to be used in the computation. Use -1
+            to allocate all cores available on the system. Defaults to -1.
+        :type n_jobs: int | None
+        :param checkpoint_file: File path where checkpoint elemental_refs is saved periodically.
+            If None, no checkpoints are saved.
+        :type checkpoint_file: str | Path | None
+        :param checkpoint_freq: Frequency after which checkpoint elemental_refs is saved.
+            Corresponds to the number of structures processed.
+        :type checkpoint_freq: int
+        :param delete_checkpoint_on_finish: Whether to delete checkpoint files when the benchmark finishes. Defaults to
+            True.
+        :type delete_checkpoint_on_finish: bool
+        :param include_full_results: Whether to save full results from PropCalc.calc for analysis afterwards. For
+            instance, the ElasticityProp does not just compute the bulk and shear moduli, but also the full elastic
+            tensors, which can be used for other kinds of analysis. Defaults to False.
+        :type include_full_results: bool
+        :param kwargs: Additional keyword arguments passed to the property calculator,
+            for instance, to customize its behavior or computation options.
+        :type kwargs: dict
+        :return: A pandas DataFrame containing the processed results for the given
+            input structures. The DataFrame includes updated results and relevant
+            metrics.
+        :rtype: pd.DataFrame
+        """
+        results_df = super().run(
+            calculator,
+            model_name,
+            n_jobs=n_jobs,
+            checkpoint_file=checkpoint_file,
+            checkpoint_freq=checkpoint_freq,
+            delete_checkpoint_on_finish=delete_checkpoint_on_finish,
+            include_full_results=include_full_results,
+            **kwargs,
+        )
+
+        ssf = SiteStatsFingerprint(
+            CrystalNNFingerprint.from_preset("ops", distance_cutoffs=None, x_diff_weight=0),
+            stats=("mean", "std_dev", "minimum", "maximum"),
+        )
+
+        results_df[f"d_{model_name}"] = [
+            np.linalg.norm(np.array(ssf.featurize(model)) - np.array(ssf.featurize(dft)))
+            if model is not None and dft is not None
+            else np.nan
+            for model, dft in zip(results_df[f"structure_{model_name}"], results_df["structure_DFT"])
+        ]
+
+        return results_df
 
 
 class ElasticityBenchmark(Benchmark):
@@ -598,7 +685,7 @@ class PhononBenchmark(Benchmark):
             optional parameters.
         :rtype: PropCalc
         """
-        return PhononCalc(calculator, **kwargs)
+        return PhononCalc(calculator, write_phonon=False, **kwargs)
 
     def process_result(self, result: dict | None, model_name: str) -> dict:
         """
