@@ -2653,6 +2653,11 @@ maintain = [
     { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "sphinx-markdown-builder" },
 ]
+test-models = [
+    { name = "mace-torch" },
+    { name = "orb-models" },
+    { name = "sevenn" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -2701,6 +2706,11 @@ maintain = [
     { name = "invoke", specifier = ">=2.2.0" },
     { name = "sphinx", specifier = ">=8.1.3" },
     { name = "sphinx-markdown-builder", specifier = ">=0.6.8" },
+]
+test-models = [
+    { name = "mace-torch", specifier = ">=0.3.12" },
+    { name = "orb-models", specifier = ">=0.4.2" },
+    { name = "sevenn", specifier = ">=0.10.4" },
 ]
 
 [[package]]

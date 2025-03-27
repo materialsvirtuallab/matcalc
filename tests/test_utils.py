@@ -84,7 +84,6 @@ class TestPESCalculator:
         assert isinstance(calc, Calculator)
 
     @pytest.mark.skipif(not find_spec("matgl"), reason="matgl is not installed")
-    @pytest.mark.skipif(not find_spec("chgnet"), reason="chgnet is not installed")
     @pytest.mark.skipif(not find_spec("mace"), reason="mace is not installed")
     @pytest.mark.skipif(not find_spec("sevenn"), reason="sevenn is not installed")
     def test_pescalculator_load_universal(self) -> None:
