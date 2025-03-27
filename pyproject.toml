@@ -117,7 +117,9 @@ maintain = [
 test-models = [
     "mace-torch>=0.3.12",
     "orb-models>=0.4.2",
+    "pynanoflann>=0.10.0",
     "sevenn>=0.10.4",
+    "tensorpotential>=0.5.1",
 ]
 
 [tool.ruff]

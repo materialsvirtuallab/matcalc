@@ -51,4 +51,4 @@ def m3gnet_calculator() -> PESCalculator:
 @pytest.fixture(scope="session")
 def matpes_calculator() -> PESCalculator:
     """TensorNet calculator as session-scoped fixture."""
-    return matcalc.load_calc("TensorNet-MatPES-PBE-v2025.1-PES")
+    return matcalc.load_up("TensorNet-MatPES-PBE-v2025.1-PES")

@@ -2656,7 +2656,9 @@ maintain = [
 test-models = [
     { name = "mace-torch" },
     { name = "orb-models" },
+    { name = "pynanoflann" },
     { name = "sevenn" },
+    { name = "tensorpotential" },
 ]
 
 [package.metadata]
@@ -2710,7 +2712,9 @@ maintain = [
 test-models = [
     { name = "mace-torch", specifier = ">=0.3.12" },
     { name = "orb-models", specifier = ">=0.4.2" },
+    { name = "pynanoflann", specifier = ">=0.10.0" },
     { name = "sevenn", specifier = ">=0.10.4" },
+    { name = "tensorpotential", specifier = ">=0.5.1" },
 ]
 
 [[package]]
@@ -4383,6 +4387,45 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/fd/1a/cc308a884bd299b651f1633acb978e8596c71c33ca85e9dc9fa33a5399b9/PyNaCl-1.5.0-cp36-abi3-musllinux_1_1_x86_64.whl", hash = "sha256:61f642bf2378713e2c2e1de73444a3778e5f0a38be6fee0fe532fe30060282ff", size = 1117912 },
     { url = "https://files.pythonhosted.org/packages/25/2d/b7df6ddb0c2a33afdb358f8af6ea3b8c4d1196ca45497dd37a56f0c122be/PyNaCl-1.5.0-cp36-abi3-win32.whl", hash = "sha256:e46dae94e34b085175f8abb3b0aaa7da40767865ac82c928eeb9e57e1ea8a543", size = 204624 },
     { url = "https://files.pythonhosted.org/packages/5e/22/d3db169895faaf3e2eda892f005f433a62db2decbcfbc2f61e6517adfa87/PyNaCl-1.5.0-cp36-abi3-win_amd64.whl", hash = "sha256:20f42270d27e1b6a29f54032090b972d97f0a1b0948cc52392041ef7831fee93", size = 212141 },
+]
+
+[[package]]
+name = "pynanoflann"
+version = "0.10.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/83/eb/78928f4333d4a31a233ee02f800455172e57586af75f4a010fe2fdf4d213/pynanoflann-0.10.0.tar.gz", hash = "sha256:72b64a3da0758f37e95969c283615c75c6d1df5f3d6a87ddba33ea2db0afeeed", size = 29461 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ef/33/50d174727639799e24a5ca24504396ea0a6a34e357e2bb70118acc112da9/pynanoflann-0.10.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:1e4a40513612f34f3e29038848759a4db4113c66449c8cc7f1897c46525e07c2", size = 315583 },
+    { url = "https://files.pythonhosted.org/packages/3a/58/e4ad0dd7468861d0b2eceb5afe8c94e4d5f91b8536a9d24594396101c1c4/pynanoflann-0.10.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:5e404d4e7e9e7d450c01b4e6fbfd9d66b9d35d7d5388fcb5dff4793e7f02e196", size = 152538 },
+    { url = "https://files.pythonhosted.org/packages/be/fc/c69781538dd4d7892c8293b8c01038fce42e9310c8fa965c22584cd211e0/pynanoflann-0.10.0-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:5b723c0384ed0bc4201b7c236f24f3a32c7e6e3065e1bb4e0238f3d8d665819f", size = 253507 },
+    { url = "https://files.pythonhosted.org/packages/5d/67/7ad5ef748d708076975f2f3b6988078648a46616b3cf5a3907ab76574ba5/pynanoflann-0.10.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:be4dede844f978e9031c51b8185c3c87692748fbdb4a5e49d720e73dcd1ca3f3", size = 243310 },
+    { url = "https://files.pythonhosted.org/packages/4a/d8/1aba98d150e6d5f7dae9a99603dbc9fbbc3f28d93bc27b5abcad0bc89ccb/pynanoflann-0.10.0-cp310-cp310-musllinux_1_1_i686.whl", hash = "sha256:650f9b40476f2385517b6ea599da680370c1802efd6ed7a24470c0363cfe7170", size = 815903 },
+    { url = "https://files.pythonhosted.org/packages/ae/91/8fe6085b5c18e471d65ff0faa990337daaf6820ed3836087bc82910670b3/pynanoflann-0.10.0-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:05e9efbbb8dd6b9fc4c3881c72666e77286e4f721b281b8ecfaf9a82f81db228", size = 759310 },
+    { url = "https://files.pythonhosted.org/packages/60/18/1c964707a0c4176b456485d9c527d02dfd822933c2cd44ee6b0b7a287807/pynanoflann-0.10.0-cp310-cp310-win32.whl", hash = "sha256:ab0de1eb52f39faa9ead590870e830096aceee4ac405dfe3cbe1568f6afcd46d", size = 172303 },
+    { url = "https://files.pythonhosted.org/packages/3e/c8/36f7ea977a909df48f557d92f4abf552753731a97c3f5e812841ab7cf7fd/pynanoflann-0.10.0-cp310-cp310-win_amd64.whl", hash = "sha256:ac2ed9184fbc8315aba736e29f3b7cfd6452e47c1e45eedba5ec4c93a8341b8c", size = 191230 },
+    { url = "https://files.pythonhosted.org/packages/7a/04/9eb37279d351bab28d347e219f295b5e42bc3024e0d350fceb7a99302d25/pynanoflann-0.10.0-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:bdd77e3da686d4d071712fe5664d918b81fd2461e94719d626f0a5fe6fcb6977", size = 318207 },
+    { url = "https://files.pythonhosted.org/packages/3d/7c/3b4d70b4f791a33ef53b61d31798b8bbedbf9edb9803e1f4cd4628e11765/pynanoflann-0.10.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:2ee37823182b04e2231a51080cdd05b000c360546dbbeb4dd65373352c034b38", size = 153769 },
+    { url = "https://files.pythonhosted.org/packages/c2/b1/591efefa57edbf09bb131aa185d2780f8525a4710000b599aa88e4f65542/pynanoflann-0.10.0-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:2f77052744f21b40d2b15cc18b26216dea71128fba02d1b20c6d2c4532d415e6", size = 255422 },
+    { url = "https://files.pythonhosted.org/packages/a0/d0/9b4bb702b4eba533eb37e07948352b6c85259b64674783f7817570760415/pynanoflann-0.10.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:171947f5de82f6f7a0b2f00e54582d31d9e9c3248f0b806f197b53075b79c5dd", size = 244442 },
+    { url = "https://files.pythonhosted.org/packages/13/fc/76613e05a9f8828300b88a5b79ea6d14aedc2d8205cfb6c7ccb3d6a28756/pynanoflann-0.10.0-cp311-cp311-musllinux_1_1_i686.whl", hash = "sha256:bfb9fced8de3b89eb0349c30bf7ba4aaec744c43cc92cb4c75226b443d18ca7a", size = 817291 },
+    { url = "https://files.pythonhosted.org/packages/93/46/1cf320ca14e47a28d92fafbac166ca4e0f74fc00f79a1c7938b761875673/pynanoflann-0.10.0-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:e0da80c136d8289dc854ddef952e5bdca61422c4f418554df162f1b3af13e4b8", size = 760464 },
+    { url = "https://files.pythonhosted.org/packages/a5/0c/dc55aabff112128cf1b5741b7c8a0a75b469d16475dd99b99dd83643749e/pynanoflann-0.10.0-cp311-cp311-win32.whl", hash = "sha256:ea82d0b65e1753fae105f7fa77d551f95a772c3683e9ba824cccb2264f8ce3b7", size = 173354 },
+    { url = "https://files.pythonhosted.org/packages/8b/c2/cbf88c27ace021401ea88bba578514f410b0365297dcfd2fd6eb015fd48f/pynanoflann-0.10.0-cp311-cp311-win_amd64.whl", hash = "sha256:03d6ed7197150af18065246d974f58fe24815e05b84b4ee7ebaddeee58a628e0", size = 192537 },
+    { url = "https://files.pythonhosted.org/packages/e6/83/c26a19e8cc5de056b6c2159097d120aa10bea43736891474c67085702507/pynanoflann-0.10.0-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:f0644f6c20a693178a6e7be26431f1a7ac5a9fdd5113a077afdb7d877ef76ae5", size = 318206 },
+    { url = "https://files.pythonhosted.org/packages/50/ba/5f482bd1a2be4e2eee3feef8ade7682c849a2c32a845bdf2fb6e56301671/pynanoflann-0.10.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:742eeb7398e61a22c6b759e5c94809a0e9eee9de8581f0ccd8cede27fa0da940", size = 153463 },
+    { url = "https://files.pythonhosted.org/packages/0c/96/ee193a7fecc8b6348c1b0bb2bc3b56baa172e1a1dacda55d43a88f614520/pynanoflann-0.10.0-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:ac6d44a3f2f6dd0164fa4e3f376c25462fe2bfdbf2ae4f1e13d14e1aeac52e91", size = 255580 },
+    { url = "https://files.pythonhosted.org/packages/b7/b0/3e8b252ea8aae38c025275e6ffea44e1f083bad9786c8ae53bf04537ce0a/pynanoflann-0.10.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bc3586aa1ca00629ec01a1d47f2182b95859906a4886b95fc8ce5a933b385827", size = 244814 },
+    { url = "https://files.pythonhosted.org/packages/79/cb/f133f512f930e57a94ed492a7221ae2678e54205a6508bd1131ceb31e7b9/pynanoflann-0.10.0-cp312-cp312-musllinux_1_1_i686.whl", hash = "sha256:7bf617a5f19d3f8d951068b08885082747a7f57ce45c3c6f05813929186e77c6", size = 815648 },
+    { url = "https://files.pythonhosted.org/packages/23/65/2a9618d5ebdfebc1d2c0a674e1e3f122170fd14c96599bfee5c2ff7ff5ae/pynanoflann-0.10.0-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:e537cbf52c59dc69f9a1c18c0104fd6c048c98ed4e330ae43f420918469d897e", size = 759902 },
+    { url = "https://files.pythonhosted.org/packages/86/ec/a523b0812216a84481ae95f29626c95ce935d83162b6c6c45ad48fed9485/pynanoflann-0.10.0-cp312-cp312-win32.whl", hash = "sha256:444a46a2a2dd4b05124c3a82bddc6791c7bf75db11348c28153ac04a584b44a0", size = 174023 },
+    { url = "https://files.pythonhosted.org/packages/6f/e8/2fba1c75834dadb5ed24a84b6b5cc8381d22a93ceac1f649e526093705ad/pynanoflann-0.10.0-cp312-cp312-win_amd64.whl", hash = "sha256:9faf0a89aee3860890771dc0c0965414fbec53a6cdfbdfac9b77b87ceabf3790", size = 192545 },
+    { url = "https://files.pythonhosted.org/packages/f5/1e/f018dda3818a464fd46a0f4771b5cc0e002a14862d09bfb39f1d9957ce4e/pynanoflann-0.10.0-pp310-pypy310_pp73-macosx_11_0_arm64.whl", hash = "sha256:71d98a4e11b65afb9157b2db6c90ed2bafa5e2680b2aa7474b1c951dada2c4c4", size = 152387 },
+    { url = "https://files.pythonhosted.org/packages/d8/d5/a90593e5adafdcaaa731f933e567d92d39c0a039895c9bbdc3cdf100214b/pynanoflann-0.10.0-pp310-pypy310_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:d0e523d54ba68accd8c19b9ba7ec10cc8fb39bcff41313fcbb822f8c54b0c6c6", size = 255485 },
+    { url = "https://files.pythonhosted.org/packages/89/ec/6cb7619e5f60674f18285321d4227af59f51f20016a88c47a80e4e98d755/pynanoflann-0.10.0-pp310-pypy310_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cd868b0291a9f58b0e537857f72a9af978059d7bf7c0284bec55900da568ae38", size = 244632 },
+    { url = "https://files.pythonhosted.org/packages/83/8d/d6ee3094f1467e174ee99962336fa1924dfbf576dbc263c9b340af4d95fb/pynanoflann-0.10.0-pp310-pypy310_pp73-win_amd64.whl", hash = "sha256:08c67c7bad609616c0278cbe73ab6242f28a4549b426c8d5b01559e4d850b486", size = 191455 },
 ]
 
 [[package]]

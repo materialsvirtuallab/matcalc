@@ -286,13 +286,8 @@ class PESCalculator(Calculator):
             result = name
 
         elif any(name.lower().startswith(m) for m in ("m3gnet", "chgnet", "tensornet", "pbe", "r2scan")):
-            import matgl
-            from matgl.ext.ase import PESCalculator as PESCalculator_
-
             name = MODEL_ALIASES.get(name.lower(), name)
-            model = matgl.load_model(name)  # type: ignore[arg-type]
-            kwargs.setdefault("stress_unit", "eV/A3")
-            result = PESCalculator_(potential=model, **kwargs)
+            result = PESCalculator.load_matgl(name, **kwargs)
 
         elif name.lower() == "mace":  # pragma: no cover
             from mace.calculators import mace_mp
@@ -344,59 +339,7 @@ def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculato
     Returns:
         Calculator
     """
-    result: Calculator
-
-    if not isinstance(name, str):  # e.g. already an ase Calculator instance
-        result = name
-
-    elif name.lower().startswith("m3gnet") or name.lower().startswith("tensornet"):
-        import matgl
-        from matgl.ext.ase import PESCalculator as PESCalculator_
-
-        # M3GNet is shorthand for latest M3GNet based on DIRECT sampling.
-        # TensorNet is shorthand for latest TensorNet trained on MatPES.
-        name = {"m3gnet": "M3GNet-MP-2021.2.8-DIRECT-PES", "tensornet": "TensorNet-MatPES-PBE-v2025.1-PES"}.get(
-            name.lower(), name
-        )
-        model = matgl.load_model(name)  # type: ignore[arg-type]
-        kwargs.setdefault("stress_unit", "eV/A3")
-        result = PESCalculator_(potential=model, **kwargs)
-
-    elif name.lower() == "chgnet":
-        from chgnet.model.dynamics import CHGNetCalculator
-
-        result = CHGNetCalculator(**kwargs)
-
-    elif name.lower() == "mace":
-        from mace.calculators import mace_mp
-
-        result = mace_mp(**kwargs)
-
-    elif name.lower() == "sevennet":
-        from sevenn.calculator import SevenNetCalculator
-
-        result = SevenNetCalculator(**kwargs)
-
-    elif name.lower() == "grace" or name.lower() == "tensorpotential":
-        from tensorpotential.calculator.foundation_models import grace_fm
-
-        kwargs.setdefault("model", "GRACE-2L-OAM")
-        result = grace_fm(**kwargs)
-
-    elif name.lower() == "orb":
-        from orb_models.forcefield.calculator import ORBCalculator
-        from orb_models.forcefield.pretrained import ORB_PRETRAINED_MODELS
-
-        model = kwargs.pop("model", "orb-v2")
-        device = kwargs.get("device", "cpu")
-
-        orbff = ORB_PRETRAINED_MODELS[model](device=device)
-        result = ORBCalculator(orbff, **kwargs)
-
-    else:
-        raise ValueError(f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}")
-
-    return result
+    return PESCalculator.load_universal(name=name, **kwargs)
 
 
 def is_ase_optimizer(key: str | Optimizer) -> bool:
