@@ -28,8 +28,8 @@ jobs:
           cache-dependency-glob: "uv.lock"
       - name: Install dependencies
         run: |
-          uv sync --extra grace --extra sevennet --extra mace --extra nequip
-      - name: Execute all notebook examples
+          uv sync --extra grace --extra sevennet --extra mace --extra nequip --extra orb --extra ace
+      - name: Test loading of all models.
         # Only test the model loading utils.
         run: |
           uv run pytest tests/test_utils.py

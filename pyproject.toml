@@ -42,7 +42,7 @@ dependencies = [
     "pymatgen",
     "numpy<2.0.0",
     "fsspec",
-    "scikit-learn>=1.6.1",
+    "scikit-learn>=1.6.1"
 ]
 version = "0.2.1"
 
@@ -66,6 +66,12 @@ grace = [
 ]
 matgl = [
     "matgl>=1.2.3",
+]
+orb = [
+    "orb-models>=0.4.2",
+]
+ace = [
+    "pyace>=0.1.1",
 ]
 
 [project.scripts]
