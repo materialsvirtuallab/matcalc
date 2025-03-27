@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+
 from matcalc.neb import NEBCalc
 
 if TYPE_CHECKING:

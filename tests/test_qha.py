@@ -7,6 +7,7 @@ import os
 from typing import TYPE_CHECKING
 
 import pytest
+
 from matcalc.qha import QHACalc
 
 if TYPE_CHECKING:

@@ -9,10 +9,11 @@ import re
 import shutil
 from pprint import pprint
 
-import matcalc
 import requests
 from invoke import task
 from monty.os import cd
+
+import matcalc
 
 NEW_VER = matcalc.__version__
 

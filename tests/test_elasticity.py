@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 from ase.filters import ExpCellFilter
+
 from matcalc.elasticity import ElasticityCalc
 
 if TYPE_CHECKING:
