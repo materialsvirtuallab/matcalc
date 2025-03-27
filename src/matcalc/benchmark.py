@@ -340,8 +340,7 @@ class Benchmark(metaclass=abc.ABCMeta):
         # We make sure of the generator from prop_calc.calc_many to do this in a memory efficient manner.
         # allow_errors typically should be true since some of the calculations may fail.
         for row, d in zip(
-            ground_truth,
-            prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs),
+            ground_truth, prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs), strict=True
         ):
             r = dict(row)
             r.update(self.process_result(d, model_name))
@@ -530,7 +529,7 @@ class EquilibriumBenchmark(Benchmark):
             np.linalg.norm(np.array(ssf.featurize(model)) - np.array(ssf.featurize(dft)))
             if model is not None and dft is not None
             else np.nan
-            for model, dft in zip(results_df[f"structure_{model_name}"], results_df["structure_DFT"])
+            for model, dft in zip(results_df[f"structure_{model_name}"], results_df["structure_DFT"], strict=True)
         ]
 
         return results_df
