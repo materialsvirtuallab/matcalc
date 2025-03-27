@@ -1,7 +1,6 @@
 <h1 align="center">
   <img src="https://raw.githubusercontent.com/materialsvirtuallab/matcalc/refs/heads/main/docs/assets/matcalc.png"
-width="100" alt="MatCalc logo" style="vertical-align: middle;" /><br>
-  MatCalc
+width="200" alt="MatCalc" style="vertical-align: middle;" /><br>
 </h1>
 
 [![Testing](https://github.com/materialsvirtuallab/matcalc/workflows/Testing/badge.svg)](https://github.com/materialsvirtuallab/matcalc/workflows/Testing/badge.svg)
