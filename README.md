@@ -1,5 +1,6 @@
 <h1 align="center">
-  <img src="https://github.com/materialsvirtuallab/matcalc/assets/30958850/89486f2f-73fb-40fb-803a-dfafe510eb6d" width="100" alt="MatCalc logo" style="vertical-align: middle;" /><br>
+  <img src="https://raw.githubusercontent.com/materialsvirtuallab/matcalc/refs/heads/main/docs/assets/matcalc.png"
+width="100" alt="MatCalc logo" style="vertical-align: middle;" /><br>
   MatCalc
 </h1>
 
