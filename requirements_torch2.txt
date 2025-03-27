@@ -1,0 +1,11 @@
+mace-torch>=0.3.12
+matgl>=1.2.3
+sevenn>=0.10.4
+maml>=2025.2.25
+dgl<=2.1.0
+torch<=2.2.1
+nequip>=0.6.2
+tensorpotential>=0.5.1
+orb-models>=0.4.2
+pynanoflann==0.10.0
+pyace>=0.1.1
