@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-
 from matcalc.benchmark import (
     BenchmarkSuite,
     CheckpointFile,
@@ -82,7 +81,7 @@ def test_phonon_benchmark(m3gnet_calculator: PESCalculator) -> None:
 
 def test_softening_benchmark(m3gnet_calculator: PESCalculator) -> None:
     benchmark = SofteningBenchmark(n_samples=3)
-    results = benchmark.run(m3gnet_calculator, "toy")
+    results = benchmark.run(m3gnet_calculator, "toy", checkpoint_freq=1, checkpoint_file="checkpoint.json")
     assert len(results) == 3
     assert "softening_scale_toy" in results
 

@@ -7,8 +7,8 @@ import json
 import logging
 import os
 import random
-import typing
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
 import fsspec
@@ -22,7 +22,9 @@ from monty.serialization import dumpfn, loadfn
 from pymatgen.io.ase import AseAtomsAdaptor
 from scipy.optimize import curve_fit
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from ase.calculators.calculator import Calculator
 
     from .base import PropCalc
@@ -121,7 +123,7 @@ class CheckpointFile:
             return results, *[a[len(results) :] for a in args]
         return [], *args
 
-    def save(self, results: list[dict[str, typing.Any]]) -> None:
+    def save(self, results: list[dict[str, Any]]) -> None:
         """
         Saves a list of results at the specified checkpoint location.
 
@@ -163,7 +165,7 @@ class Benchmark(metaclass=abc.ABCMeta):
     def __init__(
         self,
         benchmark_name: str | Path,
-        properties: typing.Sequence[str],
+        properties: Sequence[str],
         index_name: str,
         other_fields: tuple = (),
         property_rename_map: dict[str, str] | None = None,
@@ -239,7 +241,7 @@ class Benchmark(metaclass=abc.ABCMeta):
         self.ground_truth = rows
 
     @abc.abstractmethod
-    def get_prop_calc(self, calculator: Calculator, **kwargs: typing.Any) -> PropCalc:
+    def get_prop_calc(self, calculator: Calculator, **kwargs: Any) -> PropCalc:
         """
         Abstract method to retrieve a property calculation object using the provided calculator and additional
         parameters.
@@ -407,7 +409,7 @@ class EquilibriumBenchmark(Benchmark):
         kwargs.setdefault("other_fields", ("formula",))
         super().__init__(benchmark_name, index_name=index_name, **kwargs)
 
-    def get_prop_calc(self, calculator: Calculator, **kwargs: typing.Any) -> PropCalc:
+    def get_prop_calc(self, calculator: Calculator, **kwargs: Any) -> PropCalc:
         """
         Returns a property calculation object for performing relaxation and formation energy
         calculations. This method initializes the stability calculator using the provided
@@ -577,7 +579,7 @@ class ElasticityBenchmark(Benchmark):
             **kwargs,
         )
 
-    def get_prop_calc(self, calculator: Calculator, **kwargs: typing.Any) -> PropCalc:
+    def get_prop_calc(self, calculator: Calculator, **kwargs: Any) -> PropCalc:
         """
         Calculates and returns a property calculation object based on the provided
         calculator and optional parameters. This is useful for initializing and
@@ -668,7 +670,7 @@ class PhononBenchmark(Benchmark):
             **kwargs,
         )
 
-    def get_prop_calc(self, calculator: Calculator, **kwargs: typing.Any) -> PropCalc:
+    def get_prop_calc(self, calculator: Calculator, **kwargs: Any) -> PropCalc:
         """
         Retrieves a phonon calculation instance based on the given calculator and
         additional keyword arguments.
