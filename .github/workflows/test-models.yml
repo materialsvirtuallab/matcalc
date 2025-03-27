@@ -10,7 +10,7 @@ on:
         type: choice
         options: [test]
         default: test
-        description: Run notebook tests.
+        description: Run model tests
 
 jobs:
   test:
@@ -28,8 +28,8 @@ jobs:
           cache-dependency-glob: "uv.lock"
       - name: Install dependencies
         run: |
-          uv sync
+          uv sync --extra grace --extra sevennet --extra mace --extra nequip
       - name: Execute all notebook examples
-        # Ensures that all notebooks are still functioning as intended.
+        # Only test the model loading utils.
         run: |
-          uv run  jupyter execute --ExecutePreprocessor.kernel_name=python3 examples/*.ipynb
+          uv run pytest tests/test_utils.py
