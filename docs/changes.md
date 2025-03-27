@@ -6,8 +6,9 @@ nav_order: 2
 
 # Change Log
 
-## v0.2.1
+## v0.2.2
 - Added ChainedCalc helper class to performed chaining of PropCalcs more easily.
+- Added matcalc.load_up alias for easier loading of universal MLIPs.
 
 ## v0.2.0
 - Major new feature: Most PropCalc now supports chaining. This allows someone to obtain multiple properties at once.

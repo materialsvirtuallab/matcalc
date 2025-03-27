@@ -48,12 +48,12 @@ MatCalc provides convenient methods to quickly compute properties, using a minim
 an example of a computation of the elastic constants of Si using the `TensorNet-MatPES-PBE-v2025.1-PES` universal MLIP.
 
 ```python
-from matcalc import PESCalculator, ElasticityCalc
+from matcalc import PESCalculator, ElasticityCalc, load_up
 from pymatgen.ext.matproj import MPRester
 
 mpr = MPRester()
 si = mpr.get_structure_by_material_id("mp-149")
-c = ElasticityCalc(PESCalculator.load_universal("TensorNet-MatPES-PBE-v2025.1-PES"), relax_structure=True)
+c = ElasticityCalc(load_up("TensorNet-MatPES-PBE-v2025.1-PES"), relax_structure=True)
 props = c.calc(si)
 print(f"K_VRH = {props['bulk_modulus_vrh'] * 160.2176621} GPa")
 ```
@@ -64,9 +64,9 @@ While we generally recommend users to specify exactly the model they would like 
 (case-insensitive) aliases to our recommended models for PBE and r2SCAN predictions. These can be loaded using:
 
 ```python
-from matcalc import PESCalculator
-pbe_calculator = PESCalculator.load_universal("pbe")
-r2scan_calculator = PESCalculator.load_universal("r2scan")
+from matcalc import load_up
+pbe_calculator = load_up("pbe")
+r2scan_calculator = load_up("r2scan")
 ```
 
 At the time of writing, these are the TensorNet-MatPES models. However, these recommendations may updated as improved
@@ -99,9 +99,9 @@ computed by all steps. Note that the `relax_structure` should be set to False in
 do not redo the relatively expensive relaxation.
 
 ```python
-from matcalc import PESCalculator, ElasticityCalc, RelaxCalc, EnergeticsCalc, ChainedCalc
+from matcalc import load_up, ElasticityCalc, RelaxCalc, EnergeticsCalc, ChainedCalc
 import numpy as np
-calculator = PESCalculator.load_universal("pbe")
+calculator = load_up("pbe")
 relax_calc = RelaxCalc(
     calculator,
     optimizer="FIRE",
@@ -143,8 +143,8 @@ the `MatCalc-Benchmark`.
 For example, the following code can be used to run the ElasticityBenchmark on `TensorNet-MatPES-PBE-v2025.1-PES` UMLIP.
 
 ```python
-from matcalc import PESCalculator
-calculator = PESCalculator.load_universal("TensorNet-MatPES-PBE-v2025.1-PES")
+from matcalc import load_up
+calculator = load_up("TensorNet-MatPES-PBE-v2025.1-PES")
 from matcalc.benchmark import ElasticityBenchmark
 benchmark = ElasticityBenchmark(fmax=0.05, relax_structure=True)
 results = benchmark.run(calculator, "TensorNet-MatPES")

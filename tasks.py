@@ -13,9 +13,11 @@ import requests
 from invoke import task
 from monty.os import cd
 
-import matcalc
-
-NEW_VER = matcalc.__version__
+with open("pyproject.toml") as f:
+    for line in f:
+        if line.startswith("version"):
+            NEW_VER = line.split("=")[-1].strip()
+            break
 
 
 @task
@@ -131,6 +133,7 @@ def publish(ctx):
 @task
 def release_github(ctx):  # noqa: ARG001
     desc = get_changelog()
+
     payload = {
         "tag_name": "v" + NEW_VER,
         "target_commitish": "main",
