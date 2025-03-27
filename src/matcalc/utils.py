@@ -294,23 +294,23 @@ class PESCalculator(Calculator):
             kwargs.setdefault("stress_unit", "eV/A3")
             result = PESCalculator_(potential=model, **kwargs)
 
-        elif name.lower() == "mace":
+        elif name.lower() == "mace":  # pragma: no cover
             from mace.calculators import mace_mp
 
             result = mace_mp(**kwargs)
 
-        elif name.lower() == "sevennet":
+        elif name.lower() == "sevennet":  # pragma: no cover
             from sevenn.calculator import SevenNetCalculator
 
             result = SevenNetCalculator(**kwargs)
 
-        elif name.lower() == "grace" or name.lower() == "tensorpotential":
+        elif name.lower() == "grace" or name.lower() == "tensorpotential":  # pragma: no cover
             from tensorpotential.calculator.foundation_models import grace_fm
 
             kwargs.setdefault("model", "GRACE-2L-OAM")
             result = grace_fm(**kwargs)
 
-        elif name.lower() == "orb":
+        elif name.lower() == "orb":  # pragma: no cover
             from orb_models.forcefield.calculator import ORBCalculator
             from orb_models.forcefield.pretrained import ORB_PRETRAINED_MODELS
 
