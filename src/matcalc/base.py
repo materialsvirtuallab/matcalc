@@ -109,10 +109,10 @@ class ChainedCalc(PropCalc):
         Returns:
             dict[str, Any]: In the form {"prop_name": value}.
         """
-        results = structure
+        results = structure  # type:ignore[assignment]
         for prop_calc in self.prop_calcs:
-            results = prop_calc.calc(results)
-        return results
+            results = prop_calc.calc(results)  # type:ignore[assignment]
+        return results  # type:ignore[return-value]
 
     def calc_many(
         self,
