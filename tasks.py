@@ -16,7 +16,7 @@ from monty.os import cd
 with open("pyproject.toml") as f:
     for line in f:
         if line.startswith("version"):
-            NEW_VER = line.split("=")[-1].strip()
+            NEW_VER = line.split("=")[-1].strip().strip('"')
             break
 
 
