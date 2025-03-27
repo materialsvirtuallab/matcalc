@@ -14,8 +14,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from matcalc.utils import PESCalculator
 from pymatgen.util.testing import PymatgenTest
+
+import matcalc
+from matcalc.utils import PESCalculator
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
@@ -23,6 +25,7 @@ if TYPE_CHECKING:
 import matgl
 
 matgl.clear_cache(confirm=False)
+matcalc.clear_cache(confirm=False)
 
 
 @pytest.fixture(scope="session")

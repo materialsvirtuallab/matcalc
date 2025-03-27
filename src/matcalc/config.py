@@ -11,7 +11,7 @@ BENCHMARK_DATA_DIR = pathlib.Path.home() / ".cache" / "matcalc"
 
 
 def clear_cache(*, confirm: bool = True) -> None:
-    """Deletes all files in the matgl.cache. This is used to clean out downloaded models.
+    """Deletes all files in the mattcalc cache. This is used to clean out downloaded benchmarks.
 
     Args:
         confirm: Whether to ask for confirmation. Default is True.
