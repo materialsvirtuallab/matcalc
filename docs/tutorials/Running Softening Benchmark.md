@@ -13,6 +13,7 @@ This notebook demonstrates how to run the Softening Benchmark on M3GNet, CHGNet 
 from __future__ import annotations
 
 import warnings
+
 import pandas as pd
 
 from matcalc import PESCalculator
@@ -73,7 +74,7 @@ for model_name in [
 ```python
 from functools import reduce
 
-df = reduce(lambda left, right: pd.merge(left,right,on=['material_id', 'formula'], how='inner'), results.values())
+df = reduce(lambda left, right: pd.merge(left, right, on=["material_id", "formula"], how="inner"), results.values())
 ```
 
 

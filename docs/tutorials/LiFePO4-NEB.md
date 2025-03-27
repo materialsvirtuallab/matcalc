@@ -15,10 +15,10 @@ DFT barrier heights: path b = 0.27 eV and path c = 2.5 eV. (see table 1 in https
 ```python
 from __future__ import annotations
 
+from ase.neb import NEBTools
 from pymatgen.ext.matproj import MPRester
-from ase.neb import NEB, NEBTools
 
-from matcalc import RelaxCalc, NEBCalc, PESCalculator
+from matcalc import NEBCalc, PESCalculator, RelaxCalc
 
 mpr = MPRester()
 ```

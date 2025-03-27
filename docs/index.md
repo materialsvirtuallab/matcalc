@@ -99,7 +99,7 @@ computed by all steps. Note that the `relax_structure` should be set to False in
 do not redo the relatively expensive relaxation.
 
 ```python
-from matcalc import PESCalculator, ElasticityCalc, RelaxCalc, EnergeticsCalc
+from matcalc import PESCalculator, ElasticityCalc, RelaxCalc, EnergeticsCalc, ChainedCalc
 import numpy as np
 calculator = PESCalculator.load_universal("pbe")
 relax_calc = RelaxCalc(
@@ -121,7 +121,8 @@ elast_calc = ElasticityCalc(
     relax_structure=False,  # Since we are chaining, we do not need to relax structure in later steps.
     relax_deformed_structures=True,
 )
-results = elast_calc.calc(energetics_calc.calc(relax_calc.calc(structure)))
+prop_calc = ChainedCalc([relax_calc, energetics_calc, elast_calc])
+results = prop_calc.calc(structure)
 ```
 
 Chaining can also be used with the `calc_many` method, with parallelization.

@@ -6,6 +6,9 @@ nav_order: 2
 
 # Change Log
 
+## v0.2.1
+- Added ChainedCalc helper class to performed chaining of PropCalcs more easily.
+
 ## v0.2.0
 - Major new feature: Most PropCalc now supports chaining. This allows someone to obtain multiple properties at once.
 - SofteningBenchmark added. (@bowen-bd)

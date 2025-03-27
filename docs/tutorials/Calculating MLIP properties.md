@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from mp_api.client import MPRester
 from tqdm import tqdm
 
-from matcalc import ElasticityCalc, EOSCalc, PhononCalc, RelaxCalc, PESCalculator
+from matcalc import ElasticityCalc, EOSCalc, PESCalculator, PhononCalc, RelaxCalc
 
 warnings.filterwarnings("ignore", category=UserWarning, module="matgl")
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="spglib")

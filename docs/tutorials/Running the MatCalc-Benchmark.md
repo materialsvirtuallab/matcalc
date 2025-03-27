@@ -13,8 +13,9 @@ This notebook demonstrates how to run the MatCalc-Benchmark. We will use the rec
 from __future__ import annotations
 
 import warnings
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 
 from matcalc import PESCalculator
 from matcalc.benchmark import ElasticityBenchmark
@@ -41,7 +42,7 @@ for model_name in [
 
 
 ```python
-df = pd.merge(results["M3GNet"], results["TensorNet"], on='mp_id', how='inner', suffixes=(None, "_dupe"))
+df = pd.merge(results["M3GNet"], results["TensorNet"], on="mp_id", how="inner", suffixes=(None, "_dupe"))
 ```
 
 
