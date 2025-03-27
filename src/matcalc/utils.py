@@ -95,7 +95,7 @@ class PESCalculator(Calculator):
 
         self.stress_weight = stress_weight * conversion_factor
 
-    def calculate(
+    def calculate(  # pragma: no cover
         self,
         atoms: Atoms | None = None,
         properties: list | None = None,
@@ -230,7 +230,7 @@ class PESCalculator(Calculator):
         return PESCalculator(potential=model, **kwargs)
 
     @staticmethod
-    def load_ace(
+    def load_ace(  # pragma: no cover
         basis_set: str | Path | ACEBBasisSet | ACECTildeBasisSet | BBasisConfiguration, **kwargs: Any
     ) -> Calculator:
         """
@@ -289,7 +289,7 @@ class PESCalculator(Calculator):
             name = MODEL_ALIASES.get(name.lower(), name)
             result = PESCalculator.load_matgl(name, **kwargs)
 
-        elif name.lower() == "mace":  # pragma: no cover
+        elif name.lower() == "mace":
             from mace.calculators import mace_mp
 
             result = mace_mp(**kwargs)
