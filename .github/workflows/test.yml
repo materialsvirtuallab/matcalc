@@ -31,6 +31,8 @@ jobs:
       - name: Install dependencies
         run: uv sync
       - name: pytest
-        run: |
-          uv run pytest --cov=matcalc tests --color=yes
-          uv run codecovcli --verbose upload-process --disable-search --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'service'-${{ github.run_id }} -F service -f coverage-service.xml
+        run: uv run pytest --cov=matcalc tests --color=yes
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
