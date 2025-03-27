@@ -328,7 +328,7 @@ class PESCalculator(Calculator):
             kwargs.setdefault("model", "GRACE-2L-OAM")
             result = grace_fm(**kwargs)
 
-        elif name.lower() == "orb":
+        elif name.lower() == "orb": 
             from orb_models.forcefield.calculator import ORBCalculator
             from orb_models.forcefield.pretrained import ORB_PRETRAINED_MODELS
 
@@ -338,12 +338,12 @@ class PESCalculator(Calculator):
             orbff = ORB_PRETRAINED_MODELS[model](device=device)
             result = ORBCalculator(orbff, **kwargs)
 
-        elif name.lower() == "mattersim":
+        elif name.lower() == "mattersim": # pragma: no cover
             from mattersim.forcefield import MatterSimCalculator
 
             result = MatterSimCalculator(**kwargs)
 
-        elif name.lower() == "fairchem":
+        elif name.lower() == "fairchem": # pragma: no cover
             from fairchem.core import OCPCalculator
 
             # Technically, this supports all models that are in fairchem,
@@ -352,12 +352,12 @@ class PESCalculator(Calculator):
             kwargs.setdefault("local_cache", "./pretrained_models")
             result = OCPCalculator(**kwargs)
 
-        elif name.lower() == "petmad":
+        elif name.lower() == "petmad": # pragma: no cover
             from pet_mad.calculator import PETMADCalculator
 
             result = PETMADCalculator(**kwargs)
 
-        elif name.lower().startswith("deepmd"):
+        elif name.lower().startswith("deepmd"): # pragma: no cover
             from pathlib import Path
 
             from deepmd.calculator import DP
