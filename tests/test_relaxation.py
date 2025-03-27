@@ -17,6 +17,21 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
+def test_bad_input(Li2O: Structure, m3gnet_calculator: PESCalculator) -> None:
+    relax_calc = RelaxCalc(
+        m3gnet_calculator,
+        optimizer="FIRE",
+        relax_atoms=True,
+        relax_cell=True,
+    )
+    with pytest.raises(ValueError, match="Structure must be either a pymatgen Structure or a dict"):
+        relax_calc.calc({"bad": Li2O})
+
+    data = list(relax_calc.calc_many([Li2O, None], allow_errors=True))
+    assert data[0] is not None
+    assert data[1] is None
+
+
 @pytest.mark.parametrize(
     ("perturb_distance", "expected_a", "expected_energy"),
     [(0, 3.291072, -14.176680), (0.2, 3.291072, -14.176716)],
