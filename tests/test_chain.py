@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 from ase.filters import ExpCellFilter
 
+from matcalc.base import ChainedCalc
 from matcalc.elasticity import ElasticityCalc
 from matcalc.relaxation import RelaxCalc
 from matcalc.stability import EnergeticsCalc
@@ -40,8 +41,9 @@ def test_chain_calc(
         relax_deformed_structures=True,
         relax_calc_kwargs={"cell_filter": ExpCellFilter},
     )
+    calc = ChainedCalc([relax_calc, energetics_calc, elast_calc])
     # Test Li2O with equilibrium structure
-    results = elast_calc.calc(energetics_calc.calc(relax_calc.calc(Li2O)))
+    results = calc.calc(Li2O)
     assert results["elastic_tensor"].shape == (3, 3, 3, 3)
     assert results["structure"].lattice.a == pytest.approx(3.291071792359756, rel=1e-1)
 
@@ -58,6 +60,6 @@ def test_chain_calc(
 
     assert results["formation_energy_per_atom"] == pytest.approx(-1.8127431869506836, abs=1e-3)
 
-    results = list(elast_calc.calc_many(energetics_calc.calc_many(relax_calc.calc_many([Li2O] * 3))))
+    results = list(calc.calc_many([Li2O] * 3))
     assert len(results) == 3
     assert results[0]["energy"] == pytest.approx(-14.176680, rel=1e-1)

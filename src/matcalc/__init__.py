@@ -9,7 +9,7 @@ try:
 except PackageNotFoundError:
     pass  # package not installed
 
-from .base import PropCalc
+from .base import ChainedCalc, PropCalc
 from .config import clear_cache
 from .elasticity import ElasticityCalc
 from .eos import EOSCalc
