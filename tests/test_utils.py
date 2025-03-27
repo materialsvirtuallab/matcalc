@@ -26,7 +26,8 @@ DIR = Path(__file__).parent.absolute()
 if TYPE_CHECKING:
     from pymatgen.core import Structure
 
-def _map_calculators_to_packages(calculators: list[str]) -> dict[str, str]: # Think
+
+def _map_calculators_to_packages(calculators: list[str]) -> dict[str, str]:  # Think
     prefix_package_map: list[tuple[tuple[str, ...], str]] = [
         (("m3gnet", "chgnet", "tensornet", "pbe", "r2scan"), "matgl"),
         (("mace",), "mace"),
@@ -39,7 +40,7 @@ def _map_calculators_to_packages(calculators: list[str]) -> dict[str, str]: # Th
         (("deepmd",), "deepmd"),
     ]
 
-    calculator_to_package: dict[str, str] = {} 
+    calculator_to_package: dict[str, str] = {}
 
     for calc in calculators:
         lower_calc = calc.lower()
@@ -51,6 +52,7 @@ def _map_calculators_to_packages(calculators: list[str]) -> dict[str, str]: # Th
 
 
 UNIVERSAL_TO_PACKAGE = _map_calculators_to_packages(UNIVERSAL_CALCULATORS)
+
 
 @pytest.mark.parametrize(
     ("expected_unit", "expected_weight"),
@@ -118,12 +120,14 @@ def test_pescalculator_load_matgl() -> None:
     calc = PESCalculator.load_matgl(path=DIR / "pes" / "M3GNet-MP-2021.2.8-PES")
     assert isinstance(calc, Calculator)
 
+
 @pytest.mark.skipif(not find_spec("deepmd"), reason="deepmd-kit is not installed")
 def test_pescalculator_load_deepmd() -> None:
     calc = PESCalculator.load_deepmd(
         model_path=(DIR / "pes" / "DPA3-LAM-2025.3.14-PES" / "2025-03-14-dpa3-openlam.pth")
     )
     assert isinstance(calc, Calculator)
+
 
 @pytest.mark.parametrize("name", UNIVERSAL_CALCULATORS)
 def test_pescalculator_load_universal(Li2O: Structure, name: str) -> None:

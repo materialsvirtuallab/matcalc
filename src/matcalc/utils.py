@@ -273,7 +273,7 @@ class PESCalculator(Calculator):
         from nequip.ase import NequIPCalculator
 
         return NequIPCalculator.from_deployed_model(model_path=model_path, **kwargs)
-    
+
     @staticmethod
     def load_deepmd(model_path: str | Path, **kwargs: Any) -> Calculator:
         """
@@ -292,7 +292,7 @@ class PESCalculator(Calculator):
         return DP(model=model_path, **kwargs)
 
     @staticmethod
-    def load_universal(name: str | Calculator, **kwargs: Any) -> Calculator:
+    def load_universal(name: str | Calculator, **kwargs: Any) -> Calculator:  # noqa: C901
         """
         Load the universal model for use in ASE as a calculator.
 
@@ -337,7 +337,7 @@ class PESCalculator(Calculator):
 
             orbff = ORB_PRETRAINED_MODELS[model](device=device)
             result = ORBCalculator(orbff, **kwargs)
-        
+
         elif name.lower() == "mattersim":
             from mattersim.forcefield import MatterSimCalculator
 
