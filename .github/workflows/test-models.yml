@@ -1,4 +1,4 @@
-name: Test-Notebooks
+name: Test-Models
 
 on:
   release:
