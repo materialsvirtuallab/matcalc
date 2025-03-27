@@ -19,3 +19,6 @@ from .qha import QHACalc
 from .relaxation import RelaxCalc
 from .stability import EnergeticsCalc
 from .utils import UNIVERSAL_CALCULATORS, PESCalculator
+
+# Provide an alias for loading calculators quickly.
+load_up = PESCalculator.load_universal
