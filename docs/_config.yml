@@ -1,8 +1,8 @@
-title: matcalc
+title: MatCalc
 email: ongsp@ucsd.edu
 description: >- # this means to ignore newlines until "baseurl:"
-  MatCalc is a Python library for calculating materials properties from the potential energy surface (PES).
-url: "http://materialsvirtuallab.github.io/matcalc/"
+  MatCalc is a Python library for calculating materials properties from the potential energy surface.
+url: "http://matcalc.ai"
 # twitter_username: matcalc
 github_username: materialsvirtuallab
 
