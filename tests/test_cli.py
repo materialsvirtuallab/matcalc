@@ -6,11 +6,20 @@ from collections import namedtuple
 from typing import TYPE_CHECKING
 
 import pytest
-from matcalc.cli import calculate_property
 from monty.tempfile import ScratchDir
+
+import matcalc
+from matcalc.cli import calculate_property, clear_cache
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
+
+
+def test_clear_cache() -> None:
+    args = namedtuple("args", ["yes"])  # noqa: PYI024
+    a = args(yes=False)
+    clear_cache(a)
+    assert not matcalc.config.BENCHMARK_DATA_DIR.exists()
 
 
 def test_calculate_property(LiFePO4: Structure) -> None:
