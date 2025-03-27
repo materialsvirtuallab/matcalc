@@ -49,29 +49,42 @@ version = "0.2.2"
 [project.optional-dependencies]
 phonon = ["seekpath"]
 benchmark = ["matminer>=0.9.3"]
-maml = [
-    "maml>=2025.2.25",
-]
-sevennet = [
-    "sevenn>=0.10.4",
-]
-mace = [
-    "mace-torch>=0.3.12",
-]
-nequip = [
-    "nequip>=0.6.2",
-]
-grace = [
-    "tensorpotential>=0.5.1",
-]
-matgl = [
-    "matgl>=1.2.3",
-]
-orb = [
-    "orb-models>=0.4.2",
-]
-ace = [
+torch2 = [
+    "mace-torch>=0.3.12", 
+    "matgl>=1.2.3", 
+    "sevenn>=0.10.4", 
+    "maml>=2025.2.25", 
+    "dgl<=2.1.0",
+    "torch<=2.2.1", 
+    "nequip>=0.6.2", 
+    "tensorpotential>=0.5.1", 
+    "orb-models>=0.4.2", 
+    "pynanoflann==0.10.0",
     "pyace>=0.1.1",
+]
+torch26 = [
+    "torch>=2.6.0",
+    "sevenn>=0.9.3", 
+    "maml>=2024.6.13", 
+    "torch>=2.2.1", 
+    "nequip>=0.6.1", 
+    "tensorpotential>=0.5.1", 
+    "orb-models>=0.4.1", 
+    "pynanoflann==0.10.0",
+    "mattersim>=1.1.2", 
+    "deepmd-kit>=3.0.2",
+    "pet-neighbors-convert>=1.0rc1", 
+    "pet-mad@git+https://github.com/lab-cosmo/pet-mad.git",
+]
+torch24 = [
+    "sevenn>=0.9.3", 
+    "maml>=2024.6.13", 
+    "nequip>=0.6.1", 
+    "tensorpotential>=0.5.1", 
+    "orb-models>=0.4.1", 
+    "pynanoflann==0.10.0",
+    "mattersim>=1.1.2",
+    "fairchem-core>=1.8.1",
 ]
 
 [project.scripts]
@@ -121,6 +134,17 @@ test-models = [
     "pynanoflann>=0.10.0",
     "sevenn>=0.10.4",
     "tensorpotential>=0.5.1",
+]
+
+[tool.uv]
+conflicts = [
+    [
+      { group = "dev" },
+      { group = "test-models" },
+      { extra = "torch2" },
+      { extra = "torch24" },
+      { extra = "torch26" },
+    ],
 ]
 
 [tool.ruff]

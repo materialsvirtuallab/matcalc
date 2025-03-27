@@ -22,6 +22,8 @@ if TYPE_CHECKING:
 
 
 # Listing of supported universal calculators.
+# If you update UNIVERSAL_CALCULATORS, you must also update the mapping in
+# map_calculators_to_packages in test_utils.py, unless already covered.
 UNIVERSAL_CALCULATORS = [
     "M3GNet",
     "CHGNet",
@@ -33,6 +35,10 @@ UNIVERSAL_CALCULATORS = [
     "ORB",
     "PBE",
     "r2SCAN",
+    "Mattersim",
+    "FairChem",
+    "PETMAD",
+    "DeepMD",
 ]
 
 try:
@@ -267,6 +273,23 @@ class PESCalculator(Calculator):
         from nequip.ase import NequIPCalculator
 
         return NequIPCalculator.from_deployed_model(model_path=model_path, **kwargs)
+    
+    @staticmethod
+    def load_deepmd(model_path: str | Path, **kwargs: Any) -> Calculator:
+        """
+        Loads the custom deep potential model for use in ASE as a calculator.
+
+        Args:
+            model_path (str | Path): The file storing the configuration of
+                potential, filename should end with ".pth"
+            **kwargs (Any): Additional keyword arguments for the PESCalculator.
+
+        Returns:
+            Calculator: ASE calculator compatible with the DeepMD model.
+        """
+        from deepmd.calculator import DP
+
+        return DP(model=model_path, **kwargs)
 
     @staticmethod
     def load_universal(name: str | Calculator, **kwargs: Any) -> Calculator:
@@ -314,6 +337,36 @@ class PESCalculator(Calculator):
 
             orbff = ORB_PRETRAINED_MODELS[model](device=device)
             result = ORBCalculator(orbff, **kwargs)
+        
+        elif name.lower() == "mattersim":
+            from mattersim.forcefield import MatterSimCalculator
+
+            result = MatterSimCalculator(**kwargs)
+
+        elif name.lower() == "fairchem":
+            from fairchem.core import OCPCalculator
+
+            # Technically, this supports all models that are in fairchem,
+            # not just equiformer.
+            kwargs.setdefault("model_name", "EquiformerV2-31M-S2EF-OC20-All+MD")
+            kwargs.setdefault("local_cache", "./pretrained_models")
+            result = OCPCalculator(**kwargs)
+
+        elif name.lower() == "petmad":
+            from pet_mad.calculator import PETMADCalculator
+
+            result = PETMADCalculator(**kwargs)
+
+        elif name.lower().startswith("deepmd"):
+            from pathlib import Path
+
+            from deepmd.calculator import DP
+
+            cwd = Path(__file__).parent.absolute()
+            model_path = cwd / "../../tests/pes/DPA3-LAM-2025.3.14-PES" / "2025-03-14-dpa3-openlam.pth"
+            model_path = model_path.resolve()
+            kwargs.setdefault("model", model_path)
+            result = DP(**kwargs)
 
         else:
             raise ValueError(f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}")
