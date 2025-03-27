@@ -109,7 +109,7 @@ maintain = [
 ]
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py310"
 line-length = 120
 extend-include = ["*.ipynb"]
 
@@ -169,6 +169,7 @@ exclude_lines = [
     "except PackageNotFoundError:",
     "if 0:",
     "if TYPE_CHECKING:",
+    "if typing.TYPE_CHECKING:",
     "if __name__ == .__main__.:",
     "if self.debug:",
     "if settings.DEBUG",
