@@ -17,7 +17,6 @@ from matcalc.utils import (
     VALID_OPTIMIZERS,
     PESCalculator,
     get_ase_optimizer,
-    get_universal_calculator,
     is_ase_optimizer,
 )
 
@@ -150,7 +149,7 @@ def test_pescalculator_load_universal(Li2O: Structure, name: str) -> None:
 
     name = "whatever"
     with pytest.raises(ValueError, match=f"Unrecognized {name=}") as exc:
-        get_universal_calculator(name)
+        PESCalculator.load_universal(name)
     assert str(exc.value) == f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}"
 
 

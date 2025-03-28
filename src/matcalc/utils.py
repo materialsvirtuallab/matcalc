@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any, Literal
 import ase.optimize
 from ase.calculators.calculator import Calculator
 from ase.optimize.optimize import Optimizer
-from monty.dev import deprecated
 
 from .units import eVA3ToGPa
 
@@ -376,27 +375,6 @@ class PESCalculator(Calculator):
             raise ValueError(f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}")
 
         return result
-
-
-@deprecated(PESCalculator, "Use PESCalculator.load_universal instead.")
-def get_universal_calculator(name: str | Calculator, **kwargs: Any) -> Calculator:
-    """Helper method to get some well-known **universal** calculators.
-    Imports should be inside if statements to ensure that all models are optional dependencies.
-    All calculators must be universal, i.e. encompass a wide swath of the periodic table.
-    Though MatCalc can be used with any MLIP, even custom ones, this function is not meant as
-        a list of all MLIPs.
-
-    Args:
-        name (str): Name of calculator.
-        **kwargs: Passthrough to calculator init.
-
-    Raises:
-        ValueError: on unrecognized model name.
-
-    Returns:
-        Calculator
-    """
-    return PESCalculator.load_universal(name=name, **kwargs)
 
 
 def is_ase_optimizer(key: str | Optimizer) -> bool:
