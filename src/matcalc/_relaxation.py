@@ -26,8 +26,26 @@ if TYPE_CHECKING:
 
 @dataclass
 class TrajectoryObserver:
-    """Trajectory observer is a hook in the relaxation process that saves the
-    intermediate structures.
+    """
+    Class for observing and recording the properties of an atomic structure during relaxation.
+
+    The `TrajectoryObserver` class is designed to track and store the atomic properties like
+    energies, forces, stresses, atom positions, and cell structure of an atomic system
+    represented by an `Atoms` object. It provides functionality to save recorded data
+    to a file for further analysis or usage.
+
+    :ivar atoms: The atomic structure being observed.
+    :type atoms: Atoms
+    :ivar energies: List of potential energy values of the atoms during relaxation.
+    :type energies: list[float]
+    :ivar forces: List of force arrays recorded for the atoms during relaxation.
+    :type forces: list[np.ndarray]
+    :ivar stresses: List of stress tensors recorded for the atoms during relaxation.
+    :type stresses: list[np.ndarray]
+    :ivar atom_positions: List of atomic positions recorded during relaxation.
+    :type atom_positions: list[np.ndarray]
+    :ivar cells: List of unit cell arrays recorded during relaxation.
+    :type cells: list[np.ndarray]
     """
 
     atoms: Atoms

@@ -797,34 +797,29 @@ class SofteningBenchmark:
         :rtype: pd.DataFrame
         """
         checkpoint = None
+        results = []
+        material_ids = self.material_ids
         if checkpoint_file:
             checkpoint = CheckpointFile(checkpoint_file)
             results, material_ids = checkpoint.load(self.material_ids)
-        else:
-            results = []
-            material_ids = self.material_ids
 
         for material_id in material_ids:
             frames = self.data[material_id]
-            # Check whether the calculator supports all the elements in this structure
-            support = True
             test_structure = next(iter(frames.values()))["structure"]
-            for elem in test_structure.composition.elements:
-                if str(elem) not in calculator.element_types:  # type: ignore[attr-defined]
-                    support = False
-            if not support:
-                # skipping this structure
-                continue
 
-            force_ground_truth, force_prediction = [], []
-            for frame in frames.values():
-                atoms = AseAtomsAdaptor.get_atoms(frame["structure"])
-                atoms.calc = calculator
-                forces = atoms.get_forces().tolist()
-                force_prediction.append(forces)
-                force_ground_truth.append(frame["vasp_f"])
+            try:
+                force_ground_truth, force_prediction = [], []
+                for frame in frames.values():
+                    atoms = AseAtomsAdaptor.get_atoms(frame["structure"])
+                    atoms.calc = calculator
+                    forces = atoms.get_forces().tolist()
+                    force_prediction.append(forces)
+                    force_ground_truth.append(frame["vasp_f"])
 
-            softening_scale = self.get_linear_fitted_slope(force_ground_truth, force_prediction)
+                softening_scale = self.get_linear_fitted_slope(force_ground_truth, force_prediction)
+            except:  # noqa: E722
+                softening_scale = None
+                force_prediction = None
 
             results.append(
                 {
