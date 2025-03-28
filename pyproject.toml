@@ -191,6 +191,7 @@ exclude_lines = [
     "@deprecated",
     "def __repr__",
     "except PackageNotFoundError:",
+    "except Exception:",
     "if 0:",
     "if TYPE_CHECKING:",
     "if typing.TYPE_CHECKING:",

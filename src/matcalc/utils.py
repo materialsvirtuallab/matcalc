@@ -217,7 +217,7 @@ class PESCalculator(Calculator):
         return PESCalculator(potential=model, **kwargs)
 
     @staticmethod
-    def load_snap(param_file: str | Path, coeff_file: str | Path, **kwargs: Any) -> Calculator:
+    def load_snap(param_file: str | Path, coeff_file: str | Path, **kwargs: Any) -> Calculator:  # pragma: no cover
         """
         Load the SNAP or qSNAP model for use in ASE as a calculator.
 
