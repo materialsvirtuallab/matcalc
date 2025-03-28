@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 from phonopy import PhonopyQHA
 
-from .base import PropCalc
-from .phonon import PhononCalc
-from .relaxation import RelaxCalc
+from ._base import PropCalc
+from ._phonon import PhononCalc
+from ._relaxation import RelaxCalc
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

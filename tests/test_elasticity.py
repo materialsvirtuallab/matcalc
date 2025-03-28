@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 from ase.filters import ExpCellFilter
 
-from matcalc.elasticity import ElasticityCalc
+from matcalc import ElasticityCalc
 
 if TYPE_CHECKING:
     from matgl.ext.ase import PESCalculator

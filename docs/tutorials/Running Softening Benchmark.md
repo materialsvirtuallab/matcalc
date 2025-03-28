@@ -8,7 +8,6 @@ nav_exclude: true
 
 This notebook demonstrates how to run the Softening Benchmark on M3GNet, CHGNet and TensorNet with the MatCalc repo.
 
-
 ```python
 from __future__ import annotations
 

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from matcalc.qha import QHACalc
+from matcalc import QHACalc
 
 if TYPE_CHECKING:
     from pathlib import Path

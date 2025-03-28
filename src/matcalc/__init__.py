@@ -9,15 +9,15 @@ try:
 except PackageNotFoundError:
     pass  # package not installed
 
-from .base import ChainedCalc, PropCalc
+from ._base import ChainedCalc, PropCalc
+from ._elasticity import ElasticityCalc
+from ._eos import EOSCalc
+from ._neb import NEBCalc
+from ._phonon import PhononCalc
+from ._qha import QHACalc
+from ._relaxation import RelaxCalc
+from ._stability import EnergeticsCalc
 from .config import clear_cache
-from .elasticity import ElasticityCalc
-from .eos import EOSCalc
-from .neb import NEBCalc
-from .phonon import PhononCalc
-from .qha import QHACalc
-from .relaxation import RelaxCalc
-from .stability import EnergeticsCalc
 from .utils import UNIVERSAL_CALCULATORS, PESCalculator
 
 # Provide an alias for loading calculators quickly.

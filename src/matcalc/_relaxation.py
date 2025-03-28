@@ -12,7 +12,7 @@ from pymatgen.io.ase import AseAtomsAdaptor
 
 from matcalc.utils import get_ase_optimizer
 
-from .base import PropCalc
+from ._base import PropCalc
 
 if TYPE_CHECKING:
     import numpy as np

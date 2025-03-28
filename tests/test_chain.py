@@ -8,10 +8,7 @@ import numpy as np
 import pytest
 from ase.filters import ExpCellFilter
 
-from matcalc.base import ChainedCalc
-from matcalc.elasticity import ElasticityCalc
-from matcalc.relaxation import RelaxCalc
-from matcalc.stability import EnergeticsCalc
+from matcalc import ChainedCalc, ElasticityCalc, EnergeticsCalc, RelaxCalc
 
 if TYPE_CHECKING:
     from matgl.ext.ase import PESCalculator

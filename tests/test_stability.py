@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from matcalc.stability import EnergeticsCalc
+from matcalc._stability import EnergeticsCalc
 
 if TYPE_CHECKING:
     from matgl.ext.ase import PESCalculator

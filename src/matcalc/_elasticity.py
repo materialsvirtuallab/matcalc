@@ -8,8 +8,8 @@ import numpy as np
 from pymatgen.analysis.elasticity import DeformedStructureSet, ElasticTensor, Strain
 from pymatgen.analysis.elasticity.elastic import get_strain_state_dict
 
-from .base import PropCalc
-from .relaxation import RelaxCalc
+from ._base import PropCalc
+from ._relaxation import RelaxCalc
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

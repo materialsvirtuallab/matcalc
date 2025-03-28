@@ -9,7 +9,7 @@ import pytest
 from monty.tempfile import ScratchDir
 
 import matcalc
-from matcalc.cli import calculate_property, clear_cache
+from matcalc._cli import calculate_property, clear_cache
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from matcalc.phonon import PhononCalc
+from matcalc import PhononCalc
 
 if TYPE_CHECKING:
     from pathlib import Path
