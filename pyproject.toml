@@ -133,7 +133,7 @@ maintain = [
     "sphinx-markdown-builder>=0.6.8",
 ]
 test-models = [
-    {include-extra = "mace-torch"},
+    {include-extra = "mace"},
     "orb-models>=0.4.2",
     "pynanoflann>=0.10.0",
     "sevenn>=0.10.4",
