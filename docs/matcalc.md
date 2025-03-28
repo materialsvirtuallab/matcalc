@@ -1225,8 +1225,8 @@ Some utility methods, e.g., for getting calculators from well-known sources.
 Bases: `Calculator`
 
 Potential calculator for ASE, supporting both **universal** and **customized** potentials, including:
-: Customized potentials: MatGL(M3GNet, CHGNet, TensorNet and SO3Net), MAML(MTP, GAP, NNP, SNAP and qSNAP) and ACE.
-  Universal potentials: M3GNet, CHGNet, MACE and SevenNet.
+: Customized potentials: MatGL (M3GNet, CHGNet, TensorNet, SO3Net), MAML (MTP, GAP, NNP, SNAP, qSNAP) and ACE.
+  Universal potentials: M3GNet, CHGNet, MACE, SevenNet, GRACE, ORB, MatterSim, DeePMD, FAIR-Chem and PET-MAD.
 
 Though MatCalc can be used with any MLIP, this method does not yet cover all MLIPs.
 Imports should be inside if statements to ensure that all models are optional dependencies.
@@ -1283,7 +1283,7 @@ Loads the custom deep potential model for use in ASE as a calculator.
     potential, filename should end with “.pth”
   * **\*\*kwargs** (*Any*) – Additional keyword arguments for the PESCalculator.
 * **Returns:**
-  ASE calculator compatible with the DeepMD model.
+  ASE calculator compatible with the DeePMD model.
 * **Return type:**
   Calculator
 
