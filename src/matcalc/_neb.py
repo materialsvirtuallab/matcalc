@@ -9,8 +9,8 @@ from ase.io import Trajectory
 from ase.neb import NEB, NEBTools
 from pymatgen.core import Structure
 
-from matcalc.base import PropCalc
-from matcalc.utils import get_ase_optimizer, get_universal_calculator
+from ._base import PropCalc
+from .utils import get_ase_optimizer
 
 if TYPE_CHECKING:
     from ase import Atoms
@@ -23,9 +23,9 @@ class NEBCalc(PropCalc):
 
     def __init__(
         self,
+        calculator: Calculator,
         images: list[Structure],
         *,
-        calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
         optimizer: str | Optimizer = "BFGS",
         traj_folder: str | None = None,
         interval: int = 1,
@@ -42,7 +42,7 @@ class NEBCalc(PropCalc):
             climb(bool): Whether to enable climb image NEB. Defaults to True.
             kwargs: Other arguments passed to ASE NEB object.
         """
-        self.calculator = get_universal_calculator(calculator)
+        self.calculator = calculator
 
         self.optimizer = get_ase_optimizer(optimizer)
         self.traj_folder = traj_folder

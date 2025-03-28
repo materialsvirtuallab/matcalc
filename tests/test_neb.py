@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from matcalc.neb import NEBCalc
+from matcalc import NEBCalc
 
 if TYPE_CHECKING:
     from pathlib import Path

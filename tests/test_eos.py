@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import pytest
 from ase.filters import ExpCellFilter
 
-from matcalc.eos import EOSCalc
+from matcalc import EOSCalc
 
 if TYPE_CHECKING:
     from matgl.ext.ase import PESCalculator

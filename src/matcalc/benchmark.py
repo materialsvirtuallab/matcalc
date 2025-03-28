@@ -27,12 +27,12 @@ if TYPE_CHECKING:
 
     from ase.calculators.calculator import Calculator
 
-    from .base import PropCalc
+    from ._base import PropCalc
 
+from ._elasticity import ElasticityCalc
+from ._phonon import PhononCalc
+from ._stability import EnergeticsCalc
 from .config import BENCHMARK_DATA_DIR, BENCHMARK_DATA_DOWNLOAD_URL, BENCHMARK_DATA_URL
-from .elasticity import ElasticityCalc
-from .phonon import PhononCalc
-from .stability import EnergeticsCalc
 from .units import eVA3ToGPa
 
 logger = logging.getLogger(__name__)

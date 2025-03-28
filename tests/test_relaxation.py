@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from ase.filters import ExpCellFilter, FrechetCellFilter
 
-from matcalc.relaxation import RelaxCalc
+from matcalc import RelaxCalc
 
 if TYPE_CHECKING:
     from pathlib import Path

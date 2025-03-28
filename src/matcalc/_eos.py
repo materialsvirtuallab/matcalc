@@ -8,8 +8,8 @@ import numpy as np
 from pymatgen.analysis.eos import BirchMurnaghan
 from sklearn.metrics import r2_score
 
-from .base import PropCalc
-from .relaxation import RelaxCalc
+from ._base import PropCalc
+from ._relaxation import RelaxCalc
 
 if TYPE_CHECKING:
     from typing import Any

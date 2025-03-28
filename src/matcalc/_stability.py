@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Any, Literal
 from monty.serialization import loadfn
 from pymatgen.io.ase import AseAtomsAdaptor
 
-from .base import PropCalc
-from .relaxation import RelaxCalc
+from ._base import PropCalc
+from ._relaxation import RelaxCalc
 
 if TYPE_CHECKING:
     from typing import Any

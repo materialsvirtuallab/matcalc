@@ -8,7 +8,6 @@ nav_exclude: true
 
 This notebook demonstrates how to run the MatCalc-Benchmark. We will use the recently released TensorNet-MatPES-PBE-v2025.1-PES and M3GNet-MatPES-PBE-v2025.1-PES universal machine learning interatomic potentials for demonstration purposes. All that is needed to run the benchmark on a separate model is to provide a compatible ASE Calculator for your UMLIP.
 
-
 ```python
 from __future__ import annotations
 

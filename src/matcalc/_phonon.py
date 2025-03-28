@@ -10,8 +10,8 @@ from phonopy.file_IO import write_FORCE_CONSTANTS as write_force_constants
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
 
-from .base import PropCalc
-from .relaxation import RelaxCalc
+from ._base import PropCalc
+from ._relaxation import RelaxCalc
 
 if TYPE_CHECKING:
     from pathlib import Path

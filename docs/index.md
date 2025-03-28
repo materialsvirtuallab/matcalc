@@ -144,8 +144,10 @@ For example, the following code can be used to run the ElasticityBenchmark on `T
 
 ```python
 from matcalc import load_up
+
 calculator = load_up("TensorNet-MatPES-PBE-v2025.1-PES")
 from matcalc.benchmark import ElasticityBenchmark
+
 benchmark = ElasticityBenchmark(fmax=0.05, relax_structure=True)
 results = benchmark.run(calculator, "TensorNet-MatPES")
 ```
@@ -156,6 +158,7 @@ You can even run entire suites of benchmarks on multiple models, as follows:
 
 ```python
 from matcalc import PESCalculator
+
 tensornet = PESCalculator.load_universal("TensorNet-MatPES-PBE-v2025.1-PES")
 m3gnet = PESCalculator.load_universal("M3GNet-MatPES-PBE-v2025.1-PES")
 from matcalc.benchmark import BenchmarkSuite, ElasticityBenchmark, PhononBenchmark
