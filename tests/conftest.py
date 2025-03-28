@@ -43,6 +43,12 @@ def Li2O() -> Structure:
 
 
 @pytest.fixture(scope="session")
+def Si() -> Structure:
+    """Si structure as session-scoped fixture."""
+    return PymatgenTest.get_structure("Si")
+
+
+@pytest.fixture(scope="session")
 def m3gnet_calculator() -> PESCalculator:
     """M3GNet calculator as session-scoped fixture."""
     return PESCalculator.load_matgl("M3GNet-MP-2021.2.8-PES")
