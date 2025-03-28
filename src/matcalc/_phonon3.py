@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
+from phono3py import Phono3py
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
 
@@ -84,15 +85,6 @@ class Phonon3Calc(PropCalc):
                     approximation at corresponding temperatures (in Watts/meter/Kelvin),
             }
         """
-        try:
-            from phono3py import Phono3py
-        except ImportError as e:
-            raise ImportError(
-                "Need to install phono3py before using Phonon3Calc. "
-                "I personally recommend using 'conda install -c conda-forge phono3py' for installation. "
-                "See https://phonopy.github.io/phono3py/install.html for full instructions."
-            ) from e
-
         result = super().calc(structure)
         structure_in: Structure = result["final_structure"]
 
@@ -119,21 +111,19 @@ class Phonon3Calc(PropCalc):
 
         phonon3.generate_displacements(**self.disp_kwargs)
 
-        num_atoms2 = len(phonon3.phonon_supercells_with_displacements[0])
+        len(phonon3.phonon_supercells_with_displacements[0])
         phonon_forces = []
         for supercell in phonon3.phonon_supercells_with_displacements:
-            if supercell is not None:
-                struct_supercell = get_pmg_structure(supercell)
-                atoms_supercell = AseAtomsAdaptor.get_atoms(struct_supercell)
-                atoms_supercell.calc = self.calculator
-                f = atoms_supercell.get_forces()
-            else:
-                f = np.zeros((num_atoms2, 3))
+            struct_supercell = get_pmg_structure(supercell)
+            atoms_supercell = AseAtomsAdaptor.get_atoms(struct_supercell)
+            atoms_supercell.calc = self.calculator
+            f = atoms_supercell.get_forces()
+
             phonon_forces.append(f)
         fc2_set = np.array(phonon_forces)
         phonon3.phonon_forces = fc2_set
 
-        num_atoms3 = len(phonon3.supercells_with_displacements[0])
+        len(phonon3.supercells_with_displacements[0])
         forces = []
         for supercell in phonon3.supercells_with_displacements:
             if supercell is not None:
@@ -141,9 +131,7 @@ class Phonon3Calc(PropCalc):
                 atoms_supercell = AseAtomsAdaptor.get_atoms(struct_supercell)
                 atoms_supercell.calc = self.calculator
                 f = atoms_supercell.get_forces()
-            else:
-                f = np.zeros((num_atoms3, 3))
-            forces.append(f)
+                forces.append(f)
         fc3_set = np.array(forces)
         phonon3.forces = fc3_set
 

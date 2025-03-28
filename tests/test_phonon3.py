@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-from importlib.util import find_spec
 from typing import TYPE_CHECKING
 
 import pytest
@@ -17,7 +16,6 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
-@pytest.mark.skipif(not find_spec("phono3py"), reason="phono3py is not installed")
 @pytest.mark.parametrize(
     ("phonon3_file", "write_kappa"),
     [("", False), ("ph3.yaml", True)],
