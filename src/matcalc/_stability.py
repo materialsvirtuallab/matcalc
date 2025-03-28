@@ -21,7 +21,29 @@ ELEMENTAL_REFS_DIR = Path(__file__).parent / "elemental_refs"
 
 
 class EnergeticsCalc(PropCalc):
-    """Calculator for energetic properties."""
+    """
+    Handles the computation of energetic properties such as formation energy per atom,
+    cohesive energy per atom, and relaxed structures for input compositions. This class
+    enables a streamlined setup for performing computational property calculations based
+    on different reference data and relaxation configurations.
+
+    :ivar calculator: The computational calculator used for numerical simulations and property
+        evaluations.
+    :type calculator: Calculator
+    :ivar elemental_refs: Reference data dictionary or identifier for elemental properties.
+        If a string ("MatPES-PBE" or "MatPES-r2SCAN"), loads default references;
+        if a dictionary, uses custom provided data.
+    :type elemental_refs: Literal["MatPES-PBE", "MatPES-r2SCAN"] | dict
+    :ivar use_dft_gs_reference: Whether to use DFT ground state data for energy computations
+        when referencing elemental properties.
+    :type use_dft_gs_reference: bool
+    :ivar relax_structure: Specifies whether to relax the input structures before property
+        calculations. If True, relaxation is applied.
+    :type relax_structure: bool
+    :ivar relax_calc_kwargs: Optional keyword arguments for fine-tuning relaxation calculation
+        settings or parameters.
+    :type relax_calc_kwargs: dict | None
+    """
 
     def __init__(
         self,
@@ -33,28 +55,29 @@ class EnergeticsCalc(PropCalc):
         relax_calc_kwargs: dict | None = None,
     ) -> None:
         """
-        Initialize the class with the required computational parameters to set up properties
-        and configurations. This class is used to perform calculations and provides an interface
-        to manage computational settings such as calculator setup, elemental references, ground
-        state relaxation, and additional calculation parameters.
+        Initializes the class with the given calculator and optional configurations for
+        elemental references, density functional theory (DFT) ground state reference, and
+        options for structural relaxation.
 
-        :param calculator: The computational calculator object implementing specific calculation
-            protocols or methods for performing numerical simulations.
+        This constructor allows initializing essential components of the object, tailored
+        for specific computational settings. The parameters include configurations for
+        elemental references, an optional DFT ground state reference, and structural
+        relaxation preferences.
+
+        :param calculator: A `Calculator` instance for performing calculations.
         :type calculator: Calculator
-
-        :param elemental_refs: Specifies the elemental reference data source. It can either be a
-            predefined identifier ("MatPES-PBE" or "MatPES-r2SCAN") to load default references or,
-            alternatively, it can be a dictionary directly providing custom reference data. The dict should be of the
-            format {element_symbol: {"structure": structure_object, "energy_per_atom": energy_per_atom,
-            "energy_atomic": energy_atomic}}
+        :param elemental_refs: Specifies the elemental references to be used. It can either be
+            a predefined string identifier ("MatPES-PBE", "MatPES-r2SCAN") or a dictionary
+            mapping elements to their energy references.
         :type elemental_refs: Literal["MatPES-PBE", "MatPES-r2SCAN"] | dict
-
-        :param use_dft_gs_reference: Whether to use the ground state reference from DFT
-            calculations for energetics or other property computations.
+        :param use_dft_gs_reference: Determines whether to use DFT ground state
+            energy as a reference. Defaults to False.
         :type use_dft_gs_reference: bool
-
-        :param relax_calc_kwargs: Optional dictionary containing additional keyword arguments
-            for customizing the configurations and execution of the relaxation calculations.
+        :param relax_structure: Specifies if the structure should be relaxed before
+            proceeding with calculations. Defaults to True.
+        :type relax_structure: bool
+        :param relax_calc_kwargs: Additional keyword arguments for the relaxation
+            calculation. Can be a dictionary of settings or None. Defaults to None.
         :type relax_calc_kwargs: dict | None
         """
         self.calculator = calculator

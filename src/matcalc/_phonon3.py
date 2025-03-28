@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -24,38 +24,55 @@ if TYPE_CHECKING:
 
 @dataclass
 class Phonon3Calc(PropCalc):
-    """Calculator for phonon-phonon interaction and related properties.
+    """
+    Handles the calculation of phonon-phonon interactions and thermal conductivity
+    using the Phono3py package. Provides functionality for generating displacements,
+    calculating force constants, and computing lattice thermal conductivity.
 
-    Args:
-        calculator (Calculator): ASE Calculator to use.
-        fmax (float): Maximum force tolerance (in eV/Angstrom). More stringent than for simple relaxation.
-            Defaults to 0.1.
-        optimizer (str): Optimizer used for structure relaxation in RelaxCalc.
-        fc2_supercell (ArrayLike): Supercell matrix for 2nd order force constants. Defaults to a 2x2x2 supercell.
-        fc3_supercell (ArrayLike): Supercell matrix for 3rd order force constants. Defaults to a 2x2x2 supercell.
-        mesh_numbers (ArrayLike): Sampling mesh numbers along reciprocal axes. Defaults to (20, 20, 20).
-        t_step (float): Temperature step (in Kelvin).
-        t_max (float): Maximum temperature (in Kelvin).
-        t_min (float): Minimum temperature (in Kelvin).
-        relax_structure (bool): Whether to relax the structure before phonon calculations.
-            Set to False if the provided structure is already relaxed with the same calculator.
-        relax_calc_kwargs (dict): Additional arguments for RelaxCalc when relax_structure is True.
-        disp_kwargs (dict): Additional arguments for generate_displacements.
-        thermal_conductivity_kwargs (dict): Additional arguments for run_thermal_conductivity.
-        write_phonon3 (bool | str | Path): Whether to save the Phono3py object.
-            Set to True to save with default filename, or pass a string/Path for a custom filename.
-            Defaults to False.
-        write_kappa (bool): Whether to save thermal conductivity related properties. Defaults to False.
+    Primarily designed for automating the usage of Phono3py in conjunction with
+    a chosen calculator for force evaluations. Supports options for structure
+    relaxation before calculation and customization of various computational parameters.
+
+    :ivar calculator: ASE Calculator used for force evaluations during the calculation.
+    :type calculator: Calculator
+    :ivar fc2_supercell: Supercell matrix for the second-order force constants calculation.
+    :type fc2_supercell: ArrayLike
+    :ivar fc3_supercell: Supercell matrix for the third-order force constants calculation.
+    :type fc3_supercell: ArrayLike
+    :ivar mesh_numbers: Grid mesh numbers for thermal conductivity calculation.
+    :type mesh_numbers: ArrayLike
+    :ivar disp_kwargs: Custom keyword arguments for generating displacements.
+    :type disp_kwargs: dict | None
+    :ivar thermal_conductivity_kwargs: Additional keyword arguments for thermal conductivity calculations.
+    :type thermal_conductivity_kwargs: dict | None
+    :ivar relax_structure: Flag indicating whether the input structure should be relaxed before calculation.
+    :type relax_structure: bool
+    :ivar relax_calc_kwargs: Additional keyword arguments for the structure relaxation calculator.
+    :type relax_calc_kwargs: dict | None
+    :ivar fmax: Maximum force tolerance for the structure relaxation.
+    :type fmax: float
+    :ivar optimizer: Optimizer name to use for structure relaxation.
+    :type optimizer: str
+    :ivar t_min: Minimum temperature (in Kelvin) for thermal conductivity calculation.
+    :type t_min: float
+    :ivar t_max: Maximum temperature (in Kelvin) for thermal conductivity calculation.
+    :type t_max: float
+    :ivar t_step: Temperature step size (in Kelvin) for thermal conductivity calculation.
+    :type t_step: float
+    :ivar write_phonon3: Output path for saving Phono3py results, or a boolean to toggle saving.
+    :type write_phonon3: bool | str | Path
+    :ivar write_kappa: Flag indicating whether to write kappa (thermal conductivity values) to output files.
+    :type write_kappa: bool
     """
 
     calculator: Calculator
     fc2_supercell: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2))
     fc3_supercell: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2))
     mesh_numbers: ArrayLike = (20, 20, 20)
-    disp_kwargs: dict | None = None
-    thermal_conductivity_kwargs: dict | None = None
+    disp_kwargs: dict[str, Any] = field(default_factory=dict)
+    thermal_conductivity_kwargs: dict = field(default_factory=dict)
     relax_structure: bool = True
-    relax_calc_kwargs: dict | None = None
+    relax_calc_kwargs: dict = field(default_factory=dict)
     fmax: float = 0.1
     optimizer: str = "FIRE"
     t_min: float = 0
@@ -71,18 +88,27 @@ class Phonon3Calc(PropCalc):
             setattr(self, key, str({True: default_path, False: ""}.get(val, val)))  # type: ignore[arg-type]
 
     def calc(self, structure: Structure | dict[str, Any]) -> dict:
-        """Calculate phonon-phonon interactions and related properties.
+        """
+        Performs thermal conductivity calculations using the Phono3py library.
 
-        Args:
-            structure: A pymatgen Structure object or dictionary that can be converted to one.
+        This method processes a given atomic structure and calculates its thermal
+        conductivity through third-order force constants (FC3) computations. The
+        process involves optional relaxation of the input structure, generation of
+        displacements, and force calculations corresponding to the supercell
+        structures. The results include computed thermal conductivity over specified
+        temperatures, along with intermediate Phono3py configurations.
 
-        Returns:
-            dict: {
-                "phonon3": Phono3py object with force constants produced,
-                "temperatures": list of temperatures (in Kelvin),
-                "thermal_conductivity": list of average lattice thermal conductivity under relaxation time
-                    approximation at corresponding temperatures (in Watts/meter/Kelvin),
-            }
+        :param structure: The atomic structure to compute thermal conductivity for. This can
+            be provided as either a `Structure` object or a dictionary describing
+            the structure as per specifications of the input format.
+        :return: A dictionary containing the following keys:
+            - "phonon3": The configured and processed Phono3py object containing data
+              regarding the phonon interactions and force constants.
+            - "temperatures": A numpy array of temperatures over which thermal
+              conductivity has been computed.
+            - "thermal_conductivity": The averaged thermal conductivity values computed
+              at the specified temperatures. Returns NaN if the values cannot be
+              computed.
         """
         result = super().calc(structure)
         structure_in: Structure = result["final_structure"]

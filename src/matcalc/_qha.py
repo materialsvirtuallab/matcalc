@@ -23,40 +23,56 @@ if TYPE_CHECKING:
 
 @dataclass
 class QHACalc(PropCalc):
-    """Calculator for phonon properties under quasi-harmonic approximation.
+    """
+    Class for performing quasi-harmonic approximation calculations.
 
-    Args:
-        calculator (Calculator): ASE Calculator to use.
-        t_step (float): Temperature step. Defaults to 10 (in Kelvin).
-        t_max (float): Max temperature (in Kelvin). Defaults to 1000 (in Kelvin).
-        t_min (float): Min temperature (in Kelvin). Defaults to 0 (in Kelvin).
-        fmax (float): Max forces. This criterion is more stringent than for simple relaxation.
-            Defaults to 0.1 (in eV/Angstrom).
-        optimizer (str): Optimizer used for RelaxCalc. Default to "FIRE".
-        eos (str): Equation of state used to fit F vs V, including "vinet", "murnaghan" or
-            "birch_murnaghan". Default to "vinet".
-        relax_structure (bool): Whether to first relax the structure. Set to False if structures
-            provided are pre-relaxed with the same calculator.
-        relax_calc_kwargs (dict): Arguments to be passed to the RelaxCalc, if relax_structure is True.
-        phonon_calc_kwargs (dict): Arguments to be passed to the PhononCalc.
-        scale_factors (Sequence[float]): Factors to scale the lattice constants of the structure.
-        write_helmholtz_volume (bool | str | Path): Whether to save Helmholtz free energy vs volume in file.
-            Pass string or Path for custom filename. Defaults to False.
-        write_volume_temperature (bool | str | Path): Whether to save equilibrium volume vs temperature in file.
-            Pass string or Path for custom filename. Defaults to False.
-        write_thermal_expansion (bool | str | Path): Whether to save thermal expansion vs temperature in file.
-            Pass string or Path for custom filename. Defaults to False.
-        write_gibbs_temperature (bool | str | Path): Whether to save Gibbs free energy vs temperature in file.
-            Pass string or Path for custom filename. Defaults to False.
-        write_bulk_modulus_temperature (bool | str | Path): Whether to save bulk modulus vs temperature in file.
-            Pass string or Path for custom filename. Defaults to False.
-        write_heat_capacity_p_numerical (bool | str | Path): Whether to save heat capacity at constant pressure
-            by numerical difference vs temperature in file. Pass string or Path for custom filename.
-            Defaults to False.
-        write_heat_capacity_p_polyfit (bool | str | Path): Whether to save heat capacity at constant pressure
-            by fitting vs temperature in file. Pass string or Path for custom filename. Defaults to False.
-        write_gruneisen_temperature (bool | str | Path): Whether to save Grueneisen parameter vs temperature in
-            file. Pass string or Path for custom filename. Defaults to False.
+    This class utilizes phonopy and Pymatgen-based structure manipulation to calculate
+    thermal properties such as Gibbs free energy, thermal expansion, heat capacity, and
+    bulk modulus as a function of temperature under the quasi-harmonic approximation.
+    It allows for structural relaxation, handling customized scale factors for lattice constants,
+    and fine-tuning various calculation parameters. Calculation results can be selectively
+    saved to output files.
+
+    :ivar calculator: Calculator instance used for electronic structure or energy calculations.
+    :type calculator: Calculator
+    :ivar t_step: Temperature step size in Kelvin.
+    :type t_step: float
+    :ivar t_max: Maximum temperature in Kelvin.
+    :type t_max: float
+    :ivar t_min: Minimum temperature in Kelvin.
+    :type t_min: float
+    :ivar fmax: Maximum force threshold for structure relaxation in eV/Å.
+    :type fmax: float
+    :ivar optimizer: Type of optimizer used for structural relaxation.
+    :type optimizer: str
+    :ivar eos: Equation of state used for fitting energy vs. volume data.
+    :type eos: str
+    :ivar relax_structure: Whether to perform structure relaxation before phonon calculations.
+    :type relax_structure: bool
+    :ivar relax_calc_kwargs: Additional keyword arguments for structure relaxation calculations.
+    :type relax_calc_kwargs: dict | None
+    :ivar phonon_calc_kwargs: Additional keyword arguments for phonon calculations.
+    :type phonon_calc_kwargs: dict | None
+    :ivar scale_factors: List of scale factors for lattice scaling.
+    :type scale_factors: Sequence[float]
+    :ivar write_helmholtz_volume: Path or boolean to control saving Helmholtz free energy vs. volume data.
+    :type write_helmholtz_volume: bool | str | Path
+    :ivar write_volume_temperature: Path or boolean to control saving volume vs. temperature data.
+    :type write_volume_temperature: bool | str | Path
+    :ivar write_thermal_expansion: Path or boolean to control saving thermal expansion coefficient data.
+    :type write_thermal_expansion: bool | str | Path
+    :ivar write_gibbs_temperature: Path or boolean to control saving Gibbs free energy as a function of temperature.
+    :type write_gibbs_temperature: bool | str | Path
+    :ivar write_bulk_modulus_temperature: Path or boolean to control saving bulk modulus vs. temperature data.
+    :type write_bulk_modulus_temperature: bool | str | Path
+    :ivar write_heat_capacity_p_numerical: Path or boolean to control saving numerically calculated heat capacity vs.
+        temperature data.
+    :type write_heat_capacity_p_numerical: bool | str | Path
+    :ivar write_heat_capacity_p_polyfit: Path or boolean to control saving polynomial-fitted heat capacity vs.
+        temperature data.
+    :type write_heat_capacity_p_polyfit: bool | str | Path
+    :ivar write_gruneisen_temperature: Path or boolean to control saving Grüneisen parameter vs. temperature data.
+    :type write_gruneisen_temperature: bool | str | Path
     """
 
     calculator: Calculator

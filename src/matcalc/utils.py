@@ -61,11 +61,20 @@ MODEL_ALIASES = {
 
 class PESCalculator(Calculator):
     """
-    Potential calculator for ASE, supporting both **universal** and **customized** potentials, including:
-        Customized potentials: MatGL (M3GNet, CHGNet, TensorNet, SO3Net), MAML (MTP, GAP, NNP, SNAP, qSNAP) and ACE.
-        Universal potentials: M3GNet, CHGNet, MACE, SevenNet, GRACE, ORB, MatterSim, DeePMD, FAIR-Chem and PET-MAD.
-    Though MatCalc can be used with any MLIP, this method does not yet cover all MLIPs.
-    Imports should be inside if statements to ensure that all models are optional dependencies.
+    Class for simulating and calculating potential energy surfaces (PES) using various
+    machine learning and classical potentials. It extends the ASE `Calculator` API,
+    allowing integration with the ASE framework for molecular dynamics and structure
+    optimization.
+
+    PESCalculator provides methods to perform energy, force, and stress calculations
+    using potentials such as MTP, GAP, NNP, SNAP, ACE, NequIP, DeepMD and MatGL (M3GNet, TensorNet, CHGNet). The class
+    includes utilities to load compatible models for each potential type, making it
+    a versatile tool for materials modeling and molecular simulations.
+
+    :ivar potential: The potential model used for PES calculations.
+    :type potential: LMPStaticCalculator
+    :ivar stress_weight: The stress weight factor to convert between units.
+    :type stress_weight: float
     """
 
     implemented_properties = ["energy", "forces", "stress"]  # noqa:RUF012
@@ -137,14 +146,19 @@ class PESCalculator(Calculator):
     @staticmethod
     def load_matgl(path: str | Path, **kwargs: Any) -> Calculator:
         """
-        Load the MatGL model for use in ASE as a calculator.
+        Loads a MATGL model from the specified path and initializes a PESCalculator
+        with the loaded model and additional optional parameters.
 
-        Args:
-            path (str | Path): The path to the folder storing model.
-            **kwargs (Any): Additional keyword arguments for the M3GNetCalculator.
+        This method uses the MATGL library to load a model from the given file path
+        or directory. It then configures a calculator using the loaded model and
+        the provided keyword arguments.
 
-        Returns:
-            Calculator: ASE calculator compatible with the MatGL model.
+        :param path: The path to the MATGL model file or directory.
+        :type path: str | Path
+        :param kwargs: Additional keyword arguments used to configure the calculator.
+        :return: An instance of the PESCalculator initialized with the loaded MATGL
+            model and configured with the given parameters.
+        :rtype: Calculator
         """
         import matgl
         from matgl.ext.ase import PESCalculator as PESCalculator_
@@ -156,15 +170,22 @@ class PESCalculator(Calculator):
     @staticmethod
     def load_mtp(filename: str | Path, elements: list, **kwargs: Any) -> Calculator:
         """
-        Load the MTP model for use in ASE as a calculator.
+        Load a machine-learned potential (MTPotential) from a configuration file and
+        create a calculator object to interface with it.
 
-        Args:
-            filename (str | Path): The file storing parameters of potentials, filename should ends with ".mtp".
-            elements (list): The list of elements.
-            **kwargs (Any): Additional keyword arguments for the PESCalculator.
+        This method initializes an instance of MTPotential using a provided
+        configuration file and elements. It returns a PESCalculator instance,
+        which wraps the initialized potential model.
 
-        Returns:
-            Calculator: ASE calculator compatible with the MTP model.
+        :param filename: Path to the configuration file for the MTPotential.
+        :type filename: str | Path
+        :param elements: List of element symbols used in the model. Each element
+            should be a string representing a chemical element (e.g., "H", "O").
+        :type elements: list
+        :param kwargs: Additional keyword arguments to configure the PESCalculator.
+        :type kwargs: Any
+        :return: A calculator object wrapping the MTPotential.
+        :rtype: Calculator
         """
         from maml.apps.pes import MTPotential
 
@@ -174,14 +195,18 @@ class PESCalculator(Calculator):
     @staticmethod
     def load_gap(filename: str | Path, **kwargs: Any) -> Calculator:
         """
-        Load the GAP model for use in ASE as a calculator.
+        Loads a Gaussian Approximation Potential (GAP) model from the given file and
+        returns a corresponding Calculator instance. GAP is a machine learning-based
+        potential used for atomistic simulations and requires a specific config file as
+        input. Any additional arguments for the calculator can be passed via kwargs,
+        allowing customization.
 
-        Args:
-            filename (str | Path): The file storing parameters of potentials, filename should ends with ".xml".
-            **kwargs (Any): Additional keyword arguments for the PESCalculator.
-
-        Returns:
-            Calculator: ASE calculator compatible with the GAP model.
+        :param filename: Path to the configuration file for the GAP model.
+        :type filename: str | Path
+        :param kwargs: Additional keyword arguments for configuring the calculator.
+        :type kwargs: Any
+        :return: An instance of PESCalculator initialized with the GAPotential model.
+        :rtype: Calculator
         """
         from maml.apps.pes import GAPotential
 
@@ -193,19 +218,21 @@ class PESCalculator(Calculator):
         input_filename: str | Path, scaling_filename: str | Path, weights_filenames: list, **kwargs: Any
     ) -> Calculator:
         """
-        Load the NNP model for use in ASE as a calculator.
+        Loads a neural network potential (NNP) from specified configuration files and
+        creates a Calculator object configured with the potential. This function allows
+        for customizable keyword arguments to modify the behavior of the resulting
+        Calculator.
 
-        Args:
-                input_filename (str | Path): The file storing the input configuration of
-                    Neural Network Potential.
-                scaling_filename (str | Path): The file storing scaling info of
-                    Neural Network Potential.
-                weights_filenames (list | Path): List of files storing weights of each specie in
-                    Neural Network Potential.
-                **kwargs (Any): Additional keyword arguments for the PESCalculator.
-
-        Returns:
-            Calculator: ASE calculator compatible with the NNP model.
+        :param input_filename: Path to the primary input file containing NNP configuration.
+        :type input_filename: str | Path
+        :param scaling_filename: Path to the scaling parameters file required for the NNP.
+        :type scaling_filename: str | Path
+        :param weights_filenames: List of paths to weight files for the NNP.
+        :type weights_filenames: list
+        :param kwargs: Additional keyword arguments passed to the Calculator constructor.
+        :type kwargs: Any
+        :return: A Calculator object initialized with the loaded NNP settings.
+        :rtype: Calculator
         """
         from maml.apps.pes import NNPotential
 
@@ -219,15 +246,18 @@ class PESCalculator(Calculator):
     @staticmethod
     def load_snap(param_file: str | Path, coeff_file: str | Path, **kwargs: Any) -> Calculator:  # pragma: no cover
         """
-        Load the SNAP or qSNAP model for use in ASE as a calculator.
+        Load a SNAP (Spectral Neighbor Analysis Potential) configuration and create a
+        corresponding Calculator instance.
 
-        Args:
-            param_file (str | Path): The file storing the configuration of potentials.
-            coeff_file (str | Path): The file storing the coefficients of potentials.
-            **kwargs (Any): Additional keyword arguments for the PESCalculator.
+        This static method initializes a SNAPotential instance using the provided
+        configuration files and subsequently generates a PESCalculator based on the
+        created potential model and additional keyword arguments.
 
-        Returns:
-            Calculator: ASE calculator compatible with the SNAP or qSNAP model.
+        :param param_file: Path to the parameter file required for SNAPotential configuration.
+        :param coeff_file: Path to the coefficient file required for SNAPotential configuration.
+        :param kwargs: Additional keyword arguments passed to the PESCalculator.
+        :return: A PESCalculator instance configured with the SNAPotential model.
+        :rtype: Calculator
         """
         from maml.apps.pes import SNAPotential
 
@@ -239,19 +269,21 @@ class PESCalculator(Calculator):
         basis_set: str | Path | ACEBBasisSet | ACECTildeBasisSet | BBasisConfiguration, **kwargs: Any
     ) -> Calculator:
         """
-        Load the ACE model for use in ASE as a calculator.
+        Load an ACE (Atomic Cluster Expansion) calculator using the specified basis set.
 
-        Args:
-            basis_set: The specification of ACE potential, could be in following forms:
-                ".ace" potential filename
-                ".yaml" potential filename
-                ACEBBasisSet object
-                ACECTildeBasisSet object
-                BBasisConfiguration object
-            **kwargs (Any): Additional keyword arguments for the PyACECalculator.
+        This method utilizes the PyACE library to create and initialize a PyACECalculator
+        instance with a given basis set. The provided basis set can take various forms including
+        file paths, basis set objects, or configurations. Additional customization options
+        can be passed through keyword arguments.
 
-        Returns:
-            Calculator: ASE calculator compatible with the ACE model.
+        :param basis_set: The basis set used for initializing the ACE calculator. This can
+            be provided as a string, Path object, ACEBBasisSet, ACECTildeBasisSet, or
+            BBasisConfiguration.
+        :param kwargs: Additional configuration parameters to customize the ACE
+            calculator. These keyword arguments are passed directly to the PyACECalculator
+            instance during initialization.
+        :return: An instance of the Calculator class representing the initialized ACE
+            calculator.
         """
         from pyace import PyACECalculator
 
@@ -262,14 +294,18 @@ class PESCalculator(Calculator):
         model_path: str | Path, **kwargs: Any
     ) -> Calculator:
         """
-        Load the NequIP model for use in ASE as a calculator.
+        Loads and returns a NequIP `Calculator` instance from the specified model path.
+        This method facilitates the integration of machine learning models into ASE
+        by loading a model for atomic-scale simulations.
 
-        Args:
-            model_path (str | Path): The file storing the configuration of potentials, filename should ends with ".pth".
-            **kwargs (Any): Additional keyword arguments for the PESCalculator.
-
-        Returns:
-            Calculator: ASE calculator compatible with the NequIP model.
+        :param model_path: The file path to the serialized NequIP model.
+        :type model_path: str | Path
+        :param kwargs: Additional keyword arguments to be passed to the
+            `NequIPCalculator.from_deployed_model` method.
+        :type kwargs: Any
+        :return: A `Calculator` instance initialized with the given model and parameters,
+            suitable for ASE simulations.
+        :rtype: Calculator
         """
         from nequip.ase import NequIPCalculator
 
@@ -280,15 +316,23 @@ class PESCalculator(Calculator):
         model_path: str | Path, **kwargs: Any
     ) -> Calculator:
         """
-        Loads the custom deep potential model for use in ASE as a calculator.
+        Loads a Deep Potential Molecular Dynamics (DeepMD) model and returns a `Calculator`
+        object for molecular dynamics simulations.
 
-        Args:
-            model_path (str | Path): The file storing the configuration of
-                potential, filename should end with ".pth"
-            **kwargs (Any): Additional keyword arguments for the PESCalculator.
+        This method imports the `deepmd.calculator.DP` class and initializes it with the
+        given model path and optional keyword arguments. The resulting `Calculator` object
+        is used to perform molecular simulations based on the specified DeepMD model.
 
-        Returns:
-            Calculator: ASE calculator compatible with the DeePMD model.
+        The function requires the DeepMD-kit library to be installed to properly import
+        and utilize the `DP` class.
+
+        :param model_path: Path to the trained DeepMD model file, provided as a string
+                           or a Path object.
+        :param kwargs: Additional options and configurations to pass into the DeepMD
+                       `Calculator` during initialization.
+        :return: An instance of the Calculator object initialized with the specified
+                 DeepMD model and optional configurations.
+        :rtype: Calculator
         """
         from deepmd.calculator import DP
 
@@ -297,14 +341,21 @@ class PESCalculator(Calculator):
     @staticmethod
     def load_universal(name: str | Calculator, **kwargs: Any) -> Calculator:  # noqa: C901
         """
-        Load the universal model for use in ASE as a calculator.
+        Loads a calculator instance based on the provided name or an existing calculator object. The
+        method supports multiple pre-built universal models and aliases for ease of use. If an existing calculator
+        object is passed instead of a name, it will directly return that calculator instance. Supported UMLIPs
+        include SOTA potentials such as M3GNet, CHGNet, TensorNet, MACE, GRACE, SevenNet, ORB, etc.
 
-        Args:
-            name (str | Calculator): The name of universal calculator.
-            **kwargs (Any): Additional keyword arguments for universal calculator.
+        This method is designed to provide a universal interface to load various calculator types, which
+        may belong to different domains and packages. It auto-resolves aliases, provides default options
+        for certain calculators, and raises errors for unsupported inputs.
 
-        Returns:
-            Calculator: ASE calculator compatible with the universal model.
+        :param name: The name of the calculator to load or an instance of a Calculator.
+        :param kwargs: Keyword arguments that are passed to the internal calculator initialization routines
+                    for models matching the specified name. These options are calculator dependent.
+        :return: An instance of the loaded calculator.
+
+        :raises ValueError: If the name provided does not match any recognized calculator type.
         """
         result: Calculator
 
@@ -378,7 +429,22 @@ class PESCalculator(Calculator):
 
 
 def is_ase_optimizer(key: str | Optimizer) -> bool:
-    """Check if key is the name of an ASE optimizer class."""
+    """
+    Determines whether the given key is an ASE optimizer. A key can
+    either be a string representing the name of an optimizer class
+    within `ase.optimize` or directly be an optimizer class that
+    subclasses `Optimizer`.
+
+    If the key is a string, the function checks whether it corresponds
+    to a class in `ase.optimize` that is a subclass of `Optimizer`.
+
+    :param key: The key to check, either a string name of an ASE
+        optimizer class or a class object that potentially subclasses
+        `Optimizer`.
+    :return: True if the key is either a string corresponding to an
+        ASE optimizer subclass name in `ase.optimize` or a class that
+        is a subclass of `Optimizer`. Otherwise, returns False.
+    """
     if isclass(key) and issubclass(key, Optimizer):
         return True
     if isinstance(key, str):
@@ -390,16 +456,23 @@ VALID_OPTIMIZERS = [key for key in dir(ase.optimize) if is_ase_optimizer(key)]
 
 
 def get_ase_optimizer(optimizer: str | Optimizer) -> Optimizer:
-    """Validate optimizer is a valid ASE Optimizer.
+    """
+    Retrieve an ASE optimizer instance based on the provided input. This function accepts either a
+    string representing the name of a valid ASE optimizer or an instance/subclass of the Optimizer
+    class. If a string is provided, it checks the validity of the optimizer name, and if valid, retrieves
+    the corresponding optimizer from ASE. An error is raised if the optimizer name is invalid.
 
-    Args:
-        optimizer (str | Optimizer): The optimization algorithm.
+    If an Optimizer subclass or instance is provided as input, it is returned directly.
 
-    Raises:
-        ValueError: on unrecognized optimizer name.
+    :param optimizer: The optimizer to be retrieved. Can be a string representing a valid ASE
+        optimizer name or an instance/subclass of the Optimizer class.
+    :type optimizer: str | Optimizer
 
-    Returns:
-        Optimizer: ASE Optimizer class.
+    :return: The corresponding ASE optimizer instance or the input Optimizer instance/subclass.
+    :rtype: Optimizer
+
+    :raises ValueError: If the optimizer name provided as a string is not among the valid ASE
+        optimizer names defined by `VALID_OPTIMIZERS`.
     """
     if isclass(optimizer) and issubclass(optimizer, Optimizer):
         return optimizer

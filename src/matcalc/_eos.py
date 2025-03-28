@@ -20,7 +20,32 @@ if TYPE_CHECKING:
 
 
 class EOSCalc(PropCalc):
-    """Equation of state calculator."""
+    """
+    Performs equation of state (EOS) calculations using a specified ASE calculator.
+
+    This class is intended to fit the Birch-Murnaghan equation of state, determine the
+    bulk modulus, and provide other relevant physical properties of a given structure.
+    The EOS calculation includes applying volumetric strain to the structure, optional
+    initial relaxation of the structure, and evaluation of energies and volumes
+    corresponding to the applied strain.
+
+    :ivar calculator: The ASE Calculator used for the calculations.
+    :type calculator: Calculator
+    :ivar optimizer: Optimization algorithm. Defaults to "FIRE".
+    :type optimizer: Optimizer | str
+    :ivar relax_structure: Indicates if the structure should be relaxed initially. Defaults to True.
+    :type relax_structure: bool
+    :ivar n_points: Number of strain points for the EOS calculation. Defaults to 11.
+    :type n_points: int
+    :ivar max_abs_strain: Maximum absolute volumetric strain. Defaults to 0.1 (10% strain).
+    :type max_abs_strain: float
+    :ivar fmax: Maximum force tolerance for relaxation. Defaults to 0.1 eV/Å.
+    :type fmax: float
+    :ivar max_steps: Maximum number of optimization steps during relaxation. Defaults to 500.
+    :type max_steps: int
+    :ivar relax_calc_kwargs: Additional keyword arguments for relaxation calculations. Defaults to None.
+    :type relax_calc_kwargs: dict | None
+    """
 
     def __init__(
         self,
@@ -35,16 +60,37 @@ class EOSCalc(PropCalc):
         relax_calc_kwargs: dict | None = None,
     ) -> None:
         """
-        Args:
-            calculator: ASE Calculator to use.
-            optimizer (str | ase Optimizer): The optimization algorithm. Defaults to "FIRE".
-            max_steps (int): Max number of steps for relaxation. Defaults to 500.
-            max_abs_strain (float): The maximum absolute strain applied to the structure. Defaults to 0.1 (10% strain).
-            n_points (int): Number of points in which to compute the EOS. Defaults to 11.
-            fmax (float): Max force for relaxation (of structure as well as atoms).
-            relax_structure: Whether to first relax the structure. Set to False if structures provided are pre-relaxed
-                with the same calculator. Defaults to True.
-            relax_calc_kwargs: Arguments to be passed to the RelaxCalc, if relax_structure is True.
+        Constructor for initializing the data and configurations necessary for a
+        calculation and optimization process. This class enables the setup of
+        simulation parameters, structural relaxation options, and optimizations
+        with specified constraints and tolerances.
+
+        :param calculator: The calculator object that handles the computation of
+            forces, energies, and other related properties for the system being
+            studied.
+        :type calculator: Calculator
+        :param optimizer: The optimization algorithm used for structural relaxations
+            or energy minimizations. Can be an optimizer object or the string name
+            of the algorithm. Default is "FIRE".
+        :type optimizer: Optimizer | str, optional
+        :param max_steps: The maximum number of steps allowed during the optimization
+            or relaxation process. Default is 500.
+        :type max_steps: int, optional
+        :param max_abs_strain: The maximum allowable absolute strain for relaxation
+            processes. Default is 0.1.
+        :type max_abs_strain: float, optional
+        :param n_points: The number of points or configurations evaluated during
+            the simulation or calculation process. Default is 11.
+        :type n_points: int, optional
+        :param fmax: The force convergence criterion, specifying the maximum force
+            threshold (per atom) for stopping relaxations. Default is 0.1.
+        :type fmax: float, optional
+        :param relax_structure: A flag indicating whether structural relaxation
+            should be performed before proceeding with further steps. Default is True.
+        :type relax_structure: bool, optional
+        :param relax_calc_kwargs: Additional keyword arguments to customize the
+            relaxation calculation process. Default is None.
+        :type relax_calc_kwargs: dict | None, optional
         """
         self.calculator = calculator
         self.optimizer = optimizer
@@ -56,20 +102,22 @@ class EOSCalc(PropCalc):
         self.relax_calc_kwargs = relax_calc_kwargs
 
     def calc(self, structure: Structure | dict[str, Any]) -> dict:
-        """Fit the Birch-Murnaghan equation of state.
+        """
+        Performs energy-strain calculations using Birch-Murnaghan equations of state to extract
+        equation of state properties such as bulk modulus and R-squared score of the fit.
 
-        Args:
-            structure: pymatgen Structure object.
+        This function calculates properties of a material system under strain, specifically
+        its volumetric energy response produced by applying incremental strain, then fits
+        the Birch-Murnaghan equation of state to the calculated energy and volume data.
+        Optionally, a relaxation is applied to the structure between calculations of its
+        strained configurations.
 
-        Returns: {
-            eos: {
-                volumes: tuple[float] in Angstrom^3,
-                energies: tuple[float] in eV,
-            },
-            bulk_modulus_bm: Birch-Murnaghan bulk modulus in GPa.
-            r2_score_bm: R squared of Birch-Murnaghan fit of energies predicted by model to help detect erroneous
-            calculations. This value should be at least around 1 - 1e-4 to 1 - 1e-5.
-        }
+        :param structure: Input structure for calculations. Can be a `Structure` object or
+            a dictionary representation of its atomic configuration and parameters.
+        :return: A dictionary containing results of the calculations, including relaxed
+            structures under conditions of strain, energy-volume data, Birch-Murnaghan
+            bulk modulus (in GPa), and R-squared fit of the Birch-Murnaghan model to the
+            data.
         """
         result = super().calc(structure)
         structure_in: Structure = result["final_structure"]

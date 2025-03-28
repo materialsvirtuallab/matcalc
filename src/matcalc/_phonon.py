@@ -25,33 +25,50 @@ if TYPE_CHECKING:
 
 @dataclass
 class PhononCalc(PropCalc):
-    """Calculator for phonon properties.
+    """
+    PhononCalc is a specialized class for calculating thermal properties of structures
+    using phonopy. It extends the functionalities of base property calculation classes
+    and integrates phonopy for phonon-related computations.
 
-    Args:
-        calculator (Calculator): ASE Calculator to use.
-        fmax (float): Max forces. This criterion is more stringent than for simple relaxation.
-            Defaults to 0.1 (in eV/Angstrom)
-        optimizer (str): Optimizer used for RelaxCalc.
-        atom_disp (float): Atomic displacement (in Angstrom).
-        supercell_matrix (ArrayLike): Supercell matrix to use. Defaults to 2x2x2 supercell.
-        t_step (float): Temperature step (in Kelvin).
-        t_max (float): Max temperature (in Kelvin).
-        t_min (float): Min temperature (in Kelvin).
-        relax_structure (bool): Whether to first relax the structure. Set to False if structures
-            provided are pre-relaxed with the same calculator.
-        relax_calc_kwargs (dict): Arguments to be passed to the RelaxCalc, if relax_structure is True.
-        write_force_constants (bool | str | Path): Whether to save force constants. Pass string or Path
-            for custom filename. Set to False for storage conservation. This file can be very large, be
-            careful when doing high-throughput. Defaults to False.
-        calculations.
-        write_band_structure (bool | str | Path): Whether to calculate and save band structure
-            (in yaml format). Defaults to False. Pass string or Path for custom filename.
-        write_total_dos (bool | str | Path): Whether to calculate and save density of states
-            (in dat format). Defaults to False. Pass string or Path for custom filename.
-        write_phonon (bool | str | Path): Whether to save phonon object. Set to True to save
-            necessary phonon calculation results. Band structure, density of states, thermal properties,
-            etc. can be rebuilt from this file using the phonopy API via phonopy.load("phonon.yaml").
-            Defaults to True. Pass string or Path for custom filename.
+    The class is designed to work with a provided calculator and a structure, enabling
+    the computation of various thermal properties such as free energy, entropy,
+    and heat capacity as functions of temperature. It supports relaxation of the
+    structure, control over displacement magnitudes, and customization of output
+    file paths for storing intermediate and final results.
+
+    :ivar calculator: Calculator object to perform energy and force evaluations.
+    :type calculator: Calculator
+    :ivar atom_disp: Magnitude of atomic displacement for phonon calculations.
+    :type atom_disp: float
+    :ivar supercell_matrix: Matrix defining the supercell size for phonon calculations.
+    :type supercell_matrix: ArrayLike
+    :ivar t_step: Temperature step size in Kelvin for thermal property calculations.
+    :type t_step: float
+    :ivar t_max: Maximum temperature in Kelvin for thermal property calculations.
+    :type t_max: float
+    :ivar t_min: Minimum temperature in Kelvin for thermal property calculations.
+    :type t_min: float
+    :ivar fmax: Maximum force tolerance for structure relaxation.
+    :type fmax: float
+    :ivar optimizer: Optimizer to be used for structure relaxation.
+    :type optimizer: str
+    :ivar relax_structure: Flag to indicate whether the structure should be relaxed
+        before phonon calculations.
+    :type relax_structure: bool
+    :ivar relax_calc_kwargs: Additional keyword arguments for structure relaxation calculations.
+    :type relax_calc_kwargs: dict | None
+    :ivar write_force_constants: Path or boolean flag indicating where to save the
+        calculated force constants.
+    :type write_force_constants: bool | str | Path
+    :ivar write_band_structure: Path or boolean flag indicating where to save the
+        calculated phonon band structure.
+    :type write_band_structure: bool | str | Path
+    :ivar write_total_dos: Path or boolean flag indicating where to save the total
+        density of states (DOS) data.
+    :type write_total_dos: bool | str | Path
+    :ivar write_phonon: Path or boolean flag indicating where to save the full
+        phonon data.
+    :type write_phonon: bool | str | Path
     """
 
     calculator: Calculator

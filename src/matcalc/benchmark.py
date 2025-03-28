@@ -37,10 +37,15 @@ logger = logging.getLogger(__name__)
 
 
 def get_available_benchmarks() -> list[str]:
-    """Checks Github for available benchmarks for download.
+    """
+    Fetches and returns a list of available benchmarks.
 
-    Returns:
-        List of available benchmarks.
+    This function makes a request to a predefined URL to retrieve benchmark
+    data. It then filters and extracts the names of benchmarks that end with
+    the '.json.gz' extension.
+
+    :return: A list of benchmark names available in the retrieved data.
+    :rtype: list[str]
     """
     r = requests.get(BENCHMARK_DATA_URL)  # noqa: S113
     return [d["name"] for d in json.loads(r.content.decode("utf-8")) if d["name"].endswith(".json.gz")]
@@ -71,16 +76,15 @@ def get_benchmark_data(name: str) -> pd.DataFrame:
 
 class CheckpointFile:
     """
-    CheckpointFile class encapsulates functionality to handle checkpoint files for processing elemental_refs.
+    Represents a checkpoint file system management utility.
 
-    The class constructor initializes the CheckpointFile object with the provided path, all elemental_refs to be
-    processed, list of structures, and index name for elemental_refs identification.
+    This class provides mechanisms to manage and process a file path and its
+    associated actions such as loading and saving data. It ensures standardized
+    path handling through the use of `Path` objects, enables loading checkpoint
+    data from a file, and facilitates the saving of resulting data.
 
-    load() method loads a checkpoint file if it exists, filtering the remaining elemental_refs and structures based on
-    entries already processed. It returns a tuple containing three lists: already processed records, remaining
-    elemental_refs, and remaining structures.
-
-    save() method saves a list of results at the specified checkpoint location.
+    :ivar path: Standardized file system path, managed as a `Path` object.
+    :type path: Path
     """
 
     def __init__(
@@ -842,19 +846,30 @@ class SofteningBenchmark:
 
 
 class BenchmarkSuite:
-    """A class to run multiple benchmarks in a single run."""
+    """
+    Represents a suite for handling and executing a list of benchmarks. This class is designed
+    for the comprehensive execution and management of benchmarks with support for configurable
+    parallel computation and checkpointing.
+
+    The purpose of this class is to facilitate the execution of multiple benchmarks using
+    various computational models (calculators) while enabling efficient resource utilization
+    and result aggregation. It supports checkpointing to handle long computations reliably.
+
+    :ivar benchmarks: A list of benchmarks to be configured or evaluated.
+    :type benchmarks: list
+    """
 
     def __init__(self, benchmarks: list) -> None:
         """
-        Represents a configuration for handling a list of benchmarks. This class is designed
-        to initialize with a specified list of benchmarks.
+        Represents a collection of benchmarks.
+
+        This class is designed to store and manage a list of benchmarks. It provides
+        an initialization method to set up the benchmark list during object creation.
+        It does not include any specialized methods or functionality beyond holding
+        a list of benchmarks.
 
         Attributes:
-            benchmarks (list): A list containing benchmark configurations or elemental_refs for
-            evaluation.
-
-        :param benchmarks: A list of benchmarks for configuration or evaluation.
-        :type benchmarks: list
+            benchmarks (list): A list of benchmarks provided during initialization.
         """
         self.benchmarks = benchmarks
 

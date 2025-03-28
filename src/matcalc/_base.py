@@ -14,21 +14,39 @@ if TYPE_CHECKING:
 
 
 class PropCalc(abc.ABC):
-    """API for a property calculator."""
+    """
+    Abstract base class for property calculations.
+
+    This class defines the interface for performing property calculations on
+    structures (using pymatgen's Structure objects or a dictionary containing a
+    pymatgen structure). Subclasses are expected to implement the `calc` method
+    to define specific property calculation logic. Additionally, this class provides
+    an implementation of the `calc_many` method, which enables concurrent calculations
+    on multiple structures using joblib.
+    """
 
     @abc.abstractmethod
     def calc(self, structure: Structure | dict[str, Any]) -> dict[str, Any]:
-        """All PropCalc subclasses should implement a calc method that takes in a pymatgen structure
-        and returns a dict. The method can return more than one property. Generally, subclasses should have a super()
-        call to the abstract base method to obtain an initial result dict.
+        """
+        Abstract method to calculate and return a standardized format of structural data.
 
-        Args:
-            structure: Pymatgen structure or a dict containing a pymatgen Structure under a "final_structure" or
-                "structure" key. Allowing dicts provide the means to chain calculators, e.g., do a relaxation followed
-                by an elasticity calculation.
+        This method processes input structural data, which could either be a dictionary
+        or a pymatgen Structure object, and returns a dictionary representation. If a
+        dictionary is provided, it must include either the key ``final_structure`` or
+        ``structure``. For a pymatgen Structure input, it will be converted to a dictionary
+        with the key ``final_structure``. To support chaining, a super() call should be made
+        by subclasses to ensure that the input dictionary is standardized.
 
-        Returns:
-            dict[str, Any]: In the form {"prop_name": value}.
+        :param structure: A pymatgen Structure object or a dictionary containing structural
+            data with keys such as ``final_structure`` or ``structure``.
+        :type structure: Structure | dict[str, Any]
+
+        :return: A dictionary with the key ``final_structure`` mapping to the corresponding
+            structural data.
+        :rtype: dict[str, Any]
+
+        :raises ValueError: If the input dictionary does not include the required keys
+            ``final_structure`` or ``structure``.
         """
         if isinstance(structure, dict):
             if "final_structure" in structure:
@@ -49,22 +67,30 @@ class PropCalc(abc.ABC):
         allow_errors: bool = False,  # noqa: FBT001,FBT002
         **kwargs: Any,
     ) -> Generator[dict | None]:
-        """Performs calc on many structures. The return type is a generator given that the calc method can
-        potentially be expensive. It is trivial to convert the generator to a list/tuple.
+        """
+        Calculate properties for multiple structures concurrently.
 
-        Args:
-            structures: List or generator of Structures.
-            n_jobs: The maximum number of concurrently running jobs. If -1 all CPUs are used. For n_jobs below -1,
-                (n_cpus + 1 + n_jobs) are used. None is a marker for `unset` that will be interpreted as n_jobs=1
-                unless the call is performed under a parallel_config() context manager that sets another value for
-                n_jobs.
-            allow_errors: Whether to skip failed calculations. For these calculations, None will be returned. For
-                large scale calculations, you may want this to be True to avoid the entire calculation failing.
-                Defaults to False.
-            **kwargs: Passthrough to joblib.Parallel.
+        This method leverages parallel processing to compute properties for a
+        given sequence of structures. It uses the `joblib.Parallel` library to
+        support multi-job execution and manage error handling behavior based
+        on user configuration.
 
-        Returns:
-            Generator of dicts.
+        :param structures: A sequence of `Structure` objects or dictionaries
+            representing the input structures to be processed. Each entry in
+            the sequence is processed independently.
+        :param n_jobs: The number of jobs to run in parallel. If set to None,
+            joblib will determine the optimal number of jobs based on the
+            system's CPU configuration.
+        :param allow_errors: A boolean flag indicating whether to tolerate
+            exceptions during processing. When set to True, any failed
+            calculation will result in a `None` value for that structure
+            instead of raising an exception.
+        :param kwargs: Additional keyword arguments passed directly to
+            `joblib.Parallel`, which allows customization of parallel
+            processing behavior.
+        :return: A generator yielding dictionaries with computed properties
+            for each structure or `None` if an error occurred (depending on
+            the `allow_errors` flag).
         """
         parallel = Parallel(n_jobs=n_jobs, return_as="generator", **kwargs)
         if allow_errors:

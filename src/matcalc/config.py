@@ -11,10 +11,16 @@ BENCHMARK_DATA_DIR = pathlib.Path.home() / ".cache" / "matcalc"
 
 
 def clear_cache(*, confirm: bool = True) -> None:
-    """Deletes all files in the mattcalc cache. This is used to clean out downloaded benchmarks.
+    """
+    Deletes all files and subdirectories within the benchmark data directory,
+    effectively clearing the cache. The user is prompted for confirmation
+    before proceeding with the deletion to prevent accidental data loss.
 
-    Args:
-        confirm: Whether to ask for confirmation. Default is True.
+    :param confirm: A flag to bypass the confirmation prompt. If set to True,
+        the function will prompt the user for confirmation. If set to False,
+        the deletion will proceed without additional confirmation. Defaults to
+        True.
+    :return: Returns None.
     """
     answer = "" if confirm else "y"
     while answer not in ("y", "n"):
