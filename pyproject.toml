@@ -75,7 +75,7 @@ ace = [
 ]
 
 [project.scripts]
-matcalc = "matcalc.cli:main"
+matcalc = "matcalc._cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
