@@ -8,6 +8,7 @@ nav_exclude: true
 
 This notebook demonstrates how to run the Softening Benchmark on M3GNet, CHGNet and TensorNet with the MatCalc repo.
 
+
 ```python
 from __future__ import annotations
 
@@ -15,7 +16,7 @@ import warnings
 
 import pandas as pd
 
-from matcalc import PESCalculator
+from matcalc import load_up
 from matcalc.benchmark import SofteningBenchmark
 ```
 
@@ -30,7 +31,7 @@ for model_name in [
     "CHGNet-MPtrj-2023.12.1-2.7M-PES",
     "TensorNet-MatPES-PBE-v2025.1-PES",
 ]:
-    calculator = PESCalculator.load_universal(model_name)
+    calculator = load_up(model_name)
     short_name = "-".join(model_name.split("-")[:2])
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")

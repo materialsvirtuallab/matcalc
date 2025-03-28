@@ -9,13 +9,13 @@ nav_order: 5
 Calculators for materials properties.
 
 
-## matcalc.base module
+## matcalc._base module
 
 Define basic API.
 
-### *class* ChainedCalc(prop_calcs: Sequence[[PropCalc](#matcalc.base.PropCalc)])
+### *class* ChainedCalc(prop_calcs: Sequence[[PropCalc](#matcalc._base.PropCalc)])
 
-Bases: [`PropCalc`](#matcalc.base.PropCalc)
+Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
 A chained calculator that runs a series of PropCalcs on a structure or set of structures.
 
@@ -101,527 +101,7 @@ potentially be expensive. It is trivial to convert the generator to a list/tuple
 * **Returns:**
   Generator of dicts.
 
-## matcalc.benchmark module
-
-This module implements classes for running benchmarks on materials properties.
-
-### *class* Benchmark(benchmark_name: str | Path, properties: Sequence[str], index_name: str, other_fields: tuple = (), property_rename_map: dict[str, str] | None = None, suffix_ground_truth: str = 'DFT', n_samples: int | None = None, seed: int = 42, \*\*kwargs)
-
-Bases: `object`
-
-Represents an abstract base class for benchmarking elasticity properties of materials.
-
-This class provides functionality to process benchmark elemental_refs, create a DataFrame for analysis,
-and run calculations using a specified potential energy surface (PES) calculator. It is designed
-to facilitate benchmarking of bulk and shear moduli against pre-defined ground truth elemental_refs.
-
-* **Variables:**
-  * **properties** – List of properties to extract and benchmark. These properties
-    are key inputs for analysis tasks.
-  * **other_fields** – Tuple of additional fields in the benchmark entries to
-    include in the processed elemental_refs. Useful for metadata or optional attributes.
-  * **index_name** – Name of the index field in the benchmark dataset. This is used
-    as the primary key for identifying entries.
-  * **structures** – List of structures extracted from the benchmark entries. Structures
-    are objects describing material geometries stored in the dataset.
-  * **kwargs** – Additional keywords passed through to the ElasticityCalculator or associated
-    processes for extended configuration.
-  * **ground_truth** – DataFrame containing the processed benchmark elemental_refs, including ground truth
-    reference values for materials properties.
-
-Initializes an instance for processing benchmark elemental_refs and constructing a DataFrame
-representing the ground truth properties of input structures. Additionally, stores
-information about input structures and other auxiliary elemental_refs for further usage.
-
-* **Parameters:**
-  * **benchmark_name** (*str* *|* *Path*) – The name of the benchmark dataset or a path to a file containing
-    the benchmark entries.
-  * **properties** (*list* *[**str* *]*) – A list of property names to extract.
-  * **index_name** (*str*) – The name of the field used as the index for the resulting DataFrame (typically a unique id
-    like mp_id).
-  * **other_fields** (*tuple* *[**str* *]*) – Additional fields to include in the DataFrame, default is an empty tuple. Useful ones
-    are for example formula or metadata.
-  * **property_rename_map** (*dict* *|* *None*) – A dict used to rename the properties for easier reading.
-  * **suffix_ground_truth** (*str*) – The suffix added to the property names in the DataFrame for
-    distinguishing ground truth values, default is “DFT”.
-  * **n_samples** (*int* *|* *None*) – Number of samples to randomly select from the benchmark dataset, or
-    `None` to include all samples, default is `None`.
-  * **seed** (*int*) – Seed value for random sampling of entries (if n_samples is specified), default is `42`.
-  * **kwargs** (*dict*) – Additional keyword arguments for configuring the PropCalc..
-* **Raises:**
-  * **FileNotFoundError** – If the provided benchmark_name is a path that does not exist.
-  * **ValueError** – If invalid or incomplete elemental_refs is encountered in the benchmark entries.
-
-#### \_abc_impl *= <_abc._abc_data object>*
-
-#### *abstract* get_prop_calc(calculator: Calculator, \*\*kwargs: Any) → [PropCalc](#matcalc.base.PropCalc)
-
-Abstract method to retrieve a property calculation object using the provided calculator and additional
-parameters.
-This method must be implemented by subclasses and will utilize the provided calculator to create a
-PropCalc instance, possibly influenced by additional keyword arguments.
-
-* **Parameters:**
-  * **calculator** (*Calculator*) – The calculator instance to be used for generating the property calculation.
-  * **kwargs** (*dict*) – Additional keyword arguments that can influence the property calculation process.
-* **Returns:**
-  An instance of PropCalc representing the property calculation result.
-* **Return type:**
-  [PropCalc](#matcalc.base.PropCalc)
-
-#### *abstract* process_result(result: dict | None, model_name: str) → dict
-
-Implements post-processing of results. A default implementation is provided that simply appends the model name
-as a suffix to the key of the input dictionary for all properties. Subclasses can override this method to
-provide more sophisticated processing.
-
-* **Parameters:**
-  * **result** (*dict*) – Input dictionary containing key-value pairs to be processed.
-  * **model_name** (*str*) – The name of the model to append to each key as a suffix.
-* **Returns:**
-  A new dictionary with modified keys based on the model name suffix.
-* **Return type:**
-  dict
-
-#### run(calculator: Calculator, model_name: str, \*, n_jobs: None | int = -1, checkpoint_file: str | Path | None = None, checkpoint_freq: int = 1000, delete_checkpoint_on_finish: bool = True, include_full_results: bool = False, \*\*kwargs) → pd.DataFrame
-
-Processes a collection of structures using a calculator, saves intermittent
-checkpoints, and returns the results in a DataFrame. This function supports
-parallel computation and allows for error tolerance during processing.
-
-The function also retrieves a property calculator and utilizes it to calculate
-desired results for the given set of structures. Checkpoints are saved
-periodically based on the specified frequency, ensuring that progress is not
-lost in case of interruptions.
-
-* **Parameters:**
-  * **calculator** (*Calculator*) – ASE-compatible calculator instance used to provide PES information for PropCalc.
-  * **model_name** (*str*) – Name of the model used for properties’ calculation.
-    This name is updated in the results DataFrame.
-  * **n_jobs** (*int* *|* *None*) – Number of parallel jobs to be used in the computation. Use -1
-    to allocate all cores available on the system. Defaults to -1.
-  * **checkpoint_file** (*str* *|* *Path* *|* *None*) – File path where checkpoint elemental_refs is saved periodically.
-    If None, no checkpoints are saved.
-  * **checkpoint_freq** (*int*) – Frequency after which checkpoint elemental_refs is saved.
-    Corresponds to the number of structures processed.
-  * **delete_checkpoint_on_finish** (*bool*) – Whether to delete checkpoint files when the benchmark finishes. Defaults to
-    True.
-  * **include_full_results** (*bool*) – Whether to save full results from PropCalc.calc for analysis afterwards. For
-    instance, the ElasticityProp does not just compute the bulk and shear moduli, but also the full elastic
-    tensors, which can be used for other kinds of analysis. Defaults to False.
-  * **kwargs** (*dict*) – Additional keyword arguments passed to the property calculator,
-    for instance, to customize its behavior or computation options.
-* **Returns:**
-  A pandas DataFrame containing the processed results for the given
-  input structures. The DataFrame includes updated results and relevant
-  metrics.
-* **Return type:**
-  pd.DataFrame
-
-### *class* BenchmarkSuite(benchmarks: list)
-
-Bases: `object`
-
-A class to run multiple benchmarks in a single run.
-
-Represents a configuration for handling a list of benchmarks. This class is designed
-to initialize with a specified list of benchmarks.
-
-#### benchmarks
-
-A list containing benchmark configurations or elemental_refs for
-
-* **Type:**
-  list
-
-### evaluation.
-
-* **Parameters:**
-  **benchmarks** (*list*) – A list of benchmarks for configuration or evaluation.
-
-#### run(calculators: dict[str, Calculator], \*, n_jobs: int | None = -1, checkpoint_freq: int = 1000, delete_checkpoint_on_finish: bool = True) → list[pd.DataFrame]
-
-Executes benchmarks using the provided calculators and combines the results into a
-list of dataframes. Each benchmark runs for all models provided by calculators, collecting
-individual results and performing validations during elemental_refs combination.
-
-* **Parameters:**
-  * **calculators** – A dictionary where the keys are the model names (str)
-    and the values are the corresponding calculator instances (Calculator).
-  * **n_jobs** – The maximum number of concurrent jobs to run. If set to -1,
-    utilizes all available processors. Defaults to -1.
-  * **checkpoint_freq** – The frequency at which progress is saved as checkpoints,
-    in terms of calculation steps. Defaults to 1000.
-  * **delete_checkpoint_on_finish** (*bool*) – Whether to delete checkpoint files when the benchmark finishes. Defaults to
-    True.
-* **Returns:**
-  A list of pandas DataFrames, each containing combined results
-  for all calculators across the benchmarks.
-
-### *class* CheckpointFile(path: str | Path)
-
-Bases: `object`
-
-CheckpointFile class encapsulates functionality to handle checkpoint files for processing elemental_refs.
-
-The class constructor initializes the CheckpointFile object with the provided path, all elemental_refs to be
-processed, list of structures, and index name for elemental_refs identification.
-
-load() method loads a checkpoint file if it exists, filtering the remaining elemental_refs and structures based on
-entries already processed. It returns a tuple containing three lists: already processed records, remaining
-elemental_refs, and remaining structures.
-
-save() method saves a list of results at the specified checkpoint location.
-
-Represents an initialization process for handling a filesystem path. The
-provided path is converted into a Path object for standardized path
-management in the application.
-
-* **Parameters:**
-  **path** – The filesystem path to be managed. Can be provided as a
-  string or as a Path object.
-
-#### load(\*args: list) → tuple
-
-Loads elemental_refs from a specified path if it exists, returning the loaded elemental_refs along with
-remaining portions of the given input arguments.
-
-The method checks if the file path exists, and if so, it loads elemental_refs from the specified
-file using a predefined loadfn function. It logs the number of loaded entries and
-returns the successfully loaded elemental_refs alongside sliced input arguments based on the
-number of loaded entries. If the file path does not exist, it returns empty results
-and the original input arguments unchanged.
-
-* **Parameters:**
-  **args** – List of lists where each list corresponds to additional elemental_refs to
-  process in conjunction with the loaded file content.
-* **Returns:**
-  A tuple where the first element is the loaded elemental_refs (list) from the specified
-  file path (or an empty list if the path does not exist), and subsequent elements
-  are the remaining unsliced portions of each input list from args or the entire
-  original lists if nothing was loaded.
-
-#### save(results: list[dict[str, Any]]) → None
-
-Saves a list of results at the specified checkpoint location.
-
-* **Parameters:**
-  **results** – A list of dictionaries or objects to be saved.
-* **Returns:**
-  None
-
-### *class* ElasticityBenchmark(index_name: str = 'mp_id', benchmark_name: str | Path = 'mp-binary-pbe-elasticity-2025.1.json.gz', \*\*kwargs)
-
-Bases: [`Benchmark`](#matcalc.benchmark.Benchmark)
-
-Represents a benchmark for evaluating and analyzing mechanical properties such as
-bulk modulus and shear modulus for various materials. The benchmark primarily utilizes
-a dataset and provides functionality for property calculation and result processing.
-
-The class is designed to work with a predefined framework for benchmarking mechanical
-properties. The benchmark dataset contains values such as bulk modulus and shear
-modulus along with additional metadata. This class supports configurability through
-metadata files, index names, and additional benchmark properties. It relies on
-external calculators and utility classes for property computations and result handling.
-
-Initializes the ElasticityBenchmark instance by taking benchmark metadata and
-additional configuration parameters. Sets up the benchmark framework with
-specified mechanical properties and metadata.
-
-* **Parameters:**
-  * **index_name** (*str*) – The name of the index used to uniquely identify records
-    in the benchmark dataset.
-  * **benchmark_name** (*str* *|* *Path*) – The path or name of the benchmark file that contains
-    the dataset. Can either be a string or a Path object.
-  * **kwargs** (*dict*) – Additional keyword arguments that may be passed to parent
-    class methods or used for customization.
-
-#### \_abc_impl *= <_abc._abc_data object>*
-
-#### get_prop_calc(calculator: Calculator, \*\*kwargs: Any) → [PropCalc](#matcalc.base.PropCalc)
-
-Calculates and returns a property calculation object based on the provided
-calculator and optional parameters. This is useful for initializing and
-configuring a property calculation.
-
-* **Parameters:**
-  * **calculator** – A Calculator object responsible for performing numerical
-    operations required for property calculations.
-  * **kwargs** – Additional keyword arguments used for configuring the property
-    calculation.
-* **Returns:**
-  An initialized PropCalc object configured based on the specified
-  calculator and keyword arguments.
-* **Return type:**
-  [PropCalc](#matcalc.base.PropCalc)
-
-#### process_result(result: dict | None, model_name: str) → dict
-
-Processes the result dictionary containing bulk and shear modulus values, adjusts
-them by multiplying with a predefined conversion factor, and formats the keys
-according to the provided model name. If the result is None, default values of
-NaN are returned for both bulk and shear modulus.
-
-* **Parameters:**
-  * **result** (*dict* *or* *None*) – A dictionary containing the bulk and shear modulus values under the keys
-    ‘bulk_modulus_vrh’ and ‘shear_modulus_vrh’ respectively. It can also be
-    None to indicate missing elemental_refs.
-  * **model_name** (*str*) – A string representing the identifier or name of the model. It will be used
-    to format the returned dictionary’s keys.
-* **Returns:**
-  A dictionary containing two entries. The keys will be dynamically created
-  by appending the model name to the terms ‘
-
-  ```
-  bulk_modulus_vrh_
-  ```
-
-  ’ and
-  ‘
-
-  ```
-  shear_modulus_vrh_
-  ```
-
-  ’. The values will either be scaled modulus values or
-  NaN if the input result is None.
-* **Return type:**
-  dict
-
-### *class* EquilibriumBenchmark(index_name: str = 'material_id', benchmark_name: str | Path = 'wbm-random-pbe54-equilibrium-2025.1.json.gz', folder_name: str = 'default_folder', \*\*kwargs)
-
-Bases: [`Benchmark`](#matcalc.benchmark.Benchmark)
-
-Represents a benchmark for evaluating and analyzing equilibrium properties of materials.
-This benchmark utilizes a dataset and provides functionality for property calculation
-and result processing. The class is designed to work with a predefined framework for
-benchmarking equilibrium properties. The benchmark dataset contains data such as relaxed
-structures, un-/corrected formation energy along with additional metadata. This class
-supports configurability through metadata files, index names, and additional benchmark
-properties. It relies on external calculators and utility classes for property computations
-and result handling.
-
-Initializes the EquilibriumBenchmark instance with specified benchmark metadata and
-configuration parameters. It sets up the benchmark with the necessary properties
-required for equilibrium benchmark analysis.
-
-* **Parameters:**
-  * **index_name** (*str*) – The name of the index used to uniquely identify records in the dataset.
-  * **benchmark_name** (*str* *|* *Path*) – The path or name of the benchmark file that contains the dataset.
-  * **folder_name** (*str*) – The folder name used for file operations related to structure files.
-  * **kwargs** (*dict*) – Additional keyword arguments for customization.
-
-#### \_abc_impl *= <_abc._abc_data object>*
-
-#### get_prop_calc(calculator: Calculator, \*\*kwargs: Any) → [PropCalc](#matcalc.base.PropCalc)
-
-Returns a property calculation object for performing relaxation and formation energy
-calculations. This method initializes the stability calculator using the provided
-Calculator object and any additional configuration parameters.
-
-* **Parameters:**
-  * **calculator** (*Calculator*) – A Calculator object responsible for performing the relaxation and
-    formation energy calculation.
-  * **kwargs** (*dict*) – Additional keyword arguments used for configuration.
-* **Returns:**
-  An initialized PropCalc object configured for relaxation and formation energy
-  calculations.
-* **Return type:**
-  [PropCalc](#matcalc.base.PropCalc)
-
-#### process_result(result: dict | None, model_name: str) → dict
-
-Processes the result dictionary containing final structures and formation energy per atom,
-formats the keys according to the provided model name. If the result is None, default values
-of NaN are returned for final structures or formation energy per atom.
-
-* **Parameters:**
-  * **result** (*dict* *or* *None*) – A dictionary containing the final structures and formation energy per atom under the keys
-    ‘final_structure’ and ‘formation energy per atom’. It can also be None to indicate missing
-    elemental_refs.
-  * **model_name** (*str*) – A string representing the identifier or name of the model. It will be used
-    to format the returned dictionary’s keys.
-* **Returns:**
-  A dictionary containing the specific final structure and formation energy per atomprefixed
-  by the model name. The values will be NaN if the input result is None.
-* **Return type:**
-  dict
-
-#### run(calculator: Calculator, model_name: str, \*, n_jobs: None | int = -1, checkpoint_file: str | Path | None = None, checkpoint_freq: int = 1000, delete_checkpoint_on_finish: bool = True, include_full_results: bool = False, \*\*kwargs) → pd.DataFrame
-
-Processes a collection of structures using a calculator, saves intermittent checkpoints,
-and returns the results in a DataFrame. In addition to the base processing performed
-by the parent class, this method computes the Euclidean distance between the relaxed
-structure (obtained from the property calculation) and the reference DFT structure,
-using SiteStatsFingerprint. The computed distance is added as a new column in the
-results DataFrame with the key “distance_{model_name}”.
-
-This function supports parallel computation and allows for error tolerance during processing.
-It retrieves a property calculator and utilizes it to calculate desired results for the given
-set of structures. Checkpoints are saved periodically based on the specified frequency,
-ensuring that progress is not lost in case of interruptions.
-
-* **Parameters:**
-  * **calculator** (*Calculator*) – ASE-compatible calculator instance used to provide PES information for PropCalc.
-  * **model_name** (*str*) – Name of the model used for properties’ calculation.
-    This name is updated in the results DataFrame.
-  * **n_jobs** (*int* *|* *None*) – Number of parallel jobs to be used in the computation. Use -1
-    to allocate all cores available on the system. Defaults to -1.
-  * **checkpoint_file** (*str* *|* *Path* *|* *None*) – File path where checkpoint elemental_refs is saved periodically.
-    If None, no checkpoints are saved.
-  * **checkpoint_freq** (*int*) – Frequency after which checkpoint elemental_refs is saved.
-    Corresponds to the number of structures processed.
-  * **delete_checkpoint_on_finish** (*bool*) – Whether to delete checkpoint files when the benchmark finishes. Defaults to
-    True.
-  * **include_full_results** (*bool*) – Whether to save full results from PropCalc.calc for analysis afterwards. For
-    instance, the ElasticityProp does not just compute the bulk and shear moduli, but also the full elastic
-    tensors, which can be used for other kinds of analysis. Defaults to False.
-  * **kwargs** (*dict*) – Additional keyword arguments passed to the property calculator,
-    for instance, to customize its behavior or computation options.
-* **Returns:**
-  A pandas DataFrame containing the processed results for the given
-  input structures. The DataFrame includes updated results and relevant
-  metrics.
-* **Return type:**
-  pd.DataFrame
-
-### *class* PhononBenchmark(index_name: str = 'mp_id', benchmark_name: str | Path = 'alexandria-binary-pbe-phonon-2025.1.json.gz', \*\*kwargs)
-
-Bases: [`Benchmark`](#matcalc.benchmark.Benchmark)
-
-Manages phonon benchmarking tasks, such as initializing benchmark elemental_refs,
-performing calculations, and processing results.
-
-This class facilitates constructing and managing phonon benchmarks based on
-provided elemental_refs. It supports operations for processing benchmark elemental_refs,
-extracting relevant attributes, and computing thermal properties. It is
-compatible with various calculators and is designed to streamline the
-benchmarking process for materials’ phonon-related properties.
-
-Initializes an instance with specified index and benchmark details.
-
-This constructor sets up an object with predefined properties such as heat
-capacity and additional fields such as the formula. It supports customizations
-via keyword arguments for further configurations.
-
-* **Parameters:**
-  * **index_name** – The name of the index to be used for identification in
-    the dataset.
-  * **benchmark_name** – The benchmark file name or path containing
-    the dataset information in JSON or compressed format.
-  * **kwargs** – Additional optional parameters for configuration.
-
-#### \_abc_impl *= <_abc._abc_data object>*
-
-#### get_prop_calc(calculator: Calculator, \*\*kwargs: Any) → [PropCalc](#matcalc.base.PropCalc)
-
-Retrieves a phonon calculation instance based on the given calculator and
-additional keyword arguments.
-
-This function initializes and returns a PhononCalc object using the provided
-calculator instance and any optional keyword arguments to configure the
-calculation further.
-
-* **Parameters:**
-  * **calculator** – The calculator instance used to perform the phonon
-    calculation. Must be an instance of the Calculator class.
-  * **kwargs** – Additional keyword arguments for configuring the resulting
-    PhononCalc instance.
-* **Returns:**
-  A new PhononCalc object, initialized with the input calculator and
-  optional parameters.
-* **Return type:**
-  [PropCalc](#matcalc.base.PropCalc)
-
-#### process_result(result: dict | None, model_name: str) → dict
-
-Processes the result dictionary to extract specific thermal property information for the provided model name.
-
-* **Parameters:**
-  * **result** (*dict*) – Dictionary containing thermal properties, with keys structured to access relevant elemental_refs
-    like “thermal_properties” and “heat_capacity”.
-  * **model_name** (*str*) – The model name used as a prefix in returned result keys.
-* **Returns:**
-  A dictionary containing the specific heat capacity at a particular index (e.g., 30),
-  prefixed by the model name.
-* **Return type:**
-  dict
-
-### *class* SofteningBenchmark(benchmark_name: str | Path = 'wbm-high-energy-states.json.gz', index_name: str = 'wbm_id', n_samples: int | None = None, seed: int = 42, \*\*kwargs)
-
-Bases: `object`
-
-A benchmark for the systematic softening of a PES, as described in:
-: B. Deng, et al. npj Comput. Mater. 11, 9 (2025).
-  doi: 10.1038/s41524-024-01500-6
-
-The dataset used here can be found in figshare through:
-: [https://figshare.com/articles/dataset/WBM_high_energy_states/27307776?file=50005317](https://figshare.com/articles/dataset/WBM_high_energy_states/27307776?file=50005317)
-
-This benchmark essentially performs static calculation on pre-sampled high-energy
-PES configurations, and then compare the systematic underestimation of forces
-predicted between GGA-DFT and the provided force field.
-
-Initializes an instance with specified index and benchmark details.
-
-* **Parameters:**
-  * **index_name** – The name of the index to be used for identification in
-    the dataset.
-  * **benchmark_name** – The benchmark file name or path containing
-    the dataset information in JSON or compressed format.
-  * **kwargs** – Additional optional parameters for configuration.
-
-#### *static* get_linear_fitted_slope(x: list | ndarray, y: list | ndarray) → float
-
-Return the linearly fitted slope of x and y using a simple linear model (y = ax).
-:param x: A list of the x values.
-:param y: A list of the y values.
-:return: A float of the fitted slope.
-
-#### run(calculator: Calculator, model_name: str, checkpoint_file: str | Path | None = None, checkpoint_freq: int = 10, \*, include_full_results: bool = False) → pd.DataFrame
-
-Process all the material ids by
-1. calculate the forces on all the sampled structures.
-2. perform a linear fit on the predicted forces w.r.t. provided DFT forces.
-3. returning the fitted slopes as the softening scales.
-
-* **Parameters:**
-  * **calculator** (*Calculator*) – The ASE-compatible calculator instance
-  * **model_name** (*str*) – Name of the model used for properties’ calculation.
-    This name is updated in the results DataFrame.
-  * **checkpoint_file** (*str* *|* *Path* *|* *None*) – File path where checkpoint is saved periodically.
-    If None, no checkpoints are saved.
-  * **checkpoint_freq** (*int*) – Frequency after which checkpoint is saved.
-    Corresponds to the number of structures processed.
-  * **include_full_results** (*bool*) – Whether to include the raw force prediction in the
-    returned dataframe
-* **Returns:**
-  A dataframe containing the softening scales.
-* **Return type:**
-  pd.DataFrame
-
-### get_available_benchmarks() → list[str]
-
-Checks Github for available benchmarks for download.
-
-* **Returns:**
-  List of available benchmarks.
-
-### get_benchmark_data(name: str) → DataFrame
-
-Retrieve benchmark data as a Pandas DataFrame. Uses fsspec to cache files locally if possible.
-
-* **Parameters:**
-  **name** (*str*) – Name of the benchmark elemental_refs file to be retrieved
-* **Returns:**
-  Benchmark elemental_refs loaded as a Pandas DataFrame
-* **Return type:**
-  pd.DataFrame
-* **Raises:**
-  **requests.RequestException** – If the benchmark elemental_refs file cannot be
-  downloaded from the specified URL
-
-## matcalc.cli module
+## matcalc._cli module
 
 Command line interface to matcalc.
 
@@ -645,24 +125,13 @@ Clear the benchmark cache.
 
 Handle main.
 
-## matcalc.config module
-
-Sets some configuration global variables and locations for matcalc.
-
-### clear_cache(\*, confirm: bool = True) → None
-
-Deletes all files in the mattcalc cache. This is used to clean out downloaded benchmarks.
-
-* **Parameters:**
-  **confirm** – Whether to ask for confirmation. Default is True.
-
-## matcalc.elasticity module
+## matcalc._elasticity module
 
 Calculator for elastic properties.
 
 ### *class* ElasticityCalc(calculator: Calculator, \*, norm_strains: Sequence[float] | float = (-0.01, -0.005, 0.005, 0.01), shear_strains: Sequence[float] | float = (-0.06, -0.03, 0.03, 0.06), fmax: float = 0.1, symmetry: bool = False, relax_structure: bool = True, relax_deformed_structures: bool = False, use_equilibrium: bool = True, relax_calc_kwargs: dict | None = None)
 
-Bases: [`PropCalc`](#matcalc.base.PropCalc)
+Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
 Calculator for elastic properties.
 
@@ -714,13 +183,13 @@ Returns: {
 
 }
 
-## matcalc.eos module
+## matcalc._eos module
 
 Calculators for EOS and associated properties.
 
 ### *class* EOSCalc(calculator: Calculator, \*, optimizer: Optimizer | str = 'FIRE', max_steps: int = 500, max_abs_strain: float = 0.1, n_points: int = 11, fmax: float = 0.1, relax_structure: bool = True, relax_calc_kwargs: dict | None = None)
 
-Bases: [`PropCalc`](#matcalc.base.PropCalc)
+Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
 Equation of state calculator.
 
@@ -756,13 +225,13 @@ Returns: {
 
 }
 
-## matcalc.neb module
+## matcalc._neb module
 
 NEB calculations.
 
-### *class* NEBCalc(images: list[Structure], \*, calculator: str | Calculator = 'M3GNet-MP-2021.2.8-DIRECT-PES', optimizer: str | Optimizer = 'BFGS', traj_folder: str | None = None, interval: int = 1, climb: bool = True, \*\*kwargs: Any)
+### *class* NEBCalc(calculator: Calculator, images: list[Structure], \*, optimizer: str | Optimizer = 'BFGS', traj_folder: str | None = None, interval: int = 1, climb: bool = True, \*\*kwargs: Any)
 
-Bases: [`PropCalc`](#matcalc.base.PropCalc)
+Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
 Nudged Elastic Band calculator.
 
@@ -790,7 +259,7 @@ Perform NEB calculation.
 * **Return type:**
   float
 
-#### *classmethod* from_end_images(start_struct: Structure, end_struct: Structure, calculator: str | Calculator = 'M3GNet-MP-2021.2.8-DIRECT-PES', \*, n_images: int = 7, interpolate_lattices: bool = False, autosort_tol: float = 0.5, \*\*kwargs: Any) → [NEBCalc](#matcalc.neb.NEBCalc)
+#### *classmethod* from_end_images(calculator: Calculator, start_struct: Structure, end_struct: Structure, \*, n_images: int = 7, interpolate_lattices: bool = False, autosort_tol: float = 0.5, \*\*kwargs: Any) → [NEBCalc](#matcalc._neb.NEBCalc)
 
 Initialize a NEBCalc from end images.
 
@@ -807,13 +276,13 @@ Initialize a NEBCalc from end images.
     Defaults to 0.5.
   * **kwargs** – Other arguments passed to construct NEBCalc.
 
-## matcalc.phonon module
+## matcalc._phonon module
 
 Calculator for phonon properties.
 
 ### *class* PhononCalc(calculator: Calculator, atom_disp: float = 0.015, supercell_matrix: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2)), t_step: float = 10, t_max: float = 1000, t_min: float = 0, fmax: float = 0.1, optimizer: str = 'FIRE', relax_structure: bool = True, relax_calc_kwargs: dict | None = None, write_force_constants: bool | str | Path = False, write_band_structure: bool | str | Path = False, write_total_dos: bool | str | Path = False, write_phonon: bool | str | Path = True)
 
-Bases: [`PropCalc`](#matcalc.base.PropCalc)
+Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
 Calculator for phonon properties.
 
@@ -917,13 +386,13 @@ Helper to compute forces on a structure.
 * **Returns:**
   forces
 
-## matcalc.qha module
+## matcalc._qha module
 
 Calculator for phonon properties under quasi-harmonic approximation.
 
 ### *class* QHACalc(calculator: Calculator, t_step: float = 10, t_max: float = 1000, t_min: float = 0, fmax: float = 0.1, optimizer: str = 'FIRE', eos: str = 'vinet', relax_structure: bool = True, relax_calc_kwargs: dict | None = None, phonon_calc_kwargs: dict | None = None, scale_factors: Sequence[float] = (0.95, 0.96, 0.97, 0.98, 0.99, 1.0, 1.01, 1.02, 1.03, 1.04, 1.05), write_helmholtz_volume: bool | str | Path = False, write_volume_temperature: bool | str | Path = False, write_thermal_expansion: bool | str | Path = False, write_gibbs_temperature: bool | str | Path = False, write_bulk_modulus_temperature: bool | str | Path = False, write_heat_capacity_p_numerical: bool | str | Path = False, write_heat_capacity_p_polyfit: bool | str | Path = False, write_gruneisen_temperature: bool | str | Path = False)
 
-Bases: [`PropCalc`](#matcalc.base.PropCalc)
+Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
 Calculator for phonon properties under quasi-harmonic approximation.
 
@@ -1097,13 +566,13 @@ Returns:
 
 #### write_volume_temperature *: bool | str | Path* *= False*
 
-## matcalc.relaxation module
+## matcalc._relaxation module
 
 Relaxation properties.
 
 ### *class* RelaxCalc(calculator: Calculator, \*, optimizer: Optimizer | str = 'FIRE', max_steps: int = 500, traj_file: str | None = None, interval: int = 1, fmax: float = 0.1, relax_atoms: bool = True, relax_cell: bool = True, cell_filter: Filter = <class 'ase.filters.FrechetCellFilter'>, perturb_distance: float | None = None)
 
-Bases: [`PropCalc`](#matcalc.base.PropCalc)
+Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
 Relaxes and computes the relaxed parameters of a structure.
 
@@ -1166,13 +635,13 @@ Save the trajectory to file.
 * **Parameters:**
   **filename** (*str*) – filename to save the trajectory.
 
-## matcalc.stability module
+## matcalc._stability module
 
 Calculator for stability related properties.
 
 ### *class* EnergeticsCalc(calculator: Calculator, \*, elemental_refs: Literal['MatPES-PBE', 'MatPES-r2SCAN'] | dict = 'MatPES-PBE', use_dft_gs_reference: bool = False, relax_structure: bool = True, relax_calc_kwargs: dict | None = None)
 
-Bases: [`PropCalc`](#matcalc.base.PropCalc)
+Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
 Calculator for energetic properties.
 
@@ -1211,6 +680,537 @@ DFT atomic energies.
   energy per atom, and the final relaxed structure.
 * **Return type:**
   dict[str, Any]
+
+## matcalc.benchmark module
+
+This module implements classes for running benchmarks on materials properties.
+
+### *class* Benchmark(benchmark_name: str | Path, properties: Sequence[str], index_name: str, other_fields: tuple = (), property_rename_map: dict[str, str] | None = None, suffix_ground_truth: str = 'DFT', n_samples: int | None = None, seed: int = 42, \*\*kwargs)
+
+Bases: `object`
+
+Represents an abstract base class for benchmarking elasticity properties of materials.
+
+This class provides functionality to process benchmark elemental_refs, create a DataFrame for analysis,
+and run calculations using a specified potential energy surface (PES) calculator. It is designed
+to facilitate benchmarking of bulk and shear moduli against pre-defined ground truth elemental_refs.
+
+* **Variables:**
+  * **properties** – List of properties to extract and benchmark. These properties
+    are key inputs for analysis tasks.
+  * **other_fields** – Tuple of additional fields in the benchmark entries to
+    include in the processed elemental_refs. Useful for metadata or optional attributes.
+  * **index_name** – Name of the index field in the benchmark dataset. This is used
+    as the primary key for identifying entries.
+  * **structures** – List of structures extracted from the benchmark entries. Structures
+    are objects describing material geometries stored in the dataset.
+  * **kwargs** – Additional keywords passed through to the ElasticityCalculator or associated
+    processes for extended configuration.
+  * **ground_truth** – DataFrame containing the processed benchmark elemental_refs, including ground truth
+    reference values for materials properties.
+
+Initializes an instance for processing benchmark elemental_refs and constructing a DataFrame
+representing the ground truth properties of input structures. Additionally, stores
+information about input structures and other auxiliary elemental_refs for further usage.
+
+* **Parameters:**
+  * **benchmark_name** (*str* *|* *Path*) – The name of the benchmark dataset or a path to a file containing
+    the benchmark entries.
+  * **properties** (*list* *[**str* *]*) – A list of property names to extract.
+  * **index_name** (*str*) – The name of the field used as the index for the resulting DataFrame (typically a unique id
+    like mp_id).
+  * **other_fields** (*tuple* *[**str* *]*) – Additional fields to include in the DataFrame, default is an empty tuple. Useful ones
+    are for example formula or metadata.
+  * **property_rename_map** (*dict* *|* *None*) – A dict used to rename the properties for easier reading.
+  * **suffix_ground_truth** (*str*) – The suffix added to the property names in the DataFrame for
+    distinguishing ground truth values, default is “DFT”.
+  * **n_samples** (*int* *|* *None*) – Number of samples to randomly select from the benchmark dataset, or
+    `None` to include all samples, default is `None`.
+  * **seed** (*int*) – Seed value for random sampling of entries (if n_samples is specified), default is `42`.
+  * **kwargs** (*dict*) – Additional keyword arguments for configuring the PropCalc..
+* **Raises:**
+  * **FileNotFoundError** – If the provided benchmark_name is a path that does not exist.
+  * **ValueError** – If invalid or incomplete elemental_refs is encountered in the benchmark entries.
+
+#### \_abc_impl *= <_abc._abc_data object>*
+
+#### *abstract* get_prop_calc(calculator: Calculator, \*\*kwargs: Any) → [PropCalc](#matcalc._base.PropCalc)
+
+Abstract method to retrieve a property calculation object using the provided calculator and additional
+parameters.
+This method must be implemented by subclasses and will utilize the provided calculator to create a
+PropCalc instance, possibly influenced by additional keyword arguments.
+
+* **Parameters:**
+  * **calculator** (*Calculator*) – The calculator instance to be used for generating the property calculation.
+  * **kwargs** (*dict*) – Additional keyword arguments that can influence the property calculation process.
+* **Returns:**
+  An instance of PropCalc representing the property calculation result.
+* **Return type:**
+  [PropCalc](#matcalc._base.PropCalc)
+
+#### *abstract* process_result(result: dict | None, model_name: str) → dict
+
+Implements post-processing of results. A default implementation is provided that simply appends the model name
+as a suffix to the key of the input dictionary for all properties. Subclasses can override this method to
+provide more sophisticated processing.
+
+* **Parameters:**
+  * **result** (*dict*) – Input dictionary containing key-value pairs to be processed.
+  * **model_name** (*str*) – The name of the model to append to each key as a suffix.
+* **Returns:**
+  A new dictionary with modified keys based on the model name suffix.
+* **Return type:**
+  dict
+
+#### run(calculator: Calculator, model_name: str, \*, n_jobs: None | int = -1, checkpoint_file: str | Path | None = None, checkpoint_freq: int = 1000, delete_checkpoint_on_finish: bool = True, include_full_results: bool = False, \*\*kwargs) → pd.DataFrame
+
+Processes a collection of structures using a calculator, saves intermittent
+checkpoints, and returns the results in a DataFrame. This function supports
+parallel computation and allows for error tolerance during processing.
+
+The function also retrieves a property calculator and utilizes it to calculate
+desired results for the given set of structures. Checkpoints are saved
+periodically based on the specified frequency, ensuring that progress is not
+lost in case of interruptions.
+
+* **Parameters:**
+  * **calculator** (*Calculator*) – ASE-compatible calculator instance used to provide PES information for PropCalc.
+  * **model_name** (*str*) – Name of the model used for properties’ calculation.
+    This name is updated in the results DataFrame.
+  * **n_jobs** (*int* *|* *None*) – Number of parallel jobs to be used in the computation. Use -1
+    to allocate all cores available on the system. Defaults to -1.
+  * **checkpoint_file** (*str* *|* *Path* *|* *None*) – File path where checkpoint elemental_refs is saved periodically.
+    If None, no checkpoints are saved.
+  * **checkpoint_freq** (*int*) – Frequency after which checkpoint elemental_refs is saved.
+    Corresponds to the number of structures processed.
+  * **delete_checkpoint_on_finish** (*bool*) – Whether to delete checkpoint files when the benchmark finishes. Defaults to
+    True.
+  * **include_full_results** (*bool*) – Whether to save full results from PropCalc.calc for analysis afterwards. For
+    instance, the ElasticityProp does not just compute the bulk and shear moduli, but also the full elastic
+    tensors, which can be used for other kinds of analysis. Defaults to False.
+  * **kwargs** (*dict*) – Additional keyword arguments passed to the property calculator,
+    for instance, to customize its behavior or computation options.
+* **Returns:**
+  A pandas DataFrame containing the processed results for the given
+  input structures. The DataFrame includes updated results and relevant
+  metrics.
+* **Return type:**
+  pd.DataFrame
+
+### *class* BenchmarkSuite(benchmarks: list)
+
+Bases: `object`
+
+A class to run multiple benchmarks in a single run.
+
+Represents a configuration for handling a list of benchmarks. This class is designed
+to initialize with a specified list of benchmarks.
+
+#### benchmarks
+
+A list containing benchmark configurations or elemental_refs for
+
+* **Type:**
+  list
+
+### evaluation.
+
+* **Parameters:**
+  **benchmarks** (*list*) – A list of benchmarks for configuration or evaluation.
+
+#### run(calculators: dict[str, Calculator], \*, n_jobs: int | None = -1, checkpoint_freq: int = 1000, delete_checkpoint_on_finish: bool = True) → list[pd.DataFrame]
+
+Executes benchmarks using the provided calculators and combines the results into a
+list of dataframes. Each benchmark runs for all models provided by calculators, collecting
+individual results and performing validations during elemental_refs combination.
+
+* **Parameters:**
+  * **calculators** – A dictionary where the keys are the model names (str)
+    and the values are the corresponding calculator instances (Calculator).
+  * **n_jobs** – The maximum number of concurrent jobs to run. If set to -1,
+    utilizes all available processors. Defaults to -1.
+  * **checkpoint_freq** – The frequency at which progress is saved as checkpoints,
+    in terms of calculation steps. Defaults to 1000.
+  * **delete_checkpoint_on_finish** (*bool*) – Whether to delete checkpoint files when the benchmark finishes. Defaults to
+    True.
+* **Returns:**
+  A list of pandas DataFrames, each containing combined results
+  for all calculators across the benchmarks.
+
+### *class* CheckpointFile(path: str | Path)
+
+Bases: `object`
+
+CheckpointFile class encapsulates functionality to handle checkpoint files for processing elemental_refs.
+
+The class constructor initializes the CheckpointFile object with the provided path, all elemental_refs to be
+processed, list of structures, and index name for elemental_refs identification.
+
+load() method loads a checkpoint file if it exists, filtering the remaining elemental_refs and structures based on
+entries already processed. It returns a tuple containing three lists: already processed records, remaining
+elemental_refs, and remaining structures.
+
+save() method saves a list of results at the specified checkpoint location.
+
+Represents an initialization process for handling a filesystem path. The
+provided path is converted into a Path object for standardized path
+management in the application.
+
+* **Parameters:**
+  **path** – The filesystem path to be managed. Can be provided as a
+  string or as a Path object.
+
+#### load(\*args: list) → tuple
+
+Loads elemental_refs from a specified path if it exists, returning the loaded elemental_refs along with
+remaining portions of the given input arguments.
+
+The method checks if the file path exists, and if so, it loads elemental_refs from the specified
+file using a predefined loadfn function. It logs the number of loaded entries and
+returns the successfully loaded elemental_refs alongside sliced input arguments based on the
+number of loaded entries. If the file path does not exist, it returns empty results
+and the original input arguments unchanged.
+
+* **Parameters:**
+  **args** – List of lists where each list corresponds to additional elemental_refs to
+  process in conjunction with the loaded file content.
+* **Returns:**
+  A tuple where the first element is the loaded elemental_refs (list) from the specified
+  file path (or an empty list if the path does not exist), and subsequent elements
+  are the remaining unsliced portions of each input list from args or the entire
+  original lists if nothing was loaded.
+
+#### save(results: list[dict[str, Any]]) → None
+
+Saves a list of results at the specified checkpoint location.
+
+* **Parameters:**
+  **results** – A list of dictionaries or objects to be saved.
+* **Returns:**
+  None
+
+### *class* ElasticityBenchmark(index_name: str = 'mp_id', benchmark_name: str | Path = 'mp-binary-pbe-elasticity-2025.1.json.gz', \*\*kwargs)
+
+Bases: [`Benchmark`](#matcalc.benchmark.Benchmark)
+
+Represents a benchmark for evaluating and analyzing mechanical properties such as
+bulk modulus and shear modulus for various materials. The benchmark primarily utilizes
+a dataset and provides functionality for property calculation and result processing.
+
+The class is designed to work with a predefined framework for benchmarking mechanical
+properties. The benchmark dataset contains values such as bulk modulus and shear
+modulus along with additional metadata. This class supports configurability through
+metadata files, index names, and additional benchmark properties. It relies on
+external calculators and utility classes for property computations and result handling.
+
+Initializes the ElasticityBenchmark instance by taking benchmark metadata and
+additional configuration parameters. Sets up the benchmark framework with
+specified mechanical properties and metadata.
+
+* **Parameters:**
+  * **index_name** (*str*) – The name of the index used to uniquely identify records
+    in the benchmark dataset.
+  * **benchmark_name** (*str* *|* *Path*) – The path or name of the benchmark file that contains
+    the dataset. Can either be a string or a Path object.
+  * **kwargs** (*dict*) – Additional keyword arguments that may be passed to parent
+    class methods or used for customization.
+
+#### \_abc_impl *= <_abc._abc_data object>*
+
+#### get_prop_calc(calculator: Calculator, \*\*kwargs: Any) → [PropCalc](#matcalc._base.PropCalc)
+
+Calculates and returns a property calculation object based on the provided
+calculator and optional parameters. This is useful for initializing and
+configuring a property calculation.
+
+* **Parameters:**
+  * **calculator** – A Calculator object responsible for performing numerical
+    operations required for property calculations.
+  * **kwargs** – Additional keyword arguments used for configuring the property
+    calculation.
+* **Returns:**
+  An initialized PropCalc object configured based on the specified
+  calculator and keyword arguments.
+* **Return type:**
+  [PropCalc](#matcalc._base.PropCalc)
+
+#### process_result(result: dict | None, model_name: str) → dict
+
+Processes the result dictionary containing bulk and shear modulus values, adjusts
+them by multiplying with a predefined conversion factor, and formats the keys
+according to the provided model name. If the result is None, default values of
+NaN are returned for both bulk and shear modulus.
+
+* **Parameters:**
+  * **result** (*dict* *or* *None*) – A dictionary containing the bulk and shear modulus values under the keys
+    ‘bulk_modulus_vrh’ and ‘shear_modulus_vrh’ respectively. It can also be
+    None to indicate missing elemental_refs.
+  * **model_name** (*str*) – A string representing the identifier or name of the model. It will be used
+    to format the returned dictionary’s keys.
+* **Returns:**
+  A dictionary containing two entries. The keys will be dynamically created
+  by appending the model name to the terms ‘
+
+  ```
+  bulk_modulus_vrh_
+  ```
+
+  ’ and
+  ‘
+
+  ```
+  shear_modulus_vrh_
+  ```
+
+  ’. The values will either be scaled modulus values or
+  NaN if the input result is None.
+* **Return type:**
+  dict
+
+### *class* EquilibriumBenchmark(index_name: str = 'material_id', benchmark_name: str | Path = 'wbm-random-pbe54-equilibrium-2025.1.json.gz', folder_name: str = 'default_folder', \*\*kwargs)
+
+Bases: [`Benchmark`](#matcalc.benchmark.Benchmark)
+
+Represents a benchmark for evaluating and analyzing equilibrium properties of materials.
+This benchmark utilizes a dataset and provides functionality for property calculation
+and result processing. The class is designed to work with a predefined framework for
+benchmarking equilibrium properties. The benchmark dataset contains data such as relaxed
+structures, un-/corrected formation energy along with additional metadata. This class
+supports configurability through metadata files, index names, and additional benchmark
+properties. It relies on external calculators and utility classes for property computations
+and result handling.
+
+Initializes the EquilibriumBenchmark instance with specified benchmark metadata and
+configuration parameters. It sets up the benchmark with the necessary properties
+required for equilibrium benchmark analysis.
+
+* **Parameters:**
+  * **index_name** (*str*) – The name of the index used to uniquely identify records in the dataset.
+  * **benchmark_name** (*str* *|* *Path*) – The path or name of the benchmark file that contains the dataset.
+  * **folder_name** (*str*) – The folder name used for file operations related to structure files.
+  * **kwargs** (*dict*) – Additional keyword arguments for customization.
+
+#### \_abc_impl *= <_abc._abc_data object>*
+
+#### get_prop_calc(calculator: Calculator, \*\*kwargs: Any) → [PropCalc](#matcalc._base.PropCalc)
+
+Returns a property calculation object for performing relaxation and formation energy
+calculations. This method initializes the stability calculator using the provided
+Calculator object and any additional configuration parameters.
+
+* **Parameters:**
+  * **calculator** (*Calculator*) – A Calculator object responsible for performing the relaxation and
+    formation energy calculation.
+  * **kwargs** (*dict*) – Additional keyword arguments used for configuration.
+* **Returns:**
+  An initialized PropCalc object configured for relaxation and formation energy
+  calculations.
+* **Return type:**
+  [PropCalc](#matcalc._base.PropCalc)
+
+#### process_result(result: dict | None, model_name: str) → dict
+
+Processes the result dictionary containing final structures and formation energy per atom,
+formats the keys according to the provided model name. If the result is None, default values
+of NaN are returned for final structures or formation energy per atom.
+
+* **Parameters:**
+  * **result** (*dict* *or* *None*) – A dictionary containing the final structures and formation energy per atom under the keys
+    ‘final_structure’ and ‘formation energy per atom’. It can also be None to indicate missing
+    elemental_refs.
+  * **model_name** (*str*) – A string representing the identifier or name of the model. It will be used
+    to format the returned dictionary’s keys.
+* **Returns:**
+  A dictionary containing the specific final structure and formation energy per atomprefixed
+  by the model name. The values will be NaN if the input result is None.
+* **Return type:**
+  dict
+
+#### run(calculator: Calculator, model_name: str, \*, n_jobs: None | int = -1, checkpoint_file: str | Path | None = None, checkpoint_freq: int = 1000, delete_checkpoint_on_finish: bool = True, include_full_results: bool = False, \*\*kwargs) → pd.DataFrame
+
+Processes a collection of structures using a calculator, saves intermittent checkpoints,
+and returns the results in a DataFrame. In addition to the base processing performed
+by the parent class, this method computes the Euclidean distance between the relaxed
+structure (obtained from the property calculation) and the reference DFT structure,
+using SiteStatsFingerprint. The computed distance is added as a new column in the
+results DataFrame with the key “distance_{model_name}”.
+
+This function supports parallel computation and allows for error tolerance during processing.
+It retrieves a property calculator and utilizes it to calculate desired results for the given
+set of structures. Checkpoints are saved periodically based on the specified frequency,
+ensuring that progress is not lost in case of interruptions.
+
+* **Parameters:**
+  * **calculator** (*Calculator*) – ASE-compatible calculator instance used to provide PES information for PropCalc.
+  * **model_name** (*str*) – Name of the model used for properties’ calculation.
+    This name is updated in the results DataFrame.
+  * **n_jobs** (*int* *|* *None*) – Number of parallel jobs to be used in the computation. Use -1
+    to allocate all cores available on the system. Defaults to -1.
+  * **checkpoint_file** (*str* *|* *Path* *|* *None*) – File path where checkpoint elemental_refs is saved periodically.
+    If None, no checkpoints are saved.
+  * **checkpoint_freq** (*int*) – Frequency after which checkpoint elemental_refs is saved.
+    Corresponds to the number of structures processed.
+  * **delete_checkpoint_on_finish** (*bool*) – Whether to delete checkpoint files when the benchmark finishes. Defaults to
+    True.
+  * **include_full_results** (*bool*) – Whether to save full results from PropCalc.calc for analysis afterwards. For
+    instance, the ElasticityProp does not just compute the bulk and shear moduli, but also the full elastic
+    tensors, which can be used for other kinds of analysis. Defaults to False.
+  * **kwargs** (*dict*) – Additional keyword arguments passed to the property calculator,
+    for instance, to customize its behavior or computation options.
+* **Returns:**
+  A pandas DataFrame containing the processed results for the given
+  input structures. The DataFrame includes updated results and relevant
+  metrics.
+* **Return type:**
+  pd.DataFrame
+
+### *class* PhononBenchmark(index_name: str = 'mp_id', benchmark_name: str | Path = 'alexandria-binary-pbe-phonon-2025.1.json.gz', \*\*kwargs)
+
+Bases: [`Benchmark`](#matcalc.benchmark.Benchmark)
+
+Manages phonon benchmarking tasks, such as initializing benchmark elemental_refs,
+performing calculations, and processing results.
+
+This class facilitates constructing and managing phonon benchmarks based on
+provided elemental_refs. It supports operations for processing benchmark elemental_refs,
+extracting relevant attributes, and computing thermal properties. It is
+compatible with various calculators and is designed to streamline the
+benchmarking process for materials’ phonon-related properties.
+
+Initializes an instance with specified index and benchmark details.
+
+This constructor sets up an object with predefined properties such as heat
+capacity and additional fields such as the formula. It supports customizations
+via keyword arguments for further configurations.
+
+* **Parameters:**
+  * **index_name** – The name of the index to be used for identification in
+    the dataset.
+  * **benchmark_name** – The benchmark file name or path containing
+    the dataset information in JSON or compressed format.
+  * **kwargs** – Additional optional parameters for configuration.
+
+#### \_abc_impl *= <_abc._abc_data object>*
+
+#### get_prop_calc(calculator: Calculator, \*\*kwargs: Any) → [PropCalc](#matcalc._base.PropCalc)
+
+Retrieves a phonon calculation instance based on the given calculator and
+additional keyword arguments.
+
+This function initializes and returns a PhononCalc object using the provided
+calculator instance and any optional keyword arguments to configure the
+calculation further.
+
+* **Parameters:**
+  * **calculator** – The calculator instance used to perform the phonon
+    calculation. Must be an instance of the Calculator class.
+  * **kwargs** – Additional keyword arguments for configuring the resulting
+    PhononCalc instance.
+* **Returns:**
+  A new PhononCalc object, initialized with the input calculator and
+  optional parameters.
+* **Return type:**
+  [PropCalc](#matcalc._base.PropCalc)
+
+#### process_result(result: dict | None, model_name: str) → dict
+
+Processes the result dictionary to extract specific thermal property information for the provided model name.
+
+* **Parameters:**
+  * **result** (*dict*) – Dictionary containing thermal properties, with keys structured to access relevant elemental_refs
+    like “thermal_properties” and “heat_capacity”.
+  * **model_name** (*str*) – The model name used as a prefix in returned result keys.
+* **Returns:**
+  A dictionary containing the specific heat capacity at a particular index (e.g., 30),
+  prefixed by the model name.
+* **Return type:**
+  dict
+
+### *class* SofteningBenchmark(benchmark_name: str | Path = 'wbm-high-energy-states.json.gz', index_name: str = 'wbm_id', n_samples: int | None = None, seed: int = 42, \*\*kwargs)
+
+Bases: `object`
+
+A benchmark for the systematic softening of a PES, as described in:
+: B. Deng, et al. npj Comput. Mater. 11, 9 (2025).
+  doi: 10.1038/s41524-024-01500-6
+
+The dataset used here can be found in figshare through:
+: [https://figshare.com/articles/dataset/WBM_high_energy_states/27307776?file=50005317](https://figshare.com/articles/dataset/WBM_high_energy_states/27307776?file=50005317)
+
+This benchmark essentially performs static calculation on pre-sampled high-energy
+PES configurations, and then compare the systematic underestimation of forces
+predicted between GGA-DFT and the provided force field.
+
+Initializes an instance with specified index and benchmark details.
+
+* **Parameters:**
+  * **index_name** – The name of the index to be used for identification in
+    the dataset.
+  * **benchmark_name** – The benchmark file name or path containing
+    the dataset information in JSON or compressed format.
+  * **kwargs** – Additional optional parameters for configuration.
+
+#### *static* get_linear_fitted_slope(x: list | ndarray, y: list | ndarray) → float
+
+Return the linearly fitted slope of x and y using a simple linear model (y = ax).
+:param x: A list of the x values.
+:param y: A list of the y values.
+:return: A float of the fitted slope.
+
+#### run(calculator: Calculator, model_name: str, checkpoint_file: str | Path | None = None, checkpoint_freq: int = 10, \*, include_full_results: bool = False) → pd.DataFrame
+
+Process all the material ids by
+1. calculate the forces on all the sampled structures.
+2. perform a linear fit on the predicted forces w.r.t. provided DFT forces.
+3. returning the fitted slopes as the softening scales.
+
+* **Parameters:**
+  * **calculator** (*Calculator*) – The ASE-compatible calculator instance
+  * **model_name** (*str*) – Name of the model used for properties’ calculation.
+    This name is updated in the results DataFrame.
+  * **checkpoint_file** (*str* *|* *Path* *|* *None*) – File path where checkpoint is saved periodically.
+    If None, no checkpoints are saved.
+  * **checkpoint_freq** (*int*) – Frequency after which checkpoint is saved.
+    Corresponds to the number of structures processed.
+  * **include_full_results** (*bool*) – Whether to include the raw force prediction in the
+    returned dataframe
+* **Returns:**
+  A dataframe containing the softening scales.
+* **Return type:**
+  pd.DataFrame
+
+### get_available_benchmarks() → list[str]
+
+Checks Github for available benchmarks for download.
+
+* **Returns:**
+  List of available benchmarks.
+
+### get_benchmark_data(name: str) → DataFrame
+
+Retrieve benchmark data as a Pandas DataFrame. Uses fsspec to cache files locally if possible.
+
+* **Parameters:**
+  **name** (*str*) – Name of the benchmark elemental_refs file to be retrieved
+* **Returns:**
+  Benchmark elemental_refs loaded as a Pandas DataFrame
+* **Return type:**
+  pd.DataFrame
+* **Raises:**
+  **requests.RequestException** – If the benchmark elemental_refs file cannot be
+  downloaded from the specified URL
+
+## matcalc.config module
+
+Sets some configuration global variables and locations for matcalc.
+
+### clear_cache(\*, confirm: bool = True) → None
+
+Deletes all files in the mattcalc cache. This is used to clean out downloaded benchmarks.
+
+* **Parameters:**
+  **confirm** – Whether to ask for confirmation. Default is True.
 
 ## matcalc.units module
 
@@ -1271,6 +1271,19 @@ Load the ACE model for use in ASE as a calculator.
   * **\*\*kwargs** (*Any*) – Additional keyword arguments for the PyACECalculator.
 * **Returns:**
   ASE calculator compatible with the ACE model.
+* **Return type:**
+  Calculator
+
+#### *static* load_deepmd(model_path: str | Path, \*\*kwargs: Any) → Calculator
+
+Loads the custom deep potential model for use in ASE as a calculator.
+
+* **Parameters:**
+  * **model_path** (*str* *|* *Path*) – The file storing the configuration of
+    potential, filename should end with “.pth”
+  * **\*\*kwargs** (*Any*) – Additional keyword arguments for the PESCalculator.
+* **Returns:**
+  ASE calculator compatible with the DeepMD model.
 * **Return type:**
   Calculator
 

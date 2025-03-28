@@ -8,6 +8,7 @@ nav_exclude: true
 
 This notebook demonstrates how to run the MatCalc-Benchmark. We will use the recently released TensorNet-MatPES-PBE-v2025.1-PES and M3GNet-MatPES-PBE-v2025.1-PES universal machine learning interatomic potentials for demonstration purposes. All that is needed to run the benchmark on a separate model is to provide a compatible ASE Calculator for your UMLIP.
 
+
 ```python
 from __future__ import annotations
 
@@ -16,7 +17,7 @@ import warnings
 import numpy as np
 import pandas as pd
 
-from matcalc import PESCalculator
+from matcalc import load_up
 from matcalc.benchmark import ElasticityBenchmark
 ```
 
@@ -32,7 +33,7 @@ for model_name in [
     "M3GNet-MatPES-PBE-v2025.1-PES",
     "TensorNet-MatPES-PBE-v2025.1-PES",
 ]:
-    calculator = PESCalculator.load_universal(model_name)
+    calculator = load_up(model_name)
     short_name = model_name.split("-")[0]
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")

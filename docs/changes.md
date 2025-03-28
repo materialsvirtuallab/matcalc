@@ -6,6 +6,10 @@ nav_order: 2
 
 # Change Log
 
+## v0.3.0
+- All PropCalc implementations are now private and should be imported from the base package.
+- Added support for Mattersim, Fairchem-Core, PET-MAD, and DeepMD (@atulcthakur)
+
 ## v0.2.2
 - Added ChainedCalc helper class to performed chaining of PropCalcs more easily.
 - Added matcalc.load_up alias for easier loading of universal MLIPs.
@@ -13,7 +17,7 @@ nav_order: 2
 ## v0.2.0
 - Major new feature: Most PropCalc now supports chaining. This allows someone to obtain multiple properties at once.
 - SofteningBenchmark added. (@bowen-bd)
-- Major expansion in the number of supported calculators, including Orb and GRACE models.
+- Major expansion in the number of supported calculators, including Orb and GRACE models. (@atulcthakur)
 
 ## v0.1.2
 - Emergency bug fix for bad default perturb_distance parameter in Relaxation.
