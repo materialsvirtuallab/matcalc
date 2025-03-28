@@ -64,42 +64,67 @@ Runs the sequence of PropCalc on many structures.
 
 Bases: `ABC`
 
-API for a property calculator.
+Abstract base class for property calculations.
+
+This class defines the interface for performing property calculations on
+structures (using pymatgen’s Structure objects or a dictionary containing a
+pymatgen structure). Subclasses are expected to implement the calc method
+to define specific property calculation logic. Additionally, this class provides
+an implementation of the calc_many method, which enables concurrent calculations
+on multiple structures using joblib.
 
 #### \_abc_impl *= <_abc._abc_data object>*
 
 #### *abstract* calc(structure: Structure | dict[str, Any]) → dict[str, Any]
 
-All PropCalc subclasses should implement a calc method that takes in a pymatgen structure
-and returns a dict. The method can return more than one property. Generally, subclasses should have a super()
-call to the abstract base method to obtain an initial result dict.
+Abstract method to calculate and return a standardized format of structural data.
+
+This method processes input structural data, which could either be a dictionary
+or a pymatgen Structure object, and returns a dictionary representation. If a
+dictionary is provided, it must include either the key `final_structure` or
+`structure`. For a pymatgen Structure input, it will be converted to a dictionary
+with the key `final_structure`. To support chaining, a super() call should be made
+by subclasses to ensure that the input dictionary is standardized.
 
 * **Parameters:**
-  **structure** – Pymatgen structure or a dict containing a pymatgen Structure under a “final_structure” or
-  “structure” key. Allowing dicts provide the means to chain calculators, e.g., do a relaxation followed
-  by an elasticity calculation.
+  **structure** (*Structure* *|* *dict* *[**str* *,* *Any* *]*) – A pymatgen Structure object or a dictionary containing structural
+  data with keys such as `final_structure` or `structure`.
 * **Returns:**
-  In the form {“prop_name”: value}.
+  A dictionary with the key `final_structure` mapping to the corresponding
+  structural data.
 * **Return type:**
   dict[str, Any]
+* **Raises:**
+  **ValueError** – If the input dictionary does not include the required keys
+  `final_structure` or `structure`.
 
 #### calc_many(structures: Sequence[Structure | dict[str, Any]], n_jobs: None | int = None, allow_errors: bool = False, \*\*kwargs: Any) → Generator[dict | None]
 
-Performs calc on many structures. The return type is a generator given that the calc method can
-potentially be expensive. It is trivial to convert the generator to a list/tuple.
+Calculate properties for multiple structures concurrently.
+
+This method leverages parallel processing to compute properties for a
+given sequence of structures. It uses the joblib.Parallel library to
+support multi-job execution and manage error handling behavior based
+on user configuration.
 
 * **Parameters:**
-  * **structures** – List or generator of Structures.
-  * **n_jobs** – The maximum number of concurrently running jobs. If -1 all CPUs are used. For n_jobs below -1,
-    (n_cpus + 1 + n_jobs) are used. None is a marker for unset that will be interpreted as n_jobs=1
-    unless the call is performed under a parallel_config() context manager that sets another value for
-    n_jobs.
-  * **allow_errors** – Whether to skip failed calculations. For these calculations, None will be returned. For
-    large scale calculations, you may want this to be True to avoid the entire calculation failing.
-    Defaults to False.
-  * **\*\*kwargs** – Passthrough to joblib.Parallel.
+  * **structures** – A sequence of Structure objects or dictionaries
+    representing the input structures to be processed. Each entry in
+    the sequence is processed independently.
+  * **n_jobs** – The number of jobs to run in parallel. If set to None,
+    joblib will determine the optimal number of jobs based on the
+    system’s CPU configuration.
+  * **allow_errors** – A boolean flag indicating whether to tolerate
+    exceptions during processing. When set to True, any failed
+    calculation will result in a None value for that structure
+    instead of raising an exception.
+  * **kwargs** – Additional keyword arguments passed directly to
+    joblib.Parallel, which allows customization of parallel
+    processing behavior.
 * **Returns:**
-  Generator of dicts.
+  A generator yielding dictionaries with computed properties
+  for each structure or None if an error occurred (depending on
+  the allow_errors flag).
 
 ## matcalc._cli module
 
@@ -133,55 +158,91 @@ Calculator for elastic properties.
 
 Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
-Calculator for elastic properties.
+Class for calculating elastic properties of a material. This includes creating
+an elastic tensor, shear modulus, bulk modulus, and other related properties with
+the help of strain and stress analyses. It leverages the provided ASE Calculator
+for computations and supports relaxation of structures when necessary.
+
+* **Variables:**
+  * **calculator** – The ASE Calculator used for performing computations.
+  * **norm_strains** – Sequence of normal strain values to be applied.
+  * **shear_strains** – Sequence of shear strain values to be applied.
+  * **fmax** – Maximum force tolerated for structure relaxation.
+  * **symmetry** – Whether to apply symmetry reduction techniques during calculations.
+  * **relax_structure** – Whether the initial structure should be relaxed before applying strains.
+  * **relax_deformed_structures** – Whether to relax atomic positions in deformed/strained structures.
+  * **use_equilibrium** – Whether to use equilibrium stress and strain in calculations.
+  * **relax_calc_kwargs** – Additional arguments for relaxation calculations.
+
+Initializes the class with parameters to construct normalized and shear strain values
+and control relaxation behavior for structures. Validates input parameters to ensure
+appropriate constraints are maintained.
 
 * **Parameters:**
-  * **calculator** – ASE Calculator to use.
-  * **norm_strains** – single or multiple strain values to apply to each normal mode.
-    Defaults to (-0.01, -0.005, 0.005, 0.01).
-  * **shear_strains** – single or multiple strain values to apply to each shear mode.
-    Defaults to (-0.06, -0.03, 0.03, 0.06).
-  * **fmax** – maximum force in the relaxed structure (if relax_structure). Defaults to 0.1.
-  * **symmetry** – whether or not to use symmetry reduction. Defaults to False.
-  * **relax_structure** – whether to relax the provided structure with the given calculator.
-    Defaults to True.
-  * **relax_deformed_structures** – whether to relax the atomic positions of the deformed/strained structures
-    with the given calculator. Defaults to False.
-  * **use_equilibrium** – whether to use the equilibrium stress and strain. Ignored and set
-    to True if either norm_strains or shear_strains has length 1 or is a float.
-    Defaults to True.
-  * **relax_calc_kwargs** – Arguments to be passed to the RelaxCalc, if relax_structure is True.
+  * **calculator** – Calculator object used for performing calculations.
+  * **norm_strains** – Sequence of normalized strain values applied during deformation.
+    Can also be a single float. Must not be empty or contain zero.
+  * **shear_strains** – Sequence of shear strain values applied during deformation.
+    Can also be a single float. Must not be empty or contain zero.
+  * **fmax** – Maximum force magnitude tolerance for relaxation. Default is 0.1.
+  * **symmetry** – Boolean flag to enforce symmetry in deformation. Default is False.
+  * **relax_structure** – Boolean flag indicating if the structure should be relaxed before
+    applying strains. Default is True.
+  * **relax_deformed_structures** – Boolean flag indicating if the deformed structures
+    should be relaxed. Default is False.
+  * **use_equilibrium** – Boolean flag indicating if equilibrium conditions should be used for
+    calculations. Automatically enabled if multiple normal and shear strains are provided.
+  * **relax_calc_kwargs** – Optional dictionary containing keyword arguments for structure
+    relaxation calculations.
 
 #### \_abc_impl *= <_abc._abc_data object>*
 
 #### \_elastic_tensor_from_strains(strains: ArrayLike, stresses: ArrayLike, eq_stress: ArrayLike = None, tol: float = 1e-07) → tuple[ElasticTensor, float]
 
-Slightly modified version of Pymatgen function
-pymatgen.analysis.elasticity.elastic.ElasticTensor.from_independent_strains;
-this is to give option to discard eq_stress,
-which (if the structure is relaxed) tends to sometimes be
-much lower than neighboring points.
-Also has option to return the sum of the squares of the residuals
-for all of the linear fits done to compute the entries of the tensor.
+Compute the elastic tensor from given strain and stress data using least-squares
+fitting.
+
+This function calculates the elastic constants from strain-stress relations,
+using a least-squares fitting procedure for each independent component of stress
+and strain tensor pairs. An optional equivalent stress array can be supplied.
+Residuals from the fitting process are accumulated and returned alongside the
+elastic tensor. The elastic tensor is zeroed according to the given tolerance.
+
+* **Parameters:**
+  * **strains** – Strain data array-like, representing different strain states.
+  * **stresses** – Stress data array-like corresponding to the given strain states.
+  * **eq_stress** – Optional array-like, equivalent stress values for equilibrium stress states.
+    Defaults to None.
+  * **tol** – A float representing the tolerance threshold used for zeroing the elastic
+    tensor. Defaults to 1e-7.
+* **Returns:**
+  A tuple consisting of:
+  : - ElasticTensor object: The computed and zeroed elastic tensor in Voigt
+      notation.
+    - float: The summed residuals from least-squares fittings across all
+      tensor components.
 
 #### calc(structure: Structure | dict[str, Any]) → dict[str, Any]
 
-Calculates elastic properties of Pymatgen structure with units determined by the calculator,
-(often the stress_weight).
+Performs a calculation to determine the elastic tensor and related elastic
+properties. It involves multiple steps such as optionally relaxing the input
+structure, generating deformed structures, calculating stresses, and evaluating
+elastic properties. The method supports equilibrium stress computation and various
+relaxations depending on configuration.
 
 * **Parameters:**
-  **structure** – Pymatgen structure.
-
-Returns: {
-: elastic_tensor: Elastic tensor as a pymatgen ElasticTensor object (in eV/A^3),
-  shear_modulus_vrh: Voigt-Reuss-Hill shear modulus based on elastic tensor (in eV/A^3),
-  bulk_modulus_vrh: Voigt-Reuss-Hill bulk modulus based on elastic tensor (in eV/A^3),
-  youngs_modulus: Young’s modulus based on elastic tensor (in eV/A^3),
-  residuals_sum: Sum of squares of all residuals in the linear fits of the
-  calculation of the elastic tensor,
-  structure: The equilibrium structure used for the computation.
-
-}
+  **structure** – The input structure which can either be an instance of Structure or
+  a dictionary containing structural data.
+* **Returns:**
+  A dictionary containing the calculation results that include:
+  - elastic_tensor: The computed elastic tensor of the material.
+  - shear_modulus_vrh: Shear modulus obtained from the elastic tensor
+  > using the Voigt-Reuss-Hill approximation.
+  - bulk_modulus_vrh: Bulk modulus calculated using the Voigt-Reuss-Hill
+    approximation.
+  - youngs_modulus: Young’s modulus derived from the elastic tensor.
+  - residuals_sum: The residual sum from the elastic tensor fitting.
+  - structure: The (potentially relaxed) final structure after calculations.
 
 ## matcalc._eos module
 
@@ -191,39 +252,70 @@ Calculators for EOS and associated properties.
 
 Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
-Equation of state calculator.
+Performs equation of state (EOS) calculations using a specified ASE calculator.
+
+This class is intended to fit the Birch-Murnaghan equation of state, determine the
+bulk modulus, and provide other relevant physical properties of a given structure.
+The EOS calculation includes applying volumetric strain to the structure, optional
+initial relaxation of the structure, and evaluation of energies and volumes
+corresponding to the applied strain.
+
+* **Variables:**
+  * **calculator** – The ASE Calculator used for the calculations.
+  * **optimizer** – Optimization algorithm. Defaults to “FIRE”.
+  * **relax_structure** – Indicates if the structure should be relaxed initially. Defaults to True.
+  * **n_points** – Number of strain points for the EOS calculation. Defaults to 11.
+  * **max_abs_strain** – Maximum absolute volumetric strain. Defaults to 0.1 (10% strain).
+  * **fmax** – Maximum force tolerance for relaxation. Defaults to 0.1 eV/Å.
+  * **max_steps** – Maximum number of optimization steps during relaxation. Defaults to 500.
+  * **relax_calc_kwargs** – Additional keyword arguments for relaxation calculations. Defaults to None.
+
+Constructor for initializing the data and configurations necessary for a
+calculation and optimization process. This class enables the setup of
+simulation parameters, structural relaxation options, and optimizations
+with specified constraints and tolerances.
 
 * **Parameters:**
-  * **calculator** – ASE Calculator to use.
-  * **optimizer** (*str* *|* *ase Optimizer*) – The optimization algorithm. Defaults to “FIRE”.
-  * **max_steps** (*int*) – Max number of steps for relaxation. Defaults to 500.
-  * **max_abs_strain** (*float*) – The maximum absolute strain applied to the structure. Defaults to 0.1 (10% strain).
-  * **n_points** (*int*) – Number of points in which to compute the EOS. Defaults to 11.
-  * **fmax** (*float*) – Max force for relaxation (of structure as well as atoms).
-  * **relax_structure** – Whether to first relax the structure. Set to False if structures provided are pre-relaxed
-    with the same calculator. Defaults to True.
-  * **relax_calc_kwargs** – Arguments to be passed to the RelaxCalc, if relax_structure is True.
+  * **calculator** (*Calculator*) – The calculator object that handles the computation of
+    forces, energies, and other related properties for the system being
+    studied.
+  * **optimizer** (*Optimizer* *|* *str* *,* *optional*) – The optimization algorithm used for structural relaxations
+    or energy minimizations. Can be an optimizer object or the string name
+    of the algorithm. Default is “FIRE”.
+  * **max_steps** (*int* *,* *optional*) – The maximum number of steps allowed during the optimization
+    or relaxation process. Default is 500.
+  * **max_abs_strain** (*float* *,* *optional*) – The maximum allowable absolute strain for relaxation
+    processes. Default is 0.1.
+  * **n_points** (*int* *,* *optional*) – The number of points or configurations evaluated during
+    the simulation or calculation process. Default is 11.
+  * **fmax** (*float* *,* *optional*) – The force convergence criterion, specifying the maximum force
+    threshold (per atom) for stopping relaxations. Default is 0.1.
+  * **relax_structure** (*bool* *,* *optional*) – A flag indicating whether structural relaxation
+    should be performed before proceeding with further steps. Default is True.
+  * **relax_calc_kwargs** (*dict* *|* *None* *,* *optional*) – Additional keyword arguments to customize the
+    relaxation calculation process. Default is None.
 
 #### \_abc_impl *= <_abc._abc_data object>*
 
 #### calc(structure: Structure | dict[str, Any]) → dict
 
-Fit the Birch-Murnaghan equation of state.
+Performs energy-strain calculations using Birch-Murnaghan equations of state to extract
+equation of state properties such as bulk modulus and R-squared score of the fit.
+
+This function calculates properties of a material system under strain, specifically
+its volumetric energy response produced by applying incremental strain, then fits
+the Birch-Murnaghan equation of state to the calculated energy and volume data.
+Optionally, a relaxation is applied to the structure between calculations of its
+strained configurations.
 
 * **Parameters:**
-  **structure** – pymatgen Structure object.
-
-Returns: {
-: eos: {
-  : volumes: tuple[float] in Angstrom^3,
-    energies: tuple[float] in eV,
-  <br/>
-  },
-  bulk_modulus_bm: Birch-Murnaghan bulk modulus in GPa.
-  r2_score_bm: R squared of Birch-Murnaghan fit of energies predicted by model to help detect erroneous
-  calculations. This value should be at least around 1 - 1e-4 to 1 - 1e-5.
-
-}
+  **structure** – Input structure for calculations. Can be a Structure object or
+  a dictionary representation of its atomic configuration and parameters.
+* **Returns:**
+  A dictionary containing results of the calculations, including relaxed
+  structures under conditions of strain, energy-volume data, Birch-Murnaghan
+  bulk modulus (in GPa), and R-squared fit of the Birch-Murnaghan model to the
+  data.
 
 ## matcalc._neb module
 
@@ -284,33 +376,36 @@ Calculator for phonon properties.
 
 Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
-Calculator for phonon properties.
+PhononCalc is a specialized class for calculating thermal properties of structures
+using phonopy. It extends the functionalities of base property calculation classes
+and integrates phonopy for phonon-related computations.
 
-* **Parameters:**
-  * **calculator** (*Calculator*) – ASE Calculator to use.
-  * **fmax** (*float*) – Max forces. This criterion is more stringent than for simple relaxation.
-    Defaults to 0.1 (in eV/Angstrom)
-  * **optimizer** (*str*) – Optimizer used for RelaxCalc.
-  * **atom_disp** (*float*) – Atomic displacement (in Angstrom).
-  * **supercell_matrix** (*ArrayLike*) – Supercell matrix to use. Defaults to 2x2x2 supercell.
-  * **t_step** (*float*) – Temperature step (in Kelvin).
-  * **t_max** (*float*) – Max temperature (in Kelvin).
-  * **t_min** (*float*) – Min temperature (in Kelvin).
-  * **relax_structure** (*bool*) – Whether to first relax the structure. Set to False if structures
-    provided are pre-relaxed with the same calculator.
-  * **relax_calc_kwargs** (*dict*) – Arguments to be passed to the RelaxCalc, if relax_structure is True.
-  * **write_force_constants** (*bool* *|* *str* *|* *Path*) – Whether to save force constants. Pass string or Path
-    for custom filename. Set to False for storage conservation. This file can be very large, be
-    careful when doing high-throughput. Defaults to False.
-  * **calculations.**
-  * **write_band_structure** (*bool* *|* *str* *|* *Path*) – Whether to calculate and save band structure
-    (in yaml format). Defaults to False. Pass string or Path for custom filename.
-  * **write_total_dos** (*bool* *|* *str* *|* *Path*) – Whether to calculate and save density of states
-    (in dat format). Defaults to False. Pass string or Path for custom filename.
-  * **write_phonon** (*bool* *|* *str* *|* *Path*) – Whether to save phonon object. Set to True to save
-    necessary phonon calculation results. Band structure, density of states, thermal properties,
-    etc. can be rebuilt from this file using the phonopy API via phonopy.load(“phonon.yaml”).
-    Defaults to True. Pass string or Path for custom filename.
+The class is designed to work with a provided calculator and a structure, enabling
+the computation of various thermal properties such as free energy, entropy,
+and heat capacity as functions of temperature. It supports relaxation of the
+structure, control over displacement magnitudes, and customization of output
+file paths for storing intermediate and final results.
+
+* **Variables:**
+  * **calculator** – Calculator object to perform energy and force evaluations.
+  * **atom_disp** – Magnitude of atomic displacement for phonon calculations.
+  * **supercell_matrix** – Matrix defining the supercell size for phonon calculations.
+  * **t_step** – Temperature step size in Kelvin for thermal property calculations.
+  * **t_max** – Maximum temperature in Kelvin for thermal property calculations.
+  * **t_min** – Minimum temperature in Kelvin for thermal property calculations.
+  * **fmax** – Maximum force tolerance for structure relaxation.
+  * **optimizer** – Optimizer to be used for structure relaxation.
+  * **relax_structure** – Flag to indicate whether the structure should be relaxed
+    before phonon calculations.
+  * **relax_calc_kwargs** – Additional keyword arguments for structure relaxation calculations.
+  * **write_force_constants** – Path or boolean flag indicating where to save the
+    calculated force constants.
+  * **write_band_structure** – Path or boolean flag indicating where to save the
+    calculated phonon band structure.
+  * **write_total_dos** – Path or boolean flag indicating where to save the total
+    density of states (DOS) data.
+  * **write_phonon** – Path or boolean flag indicating where to save the full
+    phonon data.
 
 #### \_abc_impl *= <_abc._abc_data object>*
 
@@ -386,6 +481,96 @@ Helper to compute forces on a structure.
 * **Returns:**
   forces
 
+## matcalc._phonon3 module
+
+Calculator for phonon-phonon interaction and related properties.
+
+### *class* Phonon3Calc(calculator: Calculator, fc2_supercell: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2)), fc3_supercell: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2)), mesh_numbers: ArrayLike = (20, 20, 20), disp_kwargs: dict[str, Any] = <factory>, thermal_conductivity_kwargs: dict = <factory>, relax_structure: bool = True, relax_calc_kwargs: dict = <factory>, fmax: float = 0.1, optimizer: str = 'FIRE', t_min: float = 0, t_max: float = 1000, t_step: float = 10, write_phonon3: bool | str | Path = False, write_kappa: bool = False)
+
+Bases: [`PropCalc`](#matcalc._base.PropCalc)
+
+Handles the calculation of phonon-phonon interactions and thermal conductivity
+using the Phono3py package. Provides functionality for generating displacements,
+calculating force constants, and computing lattice thermal conductivity.
+
+Primarily designed for automating the usage of Phono3py in conjunction with
+a chosen calculator for force evaluations. Supports options for structure
+relaxation before calculation and customization of various computational parameters.
+
+* **Variables:**
+  * **calculator** – ASE Calculator used for force evaluations during the calculation.
+  * **fc2_supercell** – Supercell matrix for the second-order force constants calculation.
+  * **fc3_supercell** – Supercell matrix for the third-order force constants calculation.
+  * **mesh_numbers** – Grid mesh numbers for thermal conductivity calculation.
+  * **disp_kwargs** – Custom keyword arguments for generating displacements.
+  * **thermal_conductivity_kwargs** – Additional keyword arguments for thermal conductivity calculations.
+  * **relax_structure** – Flag indicating whether the input structure should be relaxed before calculation.
+  * **relax_calc_kwargs** – Additional keyword arguments for the structure relaxation calculator.
+  * **fmax** – Maximum force tolerance for the structure relaxation.
+  * **optimizer** – Optimizer name to use for structure relaxation.
+  * **t_min** – Minimum temperature (in Kelvin) for thermal conductivity calculation.
+  * **t_max** – Maximum temperature (in Kelvin) for thermal conductivity calculation.
+  * **t_step** – Temperature step size (in Kelvin) for thermal conductivity calculation.
+  * **write_phonon3** – Output path for saving Phono3py results, or a boolean to toggle saving.
+  * **write_kappa** – Flag indicating whether to write kappa (thermal conductivity values) to output files.
+
+#### \_abc_impl *= <_abc._abc_data object>*
+
+#### calc(structure: Structure | dict[str, Any]) → dict
+
+Performs thermal conductivity calculations using the Phono3py library.
+
+This method processes a given atomic structure and calculates its thermal
+conductivity through third-order force constants (FC3) computations. The
+process involves optional relaxation of the input structure, generation of
+displacements, and force calculations corresponding to the supercell
+structures. The results include computed thermal conductivity over specified
+temperatures, along with intermediate Phono3py configurations.
+
+* **Parameters:**
+  **structure** – The atomic structure to compute thermal conductivity for. This can
+  be provided as either a Structure object or a dictionary describing
+  the structure as per specifications of the input format.
+* **Returns:**
+  A dictionary containing the following keys:
+  - “phonon3”: The configured and processed Phono3py object containing data
+  > regarding the phonon interactions and force constants.
+  - ”temperatures”: A numpy array of temperatures over which thermal
+    conductivity has been computed.
+  - ”thermal_conductivity”: The averaged thermal conductivity values computed
+    at the specified temperatures. Returns NaN if the values cannot be
+    computed.
+
+#### calculator *: Calculator*
+
+#### disp_kwargs *: dict[str, Any]*
+
+#### fc2_supercell *: ArrayLike* *= ((2, 0, 0), (0, 2, 0), (0, 0, 2))*
+
+#### fc3_supercell *: ArrayLike* *= ((2, 0, 0), (0, 2, 0), (0, 0, 2))*
+
+#### fmax *: float* *= 0.1*
+
+#### mesh_numbers *: ArrayLike* *= (20, 20, 20)*
+
+#### optimizer *: str* *= 'FIRE'*
+
+#### relax_calc_kwargs *: dict*
+
+#### relax_structure *: bool* *= True*
+
+#### t_max *: float* *= 1000*
+
+#### t_min *: float* *= 0*
+
+#### t_step *: float* *= 10*
+
+#### thermal_conductivity_kwargs *: dict*
+
+#### write_kappa *: bool* *= False*
+
+#### write_phonon3 *: bool | str | Path* *= False*
+
 ## matcalc._qha module
 
 Calculator for phonon properties under quasi-harmonic approximation.
@@ -394,40 +579,37 @@ Calculator for phonon properties under quasi-harmonic approximation.
 
 Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
-Calculator for phonon properties under quasi-harmonic approximation.
+Class for performing quasi-harmonic approximation calculations.
 
-* **Parameters:**
-  * **calculator** (*Calculator*) – ASE Calculator to use.
-  * **t_step** (*float*) – Temperature step. Defaults to 10 (in Kelvin).
-  * **t_max** (*float*) – Max temperature (in Kelvin). Defaults to 1000 (in Kelvin).
-  * **t_min** (*float*) – Min temperature (in Kelvin). Defaults to 0 (in Kelvin).
-  * **fmax** (*float*) – Max forces. This criterion is more stringent than for simple relaxation.
-    Defaults to 0.1 (in eV/Angstrom).
-  * **optimizer** (*str*) – Optimizer used for RelaxCalc. Default to “FIRE”.
-  * **eos** (*str*) – Equation of state used to fit F vs V, including “vinet”, “murnaghan” or
-    “birch_murnaghan”. Default to “vinet”.
-  * **relax_structure** (*bool*) – Whether to first relax the structure. Set to False if structures
-    provided are pre-relaxed with the same calculator.
-  * **relax_calc_kwargs** (*dict*) – Arguments to be passed to the RelaxCalc, if relax_structure is True.
-  * **phonon_calc_kwargs** (*dict*) – Arguments to be passed to the PhononCalc.
-  * **scale_factors** (*Sequence* *[**float* *]*) – Factors to scale the lattice constants of the structure.
-  * **write_helmholtz_volume** (*bool* *|* *str* *|* *Path*) – Whether to save Helmholtz free energy vs volume in file.
-    Pass string or Path for custom filename. Defaults to False.
-  * **write_volume_temperature** (*bool* *|* *str* *|* *Path*) – Whether to save equilibrium volume vs temperature in file.
-    Pass string or Path for custom filename. Defaults to False.
-  * **write_thermal_expansion** (*bool* *|* *str* *|* *Path*) – Whether to save thermal expansion vs temperature in file.
-    Pass string or Path for custom filename. Defaults to False.
-  * **write_gibbs_temperature** (*bool* *|* *str* *|* *Path*) – Whether to save Gibbs free energy vs temperature in file.
-    Pass string or Path for custom filename. Defaults to False.
-  * **write_bulk_modulus_temperature** (*bool* *|* *str* *|* *Path*) – Whether to save bulk modulus vs temperature in file.
-    Pass string or Path for custom filename. Defaults to False.
-  * **write_heat_capacity_p_numerical** (*bool* *|* *str* *|* *Path*) – Whether to save heat capacity at constant pressure
-    by numerical difference vs temperature in file. Pass string or Path for custom filename.
-    Defaults to False.
-  * **write_heat_capacity_p_polyfit** (*bool* *|* *str* *|* *Path*) – Whether to save heat capacity at constant pressure
-    by fitting vs temperature in file. Pass string or Path for custom filename. Defaults to False.
-  * **write_gruneisen_temperature** (*bool* *|* *str* *|* *Path*) – Whether to save Grueneisen parameter vs temperature in
-    file. Pass string or Path for custom filename. Defaults to False.
+This class utilizes phonopy and Pymatgen-based structure manipulation to calculate
+thermal properties such as Gibbs free energy, thermal expansion, heat capacity, and
+bulk modulus as a function of temperature under the quasi-harmonic approximation.
+It allows for structural relaxation, handling customized scale factors for lattice constants,
+and fine-tuning various calculation parameters. Calculation results can be selectively
+saved to output files.
+
+* **Variables:**
+  * **calculator** – Calculator instance used for electronic structure or energy calculations.
+  * **t_step** – Temperature step size in Kelvin.
+  * **t_max** – Maximum temperature in Kelvin.
+  * **t_min** – Minimum temperature in Kelvin.
+  * **fmax** – Maximum force threshold for structure relaxation in eV/Å.
+  * **optimizer** – Type of optimizer used for structural relaxation.
+  * **eos** – Equation of state used for fitting energy vs. volume data.
+  * **relax_structure** – Whether to perform structure relaxation before phonon calculations.
+  * **relax_calc_kwargs** – Additional keyword arguments for structure relaxation calculations.
+  * **phonon_calc_kwargs** – Additional keyword arguments for phonon calculations.
+  * **scale_factors** – List of scale factors for lattice scaling.
+  * **write_helmholtz_volume** – Path or boolean to control saving Helmholtz free energy vs. volume data.
+  * **write_volume_temperature** – Path or boolean to control saving volume vs. temperature data.
+  * **write_thermal_expansion** – Path or boolean to control saving thermal expansion coefficient data.
+  * **write_gibbs_temperature** – Path or boolean to control saving Gibbs free energy as a function of temperature.
+  * **write_bulk_modulus_temperature** – Path or boolean to control saving bulk modulus vs. temperature data.
+  * **write_heat_capacity_p_numerical** – Path or boolean to control saving numerically calculated heat capacity vs.
+    temperature data.
+  * **write_heat_capacity_p_polyfit** – Path or boolean to control saving polynomial-fitted heat capacity vs.
+    temperature data.
+  * **write_gruneisen_temperature** – Path or boolean to control saving Grüneisen parameter vs. temperature data.
 
 #### \_abc_impl *= <_abc._abc_data object>*
 
@@ -574,59 +756,109 @@ Relaxation properties.
 
 Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
-Relaxes and computes the relaxed parameters of a structure.
+A class to perform structural relaxation calculations using ASE (Atomic Simulation Environment).
+
+This class facilitates structural relaxation by integrating with ASE tools for
+optimized geometry and/or cell parameters. It enables convergence on forces, stress,
+and total energy, offering customization for relaxation parameters and further
+enabling properties to be extracted from the relaxed structure.
+
+* **Variables:**
+  * **calculator** – ASE Calculator used for force and energy evaluations.
+  * **optimizer** – Algorithm for performing the optimization.
+  * **max_steps** – Maximum number of optimization steps allowed.
+  * **traj_file** – Path to save relaxation trajectory (optional).
+  * **interval** – Interval for saving trajectory frames during relaxation.
+  * **fmax** – Force tolerance for convergence (eV/Å).
+  * **relax_atoms** – Whether atomic positions are relaxed.
+  * **relax_cell** – Whether the cell parameters are relaxed.
+  * **cell_filter** – ASE filter used for modifying the cell during relaxation.
+  * **perturb_distance** – Distance (Å) for random perturbation to break symmetry.
+
+Initializes the relaxation procedure for an atomic configuration system.
+
+This constructor sets up the relaxation pipeline, configuring the required
+calculator, optimizer, relaxation parameters, and logging options. The
+relaxation process aims to find the minimum energy configuration, optionally
+relaxing atoms and/or the simulation cell within the specified constraints.
 
 * **Parameters:**
-  * **calculator** – ASE Calculator to use.
-  * **optimizer** (*str* *|* *ase Optimizer*) – The optimization algorithm. Defaults to “FIRE”.
-  * **max_steps** (*int*) – Max number of steps for relaxation. Defaults to 500.
-  * **traj_file** (*str* *|* *None*) – File to save the trajectory to. Defaults to None.
-  * **interval** (*int*) – The step interval for saving the trajectories. Defaults to 1.
-  * **fmax** (*float*) – Total force tolerance for relaxation convergence.
-    fmax is a sum of force and stress forces. Defaults to 0.1 (eV/A).
-  * **relax_atoms** (*bool*) – Whether to relax the atoms (or just static calculation).
-  * **relax_cell** (*bool*) – Whether to relax the cell (or just atoms).
-  * **cell_filter** (*Filter*) – The ASE Filter used to relax the cell. Default is FrechetCellFilter.
-  * **perturb_distance** (*float* *|* *None*) – Distance in angstrom to randomly perturb each site to break symmetry.
-    Defaults to None.
-* **Raises:**
-  **ValueError** – If the optimizer is not a valid ASE optimizer.
+  * **calculator** – A calculator object used to perform energy and force
+    calculations during the relaxation process.
+  * **optimizer** – The optimization algorithm to use for relaxation. It can
+    either be an instance of an Optimizer class or a string identifier for
+    a recognized ASE optimizer. Defaults to “FIRE”.
+  * **max_steps** – The maximum number of optimization steps to perform
+    during the relaxation process. Defaults to 500.
+  * **traj_file** – Path to a file for periodic trajectory output (if specified).
+    This file logs the atomic positions and cell configurations after a given
+    interval. Defaults to None.
+  * **interval** – The interval (in steps) at which the trajectory file is
+    updated. Defaults to 1.
+  * **fmax** – The force convergence threshold. Relaxation continues until the
+    maximum force on any atom falls below this value. Defaults to 0.1.
+  * **relax_atoms** – A flag indicating whether the atomic positions are to
+    be relaxed. Defaults to True.
+  * **relax_cell** – A flag indicating whether the simulation cell is to
+    be relaxed. Defaults to True.
+  * **cell_filter** – The filter to apply when relaxing the simulation cell.
+    This determines constraints or allowed degrees of freedom during
+    cell relaxation. Defaults to FrechetCellFilter.
+  * **perturb_distance** – A perturbation distance used for initializing
+    the system configuration before relaxation. If None, no perturbation
+    is applied. Defaults to None.
 
 #### \_abc_impl *= <_abc._abc_data object>*
 
 #### calc(structure: Structure | dict) → dict
 
-Perform relaxation to obtain properties.
+Calculate the final relaxed structure, energy, forces, and stress for a given
+structure and update the result dictionary with additional geometric properties.
+
+This method takes an input structure and performs a relaxation process
+depending on the specified parameters. If the perturb_distance attribute
+is provided, the structure is perturbed before relaxation. The relaxation
+process can involve optimization of both atomic positions and the unit cell
+if specified. Results of the calculation including final structure geometry,
+energy, forces, stresses, and lattice parameters are returned in a dictionary.
 
 * **Parameters:**
-  **structure** – Pymatgen structure.
+  **structure** – Input structure for calculation. Can be provided as a
+  Structure object or a dictionary convertible to Structure.
+* **Returns:**
+  Dictionary containing the final relaxed structure, calculated
+  energy, forces, stress, and lattice parameters.
+* **Return type:**
+  dict
 
-Returns: {
-: final_structure: final_structure,
-  energy: static energy or trajectory observer final energy in eV,
-  forces: forces in eV/A,
-  stress: stress in eV/A^3,
-  volume: lattice.volume in A^3,
-  a: lattice.a in A,
-  b: lattice.b in A,
-  c: lattice.c in A,
-  alpha: lattice.alpha in degrees,
-  beta: lattice.beta in degrees,
-  gamma: lattice.gamma in degrees,
-
-}
-
-### *class* TrajectoryObserver(atoms: Atoms)
+### *class* TrajectoryObserver(atoms: Atoms, energies: list[float] = <factory>, forces: list[np.ndarray] = <factory>, stresses: list[np.ndarray] = <factory>, atom_positions: list[np.ndarray] = <factory>, cells: list[np.ndarray] = <factory>)
 
 Bases: `object`
 
-Trajectory observer is a hook in the relaxation process that saves the
-intermediate structures.
+Class for observing and recording the properties of an atomic structure during relaxation.
 
-Init the Trajectory Observer from a Atoms.
+The TrajectoryObserver class is designed to track and store the atomic properties like
+energies, forces, stresses, atom positions, and cell structure of an atomic system
+represented by an Atoms object. It provides functionality to save recorded data
+to a file for further analysis or usage.
 
-* **Parameters:**
-  **atoms** (*Atoms*) – Structure to observe.
+* **Variables:**
+  * **atoms** – The atomic structure being observed.
+  * **energies** – List of potential energy values of the atoms during relaxation.
+  * **forces** – List of force arrays recorded for the atoms during relaxation.
+  * **stresses** – List of stress tensors recorded for the atoms during relaxation.
+  * **atom_positions** – List of atomic positions recorded during relaxation.
+  * **cells** – List of unit cell arrays recorded during relaxation.
+
+#### atom_positions *: list[np.ndarray]*
+
+#### atoms *: Atoms*
+
+#### cells *: list[np.ndarray]*
+
+#### energies *: list[float]*
+
+#### forces *: list[np.ndarray]*
 
 #### save(filename: str) → None
 
@@ -634,6 +866,8 @@ Save the trajectory to file.
 
 * **Parameters:**
   **filename** (*str*) – filename to save the trajectory.
+
+#### stresses *: list[np.ndarray]*
 
 ## matcalc._stability module
 
@@ -643,25 +877,44 @@ Calculator for stability related properties.
 
 Bases: [`PropCalc`](#matcalc._base.PropCalc)
 
-Calculator for energetic properties.
+Handles the computation of energetic properties such as formation energy per atom,
+cohesive energy per atom, and relaxed structures for input compositions. This class
+enables a streamlined setup for performing computational property calculations based
+on different reference data and relaxation configurations.
 
-Initialize the class with the required computational parameters to set up properties
-and configurations. This class is used to perform calculations and provides an interface
-to manage computational settings such as calculator setup, elemental references, ground
-state relaxation, and additional calculation parameters.
+* **Variables:**
+  * **calculator** – The computational calculator used for numerical simulations and property
+    evaluations.
+  * **elemental_refs** – Reference data dictionary or identifier for elemental properties.
+    If a string (“MatPES-PBE” or “MatPES-r2SCAN”), loads default references;
+    if a dictionary, uses custom provided data.
+  * **use_dft_gs_reference** – Whether to use DFT ground state data for energy computations
+    when referencing elemental properties.
+  * **relax_structure** – Specifies whether to relax the input structures before property
+    calculations. If True, relaxation is applied.
+  * **relax_calc_kwargs** – Optional keyword arguments for fine-tuning relaxation calculation
+    settings or parameters.
+
+Initializes the class with the given calculator and optional configurations for
+elemental references, density functional theory (DFT) ground state reference, and
+options for structural relaxation.
+
+This constructor allows initializing essential components of the object, tailored
+for specific computational settings. The parameters include configurations for
+elemental references, an optional DFT ground state reference, and structural
+relaxation preferences.
 
 * **Parameters:**
-  * **calculator** (*Calculator*) – The computational calculator object implementing specific calculation
-    protocols or methods for performing numerical simulations.
-  * **elemental_refs** (*Literal* *[* *"MatPES-PBE"* *,*  *"MatPES-r2SCAN"* *]*  *|* *dict*) – Specifies the elemental reference data source. It can either be a
-    predefined identifier (“MatPES-PBE” or “MatPES-r2SCAN”) to load default references or,
-    alternatively, it can be a dictionary directly providing custom reference data. The dict should be of the
-    format {element_symbol: {“structure”: structure_object, “energy_per_atom”: energy_per_atom,
-    “energy_atomic”: energy_atomic}}
-  * **use_dft_gs_reference** (*bool*) – Whether to use the ground state reference from DFT
-    calculations for energetics or other property computations.
-  * **relax_calc_kwargs** (*dict* *|* *None*) – Optional dictionary containing additional keyword arguments
-    for customizing the configurations and execution of the relaxation calculations.
+  * **calculator** (*Calculator*) – A Calculator instance for performing calculations.
+  * **elemental_refs** (*Literal* *[* *"MatPES-PBE"* *,*  *"MatPES-r2SCAN"* *]*  *|* *dict*) – Specifies the elemental references to be used. It can either be
+    a predefined string identifier (“MatPES-PBE”, “MatPES-r2SCAN”) or a dictionary
+    mapping elements to their energy references.
+  * **use_dft_gs_reference** (*bool*) – Determines whether to use DFT ground state
+    energy as a reference. Defaults to False.
+  * **relax_structure** (*bool*) – Specifies if the structure should be relaxed before
+    proceeding with calculations. Defaults to True.
+  * **relax_calc_kwargs** (*dict* *|* *None*) – Additional keyword arguments for the relaxation
+    calculation. Can be a dictionary of settings or None. Defaults to None.
 
 #### \_abc_impl *= <_abc._abc_data object>*
 
@@ -802,22 +1055,30 @@ lost in case of interruptions.
 
 Bases: `object`
 
-A class to run multiple benchmarks in a single run.
+Represents a suite for handling and executing a list of benchmarks. This class is designed
+for the comprehensive execution and management of benchmarks with support for configurable
+parallel computation and checkpointing.
 
-Represents a configuration for handling a list of benchmarks. This class is designed
-to initialize with a specified list of benchmarks.
+The purpose of this class is to facilitate the execution of multiple benchmarks using
+various computational models (calculators) while enabling efficient resource utilization
+and result aggregation. It supports checkpointing to handle long computations reliably.
+
+* **Variables:**
+  **benchmarks** – A list of benchmarks to be configured or evaluated.
+
+Represents a collection of benchmarks.
+
+This class is designed to store and manage a list of benchmarks. It provides
+an initialization method to set up the benchmark list during object creation.
+It does not include any specialized methods or functionality beyond holding
+a list of benchmarks.
 
 #### benchmarks
 
-A list containing benchmark configurations or elemental_refs for
+A list of benchmarks provided during initialization.
 
 * **Type:**
   list
-
-### evaluation.
-
-* **Parameters:**
-  **benchmarks** (*list*) – A list of benchmarks for configuration or evaluation.
 
 #### run(calculators: dict[str, Calculator], \*, n_jobs: int | None = -1, checkpoint_freq: int = 1000, delete_checkpoint_on_finish: bool = True) → list[pd.DataFrame]
 
@@ -842,16 +1103,15 @@ individual results and performing validations during elemental_refs combination.
 
 Bases: `object`
 
-CheckpointFile class encapsulates functionality to handle checkpoint files for processing elemental_refs.
+Represents a checkpoint file system management utility.
 
-The class constructor initializes the CheckpointFile object with the provided path, all elemental_refs to be
-processed, list of structures, and index name for elemental_refs identification.
+This class provides mechanisms to manage and process a file path and its
+associated actions such as loading and saving data. It ensures standardized
+path handling through the use of Path objects, enables loading checkpoint
+data from a file, and facilitates the saving of resulting data.
 
-load() method loads a checkpoint file if it exists, filtering the remaining elemental_refs and structures based on
-entries already processed. It returns a tuple containing three lists: already processed records, remaining
-elemental_refs, and remaining structures.
-
-save() method saves a list of results at the specified checkpoint location.
+* **Variables:**
+  **path** – Standardized file system path, managed as a Path object.
 
 Represents an initialization process for handling a filesystem path. The
 provided path is converted into a Path object for standardized path
@@ -1182,10 +1442,16 @@ Process all the material ids by
 
 ### get_available_benchmarks() → list[str]
 
-Checks Github for available benchmarks for download.
+Fetches and returns a list of available benchmarks.
+
+This function makes a request to a predefined URL to retrieve benchmark
+data. It then filters and extracts the names of benchmarks that end with
+the ‘.json.gz’ extension.
 
 * **Returns:**
-  List of available benchmarks.
+  A list of benchmark names available in the retrieved data.
+* **Return type:**
+  list[str]
 
 ### get_benchmark_data(name: str) → DataFrame
 
@@ -1207,10 +1473,17 @@ Sets some configuration global variables and locations for matcalc.
 
 ### clear_cache(\*, confirm: bool = True) → None
 
-Deletes all files in the mattcalc cache. This is used to clean out downloaded benchmarks.
+Deletes all files and subdirectories within the benchmark data directory,
+effectively clearing the cache. The user is prompted for confirmation
+before proceeding with the deletion to prevent accidental data loss.
 
 * **Parameters:**
-  **confirm** – Whether to ask for confirmation. Default is True.
+  **confirm** – A flag to bypass the confirmation prompt. If set to True,
+  the function will prompt the user for confirmation. If set to False,
+  the deletion will proceed without additional confirmation. Defaults to
+  True.
+* **Returns:**
+  Returns None.
 
 ## matcalc.units module
 
@@ -1224,12 +1497,19 @@ Some utility methods, e.g., for getting calculators from well-known sources.
 
 Bases: `Calculator`
 
-Potential calculator for ASE, supporting both **universal** and **customized** potentials, including:
-: Customized potentials: MatGL (M3GNet, CHGNet, TensorNet, SO3Net), MAML (MTP, GAP, NNP, SNAP, qSNAP) and ACE.
-  Universal potentials: M3GNet, CHGNet, MACE, SevenNet, GRACE, ORB, MatterSim, DeePMD, FAIR-Chem and PET-MAD.
+Class for simulating and calculating potential energy surfaces (PES) using various
+machine learning and classical potentials. It extends the ASE Calculator API,
+allowing integration with the ASE framework for molecular dynamics and structure
+optimization.
 
-Though MatCalc can be used with any MLIP, this method does not yet cover all MLIPs.
-Imports should be inside if statements to ensure that all models are optional dependencies.
+PESCalculator provides methods to perform energy, force, and stress calculations
+using potentials such as MTP, GAP, NNP, SNAP, ACE, NequIP, DeepMD and MatGL (M3GNet, TensorNet, CHGNet). The class
+includes utilities to load compatible models for each potential type, making it
+a versatile tool for materials modeling and molecular simulations.
+
+* **Variables:**
+  * **potential** – The potential model used for PES calculations.
+  * **stress_weight** – The stress weight factor to convert between units.
 
 Initialize PESCalculator with a potential from maml.
 
@@ -1259,154 +1539,206 @@ Properties calculator can handle (energy, forces, …)
 
 #### *static* load_ace(basis_set: str | Path | ACEBBasisSet | ACECTildeBasisSet | BBasisConfiguration, \*\*kwargs: Any) → Calculator
 
-Load the ACE model for use in ASE as a calculator.
+Load an ACE (Atomic Cluster Expansion) calculator using the specified basis set.
+
+This method utilizes the PyACE library to create and initialize a PyACECalculator
+instance with a given basis set. The provided basis set can take various forms including
+file paths, basis set objects, or configurations. Additional customization options
+can be passed through keyword arguments.
 
 * **Parameters:**
-  * **basis_set** – The specification of ACE potential, could be in following forms:
-    “.ace” potential filename
-    “.yaml” potential filename
-    ACEBBasisSet object
-    ACECTildeBasisSet object
-    BBasisConfiguration object
-  * **\*\*kwargs** (*Any*) – Additional keyword arguments for the PyACECalculator.
+  * **basis_set** – The basis set used for initializing the ACE calculator. This can
+    be provided as a string, Path object, ACEBBasisSet, ACECTildeBasisSet, or
+    BBasisConfiguration.
+  * **kwargs** – Additional configuration parameters to customize the ACE
+    calculator. These keyword arguments are passed directly to the PyACECalculator
+    instance during initialization.
 * **Returns:**
-  ASE calculator compatible with the ACE model.
-* **Return type:**
-  Calculator
+  An instance of the Calculator class representing the initialized ACE
+  calculator.
 
 #### *static* load_deepmd(model_path: str | Path, \*\*kwargs: Any) → Calculator
 
-Loads the custom deep potential model for use in ASE as a calculator.
+Loads a Deep Potential Molecular Dynamics (DeepMD) model and returns a Calculator
+object for molecular dynamics simulations.
+
+This method imports the deepmd.calculator.DP class and initializes it with the
+given model path and optional keyword arguments. The resulting Calculator object
+is used to perform molecular simulations based on the specified DeepMD model.
+
+The function requires the DeepMD-kit library to be installed to properly import
+and utilize the DP class.
 
 * **Parameters:**
-  * **model_path** (*str* *|* *Path*) – The file storing the configuration of
-    potential, filename should end with “.pth”
-  * **\*\*kwargs** (*Any*) – Additional keyword arguments for the PESCalculator.
+  * **model_path** – Path to the trained DeepMD model file, provided as a string
+    or a Path object.
+  * **kwargs** – Additional options and configurations to pass into the DeepMD
+    Calculator during initialization.
 * **Returns:**
-  ASE calculator compatible with the DeePMD model.
+  An instance of the Calculator object initialized with the specified
+  DeepMD model and optional configurations.
 * **Return type:**
   Calculator
 
 #### *static* load_gap(filename: str | Path, \*\*kwargs: Any) → Calculator
 
-Load the GAP model for use in ASE as a calculator.
+Loads a Gaussian Approximation Potential (GAP) model from the given file and
+returns a corresponding Calculator instance. GAP is a machine learning-based
+potential used for atomistic simulations and requires a specific config file as
+input. Any additional arguments for the calculator can be passed via kwargs,
+allowing customization.
 
 * **Parameters:**
-  * **filename** (*str* *|* *Path*) – The file storing parameters of potentials, filename should ends with “.xml”.
-  * **\*\*kwargs** (*Any*) – Additional keyword arguments for the PESCalculator.
+  * **filename** (*str* *|* *Path*) – Path to the configuration file for the GAP model.
+  * **kwargs** (*Any*) – Additional keyword arguments for configuring the calculator.
 * **Returns:**
-  ASE calculator compatible with the GAP model.
+  An instance of PESCalculator initialized with the GAPotential model.
 * **Return type:**
   Calculator
 
 #### *static* load_matgl(path: str | Path, \*\*kwargs: Any) → Calculator
 
-Load the MatGL model for use in ASE as a calculator.
+Loads a MATGL model from the specified path and initializes a PESCalculator
+with the loaded model and additional optional parameters.
+
+This method uses the MATGL library to load a model from the given file path
+or directory. It then configures a calculator using the loaded model and
+the provided keyword arguments.
 
 * **Parameters:**
-  * **path** (*str* *|* *Path*) – The path to the folder storing model.
-  * **\*\*kwargs** (*Any*) – Additional keyword arguments for the M3GNetCalculator.
+  * **path** (*str* *|* *Path*) – The path to the MATGL model file or directory.
+  * **kwargs** – Additional keyword arguments used to configure the calculator.
 * **Returns:**
-  ASE calculator compatible with the MatGL model.
+  An instance of the PESCalculator initialized with the loaded MATGL
+  model and configured with the given parameters.
 * **Return type:**
   Calculator
 
 #### *static* load_mtp(filename: str | Path, elements: list, \*\*kwargs: Any) → Calculator
 
-Load the MTP model for use in ASE as a calculator.
+Load a machine-learned potential (MTPotential) from a configuration file and
+create a calculator object to interface with it.
+
+This method initializes an instance of MTPotential using a provided
+configuration file and elements. It returns a PESCalculator instance,
+which wraps the initialized potential model.
 
 * **Parameters:**
-  * **filename** (*str* *|* *Path*) – The file storing parameters of potentials, filename should ends with “.mtp”.
-  * **elements** (*list*) – The list of elements.
-  * **\*\*kwargs** (*Any*) – Additional keyword arguments for the PESCalculator.
+  * **filename** (*str* *|* *Path*) – Path to the configuration file for the MTPotential.
+  * **elements** (*list*) – List of element symbols used in the model. Each element
+    should be a string representing a chemical element (e.g., “H”, “O”).
+  * **kwargs** (*Any*) – Additional keyword arguments to configure the PESCalculator.
 * **Returns:**
-  ASE calculator compatible with the MTP model.
+  A calculator object wrapping the MTPotential.
 * **Return type:**
   Calculator
 
 #### *static* load_nequip(model_path: str | Path, \*\*kwargs: Any) → Calculator
 
-Load the NequIP model for use in ASE as a calculator.
+Loads and returns a NequIP Calculator instance from the specified model path.
+This method facilitates the integration of machine learning models into ASE
+by loading a model for atomic-scale simulations.
 
 * **Parameters:**
-  * **model_path** (*str* *|* *Path*) – The file storing the configuration of potentials, filename should ends with “.pth”.
-  * **\*\*kwargs** (*Any*) – Additional keyword arguments for the PESCalculator.
+  * **model_path** (*str* *|* *Path*) – The file path to the serialized NequIP model.
+  * **kwargs** (*Any*) – Additional keyword arguments to be passed to the
+    NequIPCalculator.from_deployed_model method.
 * **Returns:**
-  ASE calculator compatible with the NequIP model.
+  A Calculator instance initialized with the given model and parameters,
+  suitable for ASE simulations.
 * **Return type:**
   Calculator
 
 #### *static* load_nnp(input_filename: str | Path, scaling_filename: str | Path, weights_filenames: list, \*\*kwargs: Any) → Calculator
 
-Load the NNP model for use in ASE as a calculator.
+Loads a neural network potential (NNP) from specified configuration files and
+creates a Calculator object configured with the potential. This function allows
+for customizable keyword arguments to modify the behavior of the resulting
+Calculator.
 
 * **Parameters:**
-  * **input_filename** (*str* *|* *Path*) – The file storing the input configuration of
-    Neural Network Potential.
-  * **scaling_filename** (*str* *|* *Path*) – The file storing scaling info of
-    Neural Network Potential.
-  * **weights_filenames** (*list* *|* *Path*) – List of files storing weights of each specie in
-    Neural Network Potential.
-  * **\*\*kwargs** (*Any*) – Additional keyword arguments for the PESCalculator.
+  * **input_filename** (*str* *|* *Path*) – Path to the primary input file containing NNP configuration.
+  * **scaling_filename** (*str* *|* *Path*) – Path to the scaling parameters file required for the NNP.
+  * **weights_filenames** (*list*) – List of paths to weight files for the NNP.
+  * **kwargs** (*Any*) – Additional keyword arguments passed to the Calculator constructor.
 * **Returns:**
-  ASE calculator compatible with the NNP model.
+  A Calculator object initialized with the loaded NNP settings.
 * **Return type:**
   Calculator
 
 #### *static* load_snap(param_file: str | Path, coeff_file: str | Path, \*\*kwargs: Any) → Calculator
 
-Load the SNAP or qSNAP model for use in ASE as a calculator.
+Load a SNAP (Spectral Neighbor Analysis Potential) configuration and create a
+corresponding Calculator instance.
+
+This static method initializes a SNAPotential instance using the provided
+configuration files and subsequently generates a PESCalculator based on the
+created potential model and additional keyword arguments.
 
 * **Parameters:**
-  * **param_file** (*str* *|* *Path*) – The file storing the configuration of potentials.
-  * **coeff_file** (*str* *|* *Path*) – The file storing the coefficients of potentials.
-  * **\*\*kwargs** (*Any*) – Additional keyword arguments for the PESCalculator.
+  * **param_file** – Path to the parameter file required for SNAPotential configuration.
+  * **coeff_file** – Path to the coefficient file required for SNAPotential configuration.
+  * **kwargs** – Additional keyword arguments passed to the PESCalculator.
 * **Returns:**
-  ASE calculator compatible with the SNAP or qSNAP model.
+  A PESCalculator instance configured with the SNAPotential model.
 * **Return type:**
   Calculator
 
 #### *static* load_universal(name: str | Calculator, \*\*kwargs: Any) → Calculator
 
-Load the universal model for use in ASE as a calculator.
+Loads a calculator instance based on the provided name or an existing calculator object. The
+method supports multiple pre-built universal models and aliases for ease of use. If an existing calculator
+object is passed instead of a name, it will directly return that calculator instance. Supported UMLIPs
+include SOTA potentials such as M3GNet, CHGNet, TensorNet, MACE, GRACE, SevenNet, ORB, etc.
+
+This method is designed to provide a universal interface to load various calculator types, which
+may belong to different domains and packages. It auto-resolves aliases, provides default options
+for certain calculators, and raises errors for unsupported inputs.
 
 * **Parameters:**
-  * **name** (*str* *|* *Calculator*) – The name of universal calculator.
-  * **\*\*kwargs** (*Any*) – Additional keyword arguments for universal calculator.
+  * **name** – The name of the calculator to load or an instance of a Calculator.
+  * **kwargs** – Keyword arguments that are passed to the internal calculator initialization routines
+    for models matching the specified name. These options are calculator dependent.
 * **Returns:**
-  ASE calculator compatible with the universal model.
-* **Return type:**
-  Calculator
+  An instance of the loaded calculator.
+* **Raises:**
+  **ValueError** – If the name provided does not match any recognized calculator type.
 
 ### get_ase_optimizer(optimizer: str | Optimizer) → Optimizer
 
-Validate optimizer is a valid ASE Optimizer.
+Retrieve an ASE optimizer instance based on the provided input. This function accepts either a
+string representing the name of a valid ASE optimizer or an instance/subclass of the Optimizer
+class. If a string is provided, it checks the validity of the optimizer name, and if valid, retrieves
+the corresponding optimizer from ASE. An error is raised if the optimizer name is invalid.
+
+If an Optimizer subclass or instance is provided as input, it is returned directly.
 
 * **Parameters:**
-  **optimizer** (*str* *|* *Optimizer*) – The optimization algorithm.
-* **Raises:**
-  **ValueError** – on unrecognized optimizer name.
+  **optimizer** (*str* *|* *Optimizer*) – The optimizer to be retrieved. Can be a string representing a valid ASE
+  optimizer name or an instance/subclass of the Optimizer class.
 * **Returns:**
-  ASE Optimizer class.
+  The corresponding ASE optimizer instance or the input Optimizer instance/subclass.
 * **Return type:**
   Optimizer
-
-### get_universal_calculator(name: str | Calculator, \*\*kwargs: Any) → Calculator
-
-Helper method to get some well-known **universal** calculators.
-Imports should be inside if statements to ensure that all models are optional dependencies.
-All calculators must be universal, i.e. encompass a wide swath of the periodic table.
-Though MatCalc can be used with any MLIP, even custom ones, this function is not meant as
-
-> a list of all MLIPs.
-* **Parameters:**
-  * **name** (*str*) – Name of calculator.
-  * **\*\*kwargs** – Passthrough to calculator init.
 * **Raises:**
-  **ValueError** – on unrecognized model name.
-* **Returns:**
-  Calculator
+  **ValueError** – If the optimizer name provided as a string is not among the valid ASE
+  optimizer names defined by VALID_OPTIMIZERS.
 
 ### is_ase_optimizer(key: str | Optimizer) → bool
 
-Check if key is the name of an ASE optimizer class.
+Determines whether the given key is an ASE optimizer. A key can
+either be a string representing the name of an optimizer class
+within ase.optimize or directly be an optimizer class that
+subclasses Optimizer.
+
+If the key is a string, the function checks whether it corresponds
+to a class in ase.optimize that is a subclass of Optimizer.
+
+* **Parameters:**
+  **key** – The key to check, either a string name of an ASE
+  optimizer class or a class object that potentially subclasses
+  Optimizer.
+* **Returns:**
+  True if the key is either a string corresponding to an
+  ASE optimizer subclass name in ase.optimize or a class that
+  is a subclass of Optimizer. Otherwise, returns False.

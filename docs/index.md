@@ -48,12 +48,12 @@ MatCalc provides convenient methods to quickly compute properties, using a minim
 an example of a computation of the elastic constants of Si using the `TensorNet-MatPES-PBE-v2025.1-PES` universal MLIP.
 
 ```python
-from matcalc import PESCalculator, ElasticityCalc, load_up
+import matcalc as mtc
 from pymatgen.ext.matproj import MPRester
 
 mpr = MPRester()
 si = mpr.get_structure_by_material_id("mp-149")
-c = ElasticityCalc(load_up("TensorNet-MatPES-PBE-v2025.1-PES"), relax_structure=True)
+c = mtc.ElasticityCalc(mtc.load_up("TensorNet-MatPES-PBE-v2025.1-PES"), relax_structure=True)
 props = c.calc(si)
 print(f"K_VRH = {props['bulk_modulus_vrh'] * 160.2176621} GPa")
 ```
@@ -64,9 +64,9 @@ While we generally recommend users to specify exactly the model they would like 
 (case-insensitive) aliases to our recommended models for PBE and r2SCAN predictions. These can be loaded using:
 
 ```python
-from matcalc import load_up
-pbe_calculator = load_up("pbe")
-r2scan_calculator = load_up("r2scan")
+import matcalc as mtc
+pbe_calculator = mtc.load_up("pbe")
+r2scan_calculator = mtc.load_up("r2scan")
 ```
 
 At the time of writing, these are the TensorNet-MatPES models. However, these recommendations may updated as improved
@@ -99,20 +99,20 @@ computed by all steps. Note that the `relax_structure` should be set to False in
 do not redo the relatively expensive relaxation.
 
 ```python
-from matcalc import load_up, ElasticityCalc, RelaxCalc, EnergeticsCalc, ChainedCalc
+import matcalc as mtc
 import numpy as np
-calculator = load_up("pbe")
-relax_calc = RelaxCalc(
+calculator = mtc.load_up("pbe")
+relax_calc = mtc.RelaxCalc(
     calculator,
     optimizer="FIRE",
     relax_atoms=True,
     relax_cell=True,
 )
-energetics_calc = EnergeticsCalc(
+energetics_calc = mtc.EnergeticsCalc(
     calculator,
     relax_structure=False  # Since we are chaining, we do not need to relax structure in later steps.
 )
-elast_calc = ElasticityCalc(
+elast_calc = mtc.ElasticityCalc(
     calculator,
     fmax=0.1,
     norm_strains=list(np.linspace(-0.004, 0.004, num=4)),
@@ -121,7 +121,7 @@ elast_calc = ElasticityCalc(
     relax_structure=False,  # Since we are chaining, we do not need to relax structure in later steps.
     relax_deformed_structures=True,
 )
-prop_calc = ChainedCalc([relax_calc, energetics_calc, elast_calc])
+prop_calc = mtc.ChainedCalc([relax_calc, energetics_calc, elast_calc])
 results = prop_calc.calc(structure)
 ```
 
@@ -143,12 +143,10 @@ the `MatCalc-Benchmark`.
 For example, the following code can be used to run the ElasticityBenchmark on `TensorNet-MatPES-PBE-v2025.1-PES` UMLIP.
 
 ```python
-from matcalc import load_up
+import matcalc as mtc
 
-calculator = load_up("TensorNet-MatPES-PBE-v2025.1-PES")
-from matcalc.benchmark import ElasticityBenchmark
-
-benchmark = ElasticityBenchmark(fmax=0.05, relax_structure=True)
+calculator = mtc.load_up("TensorNet-MatPES-PBE-v2025.1-PES")
+benchmark = mtc.benchmark.ElasticityBenchmark(fmax=0.05, relax_structure=True)
 results = benchmark.run(calculator, "TensorNet-MatPES")
 ```
 
@@ -157,15 +155,14 @@ The entire run takes ~ 16mins when parallelized over 10 CPUs on a Mac.
 You can even run entire suites of benchmarks on multiple models, as follows:
 
 ```python
-from matcalc import PESCalculator
+import matcalc as mtc
 
-tensornet = PESCalculator.load_universal("TensorNet-MatPES-PBE-v2025.1-PES")
-m3gnet = PESCalculator.load_universal("M3GNet-MatPES-PBE-v2025.1-PES")
-from matcalc.benchmark import BenchmarkSuite, ElasticityBenchmark, PhononBenchmark
+tensornet = mtc.load_up("TensorNet-MatPES-PBE-v2025.1-PES")
+m3gnet = mtc.load_up("M3GNet-MatPES-PBE-v2025.1-PES")
 
-elasticity_benchmark = ElasticityBenchmark(fmax=0.5, relax_structure=True)
-phonon_benchmark = PhononBenchmark(write_phonon=False)
-suite = BenchmarkSuite(benchmarks=[elasticity_benchmark, phonon_benchmark])
+elasticity_benchmark = mtc.benchmark.ElasticityBenchmark(fmax=0.5, relax_structure=True)
+phonon_benchmark = mtc.benchmark.PhononBenchmark(write_phonon=False)
+suite = mtc.benchmark.BenchmarkSuite(benchmarks=[elasticity_benchmark, phonon_benchmark])
 results = suite.run({"M3GNet": m3gnet, "TensorNet": tensornet})
 results.to_csv("benchmark_results.csv")
 ```
