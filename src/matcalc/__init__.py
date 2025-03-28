@@ -14,8 +14,8 @@ from ._elasticity import ElasticityCalc
 from ._eos import EOSCalc
 from ._neb import NEBCalc
 from ._phonon import PhononCalc
-from ._qha import QHACalc
 from ._phonon3 import Phonon3Calc
+from ._qha import QHACalc
 from ._relaxation import RelaxCalc
 from ._stability import EnergeticsCalc
 from .config import clear_cache

@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
-from phono3py import Phono3py
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
 
@@ -26,9 +25,6 @@ if TYPE_CHECKING:
 @dataclass
 class Phonon3Calc(PropCalc):
     """Calculator for phonon-phonon interaction and related properties.
-    Need to install phono3py before using this PropCalc.
-    I personally recommend using "conda install -c conda-forge phono3py" for installation.
-    See https://phonopy.github.io/phono3py/install.html for full instructions.
 
     Args:
         calculator (Calculator): ASE Calculator to use.
@@ -88,6 +84,15 @@ class Phonon3Calc(PropCalc):
                     approximation at corresponding temperatures (in Watts/meter/Kelvin),
             }
         """
+        try:
+            from phono3py import Phono3py
+        except ImportError as e:
+            raise ImportError(
+                "Need to install phono3py before using Phonon3Calc. "
+                "I personally recommend using 'conda install -c conda-forge phono3py' for installation. "
+                "See https://phonopy.github.io/phono3py/install.html for full instructions."
+            ) from e
+
         result = super().calc(structure)
         structure_in: Structure = result["final_structure"]
 
@@ -114,8 +119,33 @@ class Phonon3Calc(PropCalc):
 
         phonon3.generate_displacements(**self.disp_kwargs)
 
-        _calc_fc2_set(self.calculator, phonon3)
-        _calc_fc3_set(self.calculator, phonon3)
+        num_atoms2 = len(phonon3.phonon_supercells_with_displacements[0])
+        phonon_forces = []
+        for supercell in phonon3.phonon_supercells_with_displacements:
+            if supercell is not None:
+                struct_supercell = get_pmg_structure(supercell)
+                atoms_supercell = AseAtomsAdaptor.get_atoms(struct_supercell)
+                atoms_supercell.calc = self.calculator
+                f = atoms_supercell.get_forces()
+            else:
+                f = np.zeros((num_atoms2, 3))
+            phonon_forces.append(f)
+        fc2_set = np.array(phonon_forces)
+        phonon3.phonon_forces = fc2_set
+
+        num_atoms3 = len(phonon3.supercells_with_displacements[0])
+        forces = []
+        for supercell in phonon3.supercells_with_displacements:
+            if supercell is not None:
+                struct_supercell = get_pmg_structure(supercell)
+                atoms_supercell = AseAtomsAdaptor.get_atoms(struct_supercell)
+                atoms_supercell.calc = self.calculator
+                f = atoms_supercell.get_forces()
+            else:
+                f = np.zeros((num_atoms3, 3))
+            forces.append(f)
+        fc3_set = np.array(forces)
+        phonon3.forces = fc3_set
 
         phonon3.produce_fc2(symmetrize_fc2=True)
         phonon3.produce_fc3(symmetrize_fc3r=True)
@@ -139,40 +169,6 @@ class Phonon3Calc(PropCalc):
             "temperatures": temperatures,
             "thermal_conductivity": np.squeeze(kappa_ave),
         }
-
-
-def _calc_fc2_set(calculator: Calculator, phonon3: Phono3py) -> ArrayLike:
-    """Helper to compute the force set (fc2_set) required for 2nd order force constants.
-
-    Iterates over phonon3.phonon_supercells_with_displacements, calculates forces for each supercell
-    using _calc_forces (if not None; otherwise uses a zero array), assigns the result to phonon3.phonon_forces,
-    and returns the assembled array.
-    """
-    phonon_forces = []
-    num_atom = len(phonon3.phonon_supercells_with_displacements[0])
-    for supercell in phonon3.phonon_supercells_with_displacements:
-        f = _calc_forces(calculator, supercell) if supercell is not None else np.zeros((num_atom, 3))
-        phonon_forces.append(f)
-    fc2_set = np.array(phonon_forces)
-    phonon3.phonon_forces = fc2_set
-    return fc2_set
-
-
-def _calc_fc3_set(calculator: Calculator, phonon3: Phono3py) -> ArrayLike:
-    """Helper to compute the force set (fc3_set) required for 3rd order force constants.
-
-    Iterates over phonon3.supercells_with_displacements, calculates forces for each supercell
-    using _calc_forces (if not None; otherwise uses a zero array), assigns the result to phonon3.forces,
-    and returns the assembled array.
-    """
-    forces = []
-    num_atom = len(phonon3.supercells_with_displacements[0])
-    for supercell in phonon3.supercells_with_displacements:
-        f = _calc_forces(calculator, supercell) if supercell is not None else np.zeros((num_atom, 3))
-        forces.append(f)
-    fc3_set = np.array(forces)
-    phonon3.forces = fc3_set
-    return fc3_set
 
 
 def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:
