@@ -358,7 +358,7 @@ def linkcode_resolve(domain, info):
     try:
         rel_path, line_start, line_end = find_source()
         # __file__ is imported from matcalc.core
-        filename = f"matcalc/core/{rel_path}#L{line_start}-L{line_end}"
+        filename = f"src/matcalc/{rel_path}#L{line_start}-L{line_end}"
     except Exception:
         # no need to be relative to core here as module includes full path.
         filename = info["module"].replace(".", "/") + ".py"

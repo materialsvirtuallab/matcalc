@@ -275,3 +275,4 @@ plt.show()
 
 
 ![png](assets/Calculating%20MLIP%20properties_8_0.png)
+

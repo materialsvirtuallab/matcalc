@@ -334,3 +334,5 @@ Image("NEB_data/M3GNet-DIRECT-path-c.png")
 
 
 ![png](assets/LiFePO4-NEB_22_1.png)
+
+
