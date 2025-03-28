@@ -35,10 +35,10 @@ UNIVERSAL_CALCULATORS = [
     "ORB",
     "PBE",
     "r2SCAN",
-    "Mattersim",
-    "FairChem",
+    "MatterSim",
+    "FAIRChem",
     "PETMAD",
-    "DeepMD",
+    "DeePMD",
 ]
 
 try:
@@ -63,8 +63,8 @@ MODEL_ALIASES = {
 class PESCalculator(Calculator):
     """
     Potential calculator for ASE, supporting both **universal** and **customized** potentials, including:
-        Customized potentials: MatGL(M3GNet, CHGNet, TensorNet and SO3Net), MAML(MTP, GAP, NNP, SNAP and qSNAP) and ACE.
-        Universal potentials: M3GNet, CHGNet, MACE and SevenNet.
+        Customized potentials: MatGL (M3GNet, CHGNet, TensorNet, SO3Net), MAML (MTP, GAP, NNP, SNAP, qSNAP) and ACE.
+        Universal potentials: M3GNet, CHGNet, MACE, SevenNet, GRACE, ORB, MatterSim, DeePMD, FAIR-Chem and PET-MAD.
     Though MatCalc can be used with any MLIP, this method does not yet cover all MLIPs.
     Imports should be inside if statements to ensure that all models are optional dependencies.
     """
@@ -289,7 +289,7 @@ class PESCalculator(Calculator):
             **kwargs (Any): Additional keyword arguments for the PESCalculator.
 
         Returns:
-            Calculator: ASE calculator compatible with the DeepMD model.
+            Calculator: ASE calculator compatible with the DeePMD model.
         """
         from deepmd.calculator import DP
 
