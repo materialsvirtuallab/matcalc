@@ -61,9 +61,9 @@ class NEBCalc(PropCalc):
     @classmethod
     def from_end_images(
         cls: type[NEBCalc],
+        calculator: Calculator,
         start_struct: Structure,
         end_struct: Structure,
-        calculator: str | Calculator = "M3GNet-MP-2021.2.8-DIRECT-PES",
         *,
         n_images: int = 7,
         interpolate_lattices: bool = False,
