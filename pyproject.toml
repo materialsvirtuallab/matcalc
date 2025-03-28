@@ -44,7 +44,7 @@ dependencies = [
     "fsspec",
     "scikit-learn>=1.6.1",
 ]
-version = "0.3.0"
+version = "0.3.1"
 
 [project.optional-dependencies]
 phonon = ["seekpath"]
