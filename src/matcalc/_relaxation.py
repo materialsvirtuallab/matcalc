@@ -5,6 +5,7 @@ from __future__ import annotations
 import contextlib
 import io
 import pickle
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ase.filters import FrechetCellFilter
@@ -23,23 +24,18 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
+@dataclass
 class TrajectoryObserver:
     """Trajectory observer is a hook in the relaxation process that saves the
     intermediate structures.
     """
 
-    def __init__(self, atoms: Atoms) -> None:
-        """Init the Trajectory Observer from a Atoms.
-
-        Args:
-            atoms (Atoms): Structure to observe.
-        """
-        self.atoms = atoms
-        self.energies: list[float] = []
-        self.forces: list[np.ndarray] = []
-        self.stresses: list[np.ndarray] = []
-        self.atom_positions: list[np.ndarray] = []
-        self.cells: list[np.ndarray] = []
+    atoms: Atoms
+    energies: list[float] = field(default_factory=list)
+    forces: list[np.ndarray] = field(default_factory=list)
+    stresses: list[np.ndarray] = field(default_factory=list)
+    atom_positions: list[np.ndarray] = field(default_factory=list)
+    cells: list[np.ndarray] = field(default_factory=list)
 
     def __call__(self) -> None:
         """The logic for saving the properties of an Atoms during the relaxation."""
