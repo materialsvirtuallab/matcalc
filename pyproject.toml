@@ -74,6 +74,9 @@ orb = [
     "orb-models>=0.4.2",
     "pynanoflann>=0.10.0",
 ]
+sevennet = [
+    "sevenn>=0.10.4",
+]
 
 [project.scripts]
 matcalc = "matcalc._cli:main"

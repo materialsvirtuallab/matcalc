@@ -639,6 +639,15 @@ wheels = [
 ]
 
 [[package]]
+name = "braceexpand"
+version = "0.1.7"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/54/93/badd4f5ccf25209f3fef2573073da9fe4a45a3da99fca2f800f942130c0f/braceexpand-0.1.7.tar.gz", hash = "sha256:e6e539bd20eaea53547472ff94f4fb5c3d3bf9d0a89388c4b56663aba765f705", size = 7777 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fa/93/e8c04e80e82391a6e51f218ca49720f64236bc824e92152a2633b74cf7ab/braceexpand-0.1.7-py2.py3-none-any.whl", hash = "sha256:91332d53de7828103dcae5773fb43bc34950b0c8160e35e0f44c4427a3b85014", size = 5923 },
+]
+
+[[package]]
 name = "bracex"
 version = "2.5.post1"
 source = { registry = "https://pypi.org/simple" }
@@ -3095,6 +3104,10 @@ orb = [
 phonon = [
     { name = "seekpath" },
 ]
+sevennet = [
+    { name = "sevenn", version = "0.10.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "sevenn", version = "0.11.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-7-matcalc-fairchem' or extra != 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -3152,9 +3165,10 @@ requires-dist = [
     { name = "pynanoflann", marker = "extra == 'orb'", specifier = ">=0.10.0" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "seekpath", marker = "extra == 'phonon'" },
+    { name = "sevenn", marker = "extra == 'sevennet'", specifier = ">=0.10.4" },
     { name = "tensorpotential", marker = "extra == 'grace'", specifier = ">=0.5.1" },
 ]
-provides-extras = ["phonon", "benchmark", "ace", "mace", "deepmd", "grace", "mattersim", "fairchem", "maml", "orb"]
+provides-extras = ["phonon", "benchmark", "ace", "mace", "deepmd", "grace", "mattersim", "fairchem", "maml", "orb", "sevennet"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -5858,6 +5872,108 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a9/5a/0db4da3bc908df06e5efae42b44e75c81dd52716e10192ff36d0c1c8e379/setuptools-78.1.0.tar.gz", hash = "sha256:18fd474d4a82a5f83dac888df697af65afa82dec7323d09c3e37d1f14288da54", size = 1367827 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/54/21/f43f0a1fa8b06b32812e0975981f4677d28e0f3271601dc88ac5a5b83220/setuptools-78.1.0-py3-none-any.whl", hash = "sha256:3e386e96793c8702ae83d17b853fb93d3e09ef82ec62722e61da5cd22376dcd8", size = 1256108 },
+]
+
+[[package]]
+name = "sevenn"
+version = "0.10.4"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.13' and sys_platform == 'win32'",
+    "python_full_version == '3.12.*' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and sys_platform == 'win32'",
+    "python_full_version < '3.11' and sys_platform == 'win32'",
+    "python_full_version >= '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(python_full_version >= '3.13' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.13' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version == '3.12.*' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version == '3.11.*' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.11' and sys_platform != 'linux' and sys_platform != 'win32')",
+]
+dependencies = [
+    { name = "ase", marker = "extra == 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "braceexpand", marker = "extra == 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "e3nn", version = "0.4.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "matscipy", marker = "extra == 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "numpy", marker = "extra == 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "pyyaml", marker = "extra == 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "scikit-learn", marker = "extra == 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "torch-geometric", marker = "extra == 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "tqdm", marker = "extra == 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/61/c2/042074489d61dbc08e150e84f713baca64701f24f63462623af829da1b35/sevenn-0.10.4.tar.gz", hash = "sha256:db3c4023d94f7ef32b6f2973912c7661f2dd7768cd05bcf0959fc496ce7d12af", size = 33085599 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5c/fb/bd8b9038f0d9f68e5e4a99b35f700d40dd3fc2ac75d829a8ef4d4f362b74/sevenn-0.10.4-py3-none-any.whl", hash = "sha256:60a617ce27cd61333596efbebf420c26131848aa1925b181a9eb53034e459ed1", size = 33130694 },
+]
+
+[[package]]
+name = "sevenn"
+version = "0.11.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.13' and sys_platform == 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.12.*' and sys_platform == 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version >= '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version >= '3.13' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version >= '3.13' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.12.*' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.12.*' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.11.*' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.11.*' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version < '3.11' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version < '3.11' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim'",
+    "python_full_version >= '3.13' and sys_platform == 'win32' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.12.*' and sys_platform == 'win32' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.11.*' and sys_platform == 'win32' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version < '3.11' and sys_platform == 'win32' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version >= '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version >= '3.13' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version >= '3.13' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.12.*' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.12.*' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.11.*' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.11.*' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version < '3.11' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version < '3.11' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version >= '3.13' and sys_platform == 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.12.*' and sys_platform == 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version >= '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim'",
+    "(python_full_version >= '3.13' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim') or (python_full_version >= '3.13' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim')",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim') or (python_full_version == '3.12.*' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim')",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim') or (python_full_version == '3.11.*' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim')",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim') or (python_full_version < '3.11' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-7-matcalc-fairchem' and extra != 'extra-7-matcalc-mace' and extra != 'extra-7-matcalc-mattersim')",
+]
+dependencies = [
+    { name = "ase", marker = "extra == 'extra-7-matcalc-fairchem' or extra != 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "braceexpand", marker = "extra == 'extra-7-matcalc-fairchem' or extra != 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "e3nn", version = "0.5.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-7-matcalc-fairchem' or extra != 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "matscipy", marker = "extra == 'extra-7-matcalc-fairchem' or extra != 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "numpy", marker = "extra == 'extra-7-matcalc-fairchem' or extra != 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "pandas", marker = "extra == 'extra-7-matcalc-fairchem' or extra != 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "pyyaml", marker = "extra == 'extra-7-matcalc-fairchem' or extra != 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "requests", marker = "extra == 'extra-7-matcalc-fairchem' or extra != 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "scikit-learn", marker = "extra == 'extra-7-matcalc-fairchem' or extra != 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "torch-geometric", marker = "extra == 'extra-7-matcalc-fairchem' or extra != 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "tqdm", marker = "extra == 'extra-7-matcalc-fairchem' or extra != 'extra-7-matcalc-mace' or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d7/73/fecd7bad797cb9bb51667fe6ccc72c65263e40efdc11d66108ac0e7883af/sevenn-0.11.0.tar.gz", hash = "sha256:79d8c347957c1653b38d9846a4fb75e7dad8085e6c29c64cb304e72242bcb712", size = 42135292 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f6/e3/f3373d43fe4afd3260769fdcdf9a98548b215bf81ec1885ee43b49968507/sevenn-0.11.0-py3-none-any.whl", hash = "sha256:fdfa0eb335121b6860de6153d40d4785ef3217cae79eab15eaf7066c38fffac0", size = 42179161 },
 ]
 
 [[package]]
