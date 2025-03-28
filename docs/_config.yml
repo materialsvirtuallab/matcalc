@@ -12,7 +12,7 @@ remote_theme: just-the-docs/just-the-docs
 favicon_ico: /assets/favicon.png
 
 aux_links:
-  API docs: https://materialsvirtuallab.github.io/matcalc/matcalc.html
+  API docs: http://matcalc.ai/matcalc.html
   GitHub: https://github.com/materialsvirtuallab/matcalc
   Issues: https://github.com/materialsvirtuallab/matcalc/issues
   Materials Virtual Lab: https://materialsvirtuallab.org

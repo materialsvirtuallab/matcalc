@@ -73,40 +73,22 @@ def make_docs(ctx):
     make_tutorials(ctx)
 
     with cd("docs"):
-        ctx.run("cp ../README.md index.md", warn=True)
+        ctx.run("touch apidoc/index.rst", warn=True)
         ctx.run("rm matcalc.*.rst", warn=True)
-        ctx.run("sphinx-apidoc -P -M -d 6 -o . -f ../src/matcalc")
-        ctx.run("cp modules.rst index.rst")
-        ctx.run("sphinx-build -M markdown . .")
-        ctx.run("rm *.rst", warn=True)
-        ctx.run("cp markdown/matcalc*.md .")
-        for fn in glob.glob("matcalc*.md"):
-            with open(fn) as f:
-                lines = [line.rstrip() for line in f if "Submodules" not in line]
-            if fn == "matcalc.md":
-                preamble = [
-                    "---",
-                    "layout: default",
-                    "title: API Documentation",
-                    "nav_order: 5",
-                    "---",
-                    "",
-                ]
-            else:
-                preamble = [
-                    "---",
-                    "layout: default",
-                    "title: " + fn,
-                    "nav_exclude: true",
-                    "---",
-                    "",
-                ]
-            with open(fn, "w") as f:
-                f.write("\n".join(preamble + lines))
+        ctx.run("sphinx-apidoc --implicit-namespaces --separate -M -d 3 -o apidoc -f ../src/matcalc")
+
+        # Note: we use HTML building for the API docs to preserve search functionality.
+        ctx.run("sphinx-build -b html apidoc html")  # HTML building.
+        ctx.run("rm apidoc/*.rst", warn=True)
+        ctx.run("mv html/matcalc*.html .")
+        ctx.run("mv html/modules.html .")
 
         ctx.run("rm -r markdown", warn=True)
-        ctx.run("cp ../*.md .")
-        ctx.run("mv README.md index.md")
+        ctx.run("rm -r html", warn=True)
+        ctx.run('sed -I "" "s/_static/assets/g" matcalc*.html')
+        ctx.run("rm -rf doctrees", warn=True)
+
+        ctx.run("cp ../README.md index.md")
         ctx.run("rm -rf *.orig doctrees", warn=True)
 
         with open("index.md") as f:
