@@ -27,6 +27,33 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
+def _map_calculators_to_packages(calculators: list[str]) -> dict[str, str]:  # Think
+    prefix_package_map: list[tuple[tuple[str, ...], str]] = [
+        (("m3gnet", "chgnet", "tensornet", "pbe", "r2scan"), "matgl"),
+        (("mace",), "mace"),
+        (("sevennet",), "sevenn"),
+        (("grace", "tensorpotential"), "tensorpotential"),
+        (("orb",), "orb_models"),
+        (("mattersim",), "mattersim"),
+        (("fairchem",), "fairchem"),
+        (("petmad",), "pet_mad"),
+        (("deepmd",), "deepmd"),
+    ]
+
+    calculator_to_package: dict[str, str] = {}
+
+    for calc in calculators:
+        lower_calc = calc.lower()
+        for prefixes, package in prefix_package_map:
+            if any(lower_calc.startswith(prefix) for prefix in prefixes):
+                calculator_to_package[calc] = package
+                break
+    return calculator_to_package
+
+
+UNIVERSAL_TO_PACKAGE = _map_calculators_to_packages(UNIVERSAL_CALCULATORS)
+
+
 @pytest.mark.parametrize(
     ("expected_unit", "expected_weight"),
     [
@@ -94,19 +121,32 @@ def test_pescalculator_load_matgl() -> None:
     assert isinstance(calc, Calculator)
 
 
-@pytest.mark.skipif(not find_spec("matgl"), reason="matgl is not installed")
-@pytest.mark.skipif(not find_spec("mace"), reason="mace is not installed")
-@pytest.mark.skipif(not find_spec("sevenn"), reason="sevenn is not installed")
-def test_pescalculator_load_universal(Li2O: Structure) -> None:
-    for name in UNIVERSAL_CALCULATORS:
-        calc = PESCalculator.load_universal(name)
-        assert isinstance(calc, Calculator)
-        same_calc = PESCalculator.load_universal(calc)  # test ASE Calculator classes are returned as-is
-        assert calc is same_calc
-        # We run a basic relaxation calc to make sure that all calculators work.
-        relaxed_calc = RelaxCalc(calc, relax_cell=False, relax_atoms=False)
-        result = relaxed_calc.calc(Li2O)
-        assert isinstance(result, dict)
+@pytest.mark.skipif(not find_spec("deepmd"), reason="deepmd-kit is not installed")
+def test_pescalculator_load_deepmd() -> None:
+    calc = PESCalculator.load_deepmd(
+        model_path=(DIR / "pes" / "DPA3-LAM-2025.3.14-PES" / "2025-03-14-dpa3-openlam.pth")
+    )
+    assert isinstance(calc, Calculator)
+
+
+@pytest.mark.parametrize("name", UNIVERSAL_CALCULATORS)
+def test_pescalculator_load_universal(Li2O: Structure, name: str) -> None:
+    if name not in UNIVERSAL_TO_PACKAGE:
+        pytest.fail(f"No package mapping found for {name}. Please add it to UNIVERSAL_TO_PACKAGE.")
+
+    pkg_name = UNIVERSAL_TO_PACKAGE[name]
+
+    if not find_spec(pkg_name):
+        pytest.skip(f"{pkg_name} is not installed. Skipping {name} test.")
+
+    calc = PESCalculator.load_universal(name)
+    assert isinstance(calc, Calculator)
+    same_calc = PESCalculator.load_universal(calc)  # test ASE Calculator classes are returned as-is
+    assert calc is same_calc
+    # We run a basic relaxation calc to make sure that all calculators work.
+    relaxed_calc = RelaxCalc(calc, relax_cell=False, relax_atoms=False)
+    result = relaxed_calc.calc(Li2O)
+    assert isinstance(result, dict)
 
     name = "whatever"
     with pytest.raises(ValueError, match=f"Unrecognized {name=}") as exc:
