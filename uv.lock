@@ -3081,13 +3081,16 @@ grace = [
 ]
 mace = [
     { name = "mace-torch" },
-    { name = "pynanoflann" },
 ]
 maml = [
     { name = "maml" },
 ]
 mattersim = [
     { name = "mattersim" },
+]
+orb = [
+    { name = "orb-models" },
+    { name = "pynanoflann" },
 ]
 phonon = [
     { name = "seekpath" },
@@ -3126,6 +3129,7 @@ test-models = [
     { name = "mace" },
     { name = "nequip" },
     { name = "orb-models" },
+    { name = "pynanoflann" },
     { name = "tensorpotential" },
 ]
 
@@ -3141,15 +3145,16 @@ requires-dist = [
     { name = "matminer", marker = "extra == 'benchmark'", specifier = ">=0.9.3" },
     { name = "mattersim", marker = "extra == 'mattersim'" },
     { name = "numpy", specifier = "<2.0.0" },
+    { name = "orb-models", marker = "extra == 'orb'", specifier = ">=0.4.2" },
     { name = "phonopy" },
     { name = "pyace", marker = "extra == 'ace'", specifier = ">=0.1.1" },
     { name = "pymatgen" },
-    { name = "pynanoflann", marker = "extra == 'mace'", specifier = "==0.10.0" },
+    { name = "pynanoflann", marker = "extra == 'orb'", specifier = ">=0.10.0" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "seekpath", marker = "extra == 'phonon'" },
     { name = "tensorpotential", marker = "extra == 'grace'", specifier = ">=0.5.1" },
 ]
-provides-extras = ["phonon", "benchmark", "ace", "mace", "deepmd", "grace", "mattersim", "fairchem", "maml"]
+provides-extras = ["phonon", "benchmark", "ace", "mace", "deepmd", "grace", "mattersim", "fairchem", "maml", "orb"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -3182,6 +3187,7 @@ test-models = [
     { name = "mace", specifier = ">=1.1.2" },
     { name = "nequip", specifier = ">=0.6.2" },
     { name = "orb-models", specifier = ">=0.4.2" },
+    { name = "pynanoflann", specifier = ">=0.10.0" },
     { name = "tensorpotential", specifier = ">=0.5.1" },
 ]
 
