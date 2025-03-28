@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 
     from ase.calculators.calculator import Calculator
     from numpy.typing import ArrayLike
-    from phonopy.structure.atoms import PhonopyAtoms
     from pymatgen.core import Structure
 
 
@@ -157,19 +156,3 @@ class Phonon3Calc(PropCalc):
             "temperatures": temperatures,
             "thermal_conductivity": np.squeeze(kappa_ave),
         }
-
-
-def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:
-    """Helper to compute forces on a structure.
-
-    Args:
-        calculator: ASE Calculator.
-        supercell: Supercell from phonopy.
-
-    Returns:
-        ArrayLike: Forces on the atoms.
-    """
-    struct = get_pmg_structure(supercell)
-    atoms = AseAtomsAdaptor.get_atoms(struct)
-    atoms.calc = calculator
-    return atoms.get_forces()
