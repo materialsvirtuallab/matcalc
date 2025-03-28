@@ -15,8 +15,6 @@ import fsspec
 import numpy as np
 import pandas as pd
 import requests
-from matminer.featurizers.site import CrystalNNFingerprint
-from matminer.featurizers.structure import SiteStatsFingerprint
 from monty.json import MontyDecoder
 from monty.serialization import dumpfn, loadfn
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -519,6 +517,8 @@ class EquilibriumBenchmark(Benchmark):
             include_full_results=include_full_results,
             **kwargs,
         )
+        from matminer.featurizers.site import CrystalNNFingerprint
+        from matminer.featurizers.structure import SiteStatsFingerprint
 
         ssf = SiteStatsFingerprint(
             CrystalNNFingerprint.from_preset("ops", distance_cutoffs=None, x_diff_weight=0),

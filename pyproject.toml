@@ -42,7 +42,7 @@ dependencies = [
     "pymatgen",
     "numpy<2.0.0",
     "fsspec",
-    "scikit-learn>=1.6.1"
+    "scikit-learn>=1.6.1",
 ]
 version = "0.3.0"
 
@@ -54,41 +54,19 @@ ace = [
 ]
 mace = [
     "mace-torch>=0.3.12",
-]
-torch2 = [
-    "mace-torch>=0.3.12",
-    "matgl>=1.2.3",
-    "sevenn>=0.10.4",
-    "maml>=2025.2.25",
-    "dgl<=2.1.0",
-    "torch<=2.2.1",
-    "nequip>=0.6.2",
-    "tensorpotential>=0.5.1",
-    "orb-models>=0.4.2",
     "pynanoflann==0.10.0",
 ]
-torch26 = [
-    "torch>=2.6.0",
-    "sevenn>=0.9.3",
-    "maml>=2024.6.13",
-    "nequip>=0.6.1",
-    "tensorpotential>=0.5.1",
-    "orb-models>=0.4.1",
-    "pynanoflann==0.10.0",
-    "mattersim>=1.1.2",
+deepmd = [
     "deepmd-kit>=3.0.2",
-    "pet-neighbors-convert>=1.0rc1",
-    "pet-mad@git+https://github.com/lab-cosmo/pet-mad.git",
 ]
-torch24 = [
-    "sevenn>=0.9.3",
-    "maml>=2024.6.13",
-    "nequip>=0.6.1",
+grace = [
     "tensorpotential>=0.5.1",
-    "orb-models>=0.4.1",
-    "pynanoflann==0.10.0",
-    "mattersim>=1.1.2",
-    "fairchem-core>=1.8.1",
+]
+mattersim = [
+    "mattersim",
+]
+fairchem = [
+    "fairchem-core",
 ]
 
 [project.scripts]
@@ -132,22 +110,13 @@ maintain = [
     "sphinx>=8.1.3",
     "sphinx-markdown-builder>=0.6.8",
 ]
-test-models = [
-    {include-extra = "mace"},
-    "orb-models>=0.4.2",
-    "pynanoflann>=0.10.0",
-    "sevenn>=0.10.4",
-    "tensorpotential>=0.5.1",
-]
 
 [tool.uv]
 conflicts = [
     [
-      { group = "dev" },
       { extra = "mace" },
-      { extra = "torch2" },
-      { extra = "torch24" },
-      { extra = "torch26" },
+      { extra = "fairchem" },
+      { extra = "mattersim" },
     ],
 ]
 
