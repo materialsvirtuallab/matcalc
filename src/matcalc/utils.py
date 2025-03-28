@@ -259,7 +259,9 @@ class PESCalculator(Calculator):
         return PyACECalculator(basis_set=basis_set, **kwargs)
 
     @staticmethod
-    def load_nequip(model_path: str | Path, **kwargs: Any) -> Calculator:
+    def load_nequip(  # pragma: no cover
+        model_path: str | Path, **kwargs: Any
+    ) -> Calculator:
         """
         Load the NequIP model for use in ASE as a calculator.
 
@@ -275,7 +277,9 @@ class PESCalculator(Calculator):
         return NequIPCalculator.from_deployed_model(model_path=model_path, **kwargs)
 
     @staticmethod
-    def load_deepmd(model_path: str | Path, **kwargs: Any) -> Calculator:
+    def load_deepmd(  # pragma: no cover
+        model_path: str | Path, **kwargs: Any
+    ) -> Calculator:
         """
         Loads the custom deep potential model for use in ASE as a calculator.
 
