@@ -1,8 +1,0 @@
-sevenn>=0.9.3
-maml>=2024.6.13
-nequip>=0.6.1
-tensorpotential>=0.5.1
-orb-models>=0.4.1
-pynanoflann==0.10.0
-mattersim>=1.1.2
-fairchem-core>=1.8.1
