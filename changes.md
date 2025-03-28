@@ -6,6 +6,9 @@ nav_order: 2
 
 # Change Log
 
+## v0.3.2
+- Added Phonon3Calc for calculation of phonon-phonon interactions and thermal conductivity using Phono3py. (@rul48)
+
 ## v0.3.1
 - All PropCalc implementations are now private and should be imported from the base package.
 - Added support for Mattersim, Fairchem-Core, PET-MAD, and DeepMD (@atulcthakur)
