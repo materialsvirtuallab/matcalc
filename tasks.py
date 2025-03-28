@@ -13,9 +13,11 @@ import requests
 from invoke import task
 from monty.os import cd
 
-import matcalc
-
-NEW_VER = matcalc.__version__
+with open("pyproject.toml") as f:
+    for line in f:
+        if line.startswith("version"):
+            NEW_VER = line.split("=")[-1].strip().strip('"')
+            break
 
 
 @task
@@ -26,7 +28,14 @@ def make_tutorials(ctx):
         ctx.run(f'mv "{fn}" docs/assets')
 
     for fn in os.listdir("docs/tutorials"):
-        lines = ["---", "layout: default", "title: " + fn, "nav_exclude: true", "---", ""]
+        lines = [
+            "---",
+            "layout: default",
+            "title: " + fn,
+            "nav_exclude: true",
+            "---",
+            "",
+        ]
         path = f"docs/tutorials/{fn}"
         if os.path.isdir(path):
             shutil.rmtree(path)
@@ -66,7 +75,7 @@ def make_docs(ctx):
     with cd("docs"):
         ctx.run("cp ../README.md index.md", warn=True)
         ctx.run("rm matcalc.*.rst", warn=True)
-        ctx.run("sphinx-apidoc -P -M -d 6 -o . -f ../matcalc")
+        ctx.run("sphinx-apidoc -P -M -d 6 -o . -f ../src/matcalc")
         ctx.run("cp modules.rst index.rst")
         ctx.run("sphinx-build -M markdown . .")
         ctx.run("rm *.rst", warn=True)
@@ -75,9 +84,23 @@ def make_docs(ctx):
             with open(fn) as f:
                 lines = [line.rstrip() for line in f if "Submodules" not in line]
             if fn == "matcalc.md":
-                preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 5", "---", ""]
+                preamble = [
+                    "---",
+                    "layout: default",
+                    "title: API Documentation",
+                    "nav_order: 5",
+                    "---",
+                    "",
+                ]
             else:
-                preamble = ["---", "layout: default", "title: " + fn, "nav_exclude: true", "---", ""]
+                preamble = [
+                    "---",
+                    "layout: default",
+                    "title: " + fn,
+                    "nav_exclude: true",
+                    "---",
+                    "",
+                ]
             with open(fn, "w") as f:
                 f.write("\n".join(preamble + lines))
 
@@ -110,6 +133,7 @@ def publish(ctx):
 @task
 def release_github(ctx):  # noqa: ARG001
     desc = get_changelog()
+
     payload = {
         "tag_name": "v" + NEW_VER,
         "target_commitish": "main",

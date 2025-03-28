@@ -13,15 +13,19 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import matgl
 import pytest
-from matgl.ext.ase import M3GNetCalculator
 from pymatgen.util.testing import PymatgenTest
+
+import matcalc
+from matcalc.utils import PESCalculator
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
 
+import matgl
+
 matgl.clear_cache(confirm=False)
+matcalc.clear_cache(confirm=False)
 
 
 @pytest.fixture(scope="session")
@@ -39,7 +43,12 @@ def Li2O() -> Structure:
 
 
 @pytest.fixture(scope="session")
-def M3GNetCalc() -> M3GNetCalculator:
+def m3gnet_calculator() -> PESCalculator:
     """M3GNet calculator as session-scoped fixture."""
-    potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
-    return M3GNetCalculator(potential=potential, stress_weight=0.01)
+    return PESCalculator.load_matgl("M3GNet-MP-2021.2.8-PES")
+
+
+@pytest.fixture(scope="session")
+def matpes_calculator() -> PESCalculator:
+    """TensorNet calculator as session-scoped fixture."""
+    return matcalc.load_up("TensorNet-MatPES-PBE-v2025.1-PES")
