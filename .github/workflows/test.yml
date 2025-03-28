@@ -9,9 +9,9 @@ on:
     inputs:
       task:
         type: choice
-        options: [tests, release]
-        default: tests
-        description: Only run tests or release a new version to PyPI after tests pass.
+        options: [test]
+        default: test
+        description: Trigger test manually.
   workflow_call: # make this workflow reusable by release.yml
 
 jobs:

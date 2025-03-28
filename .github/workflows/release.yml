@@ -7,9 +7,9 @@ on:
     inputs:
       task:
         type: choice
-        options: [tests, release]
-        default: tests
-        description: Only run tests or release a new version to PyPI after tests pass.
+        options: [release]
+        default: release
+        description: Trigger a release manually.
 
 permissions:
   contents: read

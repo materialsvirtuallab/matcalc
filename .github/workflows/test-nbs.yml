@@ -1,7 +1,7 @@
 name: Test-Notebooks
 
 on:
-  release:
+  release: # This workflow is only ran on releases.
     types: [published]
   workflow_call: # make this workflow reusable by release.yml
   workflow_dispatch:
