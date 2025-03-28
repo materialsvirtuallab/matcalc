@@ -21,6 +21,7 @@
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="matcalc.units module" href="matcalc.units.html" />
 </head>
 
 <body class="wy-body-for-nav">
@@ -42,29 +43,34 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">matcalc.utils module</a><ul>
-<li><a class="reference internal" href="#matcalc.utils.PESCalculator"><code class="docutils literal notranslate"><span class="pre">PESCalculator</span></code></a><ul>
-<li><a class="reference internal" href="#matcalc.utils.PESCalculator.calculate"><code class="docutils literal notranslate"><span class="pre">PESCalculator.calculate()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.utils.PESCalculator.implemented_properties"><code class="docutils literal notranslate"><span class="pre">PESCalculator.implemented_properties</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.utils.PESCalculator.load_ace"><code class="docutils literal notranslate"><span class="pre">PESCalculator.load_ace()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.utils.PESCalculator.load_deepmd"><code class="docutils literal notranslate"><span class="pre">PESCalculator.load_deepmd()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.utils.PESCalculator.load_gap"><code class="docutils literal notranslate"><span class="pre">PESCalculator.load_gap()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.utils.PESCalculator.load_matgl"><code class="docutils literal notranslate"><span class="pre">PESCalculator.load_matgl()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.utils.PESCalculator.load_mtp"><code class="docutils literal notranslate"><span class="pre">PESCalculator.load_mtp()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.utils.PESCalculator.load_nequip"><code class="docutils literal notranslate"><span class="pre">PESCalculator.load_nequip()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.utils.PESCalculator.load_nnp"><code class="docutils literal notranslate"><span class="pre">PESCalculator.load_nnp()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.utils.PESCalculator.load_snap"><code class="docutils literal notranslate"><span class="pre">PESCalculator.load_snap()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.utils.PESCalculator.load_universal"><code class="docutils literal notranslate"><span class="pre">PESCalculator.load_universal()</span></code></a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="matcalc.html">matcalc package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="matcalc.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="matcalc._base.html">matcalc._base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._cli.html">matcalc._cli module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._elasticity.html">matcalc._elasticity module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._eos.html">matcalc._eos module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._neb.html">matcalc._neb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html">matcalc._phonon module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html">matcalc._phonon3 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html">matcalc._qha module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html">matcalc._relaxation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._stability.html">matcalc._stability module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.benchmark.html">matcalc.benchmark module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.config.html">matcalc.config module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.units.html">matcalc.units module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">matcalc.utils module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc.utils.PESCalculator"><code class="docutils literal notranslate"><span class="pre">PESCalculator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc.utils.get_ase_optimizer"><code class="docutils literal notranslate"><span class="pre">get_ase_optimizer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc.utils.is_ase_optimizer"><code class="docutils literal notranslate"><span class="pre">is_ase_optimizer()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#matcalc.utils.get_ase_optimizer"><code class="docutils literal notranslate"><span class="pre">get_ase_optimizer()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.utils.is_ase_optimizer"><code class="docutils literal notranslate"><span class="pre">is_ase_optimizer()</span></code></a></li>
 </ul>
 </li>
 </ul>
-</div>
+</li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -79,6 +85,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="matcalc.html">matcalc package</a></li>
       <li class="breadcrumb-item active">matcalc.utils module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsvirtuallab/matcalc/blob/master/docs_rst/matcalc.utils.rst" class="fa fa-github"> Edit on GitHub</a>
@@ -124,6 +131,11 @@ Default to 1.0.</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc.utils.PESCalculator._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.utils.PESCalculator._abc_impl" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="matcalc.utils.PESCalculator.calculate">
 <span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Atoms</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_changes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/core/utils.py#L112-L144"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.utils.PESCalculator.calculate" title="Link to this definition"></a></dt>

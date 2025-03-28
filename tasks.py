@@ -75,15 +75,15 @@ def make_docs(ctx):
     with cd("docs"):
         ctx.run("touch apidoc/index.rst", warn=True)
         ctx.run("rm matcalc.*.rst", warn=True)
-        ctx.run("sphinx-apidoc --implicit-namespaces --separate -M -d 3 -o apidoc -f ../src/matcalc")
-
+        ctx.run("rm matcalc.*.html", warn=True)
+        ctx.run("sphinx-apidoc --separate -P -M -d 3 -o apidoc -f ../src/matcalc")
+        ctx.run("cp apidoc/modules.rst apidoc/index.rst")
         # Note: we use HTML building for the API docs to preserve search functionality.
         ctx.run("sphinx-build -b html apidoc html")  # HTML building.
         ctx.run("rm apidoc/*.rst", warn=True)
         ctx.run("mv html/matcalc*.html .")
         ctx.run("mv html/modules.html .")
 
-        ctx.run("rm -r markdown", warn=True)
         ctx.run("rm -r html", warn=True)
         ctx.run('sed -I "" "s/_static/assets/g" matcalc*.html')
         ctx.run("rm -rf doctrees", warn=True)

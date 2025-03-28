@@ -21,6 +21,8 @@
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="matcalc.config module" href="matcalc.config.html" />
+    <link rel="prev" title="matcalc._stability module" href="matcalc._stability.html" />
 </head>
 
 <body class="wy-body-for-nav">
@@ -42,52 +44,40 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">matcalc.benchmark module</a><ul>
-<li><a class="reference internal" href="#matcalc.benchmark.Benchmark"><code class="docutils literal notranslate"><span class="pre">Benchmark</span></code></a><ul>
-<li><a class="reference internal" href="#matcalc.benchmark.Benchmark.get_prop_calc"><code class="docutils literal notranslate"><span class="pre">Benchmark.get_prop_calc()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.benchmark.Benchmark.process_result"><code class="docutils literal notranslate"><span class="pre">Benchmark.process_result()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.benchmark.Benchmark.run"><code class="docutils literal notranslate"><span class="pre">Benchmark.run()</span></code></a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="matcalc.html">matcalc package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="matcalc.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="matcalc._base.html">matcalc._base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._cli.html">matcalc._cli module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._elasticity.html">matcalc._elasticity module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._eos.html">matcalc._eos module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._neb.html">matcalc._neb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html">matcalc._phonon module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html">matcalc._phonon3 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html">matcalc._qha module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html">matcalc._relaxation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._stability.html">matcalc._stability module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">matcalc.benchmark module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc.benchmark.Benchmark"><code class="docutils literal notranslate"><span class="pre">Benchmark</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc.benchmark.BenchmarkSuite"><code class="docutils literal notranslate"><span class="pre">BenchmarkSuite</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc.benchmark.CheckpointFile"><code class="docutils literal notranslate"><span class="pre">CheckpointFile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc.benchmark.ElasticityBenchmark"><code class="docutils literal notranslate"><span class="pre">ElasticityBenchmark</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc.benchmark.EquilibriumBenchmark"><code class="docutils literal notranslate"><span class="pre">EquilibriumBenchmark</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc.benchmark.PhononBenchmark"><code class="docutils literal notranslate"><span class="pre">PhononBenchmark</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc.benchmark.SofteningBenchmark"><code class="docutils literal notranslate"><span class="pre">SofteningBenchmark</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc.benchmark.get_available_benchmarks"><code class="docutils literal notranslate"><span class="pre">get_available_benchmarks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc.benchmark.get_benchmark_data"><code class="docutils literal notranslate"><span class="pre">get_benchmark_data()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#matcalc.benchmark.BenchmarkSuite"><code class="docutils literal notranslate"><span class="pre">BenchmarkSuite</span></code></a><ul>
-<li><a class="reference internal" href="#matcalc.benchmark.BenchmarkSuite.benchmarks"><code class="docutils literal notranslate"><span class="pre">BenchmarkSuite.benchmarks</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.benchmark.BenchmarkSuite.run"><code class="docutils literal notranslate"><span class="pre">BenchmarkSuite.run()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#matcalc.benchmark.CheckpointFile"><code class="docutils literal notranslate"><span class="pre">CheckpointFile</span></code></a><ul>
-<li><a class="reference internal" href="#matcalc.benchmark.CheckpointFile.load"><code class="docutils literal notranslate"><span class="pre">CheckpointFile.load()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.benchmark.CheckpointFile.save"><code class="docutils literal notranslate"><span class="pre">CheckpointFile.save()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#matcalc.benchmark.ElasticityBenchmark"><code class="docutils literal notranslate"><span class="pre">ElasticityBenchmark</span></code></a><ul>
-<li><a class="reference internal" href="#matcalc.benchmark.ElasticityBenchmark.get_prop_calc"><code class="docutils literal notranslate"><span class="pre">ElasticityBenchmark.get_prop_calc()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.benchmark.ElasticityBenchmark.process_result"><code class="docutils literal notranslate"><span class="pre">ElasticityBenchmark.process_result()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#matcalc.benchmark.EquilibriumBenchmark"><code class="docutils literal notranslate"><span class="pre">EquilibriumBenchmark</span></code></a><ul>
-<li><a class="reference internal" href="#matcalc.benchmark.EquilibriumBenchmark.get_prop_calc"><code class="docutils literal notranslate"><span class="pre">EquilibriumBenchmark.get_prop_calc()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.benchmark.EquilibriumBenchmark.process_result"><code class="docutils literal notranslate"><span class="pre">EquilibriumBenchmark.process_result()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.benchmark.EquilibriumBenchmark.run"><code class="docutils literal notranslate"><span class="pre">EquilibriumBenchmark.run()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#matcalc.benchmark.PhononBenchmark"><code class="docutils literal notranslate"><span class="pre">PhononBenchmark</span></code></a><ul>
-<li><a class="reference internal" href="#matcalc.benchmark.PhononBenchmark.get_prop_calc"><code class="docutils literal notranslate"><span class="pre">PhononBenchmark.get_prop_calc()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.benchmark.PhononBenchmark.process_result"><code class="docutils literal notranslate"><span class="pre">PhononBenchmark.process_result()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#matcalc.benchmark.SofteningBenchmark"><code class="docutils literal notranslate"><span class="pre">SofteningBenchmark</span></code></a><ul>
-<li><a class="reference internal" href="#matcalc.benchmark.SofteningBenchmark.get_linear_fitted_slope"><code class="docutils literal notranslate"><span class="pre">SofteningBenchmark.get_linear_fitted_slope()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.benchmark.SofteningBenchmark.run"><code class="docutils literal notranslate"><span class="pre">SofteningBenchmark.run()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#matcalc.benchmark.get_available_benchmarks"><code class="docutils literal notranslate"><span class="pre">get_available_benchmarks()</span></code></a></li>
-<li><a class="reference internal" href="#matcalc.benchmark.get_benchmark_data"><code class="docutils literal notranslate"><span class="pre">get_benchmark_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.config.html">matcalc.config module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.units.html">matcalc.units module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html">matcalc.utils module</a></li>
 </ul>
 </li>
 </ul>
-</div>
+</li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -102,6 +92,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="matcalc.html">matcalc package</a></li>
       <li class="breadcrumb-item active">matcalc.benchmark module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsvirtuallab/matcalc/blob/master/docs_rst/matcalc.benchmark.rst" class="fa fa-github"> Edit on GitHub</a>
@@ -170,9 +161,14 @@ distinguishing ground truth values, default is “DFT”.</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc.benchmark.Benchmark._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/benchmark.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.benchmark.Benchmark._abc_impl" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="matcalc.benchmark.Benchmark.get_prop_calc">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_prop_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Calculator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PropCalc</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/core/benchmark.py#L245-L259"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.benchmark.Benchmark.get_prop_calc" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_prop_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Calculator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc" title="matcalc._base.PropCalc"><span class="pre">PropCalc</span></a></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/core/benchmark.py#L245-L259"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.benchmark.Benchmark.get_prop_calc" title="Link to this definition"></a></dt>
 <dd><p>Abstract method to retrieve a property calculation object using the provided calculator and additional
 parameters.
 This method must be implemented by subclasses and will utilize the provided calculator to create a
@@ -188,7 +184,7 @@ This method must be implemented by subclasses and will utilize the provided calc
 <dd class="field-even"><p>An instance of <cite>PropCalc</cite> representing the property calculation result.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PropCalc</p>
+<dd class="field-odd"><p><a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc" title="matcalc._base.PropCalc">PropCalc</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -408,9 +404,14 @@ class methods or used for customization.</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc.benchmark.ElasticityBenchmark._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/benchmark.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.benchmark.ElasticityBenchmark._abc_impl" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="matcalc.benchmark.ElasticityBenchmark.get_prop_calc">
-<span class="sig-name descname"><span class="pre">get_prop_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Calculator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PropCalc</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/core/benchmark.py#L585-L599"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.benchmark.ElasticityBenchmark.get_prop_calc" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_prop_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Calculator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc" title="matcalc._base.PropCalc"><span class="pre">PropCalc</span></a></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/core/benchmark.py#L585-L599"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.benchmark.ElasticityBenchmark.get_prop_calc" title="Link to this definition"></a></dt>
 <dd><p>Calculates and returns a property calculation object based on the provided
 calculator and optional parameters. This is useful for initializing and
 configuring a property calculation.</p>
@@ -428,7 +429,7 @@ calculation.</p></li>
 calculator and keyword arguments.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PropCalc</p>
+<dd class="field-odd"><p><a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc" title="matcalc._base.PropCalc">PropCalc</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -489,9 +490,14 @@ required for equilibrium benchmark analysis.</p>
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc.benchmark.EquilibriumBenchmark._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/benchmark.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.benchmark.EquilibriumBenchmark._abc_impl" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="matcalc.benchmark.EquilibriumBenchmark.get_prop_calc">
-<span class="sig-name descname"><span class="pre">get_prop_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Calculator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PropCalc</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/core/benchmark.py#L413-L428"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.benchmark.EquilibriumBenchmark.get_prop_calc" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_prop_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Calculator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc" title="matcalc._base.PropCalc"><span class="pre">PropCalc</span></a></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/core/benchmark.py#L413-L428"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.benchmark.EquilibriumBenchmark.get_prop_calc" title="Link to this definition"></a></dt>
 <dd><p>Returns a property calculation object for performing relaxation and formation energy
 calculations. This method initializes the stability calculator using the provided
 Calculator object and any additional configuration parameters.</p>
@@ -508,7 +514,7 @@ formation energy calculation.</p></li>
 calculations.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PropCalc</p>
+<dd class="field-odd"><p><a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc" title="matcalc._base.PropCalc">PropCalc</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -612,9 +618,14 @@ the dataset information in JSON or compressed format.</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc.benchmark.PhononBenchmark._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/benchmark.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.benchmark.PhononBenchmark._abc_impl" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="matcalc.benchmark.PhononBenchmark.get_prop_calc">
-<span class="sig-name descname"><span class="pre">get_prop_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Calculator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PropCalc</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/core/benchmark.py#L676-L693"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.benchmark.PhononBenchmark.get_prop_calc" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_prop_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Calculator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc" title="matcalc._base.PropCalc"><span class="pre">PropCalc</span></a></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/core/benchmark.py#L676-L693"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.benchmark.PhononBenchmark.get_prop_calc" title="Link to this definition"></a></dt>
 <dd><p>Retrieves a phonon calculation instance based on the given calculator and
 additional keyword arguments.</p>
 <p>This function initializes and returns a <cite>PhononCalc</cite> object using the provided
@@ -634,7 +645,7 @@ calculation. Must be an instance of the <cite>Calculator</cite> class.</p></li>
 optional parameters.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PropCalc</p>
+<dd class="field-odd"><p><a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc" title="matcalc._base.PropCalc">PropCalc</a></p>
 </dd>
 </dl>
 </dd></dl>
