@@ -61,12 +61,6 @@ deepmd = [
 grace = [
     "tensorpotential>=0.5.1",
 ]
-mattersim = [
-    "mattersim",
-]
-fairchem = [
-    "fairchem-core",
-]
 maml = [
     "maml>=2025.2.25",
 ]
@@ -120,10 +114,11 @@ maintain = [
     "sphinx-markdown-builder>=0.6.8",
 ]
 test-models = [
-    "mace>=1.1.2",
+    "mace-torch>=0.3.12",
     "nequip>=0.6.2",
     "orb-models>=0.4.2",
     "pynanoflann>=0.10.0",
+    "sevenn>=0.10.4",
     "tensorpotential>=0.5.1",
 ]
 
