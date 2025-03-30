@@ -19,11 +19,10 @@ def test_neb_calc(LiFePO4: Structure, m3gnet_calculator: PESCalculator, tmp_path
     image_start.remove_sites([2])
     image_end = LiFePO4.copy()
     image_end.remove_sites([3])
-    neb_calc = NEBCalc.from_end_images(m3gnet_calculator, image_start, image_end, n_images=5, traj_folder=tmp_path)
-    barriers = neb_calc.calc(fmax=0.5)
-    assert len(neb_calc.neb.images) == 7
-    assert barriers[0] == pytest.approx(0.0184783935546875, rel=0.002)
-    assert barriers[1] == pytest.approx(0.0018920898, rel=0.002)
+    neb_calc = NEBCalc(m3gnet_calculator, traj_folder=tmp_path, fmax=0.5)
+    barriers = neb_calc.calc_images(image_start, image_end, n_images=5)
+    assert barriers["barrier"] == pytest.approx(0.0184783935546875, rel=0.002)
+    assert barriers["force"] == pytest.approx(0.0018920898, rel=0.002)
 
     with pytest.raises(ValueError, match="Unknown optimizer='invalid', must be one of "):
-        neb_calc.from_end_images(m3gnet_calculator, image_start, image_end, optimizer="invalid")
+        NEBCalc(m3gnet_calculator, optimizer="invalid")
