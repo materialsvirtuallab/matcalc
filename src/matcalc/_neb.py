@@ -116,7 +116,7 @@ class NEBCalc(PropCalc):
             images.append(atoms)
 
         neb = NEB(images, climb=self.climb, allow_shared_calculator=True, **self.kwargs)
-        optimizer = self.optimizer(neb)
+        optimizer = self.optimizer(neb)  # type:ignore[operator]
 
         if self.traj_folder is not None:
             os.makedirs(self.traj_folder, exist_ok=True)
