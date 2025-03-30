@@ -90,7 +90,7 @@ class NEBCalc(PropCalc):
             pbc=False,
             autosort_tol=autosort_tol,
         )
-        return self.calc({f"image{i}": s for i, s in enumerate(images)})
+        return self.calc({f"image{i:02d}": s for i, s in enumerate(images)})
 
     def calc(
         self,
@@ -107,7 +107,7 @@ class NEBCalc(PropCalc):
         """
         if not isinstance(structure, dict):
             raise ValueError(  # noqa:TRY004
-                "For NEB calculations, structure must be a dict containing the images with keys image0, image1, etc."
+                "For NEB calculations, structure must be a dict containing the images with keys image00, image01, etc."
             )
         images: list[Atoms] = []
         for _, image in sorted(structure.items(), key=lambda x: x[0]):
