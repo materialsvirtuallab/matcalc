@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from pymatgen.analysis.surface_analysis import SlabGenerator
+from pymatgen.core.surface import SlabGenerator
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
