@@ -11,7 +11,7 @@ from ._relaxation import RelaxCalc
 from .utils import get_ase_optimizer
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Generator, Sequence
 
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
@@ -125,9 +125,9 @@ class SurfaceCalc(PropCalc):
         self.max_steps = max_steps
         self.relax_calc_kwargs = relax_calc_kwargs
 
-        self.final_bulk = None
-        self.bulk_energy = None
-        self.n_bulk_atoms = None
+        self.final_bulk: Structure | None = None
+        self.bulk_energy: float | None = None
+        self.n_bulk_atoms: int | None = None
 
     def calc_slabs(
         self,
@@ -222,9 +222,12 @@ class SurfaceCalc(PropCalc):
                     structure must be a dict containing the images with keys slab_00, slab_01, etc."
             )
 
+        if any(x is None for x in (self.bulk_energy, self.n_bulk_atoms, self.final_bulk)):
+            raise ValueError("Bulk energy, number of atoms, or structure is not initialized.")
+
         result_dict = {}
 
-        for key, slab in enumerate(structure.items()):
+        for key, slab in structure.items():
             relax_atoms = self.relax_slab
 
             relaxer_slab = RelaxCalc(
@@ -258,7 +261,7 @@ class SurfaceCalc(PropCalc):
 
     def calc_many(
         self,
-        structures: dict[str, Any],
+        structures: Sequence[Structure | dict[str, Any]],
         n_jobs: None | int = None,
         allow_errors: bool = False,  # noqa: FBT001,FBT002
         **kwargs: Any,
