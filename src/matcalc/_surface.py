@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
     from pymatgen.core import Structure
+    from pymatgen.core.surface import Slab
 
 
 class SurfaceCalc(PropCalc):
@@ -136,7 +137,7 @@ class SurfaceCalc(PropCalc):
         inplane_supercell: tuple[int, int] = (1, 1),
         slab_gen_kwargs: dict | None = None,
         get_slabs_kwargs: dict | None = None,
-    ) -> dict[str, Structure]:
+    ) -> dict[str, Slab]:
         """
         Relax (or single-point calculate) a bulk structure, then generate slab structures
         using the specified Miller index. Stores the resulting bulk data internally:
@@ -158,7 +159,7 @@ class SurfaceCalc(PropCalc):
         :type get_slabs_kwargs: dict | None, optional
         :return: A dictionary of the generated slab structures keyed by names like
             ``"slab_00"``, ``"slab_01"``.
-        :rtype: dict[str, Structure]
+        :rtype: dict[str, Slab]
         """
         bulk = bulk_struct.to_conventional()
 
@@ -177,6 +178,8 @@ class SurfaceCalc(PropCalc):
 
         self.final_bulk = bulk_opt["final_structure"]
         self.bulk_energy = bulk_opt["energy"]
+        if self.final_bulk is None:
+            raise ValueError("Final bulk structure is None after bulk relaxation.")
         self.n_bulk_atoms = len(self.final_bulk)
 
         # Generate slabs
@@ -222,7 +225,7 @@ class SurfaceCalc(PropCalc):
                     structure must be a dict containing the images with keys slab_00, slab_01, etc."
             )
 
-        if any(x is None for x in (self.bulk_energy, self.n_bulk_atoms, self.final_bulk)):
+        if self.bulk_energy is None or self.n_bulk_atoms is None or self.final_bulk is None:
             raise ValueError("Bulk energy, number of atoms, or structure is not initialized.")
 
         result_dict = {}
