@@ -33,7 +33,6 @@ class NEBCalc(PropCalc):
         climb: bool = True,
         fmax: float = 0.1,
         max_steps: int = 1000,
-        get_mep: bool = True,
         **kwargs: Any,
     ) -> None:
         """Initialize the instance of the class.
@@ -61,7 +60,6 @@ class NEBCalc(PropCalc):
         self.fmax = fmax
         self.max_steps = max_steps
         self.kwargs = kwargs
-        self.get_mep = get_mep
 
     def calc_images(
         self,
@@ -107,8 +105,7 @@ class NEBCalc(PropCalc):
                 dict:
                     - "barrier" (float): The energy barrier of the reaction pathway.
                     - "force" (float): The force exerted on the atoms during the NEB calculation.
-                    - "mep" (optional, dict): If `self.get_mep` is True,
-                    a dictionary containing the images and their respective energies.
+                    - "mep" (dict): a dictionary containing the images and their respective energies.
         """
         if not isinstance(structure, dict):
             raise ValueError(  # noqa:TRY004
@@ -135,11 +132,10 @@ class NEBCalc(PropCalc):
         data = neb_tool.get_barrier()  # add structures
         result = {"barrier": data[0], "force": data[1]}
 
-        if self.get_mep:
-            energies = fit_images(self.neb.images).energies
-            mep = {
-                f"image{i:02d}": {"structure": AseAtomsAdaptor.get_structure(image), "energy": energy}
-                for i, (image, energy) in enumerate(zip(self.neb.images, energies, strict=False))
-            }
-            result["mep"] = mep
+        energies = fit_images(self.neb.images).energies
+        mep = {
+            f"image{i:02d}": {"structure": AseAtomsAdaptor.get_structure(image), "energy": energy}
+            for i, (image, energy) in enumerate(zip(self.neb.images, energies, strict=False))
+        }
+        result["mep"] = mep
         return result
