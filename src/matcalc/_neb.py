@@ -93,12 +93,12 @@ class NEBCalc(PropCalc):
             autosort_tol=autosort_tol,
         )
         return self.calc({f"image{i:02d}": s for i, s in enumerate(images)})
-        
+
 
     def calc(
         self,
         structure: Structure | dict[str, Any],
-        
+
     ) -> dict[str, Any]:
         """Calculate the energy barrier using the nudged elastic band method.
 
@@ -109,9 +109,8 @@ class NEBCalc(PropCalc):
                 dict:
                     - "barrier" (float): The energy barrier of the reaction pathway.
                     - "force" (float): The force exerted on the atoms during the NEB calculation.
-                    - "mep" (optional, dict): If `self.get_mep` is True, a dictionary containing the images and their respective energies,
-                    with keys like 'image00', 'image01', etc.
-                    
+                    - "mep" (optional, dict): If `self.get_mep` is True,
+                    a dictionary containing the images and their respective energies.
         """
         if not isinstance(structure, dict):
             raise ValueError(  # noqa:TRY004
@@ -132,15 +131,17 @@ class NEBCalc(PropCalc):
                     Trajectory(f"{self.traj_folder}/image-{idx}.traj", "w", img),
                     interval=self.interval,
                 )
-            
-            
+
+
         optimizer.run(fmax=self.fmax, steps=self.max_steps)
         neb_tool = NEBTools(self.neb.images)
         data = neb_tool.get_barrier() #add structures
         result = {"barrier": data[0], "force": data[1]}
-        
+
         if self.get_mep:
             energies = fit_images(self.neb.images).energies
-            mep = {f"image{i:02d}": {"structure": AseAtomsAdaptor.get_structure(image), "energy": energy} for i, (image, energy) in enumerate(zip(self.neb.images, energies))}
+            mep = {f"image{i:02d}": {"structure": AseAtomsAdaptor.get_structure(image),
+                                     "energy": energy} for i, (image, energy)
+                                     in enumerate(zip(self.neb.images, energies, strict=False))}
             result["mep"] = mep
-        return result 
+        return result
