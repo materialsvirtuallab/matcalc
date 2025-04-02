@@ -31,6 +31,7 @@ jobs:
         run: |
           uv sync
           uv pip install -e .
+          apt-get install curl
       - name: pytest
         run: uv run --group test-models pytest --cov=matcalc --cov-report=xml tests --color=yes
       - name: Upload coverage reports to Codecov
