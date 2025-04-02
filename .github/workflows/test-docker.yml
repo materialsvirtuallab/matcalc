@@ -16,7 +16,7 @@ jobs:
   test:
     runs-on: ubuntu-24.04-arm
     container:
-      image: docker.io/materialsvirtuallab/ml_lammps
+      image: docker.io/materialsvirtuallab/lammps:latest-ml
     env:
       PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
