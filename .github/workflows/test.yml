@@ -2,9 +2,7 @@ name: Test
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches: [main,docker]
   workflow_dispatch:
     inputs:
       task:
@@ -16,23 +14,16 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
+    container:
+      image: docker.io/materialsvirtuallab/lammps:latest-ml
     env:
       PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install uv.
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
       - name: Install dependencies
         run: uv sync --group test-models
       - name: pytest
         run: uv run pytest --cov=matcalc --cov-report=xml tests --color=yes
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
