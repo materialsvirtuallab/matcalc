@@ -8,7 +8,6 @@ from pymatgen.core.surface import SlabGenerator
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
-from .utils import get_ase_optimizer
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
@@ -122,7 +121,7 @@ class SurfaceCalc(PropCalc):
         self.relax_bulk = relax_bulk
         self.relax_slab = relax_slab
         self.fmax = fmax
-        self.optimizer = get_ase_optimizer(optimizer)
+        self.optimizer = optimizer
         self.max_steps = max_steps
         self.relax_calc_kwargs = relax_calc_kwargs
 
@@ -172,6 +171,7 @@ class SurfaceCalc(PropCalc):
             max_steps=self.max_steps,
             relax_cell=relax_cell,
             relax_atoms=relax_atoms,
+            optimizer=self.optimizer,
             **(self.relax_calc_kwargs or {}),
         )
         bulk_opt = relaxer_bulk.calc(bulk)
@@ -239,6 +239,7 @@ class SurfaceCalc(PropCalc):
                 max_steps=self.max_steps,
                 relax_cell=False,
                 relax_atoms=relax_atoms,
+                optimizer=self.optimizer,
                 **(self.relax_calc_kwargs or {}),
             )
             slab_opt = relaxer_slab.calc(slab)
@@ -247,7 +248,7 @@ class SurfaceCalc(PropCalc):
 
             # Compute surface energy
             # Assuming two surfaces: (E_slab - N_slab_atoms * E_bulk_per_atom) / (2 * area)
-            area = final_slab.surface_area
+            area = slab.surface_area
             n_slab_atoms = len(final_slab)
             bulk_e_per_atom = self.bulk_energy / self.n_bulk_atoms
             gamma = (slab_energy - n_slab_atoms * bulk_e_per_atom) / (2 * area)
@@ -255,9 +256,10 @@ class SurfaceCalc(PropCalc):
             result_dict[key] = {
                 "bulk_energy": self.bulk_energy,
                 "final_bulk_structure": self.final_bulk,
+                "initial_slab_structure": slab,
+                "final_slab_structure": final_slab,
                 "slab_energy": slab_energy,
                 "surface_energy": gamma,
-                "final_slab_structure": final_slab,
             }
 
         return result_dict
@@ -275,7 +277,8 @@ class SurfaceCalc(PropCalc):
         The input dictionary is split into single-slab dictionaries, each of which
         is processed by :meth:`calc` independently in parallel (depending on ``n_jobs``).
 
-        :param structures: A dictionary of slabs, e.g. {"slab_00": Slab(...), "slab_01": Slab(...)}.
+        :param structures: A sequence containing dictionary of slabs,
+            e.g. [{"slab_00": Slab(...), "slab_01": Slab(...)}].
         :type structures: dict[str, Any]
         :param n_jobs: Number of parallel jobs. If None, runs serially or
             uses a default parallelism set by joblib. Default is None.
@@ -287,14 +290,14 @@ class SurfaceCalc(PropCalc):
         :return: A generator that yields the result of :meth:`calc` for each slab
             dictionary, or None if an error occurred and ``allow_errors=True``.
         :rtype: Generator[dict | None, None, None]
-        :raises ValueError: If ``structures`` is not a dict.
+        :raises ValueError: If ``structures[0]`` is not a dict.
         """
-        if not isinstance(structures, dict):
-            raise ValueError(  # noqa:TRY004
-                "For surface calculations, \
-                    structure must be a dict containing the images with keys slab_00, slab_01, etc."
+        if not isinstance(structures[0], dict) or len(structures) != 1:
+            raise ValueError(
+                "For surface calculations in parallel, \
+                    structures must be a sequence containing one dict with keys slab_00, slab_01, etc."
             )
 
-        structures = [{key: value} for key, value in structures.items()]
+        structures = [{key: value} for key, value in structures[0].items()]
 
         return super().calc_many(structures, n_jobs, allow_errors, **kwargs)
