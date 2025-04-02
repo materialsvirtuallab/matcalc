@@ -22,16 +22,18 @@ def test_surface_calc_basic(Si: Structure, m3gnet_calculator: PESCalculator) -> 
     """
     surf_calc = SurfaceCalc(
         calculator=m3gnet_calculator,
-        miller_index=(1, 1, 1),
-        min_slab_size=10.0,
-        min_vacuum_size=10.0,
         relax_bulk=True,
         relax_slab=True,
         fmax=0.1,
         max_steps=100,
     )
 
-    slabs = surf_calc.calc_slabs(Si)
+    slabs = surf_calc.calc_slabs(
+        Si,
+        miller_index=(1, 1, 1),
+        min_slab_size=10.0,
+        min_vacuum_size=10.0,
+    )
     assert len(slabs) == 2, "Expected two slabs for Silicon (111)."
 
     results = surf_calc.calc(slabs)
@@ -89,16 +91,18 @@ def test_surface_calc_many(Si: Structure, m3gnet_calculator: PESCalculator) -> N
     """
     surf_calc = SurfaceCalc(
         calculator=m3gnet_calculator,
-        miller_index=(1, 1, 1),
-        min_slab_size=10.0,
-        min_vacuum_size=10.0,
         relax_bulk=True,
         relax_slab=True,
         fmax=0.1,
         max_steps=100,
     )
 
-    slabs = surf_calc.calc_slabs(Si)
+    slabs = surf_calc.calc_slabs(
+        Si,
+        miller_index=(1, 1, 1),
+        min_slab_size=10.0,
+        min_vacuum_size=10.0,
+    )
     assert len(slabs) == 2, "Expected two slabs for Silicon (111)."
 
     results_gen = surf_calc.calc_many([slabs], n_jobs=2, allow_errors=False)

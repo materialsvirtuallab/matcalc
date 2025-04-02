@@ -42,19 +42,13 @@ class SurfaceCalc(PropCalc):
 
     Example:
         >> my_calc = SomeASECalculator(...)
-        >> surf_calc = SurfaceCalc(calculator=my_calc, miller_index=(1,0,0), ...)
-        >> slabs_dict = surf_calc.calc_slabs(bulk_structure)
+        >> surf_calc = SurfaceCalc(calculator=my_calc)
+        >> slabs_dict = surf_calc.calc_slabs(bulk_structure, miller_index=(1,0,0), ...)
         >> results = surf_calc.calc(slabs_dict)
         >> print(results)
 
     :ivar calculator: The ASE Calculator object used for energy/force evaluations.
     :type calculator: Calculator
-    :ivar miller_index: Miller index for the surface, e.g. (1, 0, 0).
-    :type miller_index: tuple[int,int,int]
-    :ivar min_slab_size: Thickness of the slab in Å.
-    :type min_slab_size: float
-    :ivar min_vacuum_size: Thickness of the vacuum region in Å.
-    :type min_vacuum_size: float
     :ivar relax_bulk: Whether to relax the bulk structure (cell+atomic DOFs).
     :type relax_bulk: bool
     :ivar relax_slab: Whether to relax each slab structure (atomic DOFs).
@@ -73,9 +67,6 @@ class SurfaceCalc(PropCalc):
         self,
         calculator: Calculator,
         *,
-        miller_index: tuple[int, int, int] = (1, 0, 0),
-        min_slab_size: float = 10.0,
-        min_vacuum_size: float = 20.0,
         relax_bulk: bool = True,
         relax_slab: bool = True,
         fmax: float = 0.1,
@@ -89,13 +80,6 @@ class SurfaceCalc(PropCalc):
 
         :param calculator: ASE Calculator for energy/force evaluations.
         :type calculator: Calculator
-        :param miller_index: Miller index for the slab surfaces (e.g., (1, 0, 0)).
-            Default is (1, 0, 0).
-        :type miller_index: tuple[int,int,int], optional
-        :param min_slab_size: Thickness of the slab in Å. Default is 10.0 Å.
-        :type min_slab_size: float, optional
-        :param min_vacuum_size: Thickness of the vacuum region in Å. Default is 20.0 Å.
-        :type min_vacuum_size: float, optional
         :param relax_bulk: Whether to relax the bulk structure, including its cell.
             Default is True.
         :type relax_bulk: bool, optional
@@ -115,9 +99,6 @@ class SurfaceCalc(PropCalc):
         :type relax_calc_kwargs: dict | None, optional
         """
         self.calculator = calculator
-        self.miller_index = miller_index
-        self.min_slab_size = min_slab_size
-        self.min_vacuum_size = min_vacuum_size
         self.relax_bulk = relax_bulk
         self.relax_slab = relax_slab
         self.fmax = fmax
@@ -132,6 +113,9 @@ class SurfaceCalc(PropCalc):
     def calc_slabs(
         self,
         bulk_struct: Structure,
+        miller_index: tuple[int, int, int] = (1, 0, 0),
+        min_slab_size: float = 10.0,
+        min_vacuum_size: float = 20.0,
         symmetrize: bool = True,  # noqa: FBT001,FBT002
         inplane_supercell: tuple[int, int] = (1, 1),
         slab_gen_kwargs: dict | None = None,
@@ -145,6 +129,13 @@ class SurfaceCalc(PropCalc):
         :param bulk_struct: A Pymatgen bulk structure. It is converted to its conventional
             cell before relaxation or single-point calculation.
         :type bulk_struct: Structure
+        :param miller_index: Miller index for the slab surfaces (e.g., (1, 0, 0)).
+            Default is (1, 0, 0).
+        :type miller_index: tuple[int,int,int], optional
+        :param min_slab_size: Thickness of the slab in Å. Default is 10.0 Å.
+        :type min_slab_size: float, optional
+        :param min_vacuum_size: Thickness of the vacuum region in Å. Default is 20.0 Å.
+        :type min_vacuum_size: float, optional
         :param symmetrize: Whether to produce symmetrically distinct slabs. Default True.
         :type symmetrize: bool, optional
         :param inplane_supercell: Multiplicative factors for in-plane supercell expansion
@@ -185,9 +176,9 @@ class SurfaceCalc(PropCalc):
         # Generate slabs
         slabgen = SlabGenerator(
             initial_structure=bulk,
-            miller_index=self.miller_index,
-            min_slab_size=self.min_slab_size,
-            min_vacuum_size=self.min_vacuum_size,
+            miller_index=miller_index,
+            min_slab_size=min_slab_size,
+            min_vacuum_size=min_vacuum_size,
             **(slab_gen_kwargs or {}),
         )
         slabs = slabgen.get_slabs(symmetrize=symmetrize, **(get_slabs_kwargs or {}))
