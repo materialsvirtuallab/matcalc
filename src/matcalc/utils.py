@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from ase import Atoms
-    from maml.apps.pes._lammps import LMPStaticCalculator
+    from maml.apps.pes import LMPStaticCalculator
     from pyace.basis import ACEBBasisSet, ACECTildeBasisSet, BBasisConfiguration
 
 
