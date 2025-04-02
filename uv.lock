@@ -2666,17 +2666,18 @@ wheels = [
 
 [[package]]
 name = "maml"
-version = "2025.2.25"
+version = "2025.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mp-api" },
     { name = "numpy" },
     { name = "pymatgen" },
+    { name = "scikit-learn" },
     { name = "scipy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/69/5f/2a2550f301ad6d9aed08b629378ce258a3ef1acd8c2cf80cedb4960b6d6f/maml-2025.2.25.tar.gz", hash = "sha256:922ea47ec3632c5d11e99f273c17ee4297512db46df89a421c34059bf80135be", size = 2228633 }
+sdist = { url = "https://files.pythonhosted.org/packages/59/f1/727f8a96004ab878e9786d1c089e2bec1849a683dd7e713deb25aa8a446c/maml-2025.4.1.tar.gz", hash = "sha256:a130dbdc9f42b88e4df914ada80cd18c3fed203f97b8f9d071553fc24f0db70a", size = 2228457 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1d/ee/6f50458ace6cb9e6002b6fd18ba129f2c965f8a24a3e325149afad5fd2a4/maml-2025.2.25-py3-none-any.whl", hash = "sha256:137965dcb23567e59ce2d557d1d12f970ef3f0afb89b9d716c13ae136e87f39c", size = 2263335 },
+    { url = "https://files.pythonhosted.org/packages/43/88/afcb1f640e39996e2b3776c7484be888edaa821c53c03191ac9868fabe08/maml-2025.4.1-py3-none-any.whl", hash = "sha256:b435c16391bd6a08c98252b53ed4ab2b645db7d7163f2735289031be14dc3d00", size = 2263361 },
 ]
 
 [[package]]
@@ -2849,7 +2850,7 @@ requires-dist = [
     { name = "fsspec", specifier = ">=2025.3.0" },
     { name = "joblib", specifier = ">=1.4.2" },
     { name = "mace-torch", marker = "extra == 'mace'", specifier = ">=0.3.12" },
-    { name = "maml", marker = "extra == 'maml'", specifier = ">=2025.2.25" },
+    { name = "maml", marker = "extra == 'maml'", specifier = ">=2025.4.1" },
     { name = "matminer", marker = "extra == 'benchmark'", specifier = ">=0.9.3" },
     { name = "numpy", specifier = "<2.0.0" },
     { name = "orb-models", marker = "extra == 'orb'", specifier = ">=0.4.2" },
@@ -2872,7 +2873,7 @@ dev = [
     { name = "coveralls", specifier = ">=4.0.1" },
     { name = "ipython", specifier = ">=8.34.0" },
     { name = "jupyter", specifier = ">=1.1.1" },
-    { name = "maml", specifier = ">=2025.2.25" },
+    { name = "maml", specifier = ">=2025.4.1" },
     { name = "matgl", specifier = ">=1.2.3" },
     { name = "matminer", specifier = ">=0.9.3" },
     { name = "mp-api", specifier = ">=0.45.3" },
