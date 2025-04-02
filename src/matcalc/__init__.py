@@ -18,6 +18,7 @@ from ._phonon3 import Phonon3Calc
 from ._qha import QHACalc
 from ._relaxation import RelaxCalc
 from ._stability import EnergeticsCalc
+from ._md import MDCalc
 from .config import clear_cache
 from .utils import UNIVERSAL_CALCULATORS, PESCalculator
 
