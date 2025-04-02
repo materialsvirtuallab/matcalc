@@ -32,11 +32,11 @@ def _map_calculators_to_packages(calculators: list[str]) -> dict[str, str]:  # T
         (("mace",), "mace"),
         (("sevennet",), "sevenn"),
         (("grace", "tensorpotential"), "tensorpotential"),
-        (("orb",), "orb_models"),
+        (("orb",), "orb-models"),
         (("mattersim",), "mattersim"),
-        (("fairchem",), "fairchem"),
-        (("petmad",), "pet_mad"),
-        (("deepmd",), "deepmd"),
+        (("fairchem",), "fairchem-core"),
+        (("petmad",), "pet-mad"),
+        (("deepmd",), "deepmd-kit"),
     ]
 
     calculator_to_package: dict[str, str] = {}
