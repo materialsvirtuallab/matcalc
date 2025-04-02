@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from pymatgen.core import Structure
 from pymatgen.core.surface import SlabGenerator
 
 from ._base import PropCalc
@@ -14,7 +15,6 @@ if TYPE_CHECKING:
 
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
-    from pymatgen.core import Structure
     from pymatgen.core.surface import Slab
 
 
@@ -151,6 +151,9 @@ class SurfaceCalc(PropCalc):
             ``"slab_00"``, ``"slab_01"``.
         :rtype: dict[str, Slab]
         """
+        if not isinstance(bulk_struct, Structure):
+            raise TypeError("`bulk_struct` must be a pymatgen Structure")
+
         bulk = bulk_struct.to_conventional()
 
         relax_cell = self.relax_bulk
@@ -169,9 +172,7 @@ class SurfaceCalc(PropCalc):
 
         self.final_bulk = bulk_opt["final_structure"]
         self.bulk_energy = bulk_opt["energy"]
-        if self.final_bulk is None:
-            raise ValueError("Final bulk structure is None after bulk relaxation.")
-        self.n_bulk_atoms = len(self.final_bulk)
+        self.n_bulk_atoms = len(self.final_bulk)  # type: ignore[arg-type]
 
         # Generate slabs
         slabgen = SlabGenerator(

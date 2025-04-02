@@ -62,6 +62,16 @@ def test_surface_calc_basic(Si: Structure, m3gnet_calculator: PESCalculator) -> 
     assert slab_res["surface_energy"] == pytest.approx(0.15327125170767797, rel=1e-1)
 
 
+def test_surface_calc_slabs_no_bulk_structure_error(m3gnet_calculator: PESCalculator) -> None:
+    """
+    Ensure that calling calc_slabs(...) on a non-Structure object
+    raises an error.
+    """
+    surf_calc = SurfaceCalc(calculator=m3gnet_calculator)
+    with pytest.raises(TypeError, match="`bulk_struct` must be a pymatgen Structure"):
+        surf_calc.calc_slabs("Si") # type: ignore[arg-type]
+
+
 def test_surface_calc_no_bulk_data_error(Si: Structure, m3gnet_calculator: PESCalculator) -> None:
     """
     Ensure that calling calc(...) before calc_slabs(...)
