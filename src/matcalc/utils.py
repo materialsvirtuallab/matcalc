@@ -109,7 +109,7 @@ class PESCalculator(Calculator):
 
         self.stress_weight = stress_weight * conversion_factor
 
-    def calculate(  # pragma: no cover
+    def calculate(
         self,
         atoms: Atoms | None = None,
         properties: list | None = None,
@@ -244,7 +244,7 @@ class PESCalculator(Calculator):
         return PESCalculator(potential=model, **kwargs)
 
     @staticmethod
-    def load_snap(param_file: str | Path, coeff_file: str | Path, **kwargs: Any) -> Calculator:  # pragma: no cover
+    def load_snap(param_file: str | Path, coeff_file: str | Path, **kwargs: Any) -> Calculator:
         """
         Load a SNAP (Spectral Neighbor Analysis Potential) configuration and create a
         corresponding Calculator instance.
