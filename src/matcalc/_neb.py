@@ -36,8 +36,7 @@ class NEBCalc(PropCalc):
         get_mep: bool = True,
         **kwargs: Any,
     ) -> None:
-        """
-        Initialize the instance of the class.
+        """Initialize the instance of the class.
 
         Parameters:
             calculator: Calculator - The calculator object to use.
@@ -73,8 +72,7 @@ class NEBCalc(PropCalc):
         interpolate_lattices: bool = False,
         autosort_tol: float = 0.5,
     ) -> dict[str, Any]:
-        """
-        Calculate NEB images between given start and end structures.
+        """Calculate NEB images between given start and end structures.
 
         Parameters:
             start_struct (Structure): Initial structure.
@@ -102,8 +100,7 @@ class NEBCalc(PropCalc):
         structure: Structure | dict[str, Any],
         
     ) -> dict[str, Any]:
-        """
-        Calculate the energy barrier using the nudged elastic band method.
+        """Calculate the energy barrier using the nudged elastic band method.
 
         Parameters:
             - structure: A dictionary containing the images with keys 'image0', 'image1', etc. Must be of type dict.
@@ -114,7 +111,7 @@ class NEBCalc(PropCalc):
                     - "force" (float): The force exerted on the atoms during the NEB calculation.
                     - "mep" (optional, dict): If `self.get_mep` is True, a dictionary containing the images and their respective energies,
                     with keys like 'image00', 'image01', etc.
-                    - "energies" (optional, list): The energy values for each image along the NEB path, if `self.get_mep` is True.
+                    
         """
         if not isinstance(structure, dict):
             raise ValueError(  # noqa:TRY004
