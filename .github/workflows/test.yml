@@ -3,10 +3,10 @@ name: Test
 on:
   push:
     branches: [main]
-    paths-ignore: ["**/*.md", docs/**]
+    paths-ignore: ["**/*.md", "docs/**", "dev_scripts/**"]
   pull_request:
     branches: [main]
-    paths-ignore: ["**/*.md", docs/**]
+    paths-ignore: ["**/*.md", "docs/**", "dev_scripts/**"]
   workflow_dispatch:
     inputs:
       task:
@@ -31,7 +31,7 @@ jobs:
         run: |
           uv sync
           uv pip install -e .
-          apt-get install curl
+          apt-get install curl  # Curl is not part of the minimal image, but is required for CodeCov upload.
       - name: pytest
         run: uv run --group test-models pytest --cov=matcalc --cov-report=xml tests --color=yes
       - name: Upload coverage reports to Codecov
