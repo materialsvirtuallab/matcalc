@@ -164,6 +164,10 @@ results.to_csv("benchmark_results.csv")
 These will usually take a long time to run. Running on HPC resources is recommended. Please set `n_samples` when
 initializing the benchmark to limit the number of calculations to do some testing before running the full benchmark.
 
+## Docker Images
+
+Docker images with MatCalc and LAMMPS support are available at the [Materials Virtual Lab Docker Repository].
+
 ## Citing
 
 A manuscript on `matcalc` is currently in the works. In the meantime, please see [`citation.cff`](citation.cff) or the GitHub
@@ -174,3 +178,4 @@ sidebar for a BibTeX and APA citation.
 [MatPES]: https://matpes.ai
 [MatCalc]: https://matcalc.ai
 [ASE]: https://wiki.fysik.dtu.dk/ase/
+[Materials Virtual Lab Docker Repository]: https://hub.docker.com/orgs/materialsvirtuallab/repositories

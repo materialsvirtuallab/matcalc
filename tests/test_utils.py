@@ -92,7 +92,6 @@ def test_pescalculator_load_nnp() -> None:
 
 
 @pytest.mark.skipif(not find_spec("maml"), reason="maml is not installed")
-@pytest.mark.skipif(not find_spec("lammps"), reason="lammps is not installed")
 def test_pescalculator_load_snap() -> None:
     for name in ("SNAP", "qSNAP"):
         calc = PESCalculator.load_snap(
@@ -153,7 +152,6 @@ def test_pescalculator_load_universal(Li2O: Structure, name: str) -> None:
     assert str(exc.value) == f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}"
 
 
-@pytest.mark.skipif(not find_spec("lammps"), reason="lammps is not installed")
 def test_pescalculator_calculate() -> None:
     calc = PESCalculator.load_snap(
         param_file=DIR / "pes" / "SNAP-Cu-2020.1-PES" / "SNAPotential.snapparam",
