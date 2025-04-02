@@ -187,9 +187,6 @@ class MDCalc(PropCalc):
                 append_trajectory=self.append_trajectory,
             )
         elif self.ensemble.lower() == "nvt_bussi":
-            # Initialize Maxwell-Boltzmann distribution if kinetic energy is nearly zero
-            if np.isclose(atoms.get_kinetic_energy(), 0.0, rtol=0, atol=1e-12):
-                MaxwellBoltzmannDistribution(atoms, temperature_K=self.temperature)
             md = Bussi(
                 atoms,
                 timestep_fs,
