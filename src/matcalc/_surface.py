@@ -17,45 +17,44 @@ if TYPE_CHECKING:
 
 class SurfaceCalc(PropCalc):
     """
-        A class to perform surface-energy calculations on a bulk structure.
+    A class for performing surface energy calculations by generating and optionally
+    relaxing bulk and slab structures. This facilitates materials science and
+    computational chemistry workflows, enabling computations of surface properties
+    for various crystal orientations and surface terminations.
 
-    Steps:
-      1. Relax (or single-point) the bulk structure to obtain its energy.
-      2. Generate slabs corresponding to a specified Miller index.
-      3. Optionally relax each slab and evaluate its total energy.
-      4. Compute the surface energy from the difference between slab and bulk
-         (per-atom) energies, divided by the slab surface area. For a symmetric
-         slab, it is assumed there are 2 identical surfaces.
+    Detailed description of the class, its purpose, and usage.
 
-    Typical usage:
-      1. Instantiate with all relevant parameters (e.g. ``miller_index``,
-         ``min_slab_size``, ``relax_bulk``).
-      2. Call :meth:`calc_slabs` on a Pymatgen bulk :class:`Structure`.
-         This returns a dictionary of slab structures and internally stores
-         bulk data.
-      3. Pass that slab dictionary to :meth:`calc` to get a final dictionary
-         of surface energies for each slab.
-
-    Example:
-        >> my_calc = SomeASECalculator(...)
-        >> surf_calc = SurfaceCalc(calculator=my_calc)
-        >> results = surf_calc.calc_slabs(bulk_structure, miller_index=(1,0,0), ...)
-        >> print(results)
-
-    :ivar calculator: The ASE Calculator object used for energy/force evaluations.
+    :ivar calculator: ASE Calculator used for energy and force evaluations. Interface
+        to computational backends like DFT or classical force fields.
     :type calculator: Calculator
-    :ivar relax_bulk: Whether to relax the bulk structure (cell+atomic DOFs).
+    :ivar relax_bulk: Indicates whether to relax the bulk structure, including its
+        lattice parameters. Default is True.
     :type relax_bulk: bool
-    :ivar relax_slab: Whether to relax each slab structure (atomic DOFs).
+    :ivar relax_slab: Indicates whether to relax the slab structure, fixing its cell.
+        Default is True.
     :type relax_slab: bool
-    :ivar fmax: Force tolerance (eV/Å) for relaxation.
+    :ivar fmax: Force tolerance (in eV/Å) used during relaxation, controlling
+        convergence. Default is 0.1.
     :type fmax: float
-    :ivar optimizer: The ASE optimizer to use, e.g. "BFGS" or an :class:`Optimizer`.
+    :ivar optimizer: Optimizer to be used for structure relaxation. Can be a string
+        referring to the optimizer's name (e.g., "BFGS") or an instance of an optimizer
+        class. Default is "BFGS".
     :type optimizer: str | Optimizer
-    :ivar max_steps: Maximum number of optimization steps.
+    :ivar max_steps: Maximum allowed steps for optimization during relaxation.
+        Default is 500.
     :type max_steps: int
-    :ivar relax_calc_kwargs: Additional keyword arguments passed to :class:`RelaxCalc`.
+    :ivar relax_calc_kwargs: Additional parameters passed to the relaxation calculator
+        for bulk and slab structures. Default is None.
     :type relax_calc_kwargs: dict | None
+    :ivar final_bulk: Optimized bulk structure after relaxation. Initialized as None
+        until relaxation is performed.
+    :type final_bulk: Structure | None
+    :ivar bulk_energy: Energy of the relaxed bulk structure. Initialized as None and
+        updated after relaxation.
+    :type bulk_energy: float | None
+    :ivar n_bulk_atoms: Number of atoms in the bulk structure. Set after the bulk
+        relaxation step.
+    :type n_bulk_atoms: int | None
     """
 
     def __init__(
