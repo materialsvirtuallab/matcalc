@@ -3,8 +3,10 @@ name: Test
 on:
   push:
     branches: [main]
+    paths-ignore: ["**/*.md", "docs/**", "dev_scripts/**"]
   pull_request:
     branches: [main]
+    paths-ignore: ["**/*.md", "docs/**", "dev_scripts/**"]
   workflow_dispatch:
     inputs:
       task:
@@ -17,21 +19,19 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    container:
+      image: docker.io/materialsvirtuallab/lammps:latest-ml
     env:
       PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install uv.
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
       - name: Install dependencies
         run: |
           uv sync
           uv pip install -e .
+          apt-get install curl  # Curl is not part of the minimal image, but is required for CodeCov upload.
       - name: pytest
         run: uv run --group test-models pytest --cov=matcalc --cov-report=xml tests --color=yes
       - name: Upload coverage reports to Codecov
