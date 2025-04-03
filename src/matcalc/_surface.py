@@ -35,13 +35,11 @@ class SurfaceCalc(PropCalc):
          bulk data.
       3. Pass that slab dictionary to :meth:`calc` to get a final dictionary
          of surface energies for each slab.
-      4. Optionally, use :meth:`calc_many` to process multiple inputs in parallel.
 
     Example:
         >> my_calc = SomeASECalculator(...)
         >> surf_calc = SurfaceCalc(calculator=my_calc)
-        >> slabs_dict = surf_calc.calc_slabs(bulk_structure, miller_index=(1,0,0), ...)
-        >> results = surf_calc.calc(slabs_dict)
+        >> results = surf_calc.calc_slabs(bulk_structure, miller_index=(1,0,0), ...)
         >> print(results)
 
     :ivar calculator: The ASE Calculator object used for energy/force evaluations.
@@ -121,7 +119,7 @@ class SurfaceCalc(PropCalc):
         """
         Relax (or single-point calculate) a bulk structure, then generate slab structures
         using the specified Miller index. Stores the resulting bulk data internally:
-        ``self.final_bulk``, ``self.bulk_energy``, and ``self.n_bulk_atoms``.
+        ``final_bulk``, ``bulk_energy``.
 
         :param bulk_struct: A Pymatgen bulk structure. It is converted to its conventional
             cell before relaxation or single-point calculation.
