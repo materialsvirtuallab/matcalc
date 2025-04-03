@@ -11,11 +11,8 @@ from ._base import PropCalc
 from ._relaxation import RelaxCalc
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Sequence
-
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
-    from pymatgen.core.surface import Slab
 
 
 class SurfaceCalc(PropCalc):
@@ -120,7 +117,7 @@ class SurfaceCalc(PropCalc):
         inplane_supercell: tuple[int, int] = (1, 1),
         slab_gen_kwargs: dict | None = None,
         get_slabs_kwargs: dict | None = None,
-    ) -> dict[str, Slab]:
+    ) -> dict[str, Any]:
         """
         Relax (or single-point calculate) a bulk structure, then generate slab structures
         using the specified Miller index. Stores the resulting bulk data internally:
@@ -149,7 +146,7 @@ class SurfaceCalc(PropCalc):
         :type get_slabs_kwargs: dict | None, optional
         :return: A dictionary of the generated slab structures keyed by names like
             ``"slab_00"``, ``"slab_01"``.
-        :rtype: dict[str, Slab]
+        :rtype: dict[str, Any]
         """
         if not isinstance(bulk_struct, Structure):
             raise TypeError("`bulk_struct` must be a pymatgen Structure")
@@ -170,11 +167,10 @@ class SurfaceCalc(PropCalc):
         )
         bulk_opt = relaxer_bulk.calc(bulk)
 
-        self.final_bulk = bulk_opt["final_structure"]
-        self.bulk_energy = bulk_opt["energy"]
-        self.n_bulk_atoms = len(self.final_bulk)  # type: ignore[arg-type]
+        slab_dict = {}
+        slab_dict["final_bulk"] = bulk_opt["final_structure"]
+        slab_dict["bulk_energy"] = bulk_opt["energy"]
 
-        # Generate slabs
         slabgen = SlabGenerator(
             initial_structure=bulk,
             miller_index=miller_index,
@@ -184,12 +180,11 @@ class SurfaceCalc(PropCalc):
         )
         slabs = slabgen.get_slabs(symmetrize=symmetrize, **(get_slabs_kwargs or {}))
 
-        slab_dict = {}
         for id_, slab in enumerate(slabs):
             key = f"slab_{id_:02d}"
             slab_ = slab.make_supercell((*inplane_supercell, 1))
             slab_dict[key] = slab_
-        return slab_dict
+        return self.calc(slab_dict)
 
     def calc(
         self,
@@ -217,12 +212,15 @@ class SurfaceCalc(PropCalc):
                     structure must be a dict containing the images with keys slab_00, slab_01, etc."
             )
 
-        if self.bulk_energy is None or self.n_bulk_atoms is None or self.final_bulk is None:
-            raise ValueError("Bulk energy, number of atoms, or structure is not initialized.")
+        if "bulk_energy" not in structure or "final_bulk" not in structure:
+            raise ValueError("Bulk energy or final bulk structure is not initialized.")
 
         result_dict = {}
 
         for key, slab in structure.items():
+            if "bulk" in key:
+                continue
+
             relax_atoms = self.relax_slab
 
             relaxer_slab = RelaxCalc(
@@ -242,12 +240,12 @@ class SurfaceCalc(PropCalc):
             # Assuming two surfaces: (E_slab - N_slab_atoms * E_bulk_per_atom) / (2 * area)
             area = slab.surface_area
             n_slab_atoms = len(final_slab)
-            bulk_e_per_atom = self.bulk_energy / self.n_bulk_atoms
+            bulk_e_per_atom = structure["bulk_energy"] / len(structure["final_bulk"])
             gamma = (slab_energy - n_slab_atoms * bulk_e_per_atom) / (2 * area)
 
             result_dict[key] = {
-                "bulk_energy": self.bulk_energy,
-                "final_bulk_structure": self.final_bulk,
+                "bulk_energy": structure["bulk_energy"],
+                "final_bulk_structure": structure["final_bulk"],
                 "initial_slab_structure": slab,
                 "final_slab_structure": final_slab,
                 "slab_energy": slab_energy,
@@ -255,41 +253,3 @@ class SurfaceCalc(PropCalc):
             }
 
         return result_dict
-
-    def calc_many(
-        self,
-        structures: Sequence[Structure | dict[str, Any]],
-        n_jobs: None | int = None,
-        allow_errors: bool = False,  # noqa: FBT001,FBT002
-        **kwargs: Any,
-    ) -> Generator[dict | None]:
-        """
-        Parallelize :meth:`calc` over multiple slab entries.
-
-        The input dictionary is split into single-slab dictionaries, each of which
-        is processed by :meth:`calc` independently in parallel (depending on ``n_jobs``).
-
-        :param structures: A sequence containing dictionary of slabs,
-            e.g. [{"slab_00": Slab(...), "slab_01": Slab(...)}].
-        :type structures: dict[str, Any]
-        :param n_jobs: Number of parallel jobs. If None, runs serially or
-            uses a default parallelism set by joblib. Default is None.
-        :type n_jobs: int | None, optional
-        :param allow_errors: If True, any exception in :meth:`calc` is caught and yields
-            None for that slab; otherwise, the exception propagates. Default is False.
-        :type allow_errors: bool, optional
-        :param kwargs: Additional arguments passed to joblib.Parallel.
-        :return: A generator that yields the result of :meth:`calc` for each slab
-            dictionary, or None if an error occurred and ``allow_errors=True``.
-        :rtype: Generator[dict | None, None, None]
-        :raises ValueError: If ``structures[0]`` is not a dict.
-        """
-        if not isinstance(structures[0], dict) or len(structures) != 1:
-            raise ValueError(
-                "For surface calculations in parallel, \
-                    structures must be a sequence containing one dict with keys slab_00, slab_01, etc."
-            )
-
-        structures = [{key: value} for key, value in structures[0].items()]
-
-        return super().calc_many(structures, n_jobs, allow_errors, **kwargs)
