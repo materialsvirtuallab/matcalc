@@ -28,55 +28,30 @@ def test_surface_calc_basic(Si: Structure, m3gnet_calculator: PESCalculator) -> 
         max_steps=100,
     )
 
-    results = surf_calc.calc_slabs(
-        Si,
-        miller_index=(1, 1, 1),
-        min_slab_size=10.0,
-        min_vacuum_size=10.0,
+    results = list(
+        surf_calc.calc_slabs(
+            Si,
+            miller_index=(1, 1, 1),
+            min_slab_size=10.0,
+            min_vacuum_size=10.0,
+        )
     )
     assert len(results) == 2, "Expected two slabs for Silicon (111)."
 
-    it = iter(results)
-    first_key = next(it)
-    slab_res = results[first_key]
+    slab_res = results[0]
 
-    assert "bulk_energy" in slab_res
-    assert "final_bulk_structure" in slab_res
-    assert "slab_energy" in slab_res
-    assert "surface_energy" in slab_res
-    assert "final_slab_structure" in slab_res
-    assert "initial_slab_structure" in slab_res
+    assert "final_bulk" in slab_res
+    assert "final_slab" in slab_res
 
-    assert slab_res["bulk_energy"] == pytest.approx(-43.35231018066406, rel=1e-1)
+    assert slab_res["bulk_energy_per_atom"] == pytest.approx(-5.419038772583008, rel=1e-1)
     assert slab_res["slab_energy"] == pytest.approx(-42.81388473510742, rel=1e-1)
     assert slab_res["surface_energy"] == pytest.approx(0.020886063055827422, rel=1e-1)
 
-    second_key = next(it)
-    slab_res = results[second_key]
+    slab_res = results[1]
 
-    assert slab_res["bulk_energy"] == pytest.approx(-43.35231018066406, rel=1e-1)
+    assert slab_res["bulk_energy_per_atom"] == pytest.approx(-5.419038772583008, rel=1e-1)
     assert slab_res["slab_energy"] == pytest.approx(-39.40110397338867, rel=1e-1)
     assert slab_res["surface_energy"] == pytest.approx(0.15327125170767797, rel=1e-1)
-
-
-def test_surface_calc_slabs_invalid_input(m3gnet_calculator: PESCalculator) -> None:
-    """
-    Ensure that calling calc_slabs(...) on a non-Structure object
-    raises an error.
-    """
-    surf_calc = SurfaceCalc(calculator=m3gnet_calculator)
-    with pytest.raises(TypeError, match="`bulk_struct` must be a pymatgen Structure"):
-        surf_calc.calc_slabs("Si")  # type: ignore[arg-type]
-
-
-def test_surface_calc_no_bulk_data_error(Si: Structure, m3gnet_calculator: PESCalculator) -> None:
-    """
-    Ensure that calling calc(...) before calc_slabs(...)
-    raises an error because bulk data is None.
-    """
-    surf_calc = SurfaceCalc(calculator=m3gnet_calculator)
-    with pytest.raises(ValueError, match="Bulk energy or final bulk structure is not initialized."):
-        surf_calc.calc({"slab_00": Si})
 
 
 def test_surface_calc_invalid_input(Si: Structure, m3gnet_calculator: PESCalculator) -> None:
@@ -86,7 +61,10 @@ def test_surface_calc_invalid_input(Si: Structure, m3gnet_calculator: PESCalcula
     surf_calc = SurfaceCalc(calculator=m3gnet_calculator)
     with pytest.raises(
         ValueError,
-        match="For surface calculations, \
-                    structure must be a dict containing the images with keys slab_00, slab_01, etc.",
+        match="For surface calculations, structure must be a dict in one of the following formats:",
     ):
         surf_calc.calc(Si)
+    with pytest.raises(
+        ValueError, match="For surface calculations, structure must be a dict in one of the following formats:"
+    ):
+        surf_calc.calc({"slab": Si})

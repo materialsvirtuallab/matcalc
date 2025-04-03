@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from pymatgen.core import Structure
 from pymatgen.core.surface import SlabGenerator
 
 from ._base import PropCalc
@@ -13,6 +12,7 @@ from ._relaxation import RelaxCalc
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
+    from pymatgen.core import Structure
 
 
 class SurfaceCalc(PropCalc):
@@ -107,7 +107,7 @@ class SurfaceCalc(PropCalc):
 
     def calc_slabs(
         self,
-        bulk_struct: Structure,
+        bulk: Structure,
         miller_index: tuple[int, int, int] = (1, 0, 0),
         min_slab_size: float = 10.0,
         min_vacuum_size: float = 20.0,
@@ -115,59 +115,58 @@ class SurfaceCalc(PropCalc):
         inplane_supercell: tuple[int, int] = (1, 1),
         slab_gen_kwargs: dict | None = None,
         get_slabs_kwargs: dict | None = None,
-    ) -> dict[str, Any]:
+        **kwargs: dict[str, Any],
+    ) -> list[dict[str, Any]]:
         """
-        Relax (or single-point calculate) a bulk structure, then generate slab structures
-        using the specified Miller index. Stores the resulting bulk data internally:
-        ``final_bulk``, ``bulk_energy``.
+        Calculates slabs based on a given bulk structure and generates a set of slabs
+        using specified parameters. The function leverages slab generation tools and
+        defines the in-plane supercell, symmetry, and optimizes the bulk structure
+        prior to slab generation. This is useful for surface calculations in materials
+        science and computational chemistry.
 
-        :param bulk_struct: A Pymatgen bulk structure. It is converted to its conventional
-            cell before relaxation or single-point calculation.
-        :type bulk_struct: Structure
-        :param miller_index: Miller index for the slab surfaces (e.g., (1, 0, 0)).
-            Default is (1, 0, 0).
-        :type miller_index: tuple[int,int,int], optional
-        :param min_slab_size: Thickness of the slab in Å. Default is 10.0 Å.
-        :type min_slab_size: float, optional
-        :param min_vacuum_size: Thickness of the vacuum region in Å. Default is 20.0 Å.
-        :type min_vacuum_size: float, optional
-        :param symmetrize: Whether to produce symmetrically distinct slabs. Default True.
-        :type symmetrize: bool, optional
-        :param inplane_supercell: Multiplicative factors for in-plane supercell expansion
-            of the slabs. Default is (1, 1).
-        :type inplane_supercell: tuple[int,int], optional
-        :param slab_gen_kwargs: Additional kwargs passed to :class:`SlabGenerator`.
-            Default is None.
-        :type slab_gen_kwargs: dict | None, optional
-        :param get_slabs_kwargs: Additional kwargs passed to
-            :meth:`SlabGenerator.get_slabs`. Default is None.
-        :type get_slabs_kwargs: dict | None, optional
-        :return: A dictionary of the generated slab structures keyed by names like
-            ``"slab_00"``, ``"slab_01"``.
+        :param bulk: The bulk structure from which slabs are generated. Must
+            be an instance of pymatgen's Structure class.
+        :type bulk: Structure
+        :param miller_index: The Miller index used for generating the slabs. Defines the
+            crystallographic orientation. Defaults to (1, 0, 0).
+        :type miller_index: tuple[int, int, int]
+        :param min_slab_size: Minimum thickness of the slab in angstroms. Defines
+            the slab's physical size. Defaults to 10.0.
+        :type min_slab_size: float
+        :param min_vacuum_size: Minimum vacuum layer thickness in angstroms to ensure
+            surface isolation. Defaults to 20.0.
+        :type min_vacuum_size: float
+        :param symmetrize: A boolean indicating whether or not to symmetrize the slab
+            structure based on the bulk symmetry. Defaults to True.
+        :type symmetrize: bool
+        :param inplane_supercell: Tuple defining the scaling factors for creating
+            the supercell in the plane of the slab. Defaults to (1, 1).
+        :type inplane_supercell: tuple[int, int]
+        :param slab_gen_kwargs: Optional dictionary of additional arguments to
+            customize the slab generation process.
+        :type slab_gen_kwargs: dict | None
+        :param get_slabs_kwargs: Optional dictionary of additional arguments passed
+            to the `get_slabs` method for further customization.
+        :type get_slabs_kwargs: dict | None
+        :param kwargs: Additional keyword arguments passed through to calc_many method.
+        :type kwargs: dict
+        :return: A dictionary containing the generated slab information, including the
+            slab structure, bulk energy per atom, optimized bulk structure, and Miller
+            index.
         :rtype: dict[str, Any]
         """
-        if not isinstance(bulk_struct, Structure):
-            raise TypeError("`bulk_struct` must be a pymatgen Structure")
-
-        bulk = bulk_struct.to_conventional()
-
-        relax_cell = self.relax_bulk
-        relax_atoms = self.relax_bulk
+        bulk = bulk.to_conventional()
 
         relaxer_bulk = RelaxCalc(
             calculator=self.calculator,
             fmax=self.fmax,
             max_steps=self.max_steps,
-            relax_cell=relax_cell,
-            relax_atoms=relax_atoms,
+            relax_cell=self.relax_bulk,
+            relax_atoms=self.relax_bulk,
             optimizer=self.optimizer,
             **(self.relax_calc_kwargs or {}),
         )
         bulk_opt = relaxer_bulk.calc(bulk)
-
-        slab_dict = {}
-        slab_dict["final_bulk"] = bulk_opt["final_structure"]
-        slab_dict["bulk_energy"] = bulk_opt["energy"]
 
         slabgen = SlabGenerator(
             initial_structure=bulk,
@@ -176,78 +175,87 @@ class SurfaceCalc(PropCalc):
             min_vacuum_size=min_vacuum_size,
             **(slab_gen_kwargs or {}),
         )
-        slabs = slabgen.get_slabs(symmetrize=symmetrize, **(get_slabs_kwargs or {}))
+        slabs = [
+            {
+                "slab": slab.make_supercell((*inplane_supercell, 1)),
+                "bulk_energy_per_atom": bulk_opt["energy"] / len(bulk),
+                "final_bulk": bulk_opt["final_structure"],
+                "miller_index": miller_index,
+            }
+            for slab in slabgen.get_slabs(symmetrize=symmetrize, **(get_slabs_kwargs or {}))
+        ]
 
-        for id_, slab in enumerate(slabs):
-            key = f"slab_{id_:02d}"
-            slab_ = slab.make_supercell((*inplane_supercell, 1))
-            slab_dict[key] = slab_
-        return self.calc(slab_dict)
+        return list(self.calc_many(slabs, **kwargs))  # type:ignore[arg-type]
 
     def calc(
         self,
         structure: Structure | dict[str, Any],
     ) -> dict[str, Any]:
         """
-        For each slab structure in the given dictionary, compute its energy and
-        surface energy based on the stored bulk reference.
+        Performs surface energy calculation for a given structure dictionary. The function handles
+        the relaxation of both bulk and slab structures when necessary and computes the surface energy
+        using the slab's relaxed energy, number of atoms, bulk energy per atom, and surface area.
 
-        The dictionary keys are enumerated, and the slab structures are passed
-        to a :class:`RelaxCalc` if ``relax_slab=True``, else a single-point
-        calculation is performed. The output is keyed by integer index.
+        :param structure: Dictionary containing information about the bulk and slab structures.
+                          It must have the format:
+                          {'slab': slab_structure, 'bulk': bulk_structure}
+                          or
+                          {'slab': slab_structure, 'bulk_energy_per_atom': energy}.
+        :type structure: Structure | dict[str, Any]
 
-        :param structure: A dictionary mapping keys (e.g. "slab_00") to slab structures.
-        :type structure: dict[str, Any]
-        :return: A dictionary keyed by integer indices. Each value is another dict
-            containing ``bulk_energy``, ``final_bulk_structure``, ``slab_energy``,
-            ``surface_energy``, and ``final_slab_structure``.
-        :rtype: dict[int, dict[str, Any]]
-        :raises ValueError: If ``structure`` is not a dictionary.
+        :return: A dictionary containing the updated structure data, including fields like
+                 'slab', 'final_slab', 'slab_energy', 'surface_energy', and possibly updated
+                 'bulk_energy_per_atom' and 'final_bulk'.
+        :rtype: dict[str, Any]
         """
-        if not isinstance(structure, dict):
-            raise ValueError(  # noqa:TRY004
-                "For surface calculations, \
-                    structure must be a dict containing the images with keys slab_00, slab_01, etc."
+        if not (isinstance(structure, dict) and set(structure.keys()).intersection(("bulk", "bulk_energy_per_atom"))):
+            raise ValueError(
+                "For surface calculations, structure must be a dict in one of the following formats: "
+                "{'slab': slab_struct, 'bulk': bulk_struct} or {'slab': slab_struct, 'bulk_energy': energy}."
             )
 
-        if "bulk_energy" not in structure or "final_bulk" not in structure:
-            raise ValueError("Bulk energy or final bulk structure is not initialized.")
+        result_dict = structure.copy()
 
-        result_dict = {}
-
-        for key, slab in structure.items():
-            if "bulk" in key:
-                continue
-
-            relax_atoms = self.relax_slab
-
-            relaxer_slab = RelaxCalc(
+        if "bulk_energy_per_atom" in structure:
+            bulk_energy_per_atom = structure["bulk_energy_per_atom"]
+        else:
+            relaxer = RelaxCalc(
                 calculator=self.calculator,
                 fmax=self.fmax,
                 max_steps=self.max_steps,
-                relax_cell=False,
-                relax_atoms=relax_atoms,
+                relax_cell=self.relax_bulk,
+                relax_atoms=self.relax_bulk,
                 optimizer=self.optimizer,
                 **(self.relax_calc_kwargs or {}),
             )
-            slab_opt = relaxer_slab.calc(slab)
-            final_slab = slab_opt["final_structure"]
-            slab_energy = slab_opt["energy"]
+            bulk_opt = relaxer.calc(structure["bulk"])
+            bulk_energy_per_atom = bulk_opt["energy"] / len(structure["final_bulk"])
+            result_dict["bulk_energy_per_atom"] = bulk_energy_per_atom
+            result_dict["final_bulk"] = structure["final_bulk"]
 
-            # Compute surface energy
-            # Assuming two surfaces: (E_slab - N_slab_atoms * E_bulk_per_atom) / (2 * area)
-            area = slab.surface_area
-            n_slab_atoms = len(final_slab)
-            bulk_e_per_atom = structure["bulk_energy"] / len(structure["final_bulk"])
-            gamma = (slab_energy - n_slab_atoms * bulk_e_per_atom) / (2 * area)
+        slab = structure["slab"]
+        relaxer = RelaxCalc(
+            calculator=self.calculator,
+            fmax=self.fmax,
+            max_steps=self.max_steps,
+            relax_cell=False,
+            relax_atoms=self.relax_slab,
+            optimizer=self.optimizer,
+            **(self.relax_calc_kwargs or {}),
+        )
+        slab_opt = relaxer.calc(slab)
+        final_slab = slab_opt["final_structure"]
+        slab_energy = slab_opt["energy"]
 
-            result_dict[key] = {
-                "bulk_energy": structure["bulk_energy"],
-                "final_bulk_structure": structure["final_bulk"],
-                "initial_slab_structure": slab,
-                "final_slab_structure": final_slab,
-                "slab_energy": slab_energy,
-                "surface_energy": gamma,
-            }
+        # Compute surface energy
+        # Assuming two surfaces: (E_slab - N_slab_atoms * E_bulk_per_atom) / (2 * area)
+        area = slab.surface_area
+        n_slab_atoms = len(final_slab)
+        gamma = (slab_energy - n_slab_atoms * bulk_energy_per_atom) / (2 * area)
 
-        return result_dict
+        return result_dict | {
+            "slab": slab,
+            "final_slab": final_slab,
+            "slab_energy": slab_energy,
+            "surface_energy": gamma,
+        }
