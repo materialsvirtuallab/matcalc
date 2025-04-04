@@ -93,16 +93,15 @@ class PropCalc(abc.ABC):
             the `allow_errors` flag).
         """
         parallel = Parallel(n_jobs=n_jobs, return_as="generator", **kwargs)
-        if allow_errors:
 
-            def _func(s: Structure) -> dict | None:
-                try:
-                    return self.calc(s)
-                except Exception:  # noqa: BLE001
+        def _func(s: Structure) -> dict | None:
+            try:
+                return self.calc(s)
+            except Exception as ex:
+                if allow_errors:
                     return None
+                raise ex  # noqa:TRY201
 
-        else:
-            _func = self.calc  # type: ignore[assignment]
         return parallel(delayed(_func)(s) for s in structures)
 
 
