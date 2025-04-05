@@ -119,7 +119,7 @@ def test_pescalculator_load_matgl() -> None:
     assert isinstance(calc, Calculator)
 
 
-@pytest.mark.skipif(not find_spec("deepmd"), reason="deepmd-kit is not installed")
+@pytest.mark.skipif(not find_spec("deepmd"), reason="deepmd is not installed")
 def test_pescalculator_load_deepmd() -> None:
     calc = PESCalculator.load_deepmd(
         model_path=(DIR / "pes" / "DPA3-LAM-2025.3.14-PES" / "2025-03-14-dpa3-openlam.pth")
