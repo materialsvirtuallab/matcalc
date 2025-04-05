@@ -72,8 +72,9 @@ class SurfaceCalc(PropCalc):
         Constructor for initializing the SurfaceCalc with all parameters needed
         to generate and optionally relax bulk and slab structures.
 
-        :param calculator: ASE Calculator for energy/force evaluations.
-        :type calculator: Calculator
+        :param calculator: An ASE calculator object used to perform energy and force
+            calculations. If string is provided, the corresponding universal calculator is loaded.
+        :type calculator: Calculator | str
         :param relax_bulk: Whether to relax the bulk structure, including its cell.
             Default is True.
         :type relax_bulk: bool, optional

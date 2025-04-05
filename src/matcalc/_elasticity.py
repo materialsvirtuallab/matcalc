@@ -65,7 +65,9 @@ class ElasticityCalc(PropCalc):
         and control relaxation behavior for structures. Validates input parameters to ensure
         appropriate constraints are maintained.
 
-        :param calculator: Calculator object used for performing calculations.
+        :param calculator: An ASE calculator object used to perform energy and force
+            calculations. If string is provided, the corresponding universal calculator is loaded.
+        :type calculator: Calculator | str
         :param norm_strains: Sequence of normalized strain values applied during deformation.
             Can also be a single float. Must not be empty or contain zero.
         :param shear_strains: Sequence of shear strain values applied during deformation.

@@ -143,8 +143,9 @@ class RelaxCalc(PropCalc):
         relaxation process aims to find the minimum energy configuration, optionally
         relaxing atoms and/or the simulation cell within the specified constraints.
 
-        :param calculator: A calculator object used to perform energy and force
-            calculations during the relaxation process.
+        :param calculator: An ASE calculator object used to perform energy and force
+            calculations. If string is provided, the corresponding universal calculator is loaded.
+        :type calculator: Calculator | str
         :param optimizer: The optimization algorithm to use for relaxation. It can
             either be an instance of an Optimizer class or a string identifier for
             a recognized ASE optimizer. Defaults to "FIRE".

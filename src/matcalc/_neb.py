@@ -34,18 +34,18 @@ class NEBCalc(PropCalc):
         **kwargs: Any,
     ) -> None:
         """
-        Initialize the instance of the class.
+        Initialize the object.
 
         Parameters:
-            calculator: Calculator - The calculator object to use.
-            optimizer: str | Optimizer - The optimizer algorithm to use, default is "BFGS".
-            traj_folder: str | None - The folder path to save the trajectory files, default is None.
-            interval: int - The interval for saving the trajectory, default is 1.
-            climb: bool - Specifies whether to perform climbing image nudged elastic band (CI-NEB) calculations,
-                default is True.
-            fmax: float - The maximum force allowed on atoms, default is 0.1.
-            max_steps: int - The maximum number of optimization steps, default is 1000.
-            **kwargs: Any - Additional keyword arguments.
+            calculator (Calculator | str): An ASE calculator object used to perform energy and force
+                calculations. If string is provided, the corresponding universal calculator is loaded.
+            optimizer (str | Optimizer, optional): The optimization algorithm to use. Defaults to "BFGS".
+            traj_folder (str | None, optional): The folder to save trajectory information. Defaults to None.
+            interval (int, optional): The interval for recording trajectory information. Defaults to 1.
+            climb (bool, optional): Whether to perform climbing image nudged elastic band (CI-NEB). Defaults to True.
+            fmax (float, optional): The maximum force tolerance for convergence. Defaults to 0.1.
+            max_steps (int, optional): The maximum number of optimization steps. Defaults to 1000.
+            **kwargs (Any): Additional keyword arguments.
 
         Returns:
             None
