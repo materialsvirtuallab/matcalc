@@ -98,6 +98,7 @@ dev = [
     "matgl>=1.2.3",
     "matminer>=0.9.3",
     "mp-api>=0.45.3",
+    "nbmake>=1.5.5",
     "pre-commit>=4.2.0",
     "pytest>=8.3.5",
     "pytest-cov>=6.0.0",

@@ -32,4 +32,4 @@ jobs:
       - name: Execute all notebook examples
         # Ensures that all notebooks are still functioning as intended.
         run: |
-          uv run  jupyter execute --ExecutePreprocessor.kernel_name=python3 examples/*.ipynb
+          uv run pytest --nbmake --nbmake-timeout=2000 examples/*.ipynb
