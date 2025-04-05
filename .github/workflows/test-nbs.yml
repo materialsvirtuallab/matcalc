@@ -1,6 +1,12 @@
 name: Test-Notebooks
 
 on:
+  push:
+    branches: [main]
+    paths: ["examples/*.ipynb"]
+  pull_request:
+    branches: [main]
+    paths: ["examples/*.ipynb"]
   release: # This workflow is only ran on releases.
     types: [published]
   workflow_call: # make this workflow reusable by release.yml
