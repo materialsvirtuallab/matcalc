@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import functools
 import warnings
 from inspect import isclass
 from typing import TYPE_CHECKING, Any, Literal
@@ -339,6 +340,7 @@ class PESCalculator(Calculator):
         return DP(model=model_path, **kwargs)
 
     @staticmethod
+    @functools.lru_cache(maxsize=20)
     def load_universal(name: str | Calculator, **kwargs: Any) -> Calculator:  # noqa: C901
         """
         Loads a calculator instance based on the provided name or an existing calculator object. The
