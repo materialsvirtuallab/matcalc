@@ -71,7 +71,7 @@ class PhononCalc(PropCalc):
     :type write_phonon: bool | str | Path
     """
 
-    calculator: Calculator
+    calculator: Calculator | str
     atom_disp: float = 0.015
     supercell_matrix: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2))
     t_step: float = 10

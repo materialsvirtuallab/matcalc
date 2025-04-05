@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Literal
 
 from monty.serialization import loadfn
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -47,7 +47,7 @@ class EnergeticsCalc(PropCalc):
 
     def __init__(
         self,
-        calculator: Calculator,
+        calculator: Calculator | str,
         *,
         elemental_refs: Literal["MatPES-PBE", "MatPES-r2SCAN"] | dict = "MatPES-PBE",
         use_dft_gs_reference: bool = False,

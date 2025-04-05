@@ -59,7 +59,7 @@ class SurfaceCalc(PropCalc):
 
     def __init__(
         self,
-        calculator: Calculator,
+        calculator: Calculator | str,
         *,
         relax_bulk: bool = True,
         relax_slab: bool = True,

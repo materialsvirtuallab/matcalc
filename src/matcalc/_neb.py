@@ -23,7 +23,7 @@ class NEBCalc(PropCalc):
 
     def __init__(
         self,
-        calculator: Calculator,
+        calculator: Calculator | str,
         *,
         optimizer: str | Optimizer = "BFGS",
         traj_folder: str | None = None,

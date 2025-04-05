@@ -49,7 +49,7 @@ class ElasticityCalc(PropCalc):
 
     def __init__(
         self,
-        calculator: Calculator,
+        calculator: Calculator | str,
         *,
         norm_strains: Sequence[float] | float = (-0.01, -0.005, 0.005, 0.01),
         shear_strains: Sequence[float] | float = (-0.06, -0.03, 0.03, 0.06),

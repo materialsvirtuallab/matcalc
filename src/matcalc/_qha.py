@@ -75,7 +75,7 @@ class QHACalc(PropCalc):
     :type write_gruneisen_temperature: bool | str | Path
     """
 
-    calculator: Calculator
+    calculator: Calculator | str
     t_step: float = 10
     t_max: float = 1000
     t_min: float = 0

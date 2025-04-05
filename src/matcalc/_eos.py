@@ -49,7 +49,7 @@ class EOSCalc(PropCalc):
 
     def __init__(
         self,
-        calculator: Calculator,
+        calculator: Calculator | str,
         *,
         optimizer: Optimizer | str = "FIRE",
         max_steps: int = 500,
