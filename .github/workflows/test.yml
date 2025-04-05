@@ -3,6 +3,10 @@ name: Test
 on:
   push:
     branches: [main]
+    paths-ignore: ["**/*.md", "docs/**", "dev_scripts/**"]
+  pull_request:
+    branches: [main]
+    paths-ignore: ["**/*.md", "docs/**", "dev_scripts/**"]
   workflow_dispatch:
     inputs:
       task:
@@ -14,9 +18,11 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-latest
     container:
-      image: docker.io/materialsvirtuallab/lammps:latest-ml
+      # MAVRL's docker container build on uv with LAMMPS with ML-GNNP and ML-SNAP.
+      # Required for testing the LAMMPS related methods.
+      image: docker.io/materialsvirtuallab/lammps_gnnp
     env:
       PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
@@ -27,6 +33,7 @@ jobs:
         run: |
           uv sync
           uv pip install -e .
+          apt-get install curl  # Curl is not part of the minimal container image, but is required for CodeCov upload.
       - name: pytest
         run: uv run --group test-models pytest --cov=matcalc --cov-report=xml tests --color=yes
       - name: Upload coverage reports to Codecov

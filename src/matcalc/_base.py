@@ -7,9 +7,12 @@ from typing import TYPE_CHECKING, Any
 
 from joblib import Parallel, delayed
 
+from .utils import PESCalculator
+
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
+    from ase.calculators.calculator import Calculator
     from pymatgen.core import Structure
 
 
@@ -24,6 +27,33 @@ class PropCalc(abc.ABC):
     an implementation of the `calc_many` method, which enables concurrent calculations
     on multiple structures using joblib.
     """
+
+    @property
+    def calculator(self) -> Calculator:
+        """
+        This method returns the Calculator object associated with the current instance.
+
+        Parameters:
+            None
+
+        Returns:
+            Calculator: The Calculator object associated with the current instance.
+        """
+        return self._pes_calculator
+
+    @calculator.setter
+    def calculator(self, val: str | Calculator) -> None:
+        """
+        Set the calculator for PES calculation.
+
+        Parameters:
+            val (str | Calculator): A string path to load a PESCalculator or a PESCalculator object.
+
+        Return:
+            None
+
+        """
+        self._pes_calculator = PESCalculator.load_universal(val) if isinstance(val, str) else val
 
     @abc.abstractmethod
     def calc(self, structure: Structure | dict[str, Any]) -> dict[str, Any]:
@@ -93,16 +123,15 @@ class PropCalc(abc.ABC):
             the `allow_errors` flag).
         """
         parallel = Parallel(n_jobs=n_jobs, return_as="generator", **kwargs)
-        if allow_errors:
 
-            def _func(s: Structure) -> dict | None:
-                try:
-                    return self.calc(s)
-                except Exception:  # noqa: BLE001
+        def _func(s: Structure) -> dict | None:
+            try:
+                return self.calc(s)
+            except Exception as ex:
+                if allow_errors:
                     return None
+                raise ex  # noqa:TRY201
 
-        else:
-            _func = self.calc  # type: ignore[assignment]
         return parallel(delayed(_func)(s) for s in structures)
 
 

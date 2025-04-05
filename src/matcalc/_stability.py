@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Literal
 
 from monty.serialization import loadfn
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -47,7 +47,7 @@ class EnergeticsCalc(PropCalc):
 
     def __init__(
         self,
-        calculator: Calculator,
+        calculator: Calculator | str,
         *,
         elemental_refs: Literal["MatPES-PBE", "MatPES-r2SCAN"] | dict = "MatPES-PBE",
         use_dft_gs_reference: bool = False,
@@ -64,8 +64,9 @@ class EnergeticsCalc(PropCalc):
         elemental references, an optional DFT ground state reference, and structural
         relaxation preferences.
 
-        :param calculator: A `Calculator` instance for performing calculations.
-        :type calculator: Calculator
+        :param calculator: An ASE calculator object used to perform energy and force
+            calculations. If string is provided, the corresponding universal calculator is loaded.
+        :type calculator: Calculator | str
         :param elemental_refs: Specifies the elemental references to be used. It can either be
             a predefined string identifier ("MatPES-PBE", "MatPES-r2SCAN") or a dictionary
             mapping elements to their energy references.

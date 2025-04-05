@@ -65,7 +65,7 @@ class Phonon3Calc(PropCalc):
     :type write_kappa: bool
     """
 
-    calculator: Calculator
+    calculator: Calculator | str
     fc2_supercell: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2))
     fc3_supercell: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2))
     mesh_numbers: ArrayLike = (20, 20, 20)
