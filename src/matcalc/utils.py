@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 # Listing of supported universal calculators.
 # If you update UNIVERSAL_CALCULATORS, you must also update the mapping in
 # map_calculators_to_packages in test_utils.py, unless already covered.
+
 UNIVERSAL_CALCULATORS = [
     "M3GNet",
     "CHGNet",

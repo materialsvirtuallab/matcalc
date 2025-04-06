@@ -12,23 +12,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install uv with python version.
-        uses: astral-sh/setup-uv@v5
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
+          python-version: "3.11"
       - name: Install dependencies
         run: |
-          uv sync --group lint
+          pip install dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
+          pip install -e .
+          pip install ruff mypy
 
       - name: ruff
         run: |
-          uv run ruff --version
-          uv run ruff check src
-          uv run ruff format src --check
+          ruff --version
+          ruff check src
+          ruff format src --check
 
       - name: mypy
         run: |
-          uv run mypy --version
-          uv run rm -rf .mypy_cache
-          uv run mypy -p matcalc
+          mypy --version
+          rm -rf .mypy_cache
+          mypy -p matcalc

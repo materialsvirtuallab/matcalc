@@ -6,6 +6,13 @@ nav_order: 2
 
 # Change Log
 
+## v0.3.3
+- SurfaceCalc class for computing surface energies. (@atulcthakur)
+- NEBCalc now returns MEP information. (@drakeyu)
+- All PropCalcs and Benchmarks now support using a string as a calculator input, which is automatically interpreted as
+  a universal calculator where possible. This greatly simplifies the use of PropCalc.
+- PESCalculator.load_universal now is lru_cached so that the same model does not get loaded multiple times.
+
 ## v0.3.2
 - Added Phonon3Calc for calculation of phonon-phonon interactions and thermal conductivity using Phono3py. (@rul48)
 
