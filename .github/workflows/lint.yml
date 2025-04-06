@@ -21,13 +21,13 @@ jobs:
         run: |
           uv venv
           uv pip install dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
-          uv sync --group lint --system
+          uv sync --group lint
 
       - name: ruff
         run: |
-          ruff --version
-          ruff check src
-          ruff format src --check
+          uv run ruff --version
+          uv run ruff check src
+          uv run ruff format src --check
 
       - name: mypy
         run: |
