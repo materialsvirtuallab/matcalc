@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -21,7 +20,6 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
-@dataclass
 class QHACalc(PropCalc):
     """
     Class for performing quasi-harmonic approximation calculations.
@@ -75,41 +73,90 @@ class QHACalc(PropCalc):
     :type write_gruneisen_temperature: bool | str | Path
     """
 
-    calculator: Calculator | str
-    t_step: float = 10
-    t_max: float = 1000
-    t_min: float = 0
-    fmax: float = 0.1
-    optimizer: str = "FIRE"
-    eos: str = "vinet"
-    relax_structure: bool = True
-    relax_calc_kwargs: dict | None = None
-    phonon_calc_kwargs: dict | None = None
-    scale_factors: Sequence[float] = (
-        0.95,
-        0.96,
-        0.97,
-        0.98,
-        0.99,
-        1.00,
-        1.01,
-        1.02,
-        1.03,
-        1.04,
-        1.05,
-    )
-    write_helmholtz_volume: bool | str | Path = False
-    write_volume_temperature: bool | str | Path = False
-    write_thermal_expansion: bool | str | Path = False
-    write_gibbs_temperature: bool | str | Path = False
-    write_bulk_modulus_temperature: bool | str | Path = False
-    write_heat_capacity_p_numerical: bool | str | Path = False
-    write_heat_capacity_p_polyfit: bool | str | Path = False
-    write_gruneisen_temperature: bool | str | Path = False
+    def __init__(
+        self,
+        calculator: Calculator | str,
+        *,
+        t_step: float = 10,
+        t_max: float = 1000,
+        t_min: float = 0,
+        fmax: float = 0.1,
+        optimizer: str = "FIRE",
+        eos: str = "vinet",
+        relax_structure: bool = True,
+        relax_calc_kwargs: dict | None = None,
+        phonon_calc_kwargs: dict | None = None,
+        scale_factors: Sequence[float] = tuple(np.arange(0.95, 1.05, 0.01)),
+        write_helmholtz_volume: bool | str | Path = False,
+        write_volume_temperature: bool | str | Path = False,
+        write_thermal_expansion: bool | str | Path = False,
+        write_gibbs_temperature: bool | str | Path = False,
+        write_bulk_modulus_temperature: bool | str | Path = False,
+        write_heat_capacity_p_numerical: bool | str | Path = False,
+        write_heat_capacity_p_polyfit: bool | str | Path = False,
+        write_gruneisen_temperature: bool | str | Path = False,
+    ) -> None:
+        """
+        Initializes the class that handles thermal and structural calculations, including atomic
+        structure relaxation, property evaluations, and phononic calculations across temperature
+        ranges. This class is mainly designed to facilitate systematic computations involving
+        temperature-dependent material properties and thermodynamic quantities.
 
-    def __post_init__(self) -> None:
-        """Set default paths for where to save output files."""
-        # map True to canonical default path, False to "" and Path to str
+        :param calculator: Calculator object or string indicating the computational engine to use
+            for performing calculations.
+        :param t_step: Step size for the temperature range, given in units of temperature.
+        :param t_max: Maximum temperature for the calculations, given in units of temperature.
+        :param t_min: Minimum temperature for the calculations, given in units of temperature.
+        :param fmax: Maximum force convergence criterion for structure relaxation, in force units.
+        :param optimizer: Name of the optimizer to use for structure optimization, default is
+            "FIRE".
+        :param eos: Equation of state to use for calculating energy vs. volume relationships.
+            Default is "vinet".
+        :param relax_structure: A boolean flag indicating whether the atomic structure should be
+            relaxed as part of the computation workflow.
+        :param relax_calc_kwargs: A dictionary containing additional keyword arguments to pass to
+            the relax calculation.
+        :param phonon_calc_kwargs: A dictionary containing additional parameters to pass to the
+            phonon calculation routine.
+        :param scale_factors: A sequence of scale factors for volume scaling during
+            thermodynamic and phononic calculations.
+        :param write_helmholtz_volume: Path, boolean, or string to indicate whether and where
+            to save Helmholtz energy as a function of volume.
+        :param write_volume_temperature: Path, boolean, or string to indicate whether and where
+            to save equilibrium volume as a function of temperature.
+        :param write_thermal_expansion: Path, boolean, or string to indicate whether and where
+            to save the thermal expansion coefficient as a function of temperature.
+        :param write_gibbs_temperature: Path, boolean, or string to indicate whether and where
+            to save Gibbs energy as a function of temperature.
+        :param write_bulk_modulus_temperature: Path, boolean, or string to indicate whether and
+            where to save bulk modulus as a function of temperature.
+        :param write_heat_capacity_p_numerical: Path, boolean, or string to indicate whether and
+            where to save specific heat capacity at constant pressure, calculated numerically.
+        :param write_heat_capacity_p_polyfit: Path, boolean, or string to indicate whether and
+            where to save specific heat capacity at constant pressure, calculated via polynomial
+            fitting.
+        :param write_gruneisen_temperature: Path, boolean, or string to indicate whether and
+            where to save Grüneisen parameter values as a function of temperature.
+        """
+        self.calculator = calculator
+        self.t_step = t_step
+        self.t_max = t_max
+        self.t_min = t_min
+        self.fmax = fmax
+        self.optimizer = optimizer
+        self.eos = eos
+        self.relax_structure = relax_structure
+        self.relax_calc_kwargs = relax_calc_kwargs
+        self.phonon_calc_kwargs = phonon_calc_kwargs
+        self.scale_factors = scale_factors
+        self.write_helmholtz_volume = write_helmholtz_volume
+        self.write_volume_temperature = write_volume_temperature
+        self.write_thermal_expansion = write_thermal_expansion
+        self.write_gibbs_temperature = write_gibbs_temperature
+        self.write_bulk_modulus_temperature = write_bulk_modulus_temperature
+        self.write_heat_capacity_p_numerical = write_heat_capacity_p_numerical
+        self.write_heat_capacity_p_polyfit = write_heat_capacity_p_polyfit
+        self.write_gruneisen_temperature = write_gruneisen_temperature
         for key, val, default_path in (
             (
                 "write_helmholtz_volume",
