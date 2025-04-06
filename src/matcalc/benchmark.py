@@ -459,7 +459,7 @@ class EquilibriumBenchmark(Benchmark):
 
     def run(
         self,
-        calculator: Calculator,
+        calculator: str | Calculator,
         model_name: str,
         *,
         n_jobs: None | int = -1,
