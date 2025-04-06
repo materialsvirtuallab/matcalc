@@ -243,7 +243,7 @@ class Benchmark(metaclass=abc.ABCMeta):
         self.ground_truth = rows
 
     @abc.abstractmethod
-    def get_prop_calc(self, calculator: Calculator, **kwargs: Any) -> PropCalc:
+    def get_prop_calc(self, calculator: str | Calculator, **kwargs: Any) -> PropCalc:
         """
         Abstract method to retrieve a property calculation object using the provided calculator and additional
         parameters.
@@ -280,7 +280,7 @@ class Benchmark(metaclass=abc.ABCMeta):
 
     def run(
         self,
-        calculator: Calculator,
+        calculator: str | Calculator,
         model_name: str,
         *,
         n_jobs: None | int = -1,
@@ -410,7 +410,7 @@ class EquilibriumBenchmark(Benchmark):
         kwargs.setdefault("other_fields", ("formula",))
         super().__init__(benchmark_name, index_name=index_name, **kwargs)
 
-    def get_prop_calc(self, calculator: Calculator, **kwargs: Any) -> PropCalc:
+    def get_prop_calc(self, calculator: str | Calculator, **kwargs: Any) -> PropCalc:
         """
         Returns a property calculation object for performing relaxation and formation energy
         calculations. This method initializes the stability calculator using the provided
@@ -582,7 +582,7 @@ class ElasticityBenchmark(Benchmark):
             **kwargs,
         )
 
-    def get_prop_calc(self, calculator: Calculator, **kwargs: Any) -> PropCalc:
+    def get_prop_calc(self, calculator: str | Calculator, **kwargs: Any) -> PropCalc:
         """
         Calculates and returns a property calculation object based on the provided
         calculator and optional parameters. This is useful for initializing and
@@ -673,7 +673,7 @@ class PhononBenchmark(Benchmark):
             **kwargs,
         )
 
-    def get_prop_calc(self, calculator: Calculator, **kwargs: Any) -> PropCalc:
+    def get_prop_calc(self, calculator: str | Calculator, **kwargs: Any) -> PropCalc:
         """
         Retrieves a phonon calculation instance based on the given calculator and
         additional keyword arguments.
