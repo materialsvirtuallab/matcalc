@@ -6,7 +6,8 @@ import os
 from typing import TYPE_CHECKING, Any
 
 from ase.io import Trajectory
-from ase.neb import NEB, NEBTools
+from ase.mep import NEBTools
+from ase.neb import NEB
 from ase.utils.forcecurve import fit_images
 from pymatgen.core import Structure
 from pymatgen.io.ase import AseAtomsAdaptor
