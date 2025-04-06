@@ -2791,7 +2791,7 @@ dev = [
     { name = "ipython", specifier = ">=8.34.0" },
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "maml", specifier = ">=2025.4.3" },
-    { name = "matgl", specifier = ">=1.2.3" },
+    { name = "matgl", specifier = ">=1.2.5" },
     { name = "matminer", specifier = ">=0.9.3" },
     { name = "mp-api", specifier = ">=0.45.3" },
     { name = "nbmake", specifier = ">=1.5.5" },
