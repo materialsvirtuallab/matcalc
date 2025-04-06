@@ -49,7 +49,7 @@ class ElasticityCalc(PropCalc):
 
     def __init__(
         self,
-        calculator: Calculator,
+        calculator: Calculator | str,
         *,
         norm_strains: Sequence[float] | float = (-0.01, -0.005, 0.005, 0.01),
         shear_strains: Sequence[float] | float = (-0.06, -0.03, 0.03, 0.06),
@@ -65,7 +65,9 @@ class ElasticityCalc(PropCalc):
         and control relaxation behavior for structures. Validates input parameters to ensure
         appropriate constraints are maintained.
 
-        :param calculator: Calculator object used for performing calculations.
+        :param calculator: An ASE calculator object used to perform energy and force
+            calculations. If string is provided, the corresponding universal calculator is loaded.
+        :type calculator: Calculator | str
         :param norm_strains: Sequence of normalized strain values applied during deformation.
             Can also be a single float. Must not be empty or contain zero.
         :param shear_strains: Sequence of shear strain values applied during deformation.
@@ -81,7 +83,7 @@ class ElasticityCalc(PropCalc):
         :param relax_calc_kwargs: Optional dictionary containing keyword arguments for structure
             relaxation calculations.
         """
-        self.calculator = calculator
+        self.calculator = calculator  # type: ignore[assignment]
         self.norm_strains = tuple(np.array([1]) * np.asarray(norm_strains))
         self.shear_strains = tuple(np.array([1]) * np.asarray(shear_strains))
         if len(self.norm_strains) == 0:

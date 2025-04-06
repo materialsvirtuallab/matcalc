@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import phonopy
@@ -23,72 +22,121 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
-@dataclass
 class PhononCalc(PropCalc):
     """
-    PhononCalc is a specialized class for calculating thermal properties of structures
-    using phonopy. It extends the functionalities of base property calculation classes
-    and integrates phonopy for phonon-related computations.
+    A class for phonon and thermal property calculations using phonopy.
 
-    The class is designed to work with a provided calculator and a structure, enabling
-    the computation of various thermal properties such as free energy, entropy,
-    and heat capacity as functions of temperature. It supports relaxation of the
-    structure, control over displacement magnitudes, and customization of output
-    file paths for storing intermediate and final results.
+    The `PhononCalc` class extends the `PropCalc` class to provide
+    functionalities for calculating phonon properties and thermal properties
+    of a given structure using the phonopy library. It includes options for
+    structural relaxation before phonon property determination, as well as
+    methods to export calculated properties to various output files for
+    further analysis or visualization.
 
-    :ivar calculator: Calculator object to perform energy and force evaluations.
-    :type calculator: Calculator
-    :ivar atom_disp: Magnitude of atomic displacement for phonon calculations.
+    :ivar calculator: A calculator object or a string specifying the
+        computational backend to be used.
+    :type calculator: Calculator | str
+    :ivar atom_disp: Magnitude of atomic displacements for phonon
+        calculations.
     :type atom_disp: float
-    :ivar supercell_matrix: Matrix defining the supercell size for phonon calculations.
+    :ivar supercell_matrix: Array defining the transformation matrix to
+        construct supercells for phonon calculations.
     :type supercell_matrix: ArrayLike
-    :ivar t_step: Temperature step size in Kelvin for thermal property calculations.
+    :ivar t_step: Temperature step for thermal property calculations in
+        Kelvin.
     :type t_step: float
-    :ivar t_max: Maximum temperature in Kelvin for thermal property calculations.
+    :ivar t_max: Maximum temperature for thermal property calculations in
+        Kelvin.
     :type t_max: float
-    :ivar t_min: Minimum temperature in Kelvin for thermal property calculations.
+    :ivar t_min: Minimum temperature for thermal property calculations in
+        Kelvin.
     :type t_min: float
-    :ivar fmax: Maximum force tolerance for structure relaxation.
+    :ivar fmax: Maximum force convergence criterion for structural relaxation.
     :type fmax: float
-    :ivar optimizer: Optimizer to be used for structure relaxation.
+    :ivar optimizer: String specifying the optimizer type to be used for
+        structural relaxation.
     :type optimizer: str
-    :ivar relax_structure: Flag to indicate whether the structure should be relaxed
-        before phonon calculations.
+    :ivar relax_structure: Boolean flag to determine whether to relax the
+        structure before phonon calculation.
     :type relax_structure: bool
-    :ivar relax_calc_kwargs: Additional keyword arguments for structure relaxation calculations.
+    :ivar relax_calc_kwargs: Optional dictionary containing additional
+        arguments for the structural relaxation calculation.
     :type relax_calc_kwargs: dict | None
-    :ivar write_force_constants: Path or boolean flag indicating where to save the
-        calculated force constants.
+    :ivar write_force_constants: Path, boolean, or string specifying whether
+        to write the calculated force constants to an output file, and the
+        path or name of the file if applicable.
     :type write_force_constants: bool | str | Path
-    :ivar write_band_structure: Path or boolean flag indicating where to save the
-        calculated phonon band structure.
+    :ivar write_band_structure: Path, boolean, or string specifying whether
+        to write the calculated phonon band structure to an output file,
+        and the path or name of the file if applicable.
     :type write_band_structure: bool | str | Path
-    :ivar write_total_dos: Path or boolean flag indicating where to save the total
-        density of states (DOS) data.
+    :ivar write_total_dos: Path, boolean, or string specifying whether to
+        write the calculated total density of states (DOS) to an output
+        file, and the path or name of the file if applicable.
     :type write_total_dos: bool | str | Path
-    :ivar write_phonon: Path or boolean flag indicating where to save the full
-        phonon data.
+    :ivar write_phonon: Path, boolean, or string specifying whether to write
+        the calculated phonon properties (e.g., phonon.yaml) to an output
+        file, and the path or name of the file if applicable.
     :type write_phonon: bool | str | Path
     """
 
-    calculator: Calculator
-    atom_disp: float = 0.015
-    supercell_matrix: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2))
-    t_step: float = 10
-    t_max: float = 1000
-    t_min: float = 0
-    fmax: float = 0.1
-    optimizer: str = "FIRE"
-    relax_structure: bool = True
-    relax_calc_kwargs: dict | None = None
-    write_force_constants: bool | str | Path = False
-    write_band_structure: bool | str | Path = False
-    write_total_dos: bool | str | Path = False
-    write_phonon: bool | str | Path = True
+    def __init__(
+        self,
+        calculator: Calculator | str,
+        *,
+        atom_disp: float = 0.015,
+        supercell_matrix: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2)),
+        t_step: float = 10,
+        t_max: float = 1000,
+        t_min: float = 0,
+        fmax: float = 0.1,
+        optimizer: str = "FIRE",
+        relax_structure: bool = True,
+        relax_calc_kwargs: dict | None = None,
+        write_force_constants: bool | str | Path = False,
+        write_band_structure: bool | str | Path = False,
+        write_total_dos: bool | str | Path = False,
+        write_phonon: bool | str | Path = True,
+    ) -> None:
+        """
+        Initializes the class with configuration for the phonon calculations. The initialization parameters control
+        the behavior of structural relaxation, thermal properties, force calculations, and output file generation.
+        The class allows for customization of key parameters to facilitate the study of material behaviors.
 
-    def __post_init__(self) -> None:
-        """Set default paths for where to save output files."""
-        # map True to canonical default path, False to "" and Path to str
+        :param calculator: The calculator object or string name specifying the calculation backend to use.
+        :param atom_disp: Atom displacement to be used for finite difference calculation of force constants.
+        :param supercell_matrix: Transformation matrix to define the supercell for the calculation.
+        :param t_step: Temperature step for thermal property calculations.
+        :param t_max: Maximum temperature for thermal property calculations.
+        :param t_min: Minimum temperature for thermal property calculations.
+        :param fmax: Maximum force during structure relaxation, used as a convergence criterion.
+        :param optimizer: Name of the optimization algorithm for structural relaxation.
+        :param relax_structure: Flag to indicate whether structure relaxation should be performed before calculations.
+        :param relax_calc_kwargs: Additional keyword arguments for relaxation phase calculations.
+        :param write_force_constants: File path or boolean flag to write force constants.
+            Defaults to "force_constants".
+        :param write_band_structure: File path or boolean flag to write band structure data.
+            Defaults to "band_structure.yaml".
+        :param write_total_dos: File path or boolean flag to write total density of states (DOS) data.
+            Defaults to "total_dos.dat".
+        :param write_phonon: File path or boolean flag to write phonon data. Defaults to "phonon.yaml".
+        """
+        self.calculator = calculator  # type: ignore[assignment]
+        self.atom_disp = atom_disp
+        self.supercell_matrix = supercell_matrix
+        self.t_step = t_step
+        self.t_max = t_max
+        self.t_min = t_min
+        self.fmax = fmax
+        self.optimizer = optimizer
+        self.relax_structure = relax_structure
+        self.relax_calc_kwargs = relax_calc_kwargs
+        self.write_force_constants = write_force_constants
+        self.write_band_structure = write_band_structure
+        self.write_total_dos = write_total_dos
+        self.write_phonon = write_phonon
+
+        # Set default paths for output files.
         for key, val, default_path in (
             ("write_force_constants", self.write_force_constants, "force_constants"),
             ("write_band_structure", self.write_band_structure, "band_structure.yaml"),

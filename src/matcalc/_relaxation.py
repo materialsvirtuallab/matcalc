@@ -123,7 +123,7 @@ class RelaxCalc(PropCalc):
 
     def __init__(
         self,
-        calculator: Calculator,
+        calculator: Calculator | str,
         *,
         optimizer: Optimizer | str = "FIRE",
         max_steps: int = 500,
@@ -143,8 +143,9 @@ class RelaxCalc(PropCalc):
         relaxation process aims to find the minimum energy configuration, optionally
         relaxing atoms and/or the simulation cell within the specified constraints.
 
-        :param calculator: A calculator object used to perform energy and force
-            calculations during the relaxation process.
+        :param calculator: An ASE calculator object used to perform energy and force
+            calculations. If string is provided, the corresponding universal calculator is loaded.
+        :type calculator: Calculator | str
         :param optimizer: The optimization algorithm to use for relaxation. It can
             either be an instance of an Optimizer class or a string identifier for
             a recognized ASE optimizer. Defaults to "FIRE".
@@ -168,7 +169,7 @@ class RelaxCalc(PropCalc):
             the system configuration before relaxation. If None, no perturbation
             is applied. Defaults to None.
         """
-        self.calculator = calculator
+        self.calculator = calculator  # type: ignore[assignment]
 
         self.optimizer = get_ase_optimizer(optimizer)
         self.fmax = fmax

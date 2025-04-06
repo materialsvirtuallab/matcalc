@@ -49,7 +49,7 @@ class EOSCalc(PropCalc):
 
     def __init__(
         self,
-        calculator: Calculator,
+        calculator: Calculator | str,
         *,
         optimizer: Optimizer | str = "FIRE",
         max_steps: int = 500,
@@ -65,10 +65,9 @@ class EOSCalc(PropCalc):
         simulation parameters, structural relaxation options, and optimizations
         with specified constraints and tolerances.
 
-        :param calculator: The calculator object that handles the computation of
-            forces, energies, and other related properties for the system being
-            studied.
-        :type calculator: Calculator
+        :param calculator: An ASE calculator object used to perform energy and force
+            calculations. If string is provided, the corresponding universal calculator is loaded.
+        :type calculator: Calculator | str
         :param optimizer: The optimization algorithm used for structural relaxations
             or energy minimizations. Can be an optimizer object or the string name
             of the algorithm. Default is "FIRE".
@@ -92,7 +91,7 @@ class EOSCalc(PropCalc):
             relaxation calculation process. Default is None.
         :type relax_calc_kwargs: dict | None, optional
         """
-        self.calculator = calculator
+        self.calculator = calculator  # type: ignore[assignment]
         self.optimizer = optimizer
         self.relax_structure = relax_structure
         self.n_points = n_points
