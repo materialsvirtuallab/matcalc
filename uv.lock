@@ -2696,6 +2696,23 @@ ace = [
 benchmark = [
     { name = "matminer" },
 ]
+ci = [
+    { name = "codecov-cli" },
+    { name = "coverage" },
+    { name = "coveralls" },
+    { name = "ipython", version = "8.34.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mace') or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim') or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "ipython", version = "9.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mace') or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim') or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "jupyter" },
+    { name = "maml" },
+    { name = "matgl" },
+    { name = "matminer" },
+    { name = "mp-api" },
+    { name = "nbmake" },
+    { name = "pre-commit" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "seekpath" },
+]
 deepmd = [
     { name = "deepmd-kit" },
 ]
@@ -2763,25 +2780,39 @@ test-models = [
 [package.metadata]
 requires-dist = [
     { name = "ase", specifier = ">=3.23.0" },
+    { name = "codecov-cli", marker = "extra == 'ci'", specifier = ">=10.3.0" },
+    { name = "coverage", marker = "extra == 'ci'", specifier = ">=7.7.1" },
+    { name = "coveralls", marker = "extra == 'ci'", specifier = ">=4.0.1" },
     { name = "deepmd-kit", marker = "extra == 'deepmd'", specifier = ">=3.0.2" },
     { name = "fsspec", specifier = ">=2025.3.0" },
+    { name = "ipython", marker = "extra == 'ci'", specifier = ">=8.34.0" },
     { name = "joblib", specifier = ">=1.4.2" },
+    { name = "jupyter", marker = "extra == 'ci'", specifier = ">=1.1.1" },
     { name = "mace-torch", marker = "extra == 'mace'", specifier = ">=0.3.12" },
+    { name = "maml", marker = "extra == 'ci'", specifier = ">=2025.4.3" },
     { name = "maml", marker = "extra == 'maml'", specifier = ">=2025.4.3" },
+    { name = "matgl", marker = "extra == 'ci'", specifier = ">=1.2.5" },
     { name = "matminer", marker = "extra == 'benchmark'", specifier = ">=0.9.3" },
+    { name = "matminer", marker = "extra == 'ci'", specifier = ">=0.9.3" },
+    { name = "mp-api", marker = "extra == 'ci'", specifier = ">=0.45.3" },
+    { name = "nbmake", marker = "extra == 'ci'", specifier = ">=1.5.5" },
     { name = "numpy", specifier = "<2.0.0" },
     { name = "orb-models", marker = "extra == 'orb'", specifier = ">=0.4.2" },
     { name = "phono3py", specifier = ">=3.15.0" },
     { name = "phonopy", specifier = ">=2.38.0" },
+    { name = "pre-commit", marker = "extra == 'ci'", specifier = ">=4.2.0" },
     { name = "pyace", marker = "extra == 'ace'", specifier = ">=0.1.1" },
     { name = "pymatgen", specifier = ">=2025.3.10" },
     { name = "pynanoflann", marker = "extra == 'orb'", specifier = ">=0.10.0" },
+    { name = "pytest", marker = "extra == 'ci'", specifier = ">=8.3.5" },
+    { name = "pytest-cov", marker = "extra == 'ci'", specifier = ">=6.0.0" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
+    { name = "seekpath", marker = "extra == 'ci'", specifier = ">=2.1.0" },
     { name = "seekpath", marker = "extra == 'phonon'" },
     { name = "sevenn", marker = "extra == 'sevennet'", specifier = ">=0.10.4" },
     { name = "tensorpotential", marker = "extra == 'grace'", specifier = ">=0.5.1" },
 ]
-provides-extras = ["phonon", "benchmark", "ace", "mace", "deepmd", "grace", "maml", "orb", "sevennet"]
+provides-extras = ["phonon", "benchmark", "ace", "mace", "deepmd", "grace", "maml", "orb", "sevennet", "ci"]
 
 [package.metadata.requires-dev]
 dev = [
