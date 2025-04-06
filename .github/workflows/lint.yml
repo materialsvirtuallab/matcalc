@@ -19,7 +19,7 @@ jobs:
           cache-dependency-glob: "uv.lock"
       - name: Install dependencies
         run: |
-          uv pip install --system dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
+          uv pip install --system --break-system-packages dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
           uv sync --group lint
 
       - name: ruff
