@@ -31,6 +31,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
+          uv pip install dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
           uv sync
           uv pip install -e .
           apt-get install curl  # Curl is not part of the minimal container image, but is required for CodeCov upload.
