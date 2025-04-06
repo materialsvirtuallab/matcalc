@@ -31,8 +31,7 @@ jobs:
           cache-dependency-glob: "uv.lock"
       - name: Build
         run: |
-          uv venv
-          uv pip install dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
+          uv pip install --system dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
           uv build
       - uses: actions/upload-artifact@v4
         with:
