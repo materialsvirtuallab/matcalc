@@ -12,27 +12,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install latest DGL
-        if: matrix.config.os == 'ubuntu-latest'
-        run: |
-          pip install dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
+          python-version: "3.11"
       - name: Install dependencies
         run: |
+          pip install dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
           pip install -e .
           pip install ruff mypy
 
       - name: ruff
         run: |
-          uv run ruff --version
-          uv run ruff check src
-          uv run ruff format src --check
+          ruff --version
+          ruff check src
+          ruff format src --check
 
       - name: mypy
         run: |
-          uv run mypy --version
-          uv run rm -rf .mypy_cache
-          uv run mypy -p matcalc
+          mypy --version
+          rm -rf .mypy_cache
+          mypy -p matcalc
