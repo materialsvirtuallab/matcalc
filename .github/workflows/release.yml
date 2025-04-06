@@ -32,24 +32,10 @@ jobs:
         run: |
           pip install dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
           pip install -e .
-          pip install ruff mypy
-
-      - uses: actions/upload-artifact@v4
-        with:
-          path: dist/*.*
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      # For pypi trusted publishing
-      id-token: write
-    steps:
-      - name: Get build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: artifact
-          path: dist
+      - name: Build
+        run: |
+          pip install build
+          python -m build --sdist
       - name: Publish to PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
