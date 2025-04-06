@@ -117,9 +117,8 @@ class Phonon3Calc(PropCalc):
                               "phonon3.yaml" by default.
         :param write_kappa: Boolean flag to enable or disable saving thermal conductivity
                             results to a file.
-
         """
-        self.calculator = calculator
+        self.calculator = calculator  # type: ignore[assignment]
         self.fc2_supercell = fc2_supercell
         self.fc3_supercell = fc3_supercell
         self.mesh_numbers = mesh_numbers

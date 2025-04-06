@@ -83,7 +83,7 @@ class ElasticityCalc(PropCalc):
         :param relax_calc_kwargs: Optional dictionary containing keyword arguments for structure
             relaxation calculations.
         """
-        self.calculator = calculator
+        self.calculator = calculator  # type: ignore[assignment]
         self.norm_strains = tuple(np.array([1]) * np.asarray(norm_strains))
         self.shear_strains = tuple(np.array([1]) * np.asarray(shear_strains))
         if len(self.norm_strains) == 0:

@@ -81,7 +81,7 @@ class EnergeticsCalc(PropCalc):
             calculation. Can be a dictionary of settings or None. Defaults to None.
         :type relax_calc_kwargs: dict | None
         """
-        self.calculator = calculator
+        self.calculator = calculator  # type: ignore[assignment]
         if isinstance(elemental_refs, str):
             self.elemental_refs = loadfn(ELEMENTAL_REFS_DIR / f"{elemental_refs}-Element-Refs.json.gz")
         else:

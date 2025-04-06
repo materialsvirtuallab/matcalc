@@ -169,7 +169,7 @@ class RelaxCalc(PropCalc):
             the system configuration before relaxation. If None, no perturbation
             is applied. Defaults to None.
         """
-        self.calculator = calculator
+        self.calculator = calculator  # type: ignore[assignment]
 
         self.optimizer = get_ase_optimizer(optimizer)
         self.fmax = fmax

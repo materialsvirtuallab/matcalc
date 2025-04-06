@@ -93,7 +93,7 @@ class SurfaceCalc(PropCalc):
             :class:`RelaxCalc` constructor for both bulk and slabs. Default is None.
         :type relax_calc_kwargs: dict | None, optional
         """
-        self.calculator = calculator
+        self.calculator = calculator  # type: ignore[assignment]
         self.relax_bulk = relax_bulk
         self.relax_slab = relax_slab
         self.fmax = fmax

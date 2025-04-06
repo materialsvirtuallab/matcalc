@@ -121,7 +121,7 @@ class PhononCalc(PropCalc):
             Defaults to "total_dos.dat".
         :param write_phonon: File path or boolean flag to write phonon data. Defaults to "phonon.yaml".
         """
-        self.calculator = calculator
+        self.calculator = calculator  # type: ignore[assignment]
         self.atom_disp = atom_disp
         self.supercell_matrix = supercell_matrix
         self.t_step = t_step

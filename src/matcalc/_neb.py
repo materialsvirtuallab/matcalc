@@ -52,7 +52,7 @@ class NEBCalc(PropCalc):
         Returns:
             None
         """
-        self.calculator = calculator
+        self.calculator = calculator  # type: ignore[assignment]
 
         self.traj_folder = traj_folder
         self.interval = interval

@@ -138,7 +138,7 @@ class QHACalc(PropCalc):
         :param write_gruneisen_temperature: Path, boolean, or string to indicate whether and
             where to save Grüneisen parameter values as a function of temperature.
         """
-        self.calculator = calculator
+        self.calculator = calculator  # type: ignore[assignment]
         self.t_step = t_step
         self.t_max = t_max
         self.t_min = t_min

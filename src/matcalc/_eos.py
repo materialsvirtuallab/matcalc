@@ -91,7 +91,7 @@ class EOSCalc(PropCalc):
             relaxation calculation process. Default is None.
         :type relax_calc_kwargs: dict | None, optional
         """
-        self.calculator = calculator
+        self.calculator = calculator  # type: ignore[assignment]
         self.optimizer = optimizer
         self.relax_structure = relax_structure
         self.n_points = n_points
