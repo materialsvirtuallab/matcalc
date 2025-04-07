@@ -6,35 +6,35 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>matcalc._phonon3 module &mdash; matcalc 0.3.2 documentation</title>
+  <title>matcalc._phonon3 module &mdash; matcalc 0.3.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
 
-  
-    <link rel="canonical" href="https://matcalc.orgmatcalc._phonon3.html"/>
+
+    <link rel="canonical" href="http://matcalc.aimatcalc._phonon3.html"/>
       <script src="assets/jquery.js?v=5d32c60e"></script>
       <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="assets/documentation_options.js?v=71d9d8e6"></script>
+      <script src="assets/documentation_options.js?v=d5a15cff"></script>
       <script src="assets/doctools.js?v=9bcbadda"></script>
       <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="matcalc._qha module" href="matcalc._qha.html" />
-    <link rel="prev" title="matcalc._phonon module" href="matcalc._phonon.html" /> 
+    <link rel="prev" title="matcalc._phonon module" href="matcalc._phonon.html" />
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
 
-          
-          
+
+
           <a href="index.html">
-            
+
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -60,6 +60,7 @@
 <li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html">matcalc._qha module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html">matcalc._relaxation module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._stability.html">matcalc._stability module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._surface.html">matcalc._surface module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc.benchmark.html">matcalc.benchmark module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc.config.html">matcalc.config module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc.units.html">matcalc.units module</a></li>
@@ -94,49 +95,88 @@
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+
   <section id="module-matcalc._phonon3">
 <span id="matcalc-phonon3-module"></span><h1>matcalc._phonon3 module<a class="headerlink" href="#module-matcalc._phonon3" title="Link to this heading"></a></h1>
 <p>Calculator for phonon-phonon interaction and related properties.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Phonon3Calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator:</span> <span class="pre">Calculator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fc2_supercell:</span> <span class="pre">ArrayLike</span> <span class="pre">=</span> <span class="pre">((2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">(0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">(0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">2))</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fc3_supercell:</span> <span class="pre">ArrayLike</span> <span class="pre">=</span> <span class="pre">((2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">(0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">(0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">2))</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_numbers:</span> <span class="pre">ArrayLike</span> <span class="pre">=</span> <span class="pre">(20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">20)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disp_kwargs:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_conductivity_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_structure:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_calc_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'FIRE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_min:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_max:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_step:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_phonon3:</span> <span class="pre">bool</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">Path</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_kappa:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/src/matcalc/_phonon3.py#L25-L184"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Phonon3Calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Calculator</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fc2_supercell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">((2,</span> <span class="pre">0,</span> <span class="pre">0),</span> <span class="pre">(0,</span> <span class="pre">2,</span> <span class="pre">0),</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">2))</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fc3_supercell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">((2,</span> <span class="pre">0,</span> <span class="pre">0),</span> <span class="pre">(0,</span> <span class="pre">2,</span> <span class="pre">0),</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">2))</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_numbers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(20,</span> <span class="pre">20,</span> <span class="pre">20)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disp_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_conductivity_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_calc_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FIRE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_phonon3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_kappa</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_phonon3.py#L24-L237"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc" title="matcalc._base.PropCalc"><code class="xref py py-class docutils literal notranslate"><span class="pre">PropCalc</span></code></a></p>
-<p>Handles the calculation of phonon-phonon interactions and thermal conductivity
-using the Phono3py package. Provides functionality for generating displacements,
-calculating force constants, and computing lattice thermal conductivity.</p>
-<p>Primarily designed for automating the usage of Phono3py in conjunction with
-a chosen calculator for force evaluations. Supports options for structure
-relaxation before calculation and customization of various computational parameters.</p>
+<p>Class for calculating thermal conductivity using third-order force constants.</p>
+<p>This class integrates with the Phono3py library to compute thermal conductivity
+based on third-order force constants (FC3). It includes capabilities for optional
+structure relaxation, displacement generation, and force calculations on
+supercells. Results include the thermal conductivity as a function of temperature
+and other intermediate configurations used in the calculation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>calculator</strong> – ASE Calculator used for force evaluations during the calculation.</p></li>
-<li><p><strong>fc2_supercell</strong> – Supercell matrix for the second-order force constants calculation.</p></li>
-<li><p><strong>fc3_supercell</strong> – Supercell matrix for the third-order force constants calculation.</p></li>
-<li><p><strong>mesh_numbers</strong> – Grid mesh numbers for thermal conductivity calculation.</p></li>
-<li><p><strong>disp_kwargs</strong> – Custom keyword arguments for generating displacements.</p></li>
-<li><p><strong>thermal_conductivity_kwargs</strong> – Additional keyword arguments for thermal conductivity calculations.</p></li>
-<li><p><strong>relax_structure</strong> – Flag indicating whether the input structure should be relaxed before calculation.</p></li>
-<li><p><strong>relax_calc_kwargs</strong> – Additional keyword arguments for the structure relaxation calculator.</p></li>
-<li><p><strong>fmax</strong> – Maximum force tolerance for the structure relaxation.</p></li>
-<li><p><strong>optimizer</strong> – Optimizer name to use for structure relaxation.</p></li>
-<li><p><strong>t_min</strong> – Minimum temperature (in Kelvin) for thermal conductivity calculation.</p></li>
-<li><p><strong>t_max</strong> – Maximum temperature (in Kelvin) for thermal conductivity calculation.</p></li>
-<li><p><strong>t_step</strong> – Temperature step size (in Kelvin) for thermal conductivity calculation.</p></li>
-<li><p><strong>write_phonon3</strong> – Output path for saving Phono3py results, or a boolean to toggle saving.</p></li>
-<li><p><strong>write_kappa</strong> – Flag indicating whether to write kappa (thermal conductivity values) to output files.</p></li>
+<li><p><strong>calculator</strong> – Calculator used to compute forces for the atomic structure.</p></li>
+<li><p><strong>fc2_supercell</strong> – Transformation matrix defining the supercell for second-order
+force constants.</p></li>
+<li><p><strong>fc3_supercell</strong> – Transformation matrix defining the supercell for third-order
+force constants.</p></li>
+<li><p><strong>mesh_numbers</strong> – Mesh grid dimensions for phonon calculations.</p></li>
+<li><p><strong>disp_kwargs</strong> – Keyword arguments for displacement generation.</p></li>
+<li><p><strong>thermal_conductivity_kwargs</strong> – Keyword arguments for thermal conductivity
+calculations.</p></li>
+<li><p><strong>relax_structure</strong> – Flag indicating if the structure needs to be relaxed before
+calculations.</p></li>
+<li><p><strong>relax_calc_kwargs</strong> – Additional arguments for the relaxation calculator.</p></li>
+<li><p><strong>fmax</strong> – Maximum force criterion for structure relaxation.</p></li>
+<li><p><strong>optimizer</strong> – Optimizer name for structure relaxation.</p></li>
+<li><p><strong>t_min</strong> – Minimum temperature for thermal conductivity calculations.</p></li>
+<li><p><strong>t_max</strong> – Maximum temperature for thermal conductivity calculations.</p></li>
+<li><p><strong>t_step</strong> – Step size for temperature in thermal conductivity calculations.</p></li>
+<li><p><strong>write_phonon3</strong> – Path or flag for saving the Phono3py output object.</p></li>
+<li><p><strong>write_kappa</strong> – Flag indicating if the thermal conductivity results
+should be written to file.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Initializes the class for thermal conductivity calculation and structure relaxation
+utilizing third-order force constants (fc3). The class provides configurable
+parameters for the relaxation process, supercell settings, thermal conductivity
+calculation, and file output management.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>calculator</strong> – The calculator instance or string indicating the method to be
+used for energy and force calculations.</p></li>
+<li><p><strong>fc2_supercell</strong> – The supercell matrix for generating second-order force constants.</p></li>
+<li><p><strong>fc3_supercell</strong> – The supercell matrix for generating third-order force constants.</p></li>
+<li><p><strong>mesh_numbers</strong> – The grid size for reciprocal space mesh used in phonon calculations.</p></li>
+<li><p><strong>disp_kwargs</strong> – Dictionary containing optional parameters for displacement generation
+in force constant calculation.</p></li>
+<li><p><strong>thermal_conductivity_kwargs</strong> – Dictionary containing optional parameters for thermal
+conductivity calculation.</p></li>
+<li><p><strong>relax_structure</strong> – Boolean flag to enable or disable structure relaxation before
+force constant calculations.</p></li>
+<li><p><strong>relax_calc_kwargs</strong> – Dictionary containing additional configuration options for the
+relaxation calculation.</p></li>
+<li><p><strong>fmax</strong> – The maximum force allowed on atoms during the structure relaxation
+procedure. Determines the relaxation termination condition.</p></li>
+<li><p><strong>optimizer</strong> – The optimizer algorithm to use for structure relaxation. Defaults to “FIRE.”</p></li>
+<li><p><strong>t_min</strong> – The minimum temperature (in Kelvin) for thermal conductivity calculations.</p></li>
+<li><p><strong>t_max</strong> – The maximum temperature (in Kelvin) for thermal conductivity calculations.</p></li>
+<li><p><strong>t_step</strong> – The temperature step size for thermal conductivity calculations.</p></li>
+<li><p><strong>write_phonon3</strong> – Specifies the filename or a boolean flag for writing the
+third-order force constants to a file. If True, writes to
+“phonon3.yaml” by default.</p></li>
+<li><p><strong>write_kappa</strong> – Boolean flag to enable or disable saving thermal conductivity
+results to a file.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc._abc_impl">
-<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc._abc_impl" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc._abc_impl" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.calc">
-<span class="sig-name descname"><span class="pre">calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/src/matcalc/_phonon3.py#L90-L184"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.calc" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_phonon3.py#L143-L237"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.calc" title="Link to this definition"></a></dt>
 <dd><p>Performs thermal conductivity calculations using the Phono3py library.</p>
 <p>This method processes a given atomic structure and calculates its thermal
 conductivity through third-order force constants (FC3) computations. The
@@ -168,81 +208,6 @@ computed.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.calculator">
-<span class="sig-name descname"><span class="pre">calculator</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Calculator</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.calculator" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.disp_kwargs">
-<span class="sig-name descname"><span class="pre">disp_kwargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.disp_kwargs" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.fc2_supercell">
-<span class="sig-name descname"><span class="pre">fc2_supercell</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ArrayLike</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">((2,</span> <span class="pre">0,</span> <span class="pre">0),</span> <span class="pre">(0,</span> <span class="pre">2,</span> <span class="pre">0),</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">2))</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.fc2_supercell" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.fc3_supercell">
-<span class="sig-name descname"><span class="pre">fc3_supercell</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ArrayLike</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">((2,</span> <span class="pre">0,</span> <span class="pre">0),</span> <span class="pre">(0,</span> <span class="pre">2,</span> <span class="pre">0),</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">2))</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.fc3_supercell" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.fmax">
-<span class="sig-name descname"><span class="pre">fmax</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.1</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.fmax" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.mesh_numbers">
-<span class="sig-name descname"><span class="pre">mesh_numbers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ArrayLike</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(20,</span> <span class="pre">20,</span> <span class="pre">20)</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.mesh_numbers" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.optimizer">
-<span class="sig-name descname"><span class="pre">optimizer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FIRE'</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.optimizer" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.relax_calc_kwargs">
-<span class="sig-name descname"><span class="pre">relax_calc_kwargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.relax_calc_kwargs" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.relax_structure">
-<span class="sig-name descname"><span class="pre">relax_structure</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.relax_structure" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.t_max">
-<span class="sig-name descname"><span class="pre">t_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1000</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.t_max" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.t_min">
-<span class="sig-name descname"><span class="pre">t_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.t_min" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.t_step">
-<span class="sig-name descname"><span class="pre">t_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.t_step" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.thermal_conductivity_kwargs">
-<span class="sig-name descname"><span class="pre">thermal_conductivity_kwargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.thermal_conductivity_kwargs" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.write_kappa">
-<span class="sig-name descname"><span class="pre">write_kappa</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.write_kappa" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._phonon3.Phonon3Calc.write_phonon3">
-<span class="sig-name descname"><span class="pre">write_phonon3</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_phonon3.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._phonon3.Phonon3Calc.write_phonon3" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 </section>
@@ -261,7 +226,7 @@ computed.</p></li>
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+
 
 </footer>
         </div>
@@ -272,7 +237,7 @@ computed.</p></li>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
 
 </body>
 </html>

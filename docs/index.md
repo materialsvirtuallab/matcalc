@@ -53,12 +53,12 @@ from pymatgen.ext.matproj import MPRester
 
 mpr = MPRester()
 si = mpr.get_structure_by_material_id("mp-149")
-c = mtc.ElasticityCalc(mtc.load_up("TensorNet-MatPES-PBE-v2025.1-PES"), relax_structure=True)
+c = mtc.ElasticityCalc("TensorNet-MatPES-PBE-v2025.1-PES", relax_structure=True)
 props = c.calc(si)
 print(f"K_VRH = {props['bulk_modulus_vrh'] * 160.2176621} GPa")
 ```
 
-The output is `K_VRH = 102.08363100102596 GPa`.
+The calculated `K_VRH` is about 102 GPa, in reasonably good agreement with the experimental and DFT values.
 
 While we generally recommend users to specify exactly the model they would like to use, MatCalc provides useful
 (case-insensitive) aliases to our recommended models for PBE and r2SCAN predictions. These can be loaded using:
@@ -170,6 +170,10 @@ results.to_csv("benchmark_results.csv")
 These will usually take a long time to run. Running on HPC resources is recommended. Please set `n_samples` when
 initializing the benchmark to limit the number of calculations to do some testing before running the full benchmark.
 
+## Docker Images
+
+Docker images with MatCalc and LAMMPS support are available at the [Materials Virtual Lab Docker Repository].
+
 ## Citing
 
 A manuscript on `matcalc` is currently in the works. In the meantime, please see [`citation.cff`](citation.cff) or the GitHub
@@ -180,3 +184,4 @@ sidebar for a BibTeX and APA citation.
 [MatPES]: https://matpes.ai
 [MatCalc]: https://matcalc.ai
 [ASE]: https://wiki.fysik.dtu.dk/ase/
+[Materials Virtual Lab Docker Repository]: https://hub.docker.com/orgs/materialsvirtuallab/repositories
