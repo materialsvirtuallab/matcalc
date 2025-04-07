@@ -24,32 +24,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install uv with python version.
-        uses: astral-sh/setup-uv@v5
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          pip install dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
+          pip install -e .
       - name: Build
         run: |
-          uv venv
-          uv pip install dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
-          uv build
-      - uses: actions/upload-artifact@v4
-        with:
-          path: dist/*.*
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      # For pypi trusted publishing
-      id-token: write
-    steps:
-      - name: Get build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: artifact
-          path: dist
+          pip install build
+          python -m build --sdist
       - name: Publish to PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
