@@ -2741,6 +2741,8 @@ dev = [
     { name = "codecov-cli" },
     { name = "coverage" },
     { name = "coveralls" },
+    { name = "docutils" },
+    { name = "invoke" },
     { name = "ipython", version = "8.34.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mace') or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim') or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
     { name = "ipython", version = "9.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mace') or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim') or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
     { name = "jupyter" },
@@ -2752,21 +2754,17 @@ dev = [
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "requests" },
     { name = "seekpath" },
+    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mace') or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim') or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mace') or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim') or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
+    { name = "sphinx-markdown-builder" },
+    { name = "sphinx-rtd-theme" },
 ]
 lint = [
     { name = "mypy" },
     { name = "pyright" },
     { name = "ruff" },
-]
-maintain = [
-    { name = "docutils" },
-    { name = "invoke" },
-    { name = "requests" },
-    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mace') or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim') or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
-    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mace') or (extra == 'extra-7-matcalc-fairchem' and extra == 'extra-7-matcalc-mattersim') or (extra == 'extra-7-matcalc-mace' and extra == 'extra-7-matcalc-mattersim')" },
-    { name = "sphinx-markdown-builder" },
-    { name = "sphinx-rtd-theme" },
 ]
 test-models = [
     { name = "mace-torch" },
@@ -2819,6 +2817,8 @@ dev = [
     { name = "codecov-cli", specifier = ">=10.3.0" },
     { name = "coverage", specifier = ">=7.7.1" },
     { name = "coveralls", specifier = ">=4.0.1" },
+    { name = "docutils", specifier = ">=0.21.2" },
+    { name = "invoke", specifier = ">=2.2.0" },
     { name = "ipython", specifier = ">=8.34.0" },
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "maml", specifier = ">=2025.4.3" },
@@ -2829,20 +2829,16 @@ dev = [
     { name = "pre-commit", specifier = ">=4.2.0" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-cov", specifier = ">=6.0.0" },
+    { name = "requests", specifier = ">=2.32.3" },
     { name = "seekpath", specifier = ">=2.1.0" },
+    { name = "sphinx", specifier = ">=8.1.3" },
+    { name = "sphinx-markdown-builder", specifier = ">=0.6.8" },
+    { name = "sphinx-rtd-theme", specifier = ">=3.0.2" },
 ]
 lint = [
     { name = "mypy", specifier = ">=1.15.0" },
     { name = "pyright", specifier = ">=1.1.398" },
     { name = "ruff", specifier = ">=0.11.2" },
-]
-maintain = [
-    { name = "docutils", specifier = ">=0.21.2" },
-    { name = "invoke", specifier = ">=2.2.0" },
-    { name = "requests", specifier = ">=2.32.3" },
-    { name = "sphinx", specifier = ">=8.1.3" },
-    { name = "sphinx-markdown-builder", specifier = ">=0.6.8" },
-    { name = "sphinx-rtd-theme", specifier = ">=3.0.2" },
 ]
 test-models = [
     { name = "mace-torch", specifier = ">=0.3.12" },

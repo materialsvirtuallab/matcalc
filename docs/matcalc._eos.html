@@ -6,35 +6,35 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>matcalc._eos module &mdash; matcalc 0.3.2 documentation</title>
+  <title>matcalc._eos module &mdash; matcalc 0.3.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
 
-  
-    <link rel="canonical" href="https://matcalc.orgmatcalc._eos.html"/>
+
+    <link rel="canonical" href="http://matcalc.aimatcalc._eos.html"/>
       <script src="assets/jquery.js?v=5d32c60e"></script>
       <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="assets/documentation_options.js?v=71d9d8e6"></script>
+      <script src="assets/documentation_options.js?v=d5a15cff"></script>
       <script src="assets/doctools.js?v=9bcbadda"></script>
       <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="matcalc._neb module" href="matcalc._neb.html" />
-    <link rel="prev" title="matcalc._elasticity module" href="matcalc._elasticity.html" /> 
+    <link rel="prev" title="matcalc._elasticity module" href="matcalc._elasticity.html" />
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
 
-          
-          
+
+
           <a href="index.html">
-            
+
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -60,6 +60,7 @@
 <li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html">matcalc._qha module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html">matcalc._relaxation module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._stability.html">matcalc._stability module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._surface.html">matcalc._surface module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc.benchmark.html">matcalc.benchmark module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc.config.html">matcalc.config module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc.units.html">matcalc.units module</a></li>
@@ -94,13 +95,13 @@
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+
   <section id="module-matcalc._eos">
 <span id="matcalc-eos-module"></span><h1>matcalc._eos module<a class="headerlink" href="#module-matcalc._eos" title="Link to this heading"></a></h1>
 <p>Calculators for EOS and associated properties.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="matcalc._eos.EOSCalc">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EOSCalc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Calculator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optimizer</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FIRE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_abs_strain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_calc_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/src/matcalc/_eos.py#L22-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._eos.EOSCalc" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EOSCalc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Calculator</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optimizer</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FIRE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_abs_strain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_calc_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_eos.py#L22-L177"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._eos.EOSCalc" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc" title="matcalc._base.PropCalc"><code class="xref py py-class docutils literal notranslate"><span class="pre">PropCalc</span></code></a></p>
 <p>Performs equation of state (EOS) calculations using a specified ASE calculator.</p>
 <p>This class is intended to fit the Birch-Murnaghan equation of state, determine the
@@ -129,9 +130,8 @@ with specified constraints and tolerances.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>calculator</strong> (<em>Calculator</em>) – The calculator object that handles the computation of
-forces, energies, and other related properties for the system being
-studied.</p></li>
+<li><p><strong>calculator</strong> (<em>Calculator</em><em> | </em><em>str</em>) – An ASE calculator object used to perform energy and force
+calculations. If string is provided, the corresponding universal calculator is loaded.</p></li>
 <li><p><strong>optimizer</strong> (<em>Optimizer</em><em> | </em><em>str</em><em>, </em><em>optional</em>) – The optimization algorithm used for structural relaxations
 or energy minimizations. Can be an optimizer object or the string name
 of the algorithm. Default is “FIRE”.</p></li>
@@ -152,12 +152,12 @@ relaxation calculation process. Default is None.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="matcalc._eos.EOSCalc._abc_impl">
-<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/matcalc/_eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._eos.EOSCalc._abc_impl" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/matcalc/_eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._eos.EOSCalc._abc_impl" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="matcalc._eos.EOSCalc.calc">
-<span class="sig-name descname"><span class="pre">calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.2/src/matcalc/_eos.py#L104-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._eos.EOSCalc.calc" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_eos.py#L103-L177"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._eos.EOSCalc.calc" title="Link to this definition"></a></dt>
 <dd><p>Performs energy-strain calculations using Birch-Murnaghan equations of state to extract
 equation of state properties such as bulk modulus and R-squared score of the fit.</p>
 <p>This function calculates properties of a material system under strain, specifically
@@ -197,7 +197,7 @@ data.</p>
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+
 
 </footer>
         </div>
@@ -208,7 +208,7 @@ data.</p>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
 
 </body>
 </html>

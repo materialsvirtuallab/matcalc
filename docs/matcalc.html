@@ -6,35 +6,35 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>matcalc package &mdash; matcalc 0.3.2 documentation</title>
+  <title>matcalc package &mdash; matcalc 0.3.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
 
-  
-    <link rel="canonical" href="https://matcalc.orgmatcalc.html"/>
+
+    <link rel="canonical" href="http://matcalc.aimatcalc.html"/>
       <script src="assets/jquery.js?v=5d32c60e"></script>
       <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="assets/documentation_options.js?v=71d9d8e6"></script>
+      <script src="assets/documentation_options.js?v=d5a15cff"></script>
       <script src="assets/doctools.js?v=9bcbadda"></script>
       <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="matcalc._base module" href="matcalc._base.html" />
-    <link rel="prev" title="matcalc" href="index.html" /> 
+    <link rel="prev" title="matcalc" href="index.html" />
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
 
-          
-          
+
+
           <a href="index.html">
-            
+
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -57,6 +57,7 @@
 <li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html">matcalc._qha module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html">matcalc._relaxation module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._stability.html">matcalc._stability module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._surface.html">matcalc._surface module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc.benchmark.html">matcalc.benchmark module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc.config.html">matcalc.config module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc.units.html">matcalc.units module</a></li>
@@ -90,7 +91,7 @@
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+
   <section id="module-matcalc">
 <span id="matcalc-package"></span><h1>matcalc package<a class="headerlink" href="#module-matcalc" title="Link to this heading"></a></h1>
 <p>Calculators for materials properties.</p>
@@ -109,6 +110,7 @@
 <li class="toctree-l3"><a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc._abc_impl"><code class="docutils literal notranslate"><span class="pre">PropCalc._abc_impl</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc.calc"><code class="docutils literal notranslate"><span class="pre">PropCalc.calc()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc.calc_many"><code class="docutils literal notranslate"><span class="pre">PropCalc.calc_many()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc.calculator"><code class="docutils literal notranslate"><span class="pre">PropCalc.calculator</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -140,7 +142,7 @@
 <li class="toctree-l2"><a class="reference internal" href="matcalc._neb.html#matcalc._neb.NEBCalc"><code class="docutils literal notranslate"><span class="pre">NEBCalc</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._neb.html#matcalc._neb.NEBCalc._abc_impl"><code class="docutils literal notranslate"><span class="pre">NEBCalc._abc_impl</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._neb.html#matcalc._neb.NEBCalc.calc"><code class="docutils literal notranslate"><span class="pre">NEBCalc.calc()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._neb.html#matcalc._neb.NEBCalc.from_end_images"><code class="docutils literal notranslate"><span class="pre">NEBCalc.from_end_images()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._neb.html#matcalc._neb.NEBCalc.calc_images"><code class="docutils literal notranslate"><span class="pre">NEBCalc.calc_images()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -148,21 +150,7 @@
 <li class="toctree-l1"><a class="reference internal" href="matcalc._phonon.html">matcalc._phonon module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc"><code class="docutils literal notranslate"><span class="pre">PhononCalc</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc._abc_impl"><code class="docutils literal notranslate"><span class="pre">PhononCalc._abc_impl</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.atom_disp"><code class="docutils literal notranslate"><span class="pre">PhononCalc.atom_disp</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.calc"><code class="docutils literal notranslate"><span class="pre">PhononCalc.calc()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.calculator"><code class="docutils literal notranslate"><span class="pre">PhononCalc.calculator</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.fmax"><code class="docutils literal notranslate"><span class="pre">PhononCalc.fmax</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.optimizer"><code class="docutils literal notranslate"><span class="pre">PhononCalc.optimizer</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.relax_calc_kwargs"><code class="docutils literal notranslate"><span class="pre">PhononCalc.relax_calc_kwargs</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.relax_structure"><code class="docutils literal notranslate"><span class="pre">PhononCalc.relax_structure</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.supercell_matrix"><code class="docutils literal notranslate"><span class="pre">PhononCalc.supercell_matrix</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.t_max"><code class="docutils literal notranslate"><span class="pre">PhononCalc.t_max</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.t_min"><code class="docutils literal notranslate"><span class="pre">PhononCalc.t_min</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.t_step"><code class="docutils literal notranslate"><span class="pre">PhononCalc.t_step</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.write_band_structure"><code class="docutils literal notranslate"><span class="pre">PhononCalc.write_band_structure</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.write_force_constants"><code class="docutils literal notranslate"><span class="pre">PhononCalc.write_force_constants</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.write_phonon"><code class="docutils literal notranslate"><span class="pre">PhononCalc.write_phonon</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.write_total_dos"><code class="docutils literal notranslate"><span class="pre">PhononCalc.write_total_dos</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon._calc_forces"><code class="docutils literal notranslate"><span class="pre">_calc_forces()</span></code></a></li>
@@ -172,21 +160,6 @@
 <li class="toctree-l2"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc._abc_impl"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc._abc_impl</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.calc"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.calc()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.calculator"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.calculator</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.disp_kwargs"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.disp_kwargs</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.fc2_supercell"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.fc2_supercell</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.fc3_supercell"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.fc3_supercell</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.fmax"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.fmax</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.mesh_numbers"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.mesh_numbers</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.optimizer"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.optimizer</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.relax_calc_kwargs"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.relax_calc_kwargs</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.relax_structure"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.relax_structure</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.t_max"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.t_max</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.t_min"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.t_min</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.t_step"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.t_step</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.thermal_conductivity_kwargs"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.thermal_conductivity_kwargs</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.write_kappa"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.write_kappa</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html#matcalc._phonon3.Phonon3Calc.write_phonon3"><code class="docutils literal notranslate"><span class="pre">Phonon3Calc.write_phonon3</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -202,25 +175,6 @@
 <li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc._scale_structure"><code class="docutils literal notranslate"><span class="pre">QHACalc._scale_structure()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc._write_output_files"><code class="docutils literal notranslate"><span class="pre">QHACalc._write_output_files()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.calc"><code class="docutils literal notranslate"><span class="pre">QHACalc.calc()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.calculator"><code class="docutils literal notranslate"><span class="pre">QHACalc.calculator</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.eos"><code class="docutils literal notranslate"><span class="pre">QHACalc.eos</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.fmax"><code class="docutils literal notranslate"><span class="pre">QHACalc.fmax</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.optimizer"><code class="docutils literal notranslate"><span class="pre">QHACalc.optimizer</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.phonon_calc_kwargs"><code class="docutils literal notranslate"><span class="pre">QHACalc.phonon_calc_kwargs</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.relax_calc_kwargs"><code class="docutils literal notranslate"><span class="pre">QHACalc.relax_calc_kwargs</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.relax_structure"><code class="docutils literal notranslate"><span class="pre">QHACalc.relax_structure</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.scale_factors"><code class="docutils literal notranslate"><span class="pre">QHACalc.scale_factors</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.t_max"><code class="docutils literal notranslate"><span class="pre">QHACalc.t_max</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.t_min"><code class="docutils literal notranslate"><span class="pre">QHACalc.t_min</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.t_step"><code class="docutils literal notranslate"><span class="pre">QHACalc.t_step</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.write_bulk_modulus_temperature"><code class="docutils literal notranslate"><span class="pre">QHACalc.write_bulk_modulus_temperature</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.write_gibbs_temperature"><code class="docutils literal notranslate"><span class="pre">QHACalc.write_gibbs_temperature</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.write_gruneisen_temperature"><code class="docutils literal notranslate"><span class="pre">QHACalc.write_gruneisen_temperature</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.write_heat_capacity_p_numerical"><code class="docutils literal notranslate"><span class="pre">QHACalc.write_heat_capacity_p_numerical</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.write_heat_capacity_p_polyfit"><code class="docutils literal notranslate"><span class="pre">QHACalc.write_heat_capacity_p_polyfit</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.write_helmholtz_volume"><code class="docutils literal notranslate"><span class="pre">QHACalc.write_helmholtz_volume</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.write_thermal_expansion"><code class="docutils literal notranslate"><span class="pre">QHACalc.write_thermal_expansion</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc.write_volume_temperature"><code class="docutils literal notranslate"><span class="pre">QHACalc.write_volume_temperature</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -247,6 +201,15 @@
 <li class="toctree-l2"><a class="reference internal" href="matcalc._stability.html#matcalc._stability.EnergeticsCalc"><code class="docutils literal notranslate"><span class="pre">EnergeticsCalc</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._stability.html#matcalc._stability.EnergeticsCalc._abc_impl"><code class="docutils literal notranslate"><span class="pre">EnergeticsCalc._abc_impl</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._stability.html#matcalc._stability.EnergeticsCalc.calc"><code class="docutils literal notranslate"><span class="pre">EnergeticsCalc.calc()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="matcalc._surface.html">matcalc._surface module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="matcalc._surface.html#matcalc._surface.SurfaceCalc"><code class="docutils literal notranslate"><span class="pre">SurfaceCalc</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._surface.html#matcalc._surface.SurfaceCalc._abc_impl"><code class="docutils literal notranslate"><span class="pre">SurfaceCalc._abc_impl</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._surface.html#matcalc._surface.SurfaceCalc.calc"><code class="docutils literal notranslate"><span class="pre">SurfaceCalc.calc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._surface.html#matcalc._surface.SurfaceCalc.calc_slabs"><code class="docutils literal notranslate"><span class="pre">SurfaceCalc.calc_slabs()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -341,7 +304,7 @@
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+
 
 </footer>
         </div>
@@ -352,7 +315,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
 
 </body>
 </html>
