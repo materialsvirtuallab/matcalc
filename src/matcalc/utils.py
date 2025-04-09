@@ -69,7 +69,7 @@ class PESCalculator(Calculator):
     optimization.
 
     PESCalculator provides methods to perform energy, force, and stress calculations
-    using potentials such as MTP, GAP, NNP, SNAP, ACE, NequIP, DeepMD and MatGL (M3GNet, TensorNet, CHGNet). The class
+    using potentials such as MTP, GAP, NNP, SNAP, ACE, NequIP, DeePMD and MatGL (M3GNet, TensorNet, CHGNet). The class
     includes utilities to load compatible models for each potential type, making it
     a versatile tool for materials modeling and molecular simulations.
 
@@ -318,22 +318,22 @@ class PESCalculator(Calculator):
         model_path: str | Path, **kwargs: Any
     ) -> Calculator:
         """
-        Loads a Deep Potential Molecular Dynamics (DeepMD) model and returns a `Calculator`
+        Loads a Deep Potential Molecular Dynamics (DeePMD) model and returns a `Calculator`
         object for molecular dynamics simulations.
 
         This method imports the `deepmd.calculator.DP` class and initializes it with the
         given model path and optional keyword arguments. The resulting `Calculator` object
-        is used to perform molecular simulations based on the specified DeepMD model.
+        is used to perform molecular simulations based on the specified DeePMD model.
 
-        The function requires the DeepMD-kit library to be installed to properly import
+        The function requires the DeePMD-kit library to be installed to properly import
         and utilize the `DP` class.
 
-        :param model_path: Path to the trained DeepMD model file, provided as a string
+        :param model_path: Path to the trained DeePMD model file, provided as a string
                            or a Path object.
-        :param kwargs: Additional options and configurations to pass into the DeepMD
+        :param kwargs: Additional options and configurations to pass into the DeePMD
                        `Calculator` during initialization.
         :return: An instance of the Calculator object initialized with the specified
-                 DeepMD model and optional configurations.
+                 DeePMD model and optional configurations.
         :rtype: Calculator
         """
         from deepmd.calculator import DP

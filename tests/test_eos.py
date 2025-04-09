@@ -1,4 +1,4 @@
-"""Tests for PhononCalc class"""
+"""Tests for EOSCalc class"""
 
 from __future__ import annotations
 
