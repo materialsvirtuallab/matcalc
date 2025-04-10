@@ -22,7 +22,7 @@ if TYPE_CHECKING:
         ("nvt_langevin", -10.78238),
         ("nvt_andersen", -10.82750),
         ("nvt_bussi", -10.77756),
-        ("npt", -10.74737),
+        ("npt_inhomogeneous", -10.74737),
         ("npt_berendsen", -10.74714),
         ("npt_nose_hoover", -10.86120),
     ],
@@ -72,8 +72,9 @@ def test_md_calc(
 def test_invalid_ensemble(Si: Structure, matpes_calculator: PESCalculator) -> None:
     with pytest.raises(
         ValueError,
-        match="The specified ensemble is not supported, choose from 'nve', 'nvt', 'nvt_langevin', "
-        "'nvt_andersen', 'nvt_bussi', 'npt', 'npt_berendsen', 'npt_nose_hoover'.",
+        match="The specified ensemble is not supported, choose from 'nve', 'nvt',"
+        "'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
+        "'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'",
     ):
         MDCalc(
             calculator=matpes_calculator,

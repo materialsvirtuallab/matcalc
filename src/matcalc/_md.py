@@ -41,7 +41,17 @@ class MDCalc(PropCalc):
         calculator: Calculator,
         *,
         ensemble: Literal[
-            "nve", "nvt", "nvt_langevin", "nvt_andersen", "nvt_bussi", "npt", "npt_berendsen", "npt_nose_hoover"
+            "nve",
+            "nvt",
+            "nvt_nose_hoover",
+            "nvt_berendsen",
+            "nvt_langevin",
+            "nvt_andersen",
+            "nvt_bussi",
+            "npt",
+            "npt_nose_hoover",
+            "npt_berendsen",
+            "npt_inhomogeneous",
         ] = "nvt",
         temperature: int = 300,
         timestep: float = 1.0,
@@ -144,21 +154,36 @@ class MDCalc(PropCalc):
         external_stress = self.external_stress if self.external_stress is not None else 0.0
         md: Any = None
 
-        if self.ensemble.lower() == "nvt":
-            md = NVTBerendsen(
+        if self.ensemble.lower() == "nve":
+            md = VelocityVerlet(
                 atoms,
                 timestep_fs,
-                temperature_K=self.temperature,
-                taut=taut,
                 trajectory=self.trajfile,
                 logfile=self.logfile,
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
-        elif self.ensemble.lower() == "nve":
-            md = VelocityVerlet(
+        elif self.ensemble.lower() == "nvt" or self.ensemble.lower() == "nvt_nose_hoover":
+            self._upper_triangular_cell(atoms)
+            md = NPT(
                 atoms,
                 timestep_fs,
+                temperature_K=self.temperature,
+                externalstress=external_stress,  # type: ignore[arg-type]
+                ttime=self.ttime * units.fs,
+                pfactor=None,
+                trajectory=self.trajfile,
+                logfile=self.logfile,
+                loginterval=self.loginterval,
+                append_trajectory=self.append_trajectory,
+                mask=mask,
+            )
+        elif self.ensemble.lower() == "nvt_berendsen":
+            md = NVTBerendsen(
+                atoms,
+                timestep_fs,
+                temperature_K=self.temperature,
+                taut=taut,
                 trajectory=self.trajfile,
                 logfile=self.logfile,
                 loginterval=self.loginterval,
@@ -197,19 +222,20 @@ class MDCalc(PropCalc):
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
-        elif self.ensemble.lower() == "npt":
-            md = Inhomogeneous_NPTBerendsen(
+        elif self.ensemble.lower() == "npt" or self.ensemble.lower() == "npt_nose_hoover":
+            self._upper_triangular_cell(atoms)
+            md = NPT(
                 atoms,
                 timestep_fs,
                 temperature_K=self.temperature,
-                pressure_au=self.pressure,
-                taut=taut,
-                taup=taup,
-                compressibility_au=self.compressibility_au,
+                externalstress=external_stress,  # type: ignore[arg-type]
+                ttime=self.ttime * units.fs,
+                pfactor=self.pfactor * units.fs,
                 trajectory=self.trajfile,
                 logfile=self.logfile,
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
+                mask=mask,
             )
         elif self.ensemble.lower() == "npt_berendsen":
             md = NPTBerendsen(
@@ -225,25 +251,25 @@ class MDCalc(PropCalc):
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
-        elif self.ensemble.lower() == "npt_nose_hoover":
-            self._upper_triangular_cell(atoms)
-            md = NPT(
+        elif self.ensemble.lower() == "npt_inhomogeneous":
+            md = Inhomogeneous_NPTBerendsen(
                 atoms,
                 timestep_fs,
                 temperature_K=self.temperature,
-                externalstress=external_stress,  # type: ignore[arg-type]
-                ttime=self.ttime * units.fs,
-                pfactor=self.pfactor * units.fs,
+                pressure_au=self.pressure,
+                taut=taut,
+                taup=taup,
+                compressibility_au=self.compressibility_au,
                 trajectory=self.trajfile,
                 logfile=self.logfile,
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
-                mask=mask,
             )
         else:
             raise ValueError(
-                "The specified ensemble is not supported, choose from 'nve', 'nvt', 'nvt_langevin', "
-                "'nvt_andersen', 'nvt_bussi', 'npt', 'npt_berendsen', 'npt_nose_hoover'."
+                "The specified ensemble is not supported, choose from 'nve', 'nvt',"
+                "'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
+                "'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'"
             )
         return md
 
@@ -289,7 +315,7 @@ class MDCalc(PropCalc):
         result = super().calc(structure)
         structure_in: Structure = result["final_structure"]
 
-        # If structure relaxation is enabled, relax the structure before the MD simulation.
+        # If structure relaxation is enabled, relax the structure (atoms only) before the MD simulation.
         if self.relax_structure:
             # Create a RelaxCalc instance with the specified calculator, convergence criteria (fmax),
             # optimizer, and any additional keyword arguments for the relaxation calculation.
@@ -297,6 +323,8 @@ class MDCalc(PropCalc):
                 self.calculator,
                 fmax=self.fmax,
                 optimizer=self.optimizer,
+                relax_atoms=True,
+                relax_cell=False,
                 **(self.relax_calc_kwargs or {}),
             )
             # Run the relaxation calculation and update the result dictionary.
