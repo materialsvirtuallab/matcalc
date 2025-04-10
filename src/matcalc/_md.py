@@ -171,7 +171,7 @@ class MDCalc(PropCalc):
                 temperature_K=self.temperature,
                 externalstress=external_stress,  # type: ignore[arg-type]
                 ttime=self.ttime * units.fs,
-                pfactor=None,
+                pfactor=None,  # Disable pressure coupling to convert to NVT ensemble
                 trajectory=self.trajfile,
                 logfile=self.logfile,
                 loginterval=self.loginterval,
