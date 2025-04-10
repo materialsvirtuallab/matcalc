@@ -18,7 +18,8 @@ if TYPE_CHECKING:
     ("ensemble", "expected_energy"),
     [
         ("nve", -10.74606),
-        ("nvt", -10.81465),
+        ("nvt", -10.81289),
+        ("nvt_berendsen", -10.73112),
         ("nvt_langevin", -10.78238),
         ("nvt_andersen", -10.82750),
         ("nvt_bussi", -10.77756),
