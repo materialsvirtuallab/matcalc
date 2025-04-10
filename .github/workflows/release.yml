@@ -30,7 +30,7 @@ jobs:
           python-version: "3.11"
       - name: Install dependencies
         run: |
-          pip install dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
+          pip install dgl==2.4.0 -f https://data.dgl.ai/wheels/torch-2.4/repo.html
           pip install -e .
       - name: Build
         run: |
