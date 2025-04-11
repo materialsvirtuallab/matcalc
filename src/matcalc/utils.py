@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from ase import Atoms
     from maml.apps.pes import LMPStaticCalculator
     from pyace.basis import ACEBBasisSet, ACECTildeBasisSet, BBasisConfiguration
+    from pymatgen.core import Structure
 
 
 # Listing of supported universal calculators.
@@ -135,7 +136,7 @@ class PESCalculator(Calculator):
         system_changes = system_changes or all_changes
         super().calculate(atoms=atoms, properties=properties, system_changes=system_changes)
 
-        structure = AseAtomsAdaptor.get_structure(atoms)  # type: ignore[arg-type]
+        structure: Structure = AseAtomsAdaptor.get_structure(atoms)  # type: ignore[arg-type]
         efs_calculator = EnergyForceStress(ff_settings=self.potential)
         energy, forces, stresses = efs_calculator.calculate([structure])[0]
 

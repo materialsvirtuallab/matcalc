@@ -223,7 +223,7 @@ class RelaxCalc(PropCalc):
             energy = obs.energies[-1]
             forces = obs.forces[-1]
             stress = obs.stresses[-1]
-            final_structure = AseAtomsAdaptor.get_structure(atoms)
+            final_structure: Structure = AseAtomsAdaptor.get_structure(atoms)
 
         else:
             final_structure = structure_in
