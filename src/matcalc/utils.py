@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import functools
 import warnings
+from enum import Enum
 from inspect import isclass
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
 # If you update UNIVERSAL_CALCULATORS, you must also update the mapping in
 # map_calculators_to_packages in test_utils.py, unless already covered.
 
-UNIVERSAL_CALCULATORS = [
+_universal_calculators = [
     "M3GNet",
     "CHGNet",
     "MACE",
@@ -47,8 +48,8 @@ try:
     # Auto-load all available PES models from matgl if installed.
     import matgl
 
-    UNIVERSAL_CALCULATORS += [m for m in matgl.get_available_pretrained_models() if "PES" in m]
-    UNIVERSAL_CALCULATORS = sorted(set(UNIVERSAL_CALCULATORS))
+    _universal_calculators += [m for m in matgl.get_available_pretrained_models() if "PES" in m]
+    _universal_calculators = sorted(set(_universal_calculators))
 except Exception:  # noqa: BLE001
     warnings.warn("Unable to get pre-trained MatGL universal calculators.", stacklevel=1)
 
@@ -60,6 +61,9 @@ MODEL_ALIASES = {
     "pbe": "TensorNet-MatPES-PBE-v2025.1-PES",
     "r2scan": "TensorNet-MatPES-r2SCAN-v2025.1-PES",
 }
+
+
+UNIVERSAL_CALCULATORS = Enum("UNIVERSAL_CALCULATORS", {k: k for k in _universal_calculators})  # type: ignore[misc]
 
 
 class PESCalculator(Calculator):
