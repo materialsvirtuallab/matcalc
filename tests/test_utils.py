@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
-def _map_calculators_to_packages(calculators: list[str]) -> dict[str, str]:  # Think
+def _map_calculators_to_packages(calculators: UNIVERSAL_CALCULATORS) -> dict[str, str]:  # Think
     prefix_package_map: list[tuple[tuple[str, ...], str]] = [
         (("m3gnet", "chgnet", "tensornet", "pbe", "r2scan"), "matgl"),
         (("mace",), "mace"),
@@ -42,15 +42,15 @@ def _map_calculators_to_packages(calculators: list[str]) -> dict[str, str]:  # T
     calculator_to_package: dict[str, str] = {}
 
     for calc in calculators:
-        lower_calc = calc.lower()
+        lower_calc = calc.name.lower()
         for prefixes, package in prefix_package_map:
             if any(lower_calc.startswith(prefix) for prefix in prefixes):
-                calculator_to_package[calc] = package
+                calculator_to_package[calc.name] = package
                 break
     return calculator_to_package
 
 
-UNIVERSAL_TO_PACKAGE = _map_calculators_to_packages(list(UNIVERSAL_CALCULATORS.__members__))
+UNIVERSAL_TO_PACKAGE = _map_calculators_to_packages(UNIVERSAL_CALCULATORS)
 
 
 @pytest.mark.parametrize(
@@ -127,7 +127,7 @@ def test_pescalculator_load_deepmd() -> None:
     assert isinstance(calc, Calculator)
 
 
-@pytest.mark.parametrize("name", UNIVERSAL_CALCULATORS)
+@pytest.mark.parametrize("name", (c.name for c in UNIVERSAL_CALCULATORS))
 def test_pescalculator_load_universal(Li2O: Structure, name: str) -> None:
     if name not in UNIVERSAL_TO_PACKAGE:
         pytest.fail(f"No package mapping found for {name}. Please add it to UNIVERSAL_TO_PACKAGE.")
