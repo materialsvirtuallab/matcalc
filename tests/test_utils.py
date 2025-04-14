@@ -50,7 +50,7 @@ def _map_calculators_to_packages(calculators: list[str]) -> dict[str, str]:  # T
     return calculator_to_package
 
 
-UNIVERSAL_TO_PACKAGE = _map_calculators_to_packages(UNIVERSAL_CALCULATORS)
+UNIVERSAL_TO_PACKAGE = _map_calculators_to_packages(list(UNIVERSAL_CALCULATORS.__members__))
 
 
 @pytest.mark.parametrize(

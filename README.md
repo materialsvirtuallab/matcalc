@@ -54,6 +54,12 @@ print(f"K_VRH = {props['bulk_modulus_vrh'] * 160.2176621} GPa")
 
 The calculated `K_VRH` is about 102 GPa, in reasonably good agreement with the experimental and DFT values.
 
+You can easily access a list of universal calculators (not comprehensive) using the UNIVERSAL_CALCULATORS enum.
+
+```python
+print(mtc.UNIVERSAL_CALCULATPRS)
+```
+
 While we generally recommend users to specify exactly the model they would like to use, MatCalc provides useful
 (case-insensitive) aliases to our recommended models for PBE and r2SCAN predictions. These can be loaded using:
 
@@ -63,8 +69,8 @@ pbe_calculator = mtc.load_up("pbe")
 r2scan_calculator = mtc.load_up("r2scan")
 ```
 
-At the time of writing, these are the TensorNet-MatPES models. However, these recommendations may updated as improved
-models become available.
+At the time of writing, these are the `TensorNet-MatPES-v2025.1` models for these functionals. However, these
+recommendations may updated as improved models become available.
 
 MatCalc also supports trivial parallelization using joblib via the `calc_many` method.
 
