@@ -20,7 +20,7 @@
 - Heat capacity at 300 K of binaries in [Alexandria Materials Database] downloaded in Jan 2025.
 - Excludes deprecated structures.
 - 1170 materials.
-  
+
 ### [alexandria-pbe-phonon-2025.3.json.gz](alexandria-pbe-phonon-2025.3.json.gz)
 - All available heat capacity at 300 K in [Alexandria Materials Database] downloaded in Mar 2025.
 - Excludes deprecated structures.
