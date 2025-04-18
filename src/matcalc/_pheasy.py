@@ -305,9 +305,7 @@ class PheasyCalc(PropCalc):
             f'--rasr BHH --ndata "{int(num_har)}"'
         )
 
-
         logger.info("Start running pheasy in cluster")
-
 
         subprocess.call(pheasy_cmd_1, shell=True)
         subprocess.call(pheasy_cmd_2, shell=True)
