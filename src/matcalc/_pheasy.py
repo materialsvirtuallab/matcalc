@@ -114,6 +114,7 @@ class PheasyCalc(PropCalc):
         calculator: Calculator | str,
         *,
         atom_disp: float = 0.015,
+        atom_disp_anhar: float = 0.1,
         # supercell_matrix: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2)),
         supercell_matrix: ArrayLike | None = None,
         t_step: float = 10,
@@ -140,6 +141,7 @@ class PheasyCalc(PropCalc):
 
         :param calculator: The calculator object or string name specifying the calculation backend to use.
         :param atom_disp: Atom displacement to be used for finite difference calculation of force constants.
+        :param atom_disp_anhar: Atom displacement to be used for anharmonic calculation of force constants.
         :param supercell_matrix: Transformation matrix to define the supercell for the calculation.
         :param t_step: Temperature step for thermal property calculations.
         :param t_max: Maximum temperature for thermal property calculations.
@@ -165,6 +167,7 @@ class PheasyCalc(PropCalc):
         """
         self.calculator = calculator  # type: ignore[assignment]
         self.atom_disp = atom_disp
+        self.atom_disp_anhar = atom_disp_anhar
         self.supercell_matrix = supercell_matrix
         self.t_step = t_step
         self.t_max = t_max
@@ -238,8 +241,7 @@ class PheasyCalc(PropCalc):
 
         sga = SpacegroupAnalyzer(structure, symprec=self.symprec)
         structure_in = sga.get_primitive_standard_structure()
-        
-
+    
         cell = get_phonopy_structure(structure_in)
 
 
@@ -390,16 +392,16 @@ class PheasyCalc(PropCalc):
         if self.calc_anharmonic:
             logger.info("Calculating anharmonic properties...")
             subprocess.call("rm -f disp_matrix.pkl force_matrix.pkl ", shell=True)
-            self.atom_disp = 0.1
+            
             if self.num_anharmonic_snapshots is None:
-                phonon.generate_displacements(distance=self.atom_disp)
+                phonon.generate_displacements(distance=self.atom_disp_anhar)
                 self.num_anharmonic_snapshots = len(phonon.displacements) * 10
                 phonon.generate_displacements(
-                    distance=self.atom_disp, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42
+                    distance=self.atom_disp_anhar, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42
                 )
             else:
                 phonon.generate_displacements(
-                    distance=self.atom_disp, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42
+                    distance=self.atom_disp_anhar, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42
                 )
             disp_supercells = phonon.supercells_with_displacements
             disp_array = []
