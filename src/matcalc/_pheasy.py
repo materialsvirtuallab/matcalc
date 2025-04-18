@@ -110,6 +110,20 @@ class PheasyCalc(PropCalc):
     :ivar force_diagonal: Boolean flag to determine whether to force the
         diagonalization of the supercell.
     :type force_diagonal: bool
+    :ivar cutoff_distance_cubic: Cutoff distance for cubic force constants.
+    :type cutoff_distance_cubic: float
+    :ivar cutoff_distance_quartic: Cutoff distance for quartic force
+        constants.
+    :type cutoff_distance_quartic: float
+    :ivar cutoff_distance_quintic: Cutoff distance for quintic force
+        constants.
+    :type cutoff_distance_quintic: float
+    :ivar cutoff_distance_sextic: Cutoff distance for sextic force
+        constants.
+    :type cutoff_distance_sextic: float
+    :ivar no_lasso_fitting_anhar: Boolean flag to determine whether to
+        disable LASSO fitting for anharmonic calculations.
+    :type no_lasso_fitting_anhar: bool
     """
 
     def __init__(
@@ -137,6 +151,11 @@ class PheasyCalc(PropCalc):
         symprec: float = 1e-5,
         min_length: float = 12.0,
         force_diagonal: bool = True,
+        cutoff_distance_cubic: float = 6.3,
+        cutoff_distance_quartic: float = 5.3,
+        cutoff_distance_quintic: float = 3.3,
+        cutoff_distance_sextic: float = 3.3,
+        no_lasso_fitting_anhar: bool = False,
     ) -> None:
         """
         Initializes the class with configuration for the phonon calculations. The initialization parameters control
@@ -168,6 +187,12 @@ class PheasyCalc(PropCalc):
             the number of displacements.
         :param calc_anharmonic: Flag to indicate whether anharmonic calculations should be performed.
         :param symprec: Symmetry precision for structure symmetry analysis.
+        :param min_length: Minimum length for the supercell.
+        :param force_diagonal: Flag to indicate whether to force the diagonalization of the supercell.
+        :param cutoff_distance_cubic: Cutoff distance for cubic force constants.
+        :param cutoff_distance_quartic: Cutoff distance for quartic force constants.
+        :param cutoff_distance_quintic: Cutoff distance for quintic force constants.
+        :param cutoff_distance_sextic: Cutoff distance for sextic force constants.
         """
 
         self.calculator = calculator  # type: ignore[assignment]
@@ -194,6 +219,11 @@ class PheasyCalc(PropCalc):
         self.symprec = symprec
         self.min_length = min_length
         self.force_diagonal = force_diagonal
+        self.cutoff_distance_cubic = cutoff_distance_cubic
+        self.cutoff_distance_quartic = cutoff_distance_quartic
+        self.cutoff_distance_quintic = cutoff_distance_quintic
+        self.cutoff_distance_sextic = cutoff_distance_sextic
+        self.no_lasso_fitting_anhar = no_lasso_fitting_anhar
 
         # Set default paths for output files.
         for key, val, default_path in (
@@ -325,12 +355,15 @@ class PheasyCalc(PropCalc):
 
         disp_array = np.array(disp_array)
 
+        logger.info("Saving disp_array and phonon.forces in files...")
         with open("disp_matrix.pkl", "wb") as file:
             pickle.dump(disp_array, file)
         with open("force_matrix.pkl", "wb") as file:
             pickle.dump(phonon.forces, file)
 
         supercell = phonon.get_supercell()
+        
+        logger.info("Writing POSCAR and SPOSCAR files for Pheasy to read...")
         write_vasp("POSCAR", cell)
         write_vasp("SPOSCAR", supercell)
 
@@ -473,6 +506,11 @@ class PheasyCalc(PropCalc):
                 pickle.dump(disp_array, file)
             with open("force_matrix.pkl", "wb") as file:
                 pickle.dump(phonon.forces, file)
+
+            # determine the datasize of the disp_array and
+            # phonon.forces. The datasize is used to determine the
+            # number of displacements and forces in the pheasy
+            # command. 
             num_anh = disp_array.shape[0]
             supercell_matrix = self.supercell_matrix
             
@@ -481,8 +519,8 @@ class PheasyCalc(PropCalc):
                 f"{int(supercell_matrix[1][1])} "
                 f"{int(supercell_matrix[2][2])} -s -w 4 --symprec "
                 f"{float(self.symprec)} "
-                f"--nbody 2 3 3 --c3 6.3 "
-                f"--c4 5.3"
+                f"--nbody 2 3 3 --c3 {float(self.cutoff_distance_cubic)} "
+                f"--c4 {float(self.cutoff_distance_quartic)}"
             )
             logger.info("pheasy_cmd_5 = %s", pheasy_cmd_5)
 
@@ -503,15 +541,25 @@ class PheasyCalc(PropCalc):
             )
             logger.info("pheasy_cmd_7 = %s", pheasy_cmd_7)
 
-            pheasy_cmd_8 = (
-                f"pheasy --dim {int(supercell_matrix[0][0])} "
-                f"{int(supercell_matrix[1][1])} "
-                f"{int(supercell_matrix[2][2])} -f -w 4 --fix_fc2 "
-                f"--symprec {float(self.symprec)} "
-                f"--ndata {int(num_anh)} "
-                f"-l LASSO --std"
-            )
-            logger.info("pheasy_cmd_8 = %s", pheasy_cmd_8)
+            if self.no_lasso_fitting_anhar:
+                pheasy_cmd_8 = (
+                    f"pheasy --dim {int(supercell_matrix[0][0])} "
+                    f"{int(supercell_matrix[1][1])} "
+                    f"{int(supercell_matrix[2][2])} -f -w 4 --fix_fc2 "
+                    f"--symprec {float(self.symprec)} "
+                    f"--ndata {int(num_anh)} "
+                )
+                logger.info("pheasy_cmd_8 = %s", pheasy_cmd_8)
+            else:
+                 pheasy_cmd_8 = (
+                     f"pheasy --dim {int(supercell_matrix[0][0])} "
+                     f"{int(supercell_matrix[1][1])} "
+                     f"{int(supercell_matrix[2][2])} -f -w 4 --fix_fc2 "
+                     f"--symprec {float(self.symprec)} "
+                     f"--ndata {int(num_anh)} "
+                     f"-l LASSO --std"
+                 )
+                 logger.info("pheasy_cmd_8 = %s", pheasy_cmd_8)
 
             logger.info("Start running pheasy in cluster")
 
