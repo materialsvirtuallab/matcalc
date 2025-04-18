@@ -91,6 +91,18 @@ class PheasyCalc(PropCalc):
         the calculated phonon properties (e.g., phonon.yaml) to an output
         file, and the path or name of the file if applicable.
     :type write_phonon: bool | str | Path
+    :ivar fitting_method: Method for fitting force constants. Options are
+        "FDM", "LASSO", or "MD".
+    :type fitting_method: str
+    :ivar num_harmonic_snapshots: Number of snapshots for harmonic fitting.
+        If None, it is set to double the number of displacements.
+    :type num_harmonic_snapshots: Optional[int]
+    :ivar num_anharmonic_snapshots: Number of snapshots for anharmonic
+        fitting. If None, it is set to ten times the number of displacements.
+    :type num_anharmonic_snapshots: Optional[int]
+    :ivar calc_anharmonic: Boolean flag to determine whether to perform
+        anharmonic calculations.
+    :type calc_anharmonic: bool
     """
 
     def __init__(
@@ -139,6 +151,12 @@ class PheasyCalc(PropCalc):
         :param write_total_dos: File path or boolean flag to write total density of states (DOS) data.
             Defaults to "total_dos.dat".
         :param write_phonon: File path or boolean flag to write phonon data. Defaults to "phonon.yaml".
+        :param fitting_method: Method for fitting force constants. Options are "FDM", "LASSO", or "MD".
+        :param num_harmonic_snapshots: Number of snapshots for harmonic fitting. If None, it is set to double the
+            number of displacements.
+        :param num_anharmonic_snapshots: Number of snapshots for anharmonic fitting. If None, it is set to ten times
+            the number of displacements.
+        :param calc_anharmonic: Flag to indicate whether anharmonic calculations should be performed.
         """
         self.calculator = calculator  # type: ignore[assignment]
         self.atom_disp = atom_disp
@@ -268,6 +286,9 @@ class PheasyCalc(PropCalc):
         num_har = disp_array.shape[0]
         supercell_matrix = self.supercell_matrix
         symprec = 1e-3
+
+        logger.info("start running pheasy for second order force constants in cluster")
+        
         pheasy_cmd_1 = (
             f'pheasy --dim "{int(supercell_matrix[0][0])}" "{int(supercell_matrix[1][1])}" '
             f'"{int(supercell_matrix[2][2])}" -s -w 2 --symprec "{float(symprec)}" --nbody 2'
@@ -294,7 +315,7 @@ class PheasyCalc(PropCalc):
                 f'--rasr BHH --ndata "{int(num_har)}"'
             )
 
-        #logger.info("Start running pheasy in cluster")
+        logger.info("Start running pheasy in cluster")
 
         subprocess.call(pheasy_cmd_1, shell=True)
         subprocess.call(pheasy_cmd_2, shell=True)
@@ -319,11 +340,25 @@ class PheasyCalc(PropCalc):
             phonon.auto_total_dos(write_dat=True, filename=self.write_total_dos)
         if self.write_phonon:
             phonon.save(filename=self.write_phonon)
-        print("Phonon calculations finished.")
-        print("Calculating thermal properties...")
-        self.calc_anharmonic = True
+        
+        logger.info("Phonon calculations finished.")
+        logger.info("Calculating anharmonic force constants...")
+
+        # If the anharmonic calculation is requested, we need to
+        # generate the displacements and forces for the supercells.
+        # The displacements are generated with the same distance as
+        # the harmonic calculation, but the number of snapshots is
+        # set to 10 times the number of displacements.
+        # The forces are calculated with the same calculator as the
+        # harmonic calculation, but the forces are shifted by the
+        # equilibrium forces of the supercell.
+        # The displacements are saved in a file called disp_matrix.pkl
+        # and the forces are saved in a file called force_matrix.pkl.
+        # The files are used by the pheasy command to calculate the
+        # anharmonic force constants.
+
         if self.calc_anharmonic:
-            print("Calculating anharmonic properties...")
+            logger.info("Calculating anharmonic properties...")
             subprocess.call("rm -f disp_matrix.pkl force_matrix.pkl ", shell=True)
             self.atom_disp = 0.1
             if self.num_anharmonic_snapshots is None:
@@ -394,8 +429,6 @@ class PheasyCalc(PropCalc):
             subprocess.call(pheasy_cmd_7, shell=True)
             subprocess.call(pheasy_cmd_8, shell=True)
 
-
-            
 
         return result | {"phonon": phonon, "thermal_properties": phonon.get_thermal_properties_dict()}
 
