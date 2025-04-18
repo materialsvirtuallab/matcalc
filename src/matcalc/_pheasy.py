@@ -165,7 +165,7 @@ class PheasyCalc(PropCalc):
         self.write_band_structure = write_band_structure
         self.write_total_dos = write_total_dos
         self.write_phonon = write_phonon
-        
+
         # some new parameters for pheasy
         self.fitting_method = fitting_method
         self.num_harmonic_snapshots = num_harmonic_snapshots
