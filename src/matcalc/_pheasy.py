@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import subprocess
+import logging
 
 import phonopy
 from phonopy.file_IO import write_FORCE_CONSTANTS as write_force_constants
@@ -23,11 +24,15 @@ from ._relaxation import RelaxCalc
 if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
+    from typing import Optional
 
     from ase.calculators.calculator import Calculator
     from numpy.typing import ArrayLike
     from phonopy.structure.atoms import PhonopyAtoms
     from pymatgen.core import Structure
+
+logger = logging.getLogger(__name__)
+
 
 
 class PheasyCalc(PropCalc):
@@ -107,7 +112,9 @@ class PheasyCalc(PropCalc):
         write_phonon: bool | str | Path = True,
 
         fitting_method: str = "LASSO",
-        num_snapshots: int = 2
+        num_harmonic_snapshots: Optional[int] = None,
+        num_anharmonic_snapshots: Optional[int] = None,
+        calc_anharmonic: bool = False, 
 
     ) -> None:
         """
@@ -149,7 +156,10 @@ class PheasyCalc(PropCalc):
         self.write_phonon = write_phonon
 
         self.fitting_method = fitting_method
-        self.num_snapshots = num_snapshots
+        self.num_harmonic_snapshots = num_harmonic_snapshots
+        self.num_anharmonic_snapshots = num_anharmonic_snapshots
+        self.calc_anharmonic = calc_anharmonic
+        
 
         # Set default paths for output files.
         for key, val, default_path in (
@@ -205,7 +215,12 @@ class PheasyCalc(PropCalc):
             phonon.generate_displacements(distance=self.atom_disp)
         
         elif self.fitting_method == "LASSO":
-            phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_snapshots, random_seed=42)
+            if self.num_harmonic_snapshots is None:
+                phonon.generate_displacements(distance=self.atom_disp)
+
+                self.num_harmonic_snapshots = len(phonon.displacements)*2
+
+                phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_harmonic_snapshots, random_seed=42)
         
         elif self.fitting_method == "MD":
             #pass
@@ -224,6 +239,9 @@ class PheasyCalc(PropCalc):
             for supercell in disp_supercells  # type:ignore[union-attr]
             if supercell is not None
         ]
+
+        force_equilibrium = _calc_forces(self.calculator, phonon.supercell)  # type: ignore[union-attr]
+        phonon.forces = np.array(phonon.forces) - force_equilibrium  # type: ignore[assignment]
 
 
         for i, supercell in enumerate(disp_supercells):
@@ -247,7 +265,7 @@ class PheasyCalc(PropCalc):
         write_vasp("POSCAR", cell)
         write_vasp("SPOSCAR", supercell)
 
-        num_har = 2
+        num_har = disp_array.shape[0]
         supercell_matrix = self.supercell_matrix
         symprec = 1e-3
         pheasy_cmd_1 = (
@@ -283,6 +301,8 @@ class PheasyCalc(PropCalc):
         subprocess.call(pheasy_cmd_3, shell=True)
         subprocess.call(pheasy_cmd_4, shell=True)
 
+
+
         force_constants = parse_FORCE_CONSTANTS(filename="FORCE_CONSTANTS")
         phonon.force_constants = force_constants
         phonon.symmetrize_force_constants()
@@ -299,6 +319,83 @@ class PheasyCalc(PropCalc):
             phonon.auto_total_dos(write_dat=True, filename=self.write_total_dos)
         if self.write_phonon:
             phonon.save(filename=self.write_phonon)
+        print("Phonon calculations finished.")
+        print("Calculating thermal properties...")
+        self.calc_anharmonic = True
+        if self.calc_anharmonic:
+            print("Calculating anharmonic properties...")
+            subprocess.call("rm -f disp_matrix.pkl force_matrix.pkl ", shell=True)
+
+            self.atom_disp = 0.1
+
+            if self.num_anharmonic_snapshots is None:
+                phonon.generate_displacements(distance=self.atom_disp)
+                self.num_anharmonic_snapshots = len(phonon.displacements)*10
+                phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42)
+            else:
+                phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42)
+            disp_supercells = phonon.supercells_with_displacements
+            disp_array = []
+            phonon.forces = [  # type: ignore[assignment]
+                _calc_forces(self.calculator, supercell)
+                for supercell in disp_supercells  # type:ignore[union-attr]
+                if supercell is not None
+            ]
+            force_equilibrium = _calc_forces(self.calculator, phonon.supercell)
+            phonon.forces = np.array(phonon.forces) - force_equilibrium
+            for i, supercell in enumerate(disp_supercells):
+                disp = supercell.get_positions() - phonon.supercell.get_positions()
+                disp_array.append(np.array(disp))
+            disp_array = np.array(disp_array)
+            with open("disp_matrix.pkl", "wb") as file:
+                pickle.dump(disp_array, file)
+            with open("force_matrix.pkl", "wb") as file:
+                pickle.dump(phonon.forces, file)
+            num_anh = disp_array.shape[0]
+            supercell_matrix = self.supercell_matrix
+            symprec = 1e-3
+            pheasy_cmd_5 = (
+                f"pheasy --dim {int(supercell_matrix[0][0])} "
+                f"{int(supercell_matrix[1][1])} "
+                f"{int(supercell_matrix[2][2])} -s -w 4 --symprec "
+                f"{float(symprec)} "
+                f"--nbody 2 3 3 --c3 6.3 "
+                f"--c4 5.3"
+            )
+            logger.info("pheasy_cmd_5 = %s", pheasy_cmd_5)
+
+            pheasy_cmd_6 = (
+                f"pheasy --dim {int(supercell_matrix[0][0])} "
+                f"{int(supercell_matrix[1][1])} "
+                f"{int(supercell_matrix[2][2])} -c --symprec "
+                f"{float(symprec)} -w 4"
+            )
+            logger.info("pheasy_cmd_6 = %s", pheasy_cmd_6)
+            pheasy_cmd_7 = (
+                f"pheasy --dim {int(supercell_matrix[0][0])} "
+                f"{int(supercell_matrix[1][1])} "
+                f"{int(supercell_matrix[2][2])} -w 4 -d --symprec "
+                f"{float(symprec)} "
+                f"--ndata {int(num_anh)} --disp_file"
+            )
+            logger.info("pheasy_cmd_7 = %s", pheasy_cmd_7)
+            pheasy_cmd_8 = (
+                f"pheasy --dim {int(supercell_matrix[0][0])} "
+                f"{int(supercell_matrix[1][1])} "
+                f"{int(supercell_matrix[2][2])} -f -w 4 --fix_fc2 "
+                f"--symprec {float(symprec)} "
+                f"--ndata {int(num_anh)} "
+                f"-l LASSO --std"
+            )
+            logger.info("pheasy_cmd_8 = %s", pheasy_cmd_8)
+            logger.info("Start running pheasy in cluster")
+
+            subprocess.call(pheasy_cmd_5, shell=True)
+            subprocess.call(pheasy_cmd_6, shell=True)
+            subprocess.call(pheasy_cmd_7, shell=True)
+            subprocess.call(pheasy_cmd_8, shell=True)
+
+
         return result | {"phonon": phonon, "thermal_properties": phonon.get_thermal_properties_dict()}
 
 
