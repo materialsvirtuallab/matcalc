@@ -278,7 +278,7 @@ class PheasyCalc(PropCalc):
         elif self.fitting_method == "MD":
             # pass
             # phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_snapshots)
-            
+
             logger.info("MD fitting method is not implemented yet.")
 
         else:
@@ -301,11 +301,9 @@ class PheasyCalc(PropCalc):
             disp = supercell.get_positions() - phonon.supercell.get_positions()
             disp_array.append(np.array(disp))
 
-        
-  
         logger.info("Forces calculated for the supercells.")
         logger.info("Producing force constants...")
-        
+
         disp_array = np.array(disp_array)
 
         with open("disp_matrix.pkl", "wb") as file:
