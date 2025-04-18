@@ -422,10 +422,6 @@ class PheasyCalc(PropCalc):
             subprocess.call(pheasy_cmd_7, shell=True)
             subprocess.call(pheasy_cmd_8, shell=True)
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 09cc4a62bd4c3476446f53fde9b57be501c04ea1
         return result | {"phonon": phonon, "thermal_properties": phonon.get_thermal_properties_dict()}
 
 
