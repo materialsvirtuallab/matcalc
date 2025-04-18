@@ -20,7 +20,6 @@ from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )
 
-
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
 
@@ -111,7 +110,7 @@ class PheasyCalc(PropCalc):
         calculator: Calculator | str,
         *,
         atom_disp: float = 0.015,
-        #supercell_matrix: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2)),
+        # supercell_matrix: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2)),
         supercell_matrix: ArrayLike | None = None,
         t_step: float = 10,
         t_max: float = 1000,
@@ -228,7 +227,6 @@ class PheasyCalc(PropCalc):
             structure_in = result["final_structure"]
         cell = get_phonopy_structure(structure_in)
 
-
         # If the supercell matrix is not provided, we need to determine the
         # supercell matrix from the structure. We use the
         # CubicSupercellTransformation to determine the supercell matrix.
@@ -236,12 +234,12 @@ class PheasyCalc(PropCalc):
         # from the primitive cell to the supercell. The supercell matrix is
         # used to generate the supercell for the phonon calculations.
         if self.supercell_matrix is None:
-            transformation = CubicSupercellTransformation(min_length=12.0,force_diagonal=True)
+            transformation = CubicSupercellTransformation(min_length=12.0, force_diagonal=True)
             supercell = transformation.apply_transformation(structure_in)
-            self.supercell_matrix=np.array(transformation.transformation_matrix.transpose().tolist())
+            self.supercell_matrix = np.array(transformation.transformation_matrix.transpose().tolist())
             # transfer it to array
-            
-            #self.supercell_matrix = supercell.lattice.matrix
+
+            # self.supercell_matrix = supercell.lattice.matrix
         else:
             transformation = None
 
