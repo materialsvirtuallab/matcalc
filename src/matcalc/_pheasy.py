@@ -14,7 +14,6 @@ from phonopy.file_IO import write_FORCE_CONSTANTS as write_force_constants
 from phonopy.interface.vasp import write_vasp
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 # import pymatgen libraries to determine supercell
 from pymatgen.transformations.advanced_transformations import (
@@ -240,8 +239,8 @@ class PheasyCalc(PropCalc):
 
         """I donot know why the following code does not work. if i apply it and will give a huge error in force calculation"""
 
-        #sga = SpacegroupAnalyzer(structure, symprec=self.symprec)
-        #structure_in = sga.get_primitive_standard_structure()
+        # sga = SpacegroupAnalyzer(structure, symprec=self.symprec)
+        # structure_in = sga.get_primitive_standard_structure()
 
         cell = get_phonopy_structure(structure_in)
 
