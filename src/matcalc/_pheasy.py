@@ -131,7 +131,7 @@ class PheasyCalc(PropCalc):
         num_harmonic_snapshots: int | None = None,
         num_anharmonic_snapshots: int | None = None,
         calc_anharmonic: bool = False,
-        symprec: float = 1e-3,
+        symprec: float = 1e-5,
     ) -> None:
         """
         Initializes the class with configuration for the phonon calculations. The initialization parameters control
@@ -238,8 +238,10 @@ class PheasyCalc(PropCalc):
         # generate the primitive cell from the structure
         # let's start the calculation from the primitive cell
 
-        sga = SpacegroupAnalyzer(structure, symprec=self.symprec)
-        structure_in = sga.get_primitive_standard_structure()
+        """I donot know why the following code does not work. if i apply it and will give a huge error in force calculation"""
+
+        #sga = SpacegroupAnalyzer(structure, symprec=self.symprec)
+        #structure_in = sga.get_primitive_standard_structure()
 
         cell = get_phonopy_structure(structure_in)
 
@@ -317,7 +319,7 @@ class PheasyCalc(PropCalc):
 
         num_har = disp_array.shape[0]
         supercell_matrix = self.supercell_matrix
-        symprec = 1e-3
+        symprec = 1e-5
 
         logger.info("start running pheasy for second order force constants in cluster")
 
