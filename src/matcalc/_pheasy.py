@@ -278,7 +278,7 @@ class PheasyCalc(PropCalc):
         symprec = 1e-3
 
         logger.info("start running pheasy for second order force constants in cluster")
-        
+
         pheasy_cmd_1 = (
             f'pheasy --dim "{int(supercell_matrix[0][0])}" "{int(supercell_matrix[1][1])}" '
             f'"{int(supercell_matrix[2][2])}" -s -w 2 --symprec "{float(symprec)}" --nbody 2'
@@ -330,7 +330,7 @@ class PheasyCalc(PropCalc):
             phonon.auto_total_dos(write_dat=True, filename=self.write_total_dos)
         if self.write_phonon:
             phonon.save(filename=self.write_phonon)
-        
+
         logger.info("Phonon calculations finished.")
         logger.info("Calculating anharmonic force constants...")
 
