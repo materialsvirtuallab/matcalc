@@ -8,8 +8,7 @@ import subprocess
 
 
 import numpy as np
-from pymatgen.io.ase import AseAtomsAdaptor
-from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
+from pymatgen.io.phonopy import get_phonopy_structure
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )
@@ -86,11 +85,6 @@ class FourphononCalc(PropCalc):
         min_length: float = 12,
         force_diagonal: bool = True,
         supercell_matrix: ArrayLike | None = None,
-
-
-
-
-
         mesh_numbers: ArrayLike = (20, 20, 20),
         disp_kwargs: dict[str, Any] | None = None,
         thermal_conductivity_kwargs: dict | None = None,
@@ -139,8 +133,6 @@ class FourphononCalc(PropCalc):
         self.min_length = min_length
         self.force_diagonal = force_diagonal
         self.supercell_matrix = supercell_matrix
-
-
 
         self.mesh_numbers = mesh_numbers
         self.disp_kwargs = disp_kwargs if disp_kwargs is not None else {}
