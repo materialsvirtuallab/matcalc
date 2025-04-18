@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 class PheasyCalc(PropCalc):
     """
-    A class for phonon and thermal property calculations using phonopy.
+    A class for phonon and thermal property calculations using pheasy.
 
     The `PhononCalc` class extends the `PropCalc` class to provide
     functionalities for calculating phonon properties and thermal properties
