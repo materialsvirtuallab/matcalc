@@ -5,9 +5,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from phono3py import Phono3py
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
+from pymatgen.transformations.advanced_transformations import (
+    CubicSupercellTransformation,
+)
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
@@ -72,8 +74,14 @@ class FourphononCalc(PropCalc):
         self,
         calculator: Calculator | str,
         *,
-        fc2_supercell: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2)),
-        fc3_supercell: ArrayLike = ((2, 0, 0), (0, 2, 0), (0, 0, 2)),
+        min_length: float = 12,
+        force_diagonal: bool = True,
+        supercell_matrix: ArrayLike | None = None,
+
+
+
+
+
         mesh_numbers: ArrayLike = (20, 20, 20),
         disp_kwargs: dict[str, Any] | None = None,
         thermal_conductivity_kwargs: dict | None = None,
@@ -119,8 +127,12 @@ class FourphononCalc(PropCalc):
                             results to a file.
         """
         self.calculator = calculator  # type: ignore[assignment]
-        self.fc2_supercell = fc2_supercell
-        self.fc3_supercell = fc3_supercell
+        self.min_length = min_length
+        self.force_diagonal = force_diagonal
+        self.supercell_matrix = supercell_matrix
+
+
+
         self.mesh_numbers = mesh_numbers
         self.disp_kwargs = disp_kwargs if disp_kwargs is not None else {}
         self.thermal_conductivity_kwargs = (
@@ -177,61 +189,48 @@ class FourphononCalc(PropCalc):
             structure_in = result["final_structure"]
 
         cell = get_phonopy_structure(structure_in)
-        phonon3 = Phono3py(
-            unitcell=cell,
-            supercell_matrix=self.fc3_supercell,
-            phonon_supercell_matrix=self.fc2_supercell,
-            primitive_matrix="auto",
-        )  # type: ignore[arg-type]
 
-        if self.mesh_numbers is not None:
-            phonon3.mesh_numbers = self.mesh_numbers
+        if self.supercell_matrix is None:
+            transformation = CubicSupercellTransformation(
+                min_length=self.min_length, force_diagonal=self.force_diagonal
+            )
+            supercell = transformation.apply_transformation(structure_in)
+            self.supercell_matrix = np.array(transformation.transformation_matrix.transpose().tolist())
+            # transfer it to array
 
-        phonon3.generate_displacements(**self.disp_kwargs)
+            # self.supercell_matrix = supercell.lattice.matrix
+        else:
+            transformation = None
 
-        len(phonon3.phonon_supercells_with_displacements[0])
-        phonon_forces = []
-        for supercell in phonon3.phonon_supercells_with_displacements:
-            struct_supercell = get_pmg_structure(supercell)
-            atoms_supercell = AseAtomsAdaptor.get_atoms(struct_supercell)
-            atoms_supercell.calc = self.calculator
-            f = atoms_supercell.get_forces()
+        
 
-            phonon_forces.append(f)
-        fc2_set = np.array(phonon_forces)
-        phonon3.phonon_forces = fc2_set
 
-        len(phonon3.supercells_with_displacements[0])
-        forces = []
-        for supercell in phonon3.supercells_with_displacements:
-            if supercell is not None:
-                struct_supercell = get_pmg_structure(supercell)
-                atoms_supercell = AseAtomsAdaptor.get_atoms(struct_supercell)
-                atoms_supercell.calc = self.calculator
-                f = atoms_supercell.get_forces()
-                forces.append(f)
-        fc3_set = np.array(forces)
-        phonon3.forces = fc3_set
 
-        phonon3.produce_fc2(symmetrize_fc2=True)
-        phonon3.produce_fc3(symmetrize_fc3r=True)
-        phonon3.init_phph_interaction()
 
-        temperatures = np.arange(self.t_min, self.t_max + self.t_step, self.t_step)
-        phonon3.run_thermal_conductivity(
-            temperatures=temperatures,
-            **self.thermal_conductivity_kwargs,
-            write_kappa=self.write_kappa,
-        )
 
-        kappa = np.asarray(phonon3.thermal_conductivity.kappa_TOT_RTA)
-        kappa_ave = np.nan if kappa.size == 0 or np.any(np.isnan(kappa)) else kappa[..., :3].mean(axis=-1)
 
-        if self.write_phonon3:
-            phonon3.save(filename=self.write_phonon3)
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
 
         return {
-            "phonon3": phonon3,
-            "temperatures": temperatures,
-            "thermal_conductivity": np.squeeze(kappa_ave),
+            "phonon3": None,
+            "temperatures": None,
+            "thermal_conductivity": np.squeeze(np.full((1, 1), np.nan)),
         }
