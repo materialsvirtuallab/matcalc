@@ -43,7 +43,7 @@ class PheasyCalc(PropCalc):
     functionalities for calculating phonon properties and thermal properties
     of a given structure using the phonopy library. It includes options for
     structural relaxation before phonon property and higher-order force constants
-    determination, as well as methods to export calculated properties to 
+    determination, as well as methods to export calculated properties to
     various output files for further analysis or visualization.
 
     :ivar calculator: A calculator object or a string specifying the
@@ -194,7 +194,6 @@ class PheasyCalc(PropCalc):
         :param cutoff_distance_quintic: Cutoff distance for quintic force constants.
         :param cutoff_distance_sextic: Cutoff distance for sextic force constants.
         """
-
         self.calculator = calculator  # type: ignore[assignment]
         self.atom_disp = atom_disp
         self.atom_disp_anhar = atom_disp_anhar
@@ -268,10 +267,7 @@ class PheasyCalc(PropCalc):
 
         if self.relax_structure:
             relaxer = RelaxCalc(
-                self.calculator, 
-                fmax=self.fmax, 
-                optimizer=self.optimizer, 
-                **(self.relax_calc_kwargs or {})
+                self.calculator, fmax=self.fmax, optimizer=self.optimizer, **(self.relax_calc_kwargs or {})
             )
             result |= relaxer.calc(structure_in)
             structure_in = result["final_structure"]
@@ -279,7 +275,7 @@ class PheasyCalc(PropCalc):
         # generate the primitive cell from the structure
         # let's start the calculation from the primitive cell
 
-        """I donot know why the following code does not work. 
+        """I donot know why the following code does not work.
         if i apply it and will give a huge error in force calculation"""
 
         # sga = SpacegroupAnalyzer(structure, symprec=self.symprec)
@@ -295,12 +291,11 @@ class PheasyCalc(PropCalc):
         # used to generate the supercell for the phonon calculations.
 
         if self.supercell_matrix is None:
-            transformation = CubicSupercellTransformation(min_length=self.min_length,
-                                                           force_diagonal=self.force_diagonal)
+            transformation = CubicSupercellTransformation(
+                min_length=self.min_length, force_diagonal=self.force_diagonal
+            )
             supercell = transformation.apply_transformation(structure_in)
-            self.supercell_matrix = np.array(
-                transformation.transformation_matrix.transpose().tolist()
-                )
+            self.supercell_matrix = np.array(transformation.transformation_matrix.transpose().tolist())
             # transfer it to array
 
             # self.supercell_matrix = supercell.lattice.matrix
@@ -319,9 +314,7 @@ class PheasyCalc(PropCalc):
                 self.num_harmonic_snapshots = len(phonon.displacements) * 2
 
                 phonon.generate_displacements(
-                    distance=self.atom_disp, 
-                    number_of_snapshots=self.num_harmonic_snapshots, 
-                    random_seed=42
+                    distance=self.atom_disp, number_of_snapshots=self.num_harmonic_snapshots, random_seed=42
                 )
 
         elif self.fitting_method == "MD":
@@ -369,7 +362,6 @@ class PheasyCalc(PropCalc):
 
         num_har = disp_array.shape[0]
         supercell_matrix = self.supercell_matrix
-        
 
         logger.info("start running pheasy for second order force constants in cluster")
 
@@ -414,41 +406,28 @@ class PheasyCalc(PropCalc):
         # The file is used by the ShengBTE and FOURPHON to calculate the
         # thermal conductivity.
 
-        write_force_constants(
-            phonon.force_constants, 
-            filename="FORCE_CONSTANTS_2ND"
-        )
-        
+        write_force_constants(phonon.force_constants, filename="FORCE_CONSTANTS_2ND")
+
         logger.info("Finished running Pheasy and FCs are ready.")
 
         logger.info("Running phonon calculations...")
         phonon.run_mesh()
-        phonon.run_thermal_properties(
-            t_step=self.t_step,
-            t_max=self.t_max, 
-            t_min=self.t_min)
-        
+        phonon.run_thermal_properties(t_step=self.t_step, t_max=self.t_max, t_min=self.t_min)
+
         if self.write_force_constants:
-            write_force_constants(
-                phonon.force_constants, 
-                filename=self.write_force_constants)
-            
+            write_force_constants(phonon.force_constants, filename=self.write_force_constants)
+
         if self.write_band_structure:
-            phonon.auto_band_structure(
-                write_yaml=True, 
-                filename=self.write_band_structure)
-            
+            phonon.auto_band_structure(write_yaml=True, filename=self.write_band_structure)
+
         if self.write_total_dos:
-            phonon.auto_total_dos(
-                write_dat=True, 
-                filename=self.write_total_dos)
-            
+            phonon.auto_total_dos(write_dat=True, filename=self.write_total_dos)
+
         if self.write_phonon:
             phonon.save(filename=self.write_phonon)
 
         logger.info("Phonon calculations finished.")
 
-        
         # If the anharmonic calculation is requested, we need to
         # generate the displacements and forces for the supercells.
         # The displacements are generated with the same distance as
@@ -474,15 +453,11 @@ class PheasyCalc(PropCalc):
                 phonon.generate_displacements(distance=self.atom_disp_anhar)
                 self.num_anharmonic_snapshots = len(phonon.displacements) * 10
                 phonon.generate_displacements(
-                    distance=self.atom_disp_anhar, 
-                    number_of_snapshots=self.num_anharmonic_snapshots, 
-                    random_seed=42
+                    distance=self.atom_disp_anhar, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42
                 )
             else:
                 phonon.generate_displacements(
-                    distance=self.atom_disp_anhar, 
-                    number_of_snapshots=self.num_anharmonic_snapshots, 
-                    random_seed=42
+                    distance=self.atom_disp_anhar, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42
                 )
             disp_supercells = phonon.supercells_with_displacements
             disp_array = []
@@ -513,7 +488,7 @@ class PheasyCalc(PropCalc):
             # command. 
             num_anh = disp_array.shape[0]
             supercell_matrix = self.supercell_matrix
-            
+
             pheasy_cmd_5 = (
                 f"pheasy --dim {int(supercell_matrix[0][0])} "
                 f"{int(supercell_matrix[1][1])} "
