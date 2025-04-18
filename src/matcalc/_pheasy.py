@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 import logging
-import numpy as np
 import pickle
 import subprocess
 from typing import TYPE_CHECKING
 
-import subprocess
-
+import numpy as np
 import phonopy
 from phonopy.file_IO import parse_FORCE_CONSTANTS
 from phonopy.file_IO import write_FORCE_CONSTANTS as write_force_constants
