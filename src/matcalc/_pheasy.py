@@ -355,7 +355,7 @@ class PheasyCalc(PropCalc):
             pickle.dump(phonon.forces, file)
 
         supercell = phonon.get_supercell()
-        
+
         logger.info("Writing POSCAR and SPOSCAR files for Pheasy to read...")
         write_vasp("POSCAR", cell)
         write_vasp("SPOSCAR", supercell)
@@ -485,7 +485,7 @@ class PheasyCalc(PropCalc):
             # determine the datasize of the disp_array and
             # phonon.forces. The datasize is used to determine the
             # number of displacements and forces in the pheasy
-            # command. 
+            # command.
             num_anh = disp_array.shape[0]
             supercell_matrix = self.supercell_matrix
 
@@ -526,15 +526,15 @@ class PheasyCalc(PropCalc):
                 )
                 logger.info("pheasy_cmd_8 = %s", pheasy_cmd_8)
             else:
-                 pheasy_cmd_8 = (
-                     f"pheasy --dim {int(supercell_matrix[0][0])} "
-                     f"{int(supercell_matrix[1][1])} "
-                     f"{int(supercell_matrix[2][2])} -f -w 4 --fix_fc2 "
-                     f"--symprec {float(self.symprec)} "
-                     f"--ndata {int(num_anh)} "
-                     f"-l LASSO --std"
-                 )
-                 logger.info("pheasy_cmd_8 = %s", pheasy_cmd_8)
+                pheasy_cmd_8 = (
+                    f"pheasy --dim {int(supercell_matrix[0][0])} "
+                    f"{int(supercell_matrix[1][1])} "
+                    f"{int(supercell_matrix[2][2])} -f -w 4 --fix_fc2 "
+                    f"--symprec {float(self.symprec)} "
+                    f"--ndata {int(num_anh)} "
+                    f"-l LASSO --std"
+                )
+                logger.info("pheasy_cmd_8 = %s", pheasy_cmd_8)
 
             logger.info("Start running pheasy in cluster")
 
