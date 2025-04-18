@@ -19,6 +19,7 @@ from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
 from ._base import PropCalc
@@ -104,6 +105,8 @@ class PheasyCalc(PropCalc):
     :ivar calc_anharmonic: Boolean flag to determine whether to perform
         anharmonic calculations.
     :type calc_anharmonic: bool
+    :ivar symprec: Symmetry precision for structure symmetry analysis.
+    :type symprec: float
     """
 
     def __init__(
@@ -128,6 +131,7 @@ class PheasyCalc(PropCalc):
         num_harmonic_snapshots: int | None = None,
         num_anharmonic_snapshots: int | None = None,
         calc_anharmonic: bool = False,
+        symprec: float = 1e-3,
     ) -> None:
         """
         Initializes the class with configuration for the phonon calculations. The initialization parameters control
@@ -157,6 +161,7 @@ class PheasyCalc(PropCalc):
         :param num_anharmonic_snapshots: Number of snapshots for anharmonic fitting. If None, it is set to ten times
             the number of displacements.
         :param calc_anharmonic: Flag to indicate whether anharmonic calculations should be performed.
+        :param symprec: Symmetry precision for structure symmetry analysis.
         """
         self.calculator = calculator  # type: ignore[assignment]
         self.atom_disp = atom_disp
@@ -178,6 +183,7 @@ class PheasyCalc(PropCalc):
         self.num_harmonic_snapshots = num_harmonic_snapshots
         self.num_anharmonic_snapshots = num_anharmonic_snapshots
         self.calc_anharmonic = calc_anharmonic
+        self.symprec = symprec
 
         # Set default paths for output files.
         for key, val, default_path in (
@@ -226,15 +232,25 @@ class PheasyCalc(PropCalc):
             )
             result |= relaxer.calc(structure_in)
             structure_in = result["final_structure"]
+        
+        # generate the primitive cell from the structure
+        # let's start the calculation from the primitive cell
+
+        sga = SpacegroupAnalyzer(structure, symprec=self.symprec)
+        structure_in = sga.get_primitive_standard_structure()
+        
+
         cell = get_phonopy_structure(structure_in)
 
-
+        
+        
         # If the supercell matrix is not provided, we need to determine the
         # supercell matrix from the structure. We use the
         # CubicSupercellTransformation to determine the supercell matrix.
         # The supercell matrix is a 3x3 matrix that defines the transformation
         # from the primitive cell to the supercell. The supercell matrix is
         # used to generate the supercell for the phonon calculations.
+
         if self.supercell_matrix is None:
             transformation = CubicSupercellTransformation(min_length=12.0,force_diagonal=True)
             supercell = transformation.apply_transformation(structure_in)
@@ -244,6 +260,7 @@ class PheasyCalc(PropCalc):
             #self.supercell_matrix = supercell.lattice.matrix
         else:
             transformation = None
+
 
         phonon = phonopy.Phonopy(cell, self.supercell_matrix)  # type: ignore[arg-type]
 
