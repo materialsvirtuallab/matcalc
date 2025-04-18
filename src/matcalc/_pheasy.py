@@ -240,7 +240,6 @@ class PheasyCalc(PropCalc):
 
         sga = SpacegroupAnalyzer(structure, symprec=self.symprec)
         structure_in = sga.get_primitive_standard_structure()
-        
 
         cell = get_phonopy_structure(structure_in)
 
@@ -390,7 +389,7 @@ class PheasyCalc(PropCalc):
         if self.calc_anharmonic:
             logger.info("Calculating anharmonic properties...")
             subprocess.call("rm -f disp_matrix.pkl force_matrix.pkl ", shell=True)
-            
+
             if self.num_anharmonic_snapshots is None:
                 phonon.generate_displacements(distance=self.atom_disp_anhar)
                 self.num_anharmonic_snapshots = len(phonon.displacements) * 10
