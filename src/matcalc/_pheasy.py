@@ -2,21 +2,18 @@
 
 from __future__ import annotations
 
+import logging
+import pickle
+import subprocess
 from typing import TYPE_CHECKING
 
-import subprocess
-import logging
-
+import numpy as np
 import phonopy
+from phonopy.file_IO import parse_FORCE_CONSTANTS
 from phonopy.file_IO import write_FORCE_CONSTANTS as write_force_constants
+from phonopy.interface.vasp import write_vasp
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
-
-from phonopy.file_IO import parse_FORCE_CONSTANTS
-from phonopy.interface.vasp import write_vasp
-import numpy as np
-import pickle
-
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
@@ -24,7 +21,6 @@ from ._relaxation import RelaxCalc
 if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
-    from typing import Optional
 
     from ase.calculators.calculator import Calculator
     from numpy.typing import ArrayLike
@@ -32,7 +28,6 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 logger = logging.getLogger(__name__)
-
 
 
 class PheasyCalc(PropCalc):
@@ -110,12 +105,10 @@ class PheasyCalc(PropCalc):
         write_band_structure: bool | str | Path = False,
         write_total_dos: bool | str | Path = False,
         write_phonon: bool | str | Path = True,
-
         fitting_method: str = "LASSO",
-        num_harmonic_snapshots: Optional[int] = None,
-        num_anharmonic_snapshots: Optional[int] = None,
-        calc_anharmonic: bool = False, 
-
+        num_harmonic_snapshots: int | None = None,
+        num_anharmonic_snapshots: int | None = None,
+        calc_anharmonic: bool = False,
     ) -> None:
         """
         Initializes the class with configuration for the phonon calculations. The initialization parameters control
@@ -159,7 +152,6 @@ class PheasyCalc(PropCalc):
         self.num_harmonic_snapshots = num_harmonic_snapshots
         self.num_anharmonic_snapshots = num_anharmonic_snapshots
         self.calc_anharmonic = calc_anharmonic
-        
 
         # Set default paths for output files.
         for key, val, default_path in (
@@ -213,23 +205,25 @@ class PheasyCalc(PropCalc):
 
         if self.fitting_method == "FDM":
             phonon.generate_displacements(distance=self.atom_disp)
-        
+
         elif self.fitting_method == "LASSO":
             if self.num_harmonic_snapshots is None:
                 phonon.generate_displacements(distance=self.atom_disp)
 
-                self.num_harmonic_snapshots = len(phonon.displacements)*2
+                self.num_harmonic_snapshots = len(phonon.displacements) * 2
 
-                phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_harmonic_snapshots, random_seed=42)
-        
+                phonon.generate_displacements(
+                    distance=self.atom_disp, number_of_snapshots=self.num_harmonic_snapshots, random_seed=42
+                )
+
         elif self.fitting_method == "MD":
-            #pass
-            #phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_snapshots)
+            # pass
+            # phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_snapshots)
             print("MD fitting method is not implemented yet.")
 
         else:
             raise ValueError(f"Unknown fitting method: {self.fitting_method}")
-        
+
         disp_supercells = phonon.supercells_with_displacements
 
         disp_array = []
@@ -243,23 +237,19 @@ class PheasyCalc(PropCalc):
         force_equilibrium = _calc_forces(self.calculator, phonon.supercell)  # type: ignore[union-attr]
         phonon.forces = np.array(phonon.forces) - force_equilibrium  # type: ignore[assignment]
 
-
         for i, supercell in enumerate(disp_supercells):
             disp = supercell.get_positions() - phonon.supercell.get_positions()
             disp_array.append(np.array(disp))
-        
 
-        print (disp_array)
+        print(disp_array)
         print("Forces calculated for the supercells.")
         print("Producing force constants...")
         disp_array = np.array(disp_array)
-
 
         with open("disp_matrix.pkl", "wb") as file:
             pickle.dump(disp_array, file)
         with open("force_matrix.pkl", "wb") as file:
             pickle.dump(phonon.forces, file)
-
 
         supercell = phonon.get_supercell()
         write_vasp("POSCAR", cell)
@@ -289,19 +279,17 @@ class PheasyCalc(PropCalc):
         )
 
         pheasy_cmd_4 = (
-                f'pheasy --dim "{int(supercell_matrix[0][0])}" "{int(supercell_matrix[1][1])}" '
-                f'"{int(supercell_matrix[2][2])}" -f --full_ifc -w 2 --symprec "{float(symprec)}" '
-                f'--rasr BHH --ndata "{int(num_har)}"'
-            )
+            f'pheasy --dim "{int(supercell_matrix[0][0])}" "{int(supercell_matrix[1][1])}" '
+            f'"{int(supercell_matrix[2][2])}" -f --full_ifc -w 2 --symprec "{float(symprec)}" '
+            f'--rasr BHH --ndata "{int(num_har)}"'
+        )
 
-        #logger.info("Start running pheasy in cluster")
+        # logger.info("Start running pheasy in cluster")
 
         subprocess.call(pheasy_cmd_1, shell=True)
         subprocess.call(pheasy_cmd_2, shell=True)
         subprocess.call(pheasy_cmd_3, shell=True)
         subprocess.call(pheasy_cmd_4, shell=True)
-
-
 
         force_constants = parse_FORCE_CONSTANTS(filename="FORCE_CONSTANTS")
         phonon.force_constants = force_constants
@@ -327,12 +315,15 @@ class PheasyCalc(PropCalc):
             subprocess.call("rm -f disp_matrix.pkl force_matrix.pkl ", shell=True)
             self.atom_disp = 0.1
             if self.num_anharmonic_snapshots is None:
-
                 phonon.generate_displacements(distance=self.atom_disp)
-                self.num_anharmonic_snapshots = len(phonon.displacements)*10
-                phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42)
+                self.num_anharmonic_snapshots = len(phonon.displacements) * 10
+                phonon.generate_displacements(
+                    distance=self.atom_disp, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42
+                )
             else:
-                phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42)
+                phonon.generate_displacements(
+                    distance=self.atom_disp, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42
+                )
             disp_supercells = phonon.supercells_with_displacements
             disp_array = []
             phonon.forces = [  # type: ignore[assignment]
@@ -394,9 +385,6 @@ class PheasyCalc(PropCalc):
             subprocess.call(pheasy_cmd_7, shell=True)
             subprocess.call(pheasy_cmd_8, shell=True)
 
-
-            
-
         return result | {"phonon": phonon, "thermal_properties": phonon.get_thermal_properties_dict()}
 
 
@@ -414,4 +402,3 @@ def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:
     atoms = AseAtomsAdaptor.get_atoms(struct)
     atoms.calc = calculator
     return atoms.get_forces()
-
