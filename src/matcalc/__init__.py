@@ -15,6 +15,7 @@ from ._eos import EOSCalc
 from ._md import MDCalc
 from ._neb import NEBCalc
 from ._pheasy import PheasyCalc
+from ._fourphonon import FourPhononCalc
 from ._phonon import PhononCalc
 from ._phonon3 import Phonon3Calc
 from ._qha import QHACalc
