@@ -6,8 +6,7 @@ import pickle
 import subprocess
 from typing import TYPE_CHECKING
 
-import logging
-import numpy as np
+import subprocess
 
 import phonopy
 from phonopy.file_IO import parse_FORCE_CONSTANTS
