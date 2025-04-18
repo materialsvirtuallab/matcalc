@@ -6,8 +6,6 @@ import pickle
 import subprocess
 from typing import TYPE_CHECKING
 
-import subprocess
-
 import phonopy
 from phonopy.file_IO import parse_FORCE_CONSTANTS
 from phonopy.file_IO import write_FORCE_CONSTANTS as write_force_constants
@@ -21,7 +19,6 @@ from ._relaxation import RelaxCalc
 if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
-    from typing import Optional
 
     from ase.calculators.calculator import Calculator
     from numpy.typing import ArrayLike
@@ -29,7 +26,6 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 logger = logging.getLogger(__name__)
-
 
 
 class PheasyCalc(PropCalc):
@@ -108,8 +104,7 @@ class PheasyCalc(PropCalc):
         write_total_dos: bool | str | Path = False,
         write_phonon: bool | str | Path = True,
         fitting_method: str = "LASSO",
-        num_snapshots: int = 2
-
+        num_snapshots: int = 2,
     ) -> None:
         """
         Initializes the class with configuration for the phonon calculations. The initialization parameters control
@@ -153,7 +148,6 @@ class PheasyCalc(PropCalc):
         self.num_harmonic_snapshots = num_harmonic_snapshots
         self.num_anharmonic_snapshots = num_anharmonic_snapshots
         self.calc_anharmonic = calc_anharmonic
-        
 
         # Set default paths for output files.
         for key, val, default_path in (
@@ -209,8 +203,10 @@ class PheasyCalc(PropCalc):
             phonon.generate_displacements(distance=self.atom_disp)
 
         elif self.fitting_method == "LASSO":
-            phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_snapshots, random_seed=42)
-        
+            phonon.generate_displacements(
+                distance=self.atom_disp, number_of_snapshots=self.num_snapshots, random_seed=42
+            )
+
         elif self.fitting_method == "MD":
             # pass
             # phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_snapshots)
@@ -228,7 +224,6 @@ class PheasyCalc(PropCalc):
             for supercell in disp_supercells  # type:ignore[union-attr]
             if supercell is not None
         ]
-
 
         for i, supercell in enumerate(disp_supercells):
             disp = supercell.get_positions() - phonon.supercell.get_positions()
@@ -284,8 +279,6 @@ class PheasyCalc(PropCalc):
         subprocess.call(pheasy_cmd_3, shell=True)
         subprocess.call(pheasy_cmd_4, shell=True)
 
-
-
         force_constants = parse_FORCE_CONSTANTS(filename="FORCE_CONSTANTS")
         phonon.force_constants = force_constants
         phonon.symmetrize_force_constants()
@@ -313,10 +306,14 @@ class PheasyCalc(PropCalc):
 
             if self.num_anharmonic_snapshots is None:
                 phonon.generate_displacements(distance=self.atom_disp)
-                self.num_anharmonic_snapshots = len(phonon.displacements)*10
-                phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42)
+                self.num_anharmonic_snapshots = len(phonon.displacements) * 10
+                phonon.generate_displacements(
+                    distance=self.atom_disp, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42
+                )
             else:
-                phonon.generate_displacements(distance=self.atom_disp, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42)
+                phonon.generate_displacements(
+                    distance=self.atom_disp, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42
+                )
             disp_supercells = phonon.supercells_with_displacements
             disp_array = []
             phonon.forces = [  # type: ignore[assignment]
@@ -377,7 +374,6 @@ class PheasyCalc(PropCalc):
             subprocess.call(pheasy_cmd_6, shell=True)
             subprocess.call(pheasy_cmd_7, shell=True)
             subprocess.call(pheasy_cmd_8, shell=True)
-
 
         return result | {"phonon": phonon, "thermal_properties": phonon.get_thermal_properties_dict()}
 
