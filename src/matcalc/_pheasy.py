@@ -14,13 +14,12 @@ from phonopy.file_IO import write_FORCE_CONSTANTS as write_force_constants
 from phonopy.interface.vasp import write_vasp
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 # import pymatgen libraries to determine supercell
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
@@ -232,16 +231,14 @@ class PheasyCalc(PropCalc):
             )
             result |= relaxer.calc(structure_in)
             structure_in = result["final_structure"]
-        
+
         # generate the primitive cell from the structure
         # let's start the calculation from the primitive cell
 
         sga = SpacegroupAnalyzer(structure, symprec=self.symprec)
         structure_in = sga.get_primitive_standard_structure()
-        
 
         cell = get_phonopy_structure(structure_in)
-
 
         # If the supercell matrix is not provided, we need to determine the
         # supercell matrix from the structure. We use the
@@ -259,7 +256,6 @@ class PheasyCalc(PropCalc):
             # self.supercell_matrix = supercell.lattice.matrix
         else:
             transformation = None
-
 
         phonon = phonopy.Phonopy(cell, self.supercell_matrix)  # type: ignore[arg-type]
 
