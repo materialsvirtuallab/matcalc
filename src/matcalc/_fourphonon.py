@@ -2,20 +2,17 @@
 
 from __future__ import annotations
 
+import logging
+import subprocess
 from typing import TYPE_CHECKING
 
-import subprocess
-import logging
-
-
 import numpy as np
+import phonopy
+from phonopy.interface.vasp import read_vasp, write_vasp
 from pymatgen.io.phonopy import get_phonopy_structure
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )
-import phonopy
-from phonopy.interface.vasp import write_vasp, read_vasp
-
 
 try:
     import f90nml
@@ -220,69 +217,47 @@ class FourPhononCalc(PropCalc):
         unique_elements = list(dict.fromkeys(symbols))
         ngrid = [self.mesh_numbers[0], self.mesh_numbers[1], self.mesh_numbers[2]]
 
-
         # begin to write a control file for shengbte software
         # Namelist: &allocations
 
-        allocations = {'nelements': len(unique_elements),
-                       'natoms': len(positions),
-                       'ngrid': ngrid,
-                       'norientations': 0
-                       }
+        allocations = {"nelements": len(unique_elements), "natoms": len(positions), "ngrid": ngrid, "norientations": 0}
 
         # Namelist: &crystal
 
         crystal = {
-            'lfactor': 0.1,
-            'lattvec': lattvec,
-            'elements': unique_elements,
-            'types': [unique_elements.index(el) + 1 for el in symbols],
-            'positions': np.array(positions).tolist(),
-            'scell': scell
-            }
-        
+            "lfactor": 0.1,
+            "lattvec": lattvec,
+            "elements": unique_elements,
+            "types": [unique_elements.index(el) + 1 for el in symbols],
+            "positions": np.array(positions).tolist(),
+            "scell": scell,
+        }
 
         # Namelist: &parameters
-        parameters = {
-            'T': 300,
-            'scalebroad': 0.1
-            }
+        parameters = {"T": 300, "scalebroad": 0.1}
 
         # Namelist: &flags
 
-        flags = {
-            'four_phonon': True,
-            'nonanalytic': True,
-            'convergence': True,
-            'nanowires': False
-            }
+        flags = {"four_phonon": True, "nonanalytic": True, "convergence": True, "nanowires": False}
 
         # Combine all namelists
-        namelists = {
-            'allocations': allocations,
-            'crystal': crystal,
-            'parameters': parameters,
-            'flags': flags
-            }
+        namelists = {"allocations": allocations, "crystal": crystal, "parameters": parameters, "flags": flags}
 
         # Write to CONTROL file
-        f90nml.write(namelists, 'CONTROL', force=True)
-
+        f90nml.write(namelists, "CONTROL", force=True)
 
         logging.info("CONTROL file successfully written.")
-
 
         # Run shengbte
         try:
             subprocess.run(["shengbte"], check=True)
             logging.info("shengbte executed successfully.")
         except subprocess.CalledProcessError as e:
-            logging.error(f"Error executing shengbte: {e}")
+            logging.exception(f"Error executing shengbte: {e}")
             raise RuntimeError("Failed to execute shengbte. Please check the input files and parameters.") from e
         except FileNotFoundError:
-            logging.error("shengbte executable not found.")
+            logging.exception("shengbte executable not found.")
             raise RuntimeError("shengbte executable not found. Please ensure it is installed and in your PATH.")
-
 
         return {
             "phonon3": None,
