@@ -386,7 +386,9 @@ class FourPhononCalc(PropCalc):
         logging.info("...CONTROL file successfully written...")
 
         # Run shengbte/fourphonon
-        logging.info("...Running shengbte/fourphonon for thermal conductivity...")
+        logging.info("...Running shengbte/fourphonon for thermal conductivity" \
+        "here you need to export the path of ShengBTE...and lib of spglib..." \
+        "otherwise it will not work...and raise an error...")
 
         # check the os system using the mpirun or srun
         try:
