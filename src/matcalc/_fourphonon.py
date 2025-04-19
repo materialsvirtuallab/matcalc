@@ -4,12 +4,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import subprocess
+import logging
+
+
 import numpy as np
-import phonopy
 from pymatgen.io.phonopy import get_phonopy_structure
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )
+import phonopy
+from phonopy.interface.vasp import write_vasp, read_vasp
+
 
 try:
     import f90nml
@@ -29,7 +35,7 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
-class FourphononCalc(PropCalc):
+class FourPhononCalc(PropCalc):
     """
     Class for calculating thermal conductivity using third-order and fourth-order FCs from Pheasy.
 
@@ -204,59 +210,79 @@ class FourphononCalc(PropCalc):
         phonon = phonopy.Phonopy(cell, self.supercell_matrix)  # type: ignore[arg-type]
         supercell = phonon.get_supercell()
 
-        # begin to write a control file for shengbte software
+        write_vasp("POSCAR", cell)
+        primitive_cell = read_vasp("POSCAR")
+        types = primitive_cell.get_atomic_numbers()
+        symbols = primitive_cell.get_chemical_symbols()
+        lattvec = primitive_cell.get_cell().T.tolist()  # Fortran format (column-wise)
+        positions = primitive_cell.get_scaled_positions().tolist()  # Fortran format (column-wise)
+        scell = [self.supercell_matrix[0][0], self.supercell_matrix[1][1], self.supercell_matrix[2][2]]
+        unique_elements = list(dict.fromkeys(symbols))
+        ngrid = [self.mesh_numbers[0], self.mesh_numbers[1], self.mesh_numbers[2]]
 
-        allocations = {"nelements": 4, "natoms": 20, "ngrid": [5, 10, 5], "norientations": 0}
+
+        # begin to write a control file for shengbte software
+        # Namelist: &allocations
+
+        allocations = {'nelements': len(unique_elements),
+                       'natoms': len(positions),
+                       'ngrid': ngrid,
+                       'norientations': 0
+                       }
 
         # Namelist: &crystal
+
         crystal = {
-            "lfactor": 0.1,
-            "lattvec": [
-                [8.7276802063, 0.0000000000, 0.0000000000],
-                [0.0000000000, 4.0527501106, 0.0000000000],
-                [0.0000000000, 0.0000000000, 12.9853725433],
-            ],
-            "elements": ["Bi", "Se", "Cu", "Cl"],
-            "types": [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4],
-            "positions": [
-                [0.268440098, 0.250000000, 0.956108034],
-                [0.731559873, 0.750000000, 0.043891955],
-                [0.231559902, 0.750000000, 0.456108034],
-                [0.768440127, 0.250000000, 0.543891966],
-                [0.239286929, 0.750000000, 0.808299184],
-                [0.760713100, 0.250000000, 0.191700861],
-                [0.260713071, 0.250000000, 0.308299154],
-                [0.739286900, 0.750000000, 0.691700876],
-                [0.462546855, 0.750000000, 0.705428481],
-                [0.537453115, 0.250000000, 0.294571549],
-                [0.037453145, 0.250000000, 0.205428436],
-                [0.962546885, 0.750000000, 0.794571579],
-                [0.435688823, 0.250000000, 0.597031415],
-                [0.564311147, 0.750000000, 0.402968556],
-                [0.064311177, 0.750000000, 0.097031437],
-                [0.935688853, 0.250000000, 0.902968585],
-                [0.561768413, 0.250000000, 0.898596883],
-                [0.438231587, 0.750000000, 0.101403147],
-                [0.938231587, 0.750000000, 0.398596853],
-                [0.061768413, 0.250000000, 0.601403117],
-            ],
-            "scell": [2, 4, 1],
-        }
+            'lfactor': 0.1,
+            'lattvec': lattvec,
+            'elements': unique_elements,
+            'types': [unique_elements.index(el) + 1 for el in symbols],
+            'positions': np.array(positions).tolist(),
+            'scell': scell
+            }
+        
 
         # Namelist: &parameters
-        parameters = {"T": 300, "scalebroad": 0.1}
+        parameters = {
+            'T': 300,
+            'scalebroad': 0.1
+            }
 
         # Namelist: &flags
 
-        flags = {"four_phonon": True, "nonanalytic": True, "convergence": True, "nanowires": False}
+        flags = {
+            'four_phonon': True,
+            'nonanalytic': True,
+            'convergence': True,
+            'nanowires': False
+            }
 
         # Combine all namelists
-        namelists = {"allocations": allocations, "crystal": crystal, "parameters": parameters, "flags": flags}
+        namelists = {
+            'allocations': allocations,
+            'crystal': crystal,
+            'parameters': parameters,
+            'flags': flags
+            }
 
         # Write to CONTROL file
-        f90nml.write(namelists, "CONTROL", force=True)
+        f90nml.write(namelists, 'CONTROL', force=True)
 
-        print("CONTROL file successfully written.")
+
+        logging.info("CONTROL file successfully written.")
+
+
+        # Run shengbte
+        try:
+            subprocess.run(["shengbte"], check=True)
+            logging.info("shengbte executed successfully.")
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Error executing shengbte: {e}")
+            raise RuntimeError("Failed to execute shengbte. Please check the input files and parameters.") from e
+        except FileNotFoundError:
+            logging.error("shengbte executable not found.")
+            raise RuntimeError("shengbte executable not found. Please ensure it is installed and in your PATH.")
+
 
         return {
             "phonon3": None,
