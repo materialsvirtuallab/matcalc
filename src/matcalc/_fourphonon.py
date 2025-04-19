@@ -339,14 +339,9 @@ class FourPhononCalc(PropCalc):
             logging.exception(f"Error executing shengbte: {e}")
             raise RuntimeError("Failed to execute shengbte. Please check the input files and parameters.") from e
         except FileNotFoundError:
-<<<<<<< HEAD
             logging.error("ShengBTE executable not found.")
             raise RuntimeError("ShengBTE executable not found. " \
             "Please ensure it is installed and in your PATH.")
-=======
-            logging.exception("shengbte executable not found.")
-            raise RuntimeError("shengbte executable not found. Please ensure it is installed and in your PATH.")
->>>>>>> e9772c28affae84f8c45782e5c25998182b74277
 
         return {
             "phonon3": None,
