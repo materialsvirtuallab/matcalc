@@ -407,6 +407,14 @@ class FourPhononCalc(PropCalc):
             raise RuntimeError("ShengBTE executable not found. Please ensure it is installed and in your PATH.")
 
         # runze, for the return value, we can disscuss it later....
+
+        """ 
+            here we need to check the output file of ShengBTE,
+            and we can save the data to the yaml file, also we 
+            can plot some figures. something like np.loadtxt("kappa.dat")
+            and we can use the phonopy to plot the figure.
+        """
+
         return {
             "phonon3": None,
             "temperatures": None,
