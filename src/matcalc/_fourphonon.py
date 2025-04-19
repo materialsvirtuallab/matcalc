@@ -47,12 +47,7 @@ class FourPhononCalc(PropCalc):
 
     :ivar calculator: Calculator used to compute forces for the atomic structure.
     :type calculator: Calculator | str
-    :ivar fc2_supercell: Transformation matrix defining the supercell for second-order
-        force constants.
-    :type fc2_supercell: ArrayLike
-    :ivar fc3_supercell: Transformation matrix defining the supercell for third-order
-        force constants.
-    :type fc3_supercell: ArrayLike
+
     :ivar mesh_numbers: Mesh grid dimensions for phonon calculations.
     :type mesh_numbers: ArrayLike
     :ivar disp_kwargs: Keyword arguments for displacement generation.
@@ -89,7 +84,7 @@ class FourPhononCalc(PropCalc):
         min_length: float = 12,
         force_diagonal: bool = True,
         supercell_matrix: ArrayLike | None = None,
-        mesh_numbers: ArrayLike = (20, 20, 20),
+        mesh_numbers: ArrayLike = (10, 10, 10),
         disp_kwargs: dict[str, Any] | None = None,
         thermal_conductivity_kwargs: dict | None = None,
         relax_structure: bool = True,
@@ -98,9 +93,13 @@ class FourPhononCalc(PropCalc):
         optimizer: str = "FIRE",
         t_min: float = 0,
         t_max: float = 1000,
-        t_step: float = 10,
+        t_step: float = 100,
+        t_single: float =300,
         write_phonon3: bool | str | Path = False,
         write_kappa: bool = False,
+        calc_4ph: bool = True,
+        many_T: bool = False,
+        scalebroad: float = 0.1,
     ) -> None:
         """
         Initializes the class for thermal conductivity calculation and structure relaxation
@@ -152,6 +151,10 @@ class FourPhononCalc(PropCalc):
         self.t_step = t_step
         self.write_phonon3 = write_phonon3
         self.write_kappa = write_kappa
+        self.calc_4ph = calc_4ph
+        self.many_T = many_T
+        self.t_single = t_single
+        self.scalebroad = scalebroad
 
         # Set default paths for saving output files.
         for key, val, default_path in (("write_phonon3", self.write_phonon3, "phonon3.yaml"),):
@@ -208,7 +211,6 @@ class FourPhononCalc(PropCalc):
             transformation = None
 
         phonon = phonopy.Phonopy(cell, self.supercell_matrix)  # type: ignore[arg-type]
-        supercell = phonon.get_supercell()
 
         write_vasp("POSCAR", cell)
         primitive_cell = read_vasp("POSCAR")
@@ -216,9 +218,14 @@ class FourPhononCalc(PropCalc):
         symbols = primitive_cell.get_chemical_symbols()
         lattvec = primitive_cell.get_cell().T.tolist()  # Fortran format (column-wise)
         positions = primitive_cell.get_scaled_positions().tolist()  # Fortran format (column-wise)
-        scell = [self.supercell_matrix[0][0], self.supercell_matrix[1][1], self.supercell_matrix[2][2]]
+
+        scell = [self.supercell_matrix[0][0],
+                self.supercell_matrix[1][1], 
+                self.supercell_matrix[2][2]]
         unique_elements = list(dict.fromkeys(symbols))
-        ngrid = [self.mesh_numbers[0], self.mesh_numbers[1], self.mesh_numbers[2]]
+        ngrid = [self.mesh_numbers[0], 
+                 self.mesh_numbers[1], 
+                 self.mesh_numbers[2]]
 
 
         # begin to write a control file for shengbte software
@@ -243,19 +250,34 @@ class FourPhononCalc(PropCalc):
         
 
         # Namelist: &parameters
-        parameters = {
-            'T': 300,
-            'scalebroad': 0.1
-            }
+        if self.many_T:
+            parameters = {
+                'T_min': self.t_min,
+                'T_max': self.t_max,
+                'T_step': self.t_step,
+                'scalebroad': self.scalebroad
+                }
+            
+        else:
+            parameters = {
+                'T': self.t_single,
+                'scalebroad': self.scalebroad
+                }
 
         # Namelist: &flags
-
-        flags = {
-            'four_phonon': True,
-            'nonanalytic': True,
-            'convergence': True,
-            'nanowires': False
-            }
+        if self.calc_4ph:
+            flags = {
+                'four_phonon': True,
+                'nonanalytic': False,
+                'convergence': True,
+                'nanowires': False
+                }
+        else:
+            flags = {
+                'nonanalytic': False,
+                'convergence': True,
+                'nanowires': False
+                }
 
         # Combine all namelists
         namelists = {
@@ -268,20 +290,22 @@ class FourPhononCalc(PropCalc):
         # Write to CONTROL file
         f90nml.write(namelists, 'CONTROL', force=True)
 
-
         logging.info("CONTROL file successfully written.")
 
+        # Run shengbte/fourphonon
 
-        # Run shengbte
+        logging.info("Running shengbte/fourphonon for thermal conductivity...")
         try:
             subprocess.run(["shengbte"], check=True)
             logging.info("shengbte executed successfully.")
         except subprocess.CalledProcessError as e:
             logging.error(f"Error executing shengbte: {e}")
-            raise RuntimeError("Failed to execute shengbte. Please check the input files and parameters.") from e
+            raise RuntimeError("Failed to execute shengbte. " \
+            "Please check the input files and parameters.") from e
         except FileNotFoundError:
             logging.error("shengbte executable not found.")
-            raise RuntimeError("shengbte executable not found. Please ensure it is installed and in your PATH.")
+            raise RuntimeError("shengbte executable not found. " \
+            "Please ensure it is installed and in your PATH.")
 
 
         return {
