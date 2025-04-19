@@ -72,6 +72,24 @@ class FourPhononCalc(PropCalc):
     :ivar write_kappa: Flag indicating if the thermal conductivity results
         should be written to file.
     :type write_kappa: bool
+    :ivar calc_4ph: Flag indicating if fourth-order force constants should be calculated.
+    :type calc_4ph: bool
+    :ivar many_T: Flag indicating if multiple temperatures should be used for
+        thermal conductivity calculations.
+    :type many_T: bool 
+    :ivar scalebroad: Broadening factor for thermal conductivity calculations.
+    :type scalebroad: float
+    :ivar core_number: Number of cores for parallel calculations.
+    :type core_number: int
+    :ivar srun: Flag indicating if srun should be used for
+        parallel calculations.
+    :type srun: bool
+    :ivar mpirun: Flag indicating if mpirun should be used for
+        parallel calculations.
+    :type mpirun: bool
+    :ivar parallelled_calc: Flag indicating if the calculation should be run in
+        parallel mode.
+    :type parallelled_calc: bool
     """
 
     def __init__(
@@ -97,37 +115,69 @@ class FourPhononCalc(PropCalc):
         calc_4ph: bool = True,
         many_T: bool = False,
         scalebroad: float = 0.1,
+        core_number: int = 4,
+        srun: bool = False,
+        mpirun: bool = False,
+        parallelled_calc: bool = False,
+
     ) -> None:
         """
         Initializes the class for thermal conductivity calculation and structure relaxation
-        utilizing third-order force constants (fc3). The class provides configurable
-        parameters for the relaxation process, supercell settings, thermal conductivity
+        utilizing third-order force constants (fc3) and fourth-order force constants(fc4). 
+        Before use this class requires the installation of the FourPhonon and ShengBTE packages.
+        The class provides configurable parameters for the relaxation process, thermal conductivity
         calculation, and file output management.
-
         :param calculator: The calculator instance or string indicating the method to be
                            used for energy and force calculations.
-        :param fc2_supercell: The supercell matrix for generating second-order force constants.
-        :param fc3_supercell: The supercell matrix for generating third-order force constants.
+        :param min_length: The minimum length of the supercell in Angstroms.
+        :type min_length: float
+        :param force_diagonal: Flag to indicate if the force constants should be diagonalized.
+        :type force_diagonal: bool
+        :param supercell_matrix: The supercell matrix for generating force constants.
+        :type supercell_matrix: ArrayLike | None
         :param mesh_numbers: The grid size for reciprocal space mesh used in phonon calculations.
+        :type mesh_numbers: ArrayLike
         :param disp_kwargs: Dictionary containing optional parameters for displacement generation
                             in force constant calculation.
-        :param thermal_conductivity_kwargs: Dictionary containing optional parameters for thermal
-                                            conductivity calculation.
-        :param relax_structure: Boolean flag to enable or disable structure relaxation before
-                                force constant calculations.
+        :type disp_kwargs: dict[str, Any] | None
         :param relax_calc_kwargs: Dictionary containing additional configuration options for the
-                                  relaxation calculation.
+                                    relaxation calculation.
+        :type relax_calc_kwargs: dict | None
         :param fmax: The maximum force allowed on atoms during the structure relaxation
                      procedure. Determines the relaxation termination condition.
-        :param optimizer: The optimizer algorithm to use for structure relaxation. Defaults to "FIRE."
+        :type fmax: float
+        :param optimizer: The optimization algorithm to be used for structure relaxation.
+        :type optimizer: str
         :param t_min: The minimum temperature (in Kelvin) for thermal conductivity calculations.
         :param t_max: The maximum temperature (in Kelvin) for thermal conductivity calculations.
         :param t_step: The temperature step size for thermal conductivity calculations.
+        :param t_single: The single temperature (in Kelvin) for thermal conductivity calculations.
         :param write_phonon3: Specifies the filename or a boolean flag for writing the
                               third-order force constants to a file. If True, writes to
                               "phonon3.yaml" by default.
-        :param write_kappa: Boolean flag to enable or disable saving thermal conductivity
-                            results to a file.
+        :param write_kappa: Flag to indicate if the thermal conductivity results should be
+                            written to a file. If True, the results will be saved.
+        :type write_kappa: bool
+        :param calc_4ph: Flag to indicate if the fourth-order force constants should be
+                            calculated. Defaults to True.
+        :type calc_4ph: bool
+        :param many_T: Flag to indicate if multiple temperatures should be used for
+                        thermal conductivity calculations. Defaults to False.
+        :type many_T: bool
+        :param scalebroad: The broadening factor for the thermal conductivity calculation.
+        :type scalebroad: float
+        :param core_number: The number of cores to be used for parallel calculations.
+        :type core_number: int
+        :param srun: Flag to indicate if the srun command should be used for parallel
+                        execution. Defaults to False.
+        :type srun: bool
+        :param mpirun: Flag to indicate if the mpirun command should be used for parallel
+                        execution. Defaults to False.
+        :type mpirun: bool
+        :param parallelled_calc: Flag to indicate if the calculation should be run in
+                                parallel mode. Defaults to False.
+        :type parallelled_calc: bool
+        
         """
         self.calculator = calculator  # type: ignore[assignment]
         self.min_length = min_length
@@ -152,6 +202,10 @@ class FourPhononCalc(PropCalc):
         self.many_T = many_T
         self.t_single = t_single
         self.scalebroad = scalebroad
+        self.core_number = core_number
+        self.srun = srun
+        self.mpirun = mpirun
+        self.parallelled_calc = parallelled_calc
 
         # Set default paths for saving output files.
         for key, val, default_path in (("write_phonon3", self.write_phonon3, "phonon3.yaml"),):
@@ -159,14 +213,13 @@ class FourPhononCalc(PropCalc):
 
     def calc(self, structure: Structure | dict[str, Any]) -> dict:
         """
-        Performs thermal conductivity calculations using the Phono3py library.
+        Performs thermal conductivity calculations using the Fourphonon and ShengBTE.
 
         This method processes a given atomic structure and calculates its thermal
-        conductivity through third-order force constants (FC3) computations. The
-        process involves optional relaxation of the input structure, generation of
-        displacements, and force calculations corresponding to the supercell
-        structures. The results include computed thermal conductivity over specified
-        temperatures, along with intermediate Phono3py configurations.
+        conductivity through third-order and fourth-order force constants (FC3) computations.
+        The process involves optional relaxation of the input structure. 
+        The results include computed thermal conductivity over specified temperatures, 
+        along with intermediate ShengBTE/FourPhonon configurations.
 
         :param structure: The atomic structure to compute thermal conductivity for. This can
             be provided as either a `Structure` object or a dictionary describing
@@ -271,7 +324,12 @@ class FourPhononCalc(PropCalc):
                 }
 
         # Combine all namelists
-        namelists = {"allocations": allocations, "crystal": crystal, "parameters": parameters, "flags": flags}
+        namelists = {
+            "allocations": allocations, 
+            "crystal": crystal, 
+            "parameters": parameters, 
+            "flags": flags
+            }
 
         # Write to CONTROL file
         f90nml.write(namelists, 'CONTROL', force=True)
@@ -281,16 +339,25 @@ class FourPhononCalc(PropCalc):
         # Run shengbte/fourphonon
 
         logging.info("Running shengbte/fourphonon for thermal conductivity...")
+
+        # check the os system using the mpirun or srun 
         try:
-            subprocess.run(["shengbte"], check=True)
-            logging.info("shengbte executed successfully.")
+            if self.parallelled_calc:
+                if self.srun:
+                    subprocess.run(["srun", "-n", str(self.core_number), "ShengBTE"], check=True)
+                elif self.mpirun:
+                    subprocess.run(["mpirun", "-np", str(self.core_number), "ShengBTE"], check=True)
+            else:
+                subprocess.run(["ShengBTE"], check=True)
+    
+            logging.info("ShengBTE executed successfully.")
         except subprocess.CalledProcessError as e:
             logging.error(f"Error executing shengbte: {e}")
             raise RuntimeError("Failed to execute shengbte. " \
             "Please check the input files and parameters.") from e
         except FileNotFoundError:
-            logging.error("shengbte executable not found.")
-            raise RuntimeError("shengbte executable not found. " \
+            logging.error("ShengBTE executable not found.")
+            raise RuntimeError("ShengBTE executable not found. " \
             "Please ensure it is installed and in your PATH.")
 
         return {
