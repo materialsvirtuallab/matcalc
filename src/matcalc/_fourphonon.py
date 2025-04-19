@@ -342,10 +342,17 @@ class FourPhononCalc(PropCalc):
             flags = {"nonanalytic": False, "convergence": True, "nanowires": False}
 
         # Combine all namelists
-        namelists = {"allocations": allocations, "crystal": crystal, "parameters": parameters, "flags": flags}
+        #namelists = {"allocations": allocations, "crystal": crystal, "parameters": parameters, "flags": flags}
 
         # Write to CONTROL file
-        f90nml.write(namelists, "CONTROL", force=True)
+        #f90nml.write(namelists, "CONTROL", force=True)
+        ordered_namelists = f90nml.Namelist([
+            ("allocations", allocations),
+            ("crystal", crystal),
+            ("parameters", parameters),
+            ("flags", flags),
+            ])
+        ordered_namelists.write("CONTROL", force=True)
 
         logging.info("CONTROL file successfully written.")
 
@@ -360,7 +367,9 @@ class FourPhononCalc(PropCalc):
                 elif self.mpirun:
                     subprocess.run(["mpirun", "-np", str(self.core_number), "ShengBTE"], check=True)
             else:
-                subprocess.run(["ShengBTE"], check=True)
+                subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/FourPhonon-sampling_method/ShengBTE"], check=True)
+
+
 
             logging.info("ShengBTE executed successfully.")
         except subprocess.CalledProcessError as e:
