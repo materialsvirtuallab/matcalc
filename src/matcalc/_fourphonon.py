@@ -424,3 +424,4 @@ class FourPhononCalc(PropCalc):
             "temperatures": None,
             "thermal_conductivity": np.squeeze(np.full((1, 1), np.nan)),
         }
+
