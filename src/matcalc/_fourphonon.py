@@ -109,7 +109,7 @@ class FourPhononCalc(PropCalc):
         t_min: float = 0,
         t_max: float = 1000,
         t_step: float = 100,
-        t_single: float =300,
+        t_single: float = 300,
         write_phonon3: bool | str | Path = False,
         write_kappa: bool = False,
         calc_4ph: bool = True,
@@ -269,13 +269,9 @@ class FourPhononCalc(PropCalc):
         lattvec = primitive_cell.get_cell().T.tolist()  # Fortran format (column-wise)
         positions = primitive_cell.get_scaled_positions().tolist()  # Fortran format (column-wise)
 
-        scell = [self.supercell_matrix[0][0],
-                self.supercell_matrix[1][1], 
-                self.supercell_matrix[2][2]]
+        scell = [self.supercell_matrix[0][0], self.supercell_matrix[1][1], self.supercell_matrix[2][2]]
         unique_elements = list(dict.fromkeys(symbols))
-        ngrid = [self.mesh_numbers[0], 
-                 self.mesh_numbers[1], 
-                 self.mesh_numbers[2]]
+        ngrid = [self.mesh_numbers[0], self.mesh_numbers[1], self.mesh_numbers[2]]
 
         # begin to write a control file for shengbte software
         # Namelist: &allocations
@@ -296,32 +292,20 @@ class FourPhononCalc(PropCalc):
         # Namelist: &parameters
         if self.many_T:
             parameters = {
-                'T_min': self.t_min,
-                'T_max': self.t_max,
-                'T_step': self.t_step,
-                'scalebroad': self.scalebroad
-                }
-            
+                "T_min": self.t_min,
+                "T_max": self.t_max,
+                "T_step": self.t_step,
+                "scalebroad": self.scalebroad,
+            }
+
         else:
-            parameters = {
-                'T': self.t_single,
-                'scalebroad': self.scalebroad
-                }
+            parameters = {"T": self.t_single, "scalebroad": self.scalebroad}
 
         # Namelist: &flags
         if self.calc_4ph:
-            flags = {
-                'four_phonon': True,
-                'nonanalytic': False,
-                'convergence': True,
-                'nanowires': False
-                }
+            flags = {"four_phonon": True, "nonanalytic": False, "convergence": True, "nanowires": False}
         else:
-            flags = {
-                'nonanalytic': False,
-                'convergence': True,
-                'nanowires': False
-                }
+            flags = {"nonanalytic": False, "convergence": True, "nanowires": False}
 
         # Combine all namelists
         namelists = {
@@ -332,7 +316,7 @@ class FourPhononCalc(PropCalc):
             }
 
         # Write to CONTROL file
-        f90nml.write(namelists, 'CONTROL', force=True)
+        f90nml.write(namelists, "CONTROL", force=True)
 
         logging.info("CONTROL file successfully written.")
 
@@ -352,13 +336,17 @@ class FourPhononCalc(PropCalc):
     
             logging.info("ShengBTE executed successfully.")
         except subprocess.CalledProcessError as e:
-            logging.error(f"Error executing shengbte: {e}")
-            raise RuntimeError("Failed to execute shengbte. " \
-            "Please check the input files and parameters.") from e
+            logging.exception(f"Error executing shengbte: {e}")
+            raise RuntimeError("Failed to execute shengbte. Please check the input files and parameters.") from e
         except FileNotFoundError:
+<<<<<<< HEAD
             logging.error("ShengBTE executable not found.")
             raise RuntimeError("ShengBTE executable not found. " \
             "Please ensure it is installed and in your PATH.")
+=======
+            logging.exception("shengbte executable not found.")
+            raise RuntimeError("shengbte executable not found. Please ensure it is installed and in your PATH.")
+>>>>>>> e9772c28affae84f8c45782e5c25998182b74277
 
         return {
             "phonon3": None,
