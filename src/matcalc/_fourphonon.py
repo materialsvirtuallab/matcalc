@@ -93,6 +93,10 @@ class FourPhononCalc(PropCalc):
     :ivar parallelled_calc: Flag indicating if the calculation should be run in
         parallel mode.
     :type parallelled_calc: bool
+    :ivar path_to_shengbte: Path to the ShengBTE executable.
+    :type path_to_shengbte: str | None
+    :ivar path_to_fourphonon: Path to the FourPhonon executable.
+    :type path_to_fourphonon: str | None
     """
 
     def __init__(
@@ -124,6 +128,9 @@ class FourPhononCalc(PropCalc):
         srun: bool = False,
         mpirun: bool = False,
         parallelled_calc: bool = False,
+        # set the default path to ShengBTE and FourPhonon to None
+        path_to_shengbte: str | None = None,
+        path_to_fourphonon: str | None = None,
     ) -> None:
         """
         Initializes the class for thermal conductivity calculation and structure relaxation
@@ -183,6 +190,12 @@ class FourPhononCalc(PropCalc):
         :param parallelled_calc: Flag to indicate if the calculation should be run in
                                 parallel mode. Defaults to False.
         :type parallelled_calc: bool
+        :param path_to_shengbte: Path to the ShengBTE executable. If None, it will
+                                use the default path.
+        :type path_to_shengbte: str | None
+        :param path_to_fourphonon: Path to the FourPhonon executable. If None, it will
+                                    use the default path.
+        :type path_to_fourphonon: str | None
 
         """
         self.calculator = calculator  # type: ignore[assignment]
@@ -213,6 +226,8 @@ class FourPhononCalc(PropCalc):
         self.srun = srun
         self.mpirun = mpirun
         self.parallelled_calc = parallelled_calc
+        self.path_to_shengbte = path_to_shengbte
+        self.path_to_fourphonon = path_to_fourphonon
 
         # Set default paths for saving output files.
         for key, val, default_path in (("write_phonon3", self.write_phonon3, "phonon3.yaml"),):
@@ -314,26 +329,39 @@ class FourPhononCalc(PropCalc):
 
         # Namelist: &parameters
         if self.many_T:
-            parameters = {
-                "T_min": self.t_min,
-                "T_max": self.t_max,
-                "T_step": self.t_step,
-                "scalebroad": self.scalebroad,
-                "num_sample_process_3ph_phase_space": -1,
-                "num_sample_process_3ph": -1,
-                "num_sample_process_4ph_phase_space": 100000,
-                "num_sample_process_4ph": 100000,
-            }
-
+            if self.calc_4ph:
+                parameters = {
+                    "T_min": self.t_min,
+                    "T_max": self.t_max,
+                    "T_step": self.t_step,
+                    "scalebroad": self.scalebroad,
+                    "num_sample_process_3ph_phase_space": -1,
+                    "num_sample_process_3ph": -1,
+                    "num_sample_process_4ph_phase_space": 100000,
+                    "num_sample_process_4ph": 100000,
+                }
+            else:
+                parameters = {
+                    "T_min": self.t_min,
+                    "T_max": self.t_max,
+                    "T_step": self.t_step,
+                    "scalebroad": self.scalebroad,
+                }
         else:
-            parameters = {
-                "T": self.t_single,
-                "scalebroad": self.scalebroad,
-                "num_sample_process_3ph_phase_space": -1,
-                "num_sample_process_3ph": -1,
-                "num_sample_process_4ph_phase_space": 100000,
-                "num_sample_process_4ph": 100000,
-            }
+            if self.calc_4ph:
+                parameters = {
+                    "T": self.t_single,
+                    "scalebroad": self.scalebroad,
+                    "num_sample_process_3ph_phase_space": -1,
+                    "num_sample_process_3ph": -1,
+                    "num_sample_process_4ph_phase_space": 100000,
+                    "num_sample_process_4ph": 100000,
+                }
+            else:
+                parameters = {
+                    "T": self.t_single,
+                    "scalebroad": self.scalebroad,
+                }
 
         # Namelist: &flags
         if self.calc_4ph:
