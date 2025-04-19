@@ -343,8 +343,8 @@ class PheasyCalc(PropCalc):
             disp = supercell.get_positions() - phonon.supercell.get_positions()
             disp_array.append(np.array(disp))
 
-        logger.info("Forces calculated for the supercells.")
-        logger.info("Producing force constants...")
+        logger.info("...Forces calculated for the supercells...")
+        logger.info("..Producing force constants...")
 
         disp_array = np.array(disp_array)
 
@@ -397,7 +397,7 @@ class PheasyCalc(PropCalc):
             f'--rasr BHH --ndata "{int(num_har)}"'
         )
 
-        logger.info("Start running pheasy in cluster")
+        logger.info("...Start running pheasy in cluster...")
 
         subprocess.call(pheasy_cmd_1, shell=True)
         subprocess.call(pheasy_cmd_2, shell=True)
@@ -414,9 +414,9 @@ class PheasyCalc(PropCalc):
 
         write_force_constants(phonon.force_constants, filename="FORCE_CONSTANTS_2ND")
 
-        logger.info("Finished running Pheasy and FCs are ready.")
+        logger.info("...Finished running Pheasy and FCs are ready...")
 
-        logger.info("Running phonon calculations...")
+        logger.info("...Running phonon calculations...")
         phonon.run_mesh()
         phonon.run_thermal_properties(t_step=self.t_step, t_max=self.t_max, t_min=self.t_min)
 
@@ -432,7 +432,7 @@ class PheasyCalc(PropCalc):
         if self.write_phonon:
             phonon.save(filename=self.write_phonon)
 
-        logger.info("Phonon calculations finished.")
+        logger.info("...Phonon calculations finished...")
 
         # If the anharmonic calculation is requested, we need to
         # generate the displacements and forces for the supercells.
@@ -448,7 +448,7 @@ class PheasyCalc(PropCalc):
         # anharmonic force constants.
 
         if self.calc_anharmonic:
-            logger.info("Start to Calculate anharmonic force constants using LASSO in pheasy...")
+            logger.info("...Start to Calculate anharmonic force constants using LASSO in pheasy...")
 
             # remove the previous disp_matrix.pkl and force_matrix.pkl
             # files if they exist. This is to avoid the error in
@@ -542,14 +542,14 @@ class PheasyCalc(PropCalc):
                 )
                 logger.info("pheasy_cmd_8 = %s", pheasy_cmd_8)
 
-            logger.info("Start running pheasy in cluster")
+            logger.info("...Start running pheasy in cluster...")
 
             subprocess.call(pheasy_cmd_5, shell=True)
             subprocess.call(pheasy_cmd_6, shell=True)
             subprocess.call(pheasy_cmd_7, shell=True)
             subprocess.call(pheasy_cmd_8, shell=True)
 
-            logger.info("Finished running Pheasy and higher-order FCs are ready.")
+            logger.info("...Finished running Pheasy and higher-order FCs are ready...")
 
         return result | {"phonon": phonon, "thermal_properties": phonon.get_thermal_properties_dict()}
 

@@ -383,10 +383,10 @@ class FourPhononCalc(PropCalc):
         )
         ordered_namelists.write("CONTROL", force=True)
 
-        logging.info("CONTROL file successfully written.")
+        logging.info("...CONTROL file successfully written...")
 
         # Run shengbte/fourphonon
-        logging.info("Running shengbte/fourphonon for thermal conductivity...")
+        logging.info("...Running shengbte/fourphonon for thermal conductivity...")
 
         # check the os system using the mpirun or srun
         try:
