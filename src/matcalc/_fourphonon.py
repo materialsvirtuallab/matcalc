@@ -347,21 +347,20 @@ class FourPhononCalc(PropCalc):
                     "T_step": self.t_step,
                     "scalebroad": self.scalebroad,
                 }
+        elif self.calc_4ph:
+            parameters = {
+                "T": self.t_single,
+                "scalebroad": self.scalebroad,
+                "num_sample_process_3ph_phase_space": -1,
+                "num_sample_process_3ph": -1,
+                "num_sample_process_4ph_phase_space": 100000,
+                "num_sample_process_4ph": 100000,
+            }
         else:
-            if self.calc_4ph:
-                parameters = {
-                    "T": self.t_single,
-                    "scalebroad": self.scalebroad,
-                    "num_sample_process_3ph_phase_space": -1,
-                    "num_sample_process_3ph": -1,
-                    "num_sample_process_4ph_phase_space": 100000,
-                    "num_sample_process_4ph": 100000,
-                }
-            else:
-                parameters = {
-                    "T": self.t_single,
-                    "scalebroad": self.scalebroad,
-                }
+            parameters = {
+                "T": self.t_single,
+                "scalebroad": self.scalebroad,
+            }
 
         # Namelist: &flags
         if self.calc_4ph:
