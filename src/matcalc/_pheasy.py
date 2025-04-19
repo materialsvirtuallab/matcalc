@@ -364,6 +364,10 @@ class PheasyCalc(PropCalc):
         supercell_matrix = self.supercell_matrix
 
         logger.info("start running pheasy for second order force constants in cluster")
+        logger.info("if you use this function, please cite the following pheasy paper:")
+        logger.info("Lin, Changpeng, Samuel Poncé, and Nicola Marzari. General " \
+        "invariance and equilibrium conditions for lattice dynamics in 1D, 2D, and " \
+        "3D materials. npj Computational Materials 8.1 (2022): 236.")
 
         pheasy_cmd_1 = (
             f'pheasy --dim "{int(supercell_matrix[0][0])}" "{int(supercell_matrix[1][1])}" '
