@@ -223,7 +223,7 @@ class FourPhononCalc(PropCalc):
         Performs thermal conductivity calculations using the Fourphonon and ShengBTE.
 
         This method processes a given atomic structure and calculates its thermal
-        conductivity through third-order and fourth-order force constants (FC3) computations.
+        conductivity through third-order and fourth-order force constants (FC3/4) computations.
         The process involves optional relaxation of the input structure.
         The results include computed thermal conductivity over specified temperatures,
         along with intermediate ShengBTE/FourPhonon configurations.
