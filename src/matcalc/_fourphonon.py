@@ -119,7 +119,6 @@ class FourPhononCalc(PropCalc):
         srun: bool = False,
         mpirun: bool = False,
         parallelled_calc: bool = False,
-
     ) -> None:
         """
         Initializes the class for thermal conductivity calculation and structure relaxation
@@ -308,12 +307,7 @@ class FourPhononCalc(PropCalc):
             flags = {"nonanalytic": False, "convergence": True, "nanowires": False}
 
         # Combine all namelists
-        namelists = {
-            "allocations": allocations,
-            "crystal": crystal,
-            "parameters": parameters,
-            "flags": flags
-            }
+        namelists = {"allocations": allocations, "crystal": crystal, "parameters": parameters, "flags": flags}
 
         # Write to CONTROL file
         f90nml.write(namelists, "CONTROL", force=True)
@@ -339,9 +333,8 @@ class FourPhononCalc(PropCalc):
             logging.exception(f"Error executing shengbte: {e}")
             raise RuntimeError("Failed to execute shengbte. Please check the input files and parameters.") from e
         except FileNotFoundError:
-            logging.error("ShengBTE executable not found.")
-            raise RuntimeError("ShengBTE executable not found. " \
-            "Please ensure it is installed and in your PATH.")
+            logging.exception("ShengBTE executable not found.")
+            raise RuntimeError("ShengBTE executable not found. Please ensure it is installed and in your PATH.")
 
         return {
             "phonon3": None,
