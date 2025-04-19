@@ -10,10 +10,10 @@ import numpy as np
 import phonopy
 from phonopy.interface.vasp import read_vasp, write_vasp
 from pymatgen.io.phonopy import get_phonopy_structure
+from pymatgen.io.vasp import Kpoints
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )
-from pymatgen.io.vasp import Kpoints
 
 try:
     import f90nml
@@ -103,7 +103,7 @@ class FourPhononCalc(PropCalc):
         force_diagonal: bool = True,
         supercell_matrix: ArrayLike | None = None,
         mesh_numbers: ArrayLike = (10, 10, 10),
-        # suggest to use 40,000 
+        # suggest to use 40,000
         reciprocal_density: int | None = None,
         disp_kwargs: dict[str, Any] | None = None,
         thermal_conductivity_kwargs: dict | None = None,
@@ -253,8 +253,6 @@ class FourPhononCalc(PropCalc):
             result |= relaxer.calc(structure_in)
             structure_in = result["final_structure"]
 
-
-
         cell = get_phonopy_structure(structure_in)
 
         if self.supercell_matrix is None:
@@ -289,9 +287,19 @@ class FourPhononCalc(PropCalc):
             kpoints = Kpoints.automatic_density(structure=structure_in, kppa=self.reciprocal_density)
             kpoint_r = kpoints.kpts[0]
             ngrid = [kpoint_r[0], kpoint_r[1], kpoint_r[2]]
-            allocations = {"nelements": len(unique_elements), "natoms": len(positions), "ngrid(:)": ngrid, "norientations": 0}
+            allocations = {
+                "nelements": len(unique_elements),
+                "natoms": len(positions),
+                "ngrid(:)": ngrid,
+                "norientations": 0,
+            }
         else:
-            allocations = {"nelements": len(unique_elements), "natoms": len(positions), "ngrid(:)": ngrid, "norientations": 0}
+            allocations = {
+                "nelements": len(unique_elements),
+                "natoms": len(positions),
+                "ngrid(:)": ngrid,
+                "norientations": 0,
+            }
 
         # Namelist: &crystal
 
