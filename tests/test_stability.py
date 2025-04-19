@@ -29,7 +29,7 @@ def test_energetics_calc(
     # each O atom, which accounts almost entirely for the difference between this predicted formation energy and the
     # MP calculated value of -2.0 eV.
 
-    result = EnergeticsCalc(matpes_calculator, use_dft_gs_reference=True).calc(Li2O)
+    result = EnergeticsCalc(matpes_calculator, use_gs_reference=True).calc(Li2O)
     for key in (
         "final_structure",
         "formation_energy_per_atom",

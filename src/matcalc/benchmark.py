@@ -15,6 +15,8 @@ import fsspec
 import numpy as np
 import pandas as pd
 import requests
+from matminer.featurizers.site import CrystalNNFingerprint
+from matminer.featurizers.structure import SiteStatsFingerprint
 from monty.json import MontyDecoder
 from monty.serialization import dumpfn, loadfn
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -29,6 +31,7 @@ if TYPE_CHECKING:
 
 from ._elasticity import ElasticityCalc
 from ._phonon import PhononCalc
+from ._relaxation import RelaxCalc
 from ._stability import EnergeticsCalc
 from .config import BENCHMARK_DATA_DIR, BENCHMARK_DATA_DOWNLOAD_URL, BENCHMARK_DATA_URL
 from .units import eVA3ToGPa
@@ -386,7 +389,7 @@ class EquilibriumBenchmark(Benchmark):
     def __init__(
         self,
         index_name: str = "material_id",
-        benchmark_name: str | Path = "wbm-random-pbe54-equilibrium-2025.1.json.gz",
+        benchmark_name: str | Path = "wbm-random-pbe52-equilibrium-2025.1.json.gz",
         folder_name: str = "default_folder",
         **kwargs,  # noqa:ANN003
     ) -> None:
@@ -425,7 +428,15 @@ class EquilibriumBenchmark(Benchmark):
             calculations.
         :rtype: PropCalc
         """
-        return EnergeticsCalc(calculator, relax_calc_kwargs={"perturb_distance": 0.1}, **kwargs)
+        self._prepare_elemental_refs(calculator)
+        return EnergeticsCalc(
+            calculator,
+            elemental_refs=self.elemental_refs,
+            use_gs_reference=True,
+            fmax=0.05,
+            perturb_distance=0.1,
+            **kwargs,
+        )
 
     def process_result(self, result: dict | None, model_name: str) -> dict:
         """
@@ -521,8 +532,6 @@ class EquilibriumBenchmark(Benchmark):
             include_full_results=include_full_results,
             **kwargs,
         )
-        from matminer.featurizers.site import CrystalNNFingerprint
-        from matminer.featurizers.structure import SiteStatsFingerprint
 
         ssf = SiteStatsFingerprint(
             CrystalNNFingerprint.from_preset("ops", distance_cutoffs=None, x_diff_weight=0),
@@ -537,6 +546,37 @@ class EquilibriumBenchmark(Benchmark):
         ]
 
         return results_df
+
+    def _prepare_elemental_refs(self, calculator: str | Calculator) -> None:
+        """
+        Helper function to prepare and cache ground-state reference energies for all elements in the benchmark.
+
+        This method performs the following steps exactly once per Benchmark instance:
+        1. Load the full elemental references.
+        2. Traverse `self.structures` to collect the set of unique element symbols needed.
+        3. For each symbol:
+            a. Retrieve its reference structure(s) from the full dataset.
+            b. Use RelaxCalc to relax each structure and calculate the energy.
+            c. Screen out the minimum energy per atom among those structures.
+        4. Populate `self.elemental_refs` as a dict mapping each elemental symbol.
+
+        After this run, subsequent calls into EnergeticsCalc with use_gs_reference=True
+        will simply look up values in `self.elemental_refs`, avoiding repeated relaxations.
+
+        :param calculator: ASE calculator (or its string name) used by RelaxCalc to compute energies.
+        :type calculator: Calculator | str
+        """
+        full_refs = loadfn(Path(__file__).parent / "elemental_refs" / "MP-PBE-Element-Refs.json.gz")
+        needed_els = {el.symbol for struct in self.structures for el in struct.composition.elements}
+        relaxer = RelaxCalc(calculator, fmax=0.05)
+        self.elemental_refs = {}
+        for el in needed_els:
+            info = full_refs[el]
+            struct_list = [info["structure"]] if not isinstance(info["structure"], list) else info["structure"]
+            energy_per_atom = [r["energy"] / r["final_structure"].num_sites for r in relaxer.calc_many(struct_list)]
+            self.elemental_refs[el] = {
+                "energy_per_atom": min(energy_per_atom),
+            }
 
 
 class ElasticityBenchmark(Benchmark):
@@ -596,7 +636,7 @@ class ElasticityBenchmark(Benchmark):
            calculator and keyword arguments.
         :rtype: PropCalc
         """
-        return ElasticityCalc(calculator, **kwargs)
+        return ElasticityCalc(calculator, fmax=0.05, **kwargs)
 
     def process_result(self, result: dict | None, model_name: str) -> dict:
         """
@@ -690,7 +730,7 @@ class PhononBenchmark(Benchmark):
             optional parameters.
         :rtype: PropCalc
         """
-        return PhononCalc(calculator, write_phonon=False, **kwargs)
+        return PhononCalc(calculator, fmax=0.05, write_phonon=False, **kwargs)
 
     def process_result(self, result: dict | None, model_name: str) -> dict:
         """

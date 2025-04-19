@@ -200,7 +200,7 @@ class RelaxCalc(PropCalc):
         :rtype: dict
         """
         result = super().calc(structure)
-        structure_in: Structure = result["final_structure"]
+        structure_in: Structure = result["final_structure"].copy()
 
         if self.perturb_distance is not None:
             structure_in = structure_in.perturb(distance=self.perturb_distance)

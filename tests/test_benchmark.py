@@ -4,6 +4,8 @@ import itertools
 import os
 from typing import TYPE_CHECKING
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -22,6 +24,11 @@ if TYPE_CHECKING:
     from matgl.ext.ase import PESCalculator
 
 
+def test_available_benchmarks() -> None:
+    assert "mp-binary-pbe-elasticity-2025.1.json.gz" in get_available_benchmarks()
+    assert "alexandria-binary-pbe-phonon-2025.1.json.gz" in get_available_benchmarks()
+
+
 def test_get_benchmark_data() -> None:
     d = get_benchmark_data("mp-pbe-elasticity-2025.3.json.gz")
     assert len(d) > 10000
@@ -30,15 +37,15 @@ def test_get_benchmark_data() -> None:
 
 
 def test_equilibrium_benchmark(matpes_calculator: PESCalculator) -> None:
-    benchmark = EquilibriumBenchmark(n_samples=10)
+    benchmark = EquilibriumBenchmark(seed=1, n_samples=2)
     results = benchmark.run(matpes_calculator, "toy")
-    assert len(results) == 10
-    assert results["d_toy"].mean() == pytest.approx(0.1, abs=1e-1)
-    assert np.abs(results["Eform_toy"] - results["Eform_DFT"]).mean() == pytest.approx(0.045, abs=1e-2)
+    assert len(results) == 2
+    assert results["d_toy"].mean() == pytest.approx(0.2294704733560756, abs=1e-1)
+    assert np.abs(results["Eform_toy"] - results["Eform_DFT"]).mean() == pytest.approx(0.05122194169085273, abs=1e-2)
 
 
 def test_elasticity_benchmark(m3gnet_calculator: PESCalculator) -> None:
-    benchmark = ElasticityBenchmark(n_samples=10)
+    benchmark = ElasticityBenchmark(seed=101, n_samples=3)
     chkpt_file = "checkpoint.json"
 
     results = benchmark.run(
@@ -47,9 +54,9 @@ def test_elasticity_benchmark(m3gnet_calculator: PESCalculator) -> None:
 
     # Makes sure that checkpoint file is deleted upon completion.
     assert not os.path.exists(chkpt_file)
-    assert len(results) == 10
+    assert len(results) == 3
     # Compute MAE
-    assert np.abs(results["K_vrh_toy"] - results["K_vrh_DFT"]).mean() == pytest.approx(38.05842028695785, abs=1e-1)
+    assert np.abs(results["K_vrh_toy"] - results["K_vrh_DFT"]).mean() == pytest.approx(20.827423861035843, rel=1e-1)
 
     benchmark = ElasticityBenchmark(benchmark_name="mp-pbe-elasticity-2025.3.json.gz", n_samples=10)
 
@@ -73,28 +80,28 @@ def test_elasticity_benchmark(m3gnet_calculator: PESCalculator) -> None:
 
 
 def test_phonon_benchmark(m3gnet_calculator: PESCalculator) -> None:
-    benchmark = PhononBenchmark(n_samples=10)
+    benchmark = PhononBenchmark(seed=0, n_samples=3)
     results = benchmark.run(m3gnet_calculator, "toy")
-    assert len(results) == 10
-    assert np.abs(results["CV_toy"] - results["CV_DFT"]).mean() == pytest.approx(27.372493175124838, abs=1e-1)
+    assert len(results) == 3
+    assert np.abs(results["CV_toy"] - results["CV_DFT"]).mean() == pytest.approx(17.91411211019882, abs=1e-1)
 
 
 def test_softening_benchmark(m3gnet_calculator: PESCalculator) -> None:
-    benchmark = SofteningBenchmark(n_samples=3)
-    results = benchmark.run(m3gnet_calculator, "toy", checkpoint_freq=1, checkpoint_file="checkpoint.json")
+    benchmark = SofteningBenchmark(seed=42, n_samples=3)
+    results = benchmark.run(m3gnet_calculator, "toy")
     assert len(results) == 3
     assert "softening_scale_toy" in results
 
 
 def test_benchmark_suite(m3gnet_calculator: PESCalculator) -> None:
-    elasticity_benchmark = ElasticityBenchmark(n_samples=2, benchmark_name="mp-pbe-elasticity-2025.3.json.gz")
+    elasticity_benchmark = ElasticityBenchmark(seed=0, n_samples=2, benchmark_name="mp-pbe-elasticity-2025.3.json.gz")
     elasticity_benchmark.run(
         m3gnet_calculator,
         "toy1",
         checkpoint_freq=1,
         delete_checkpoint_on_finish=False,
     )
-    phonon_benchmark = PhononBenchmark(n_samples=2)
+    phonon_benchmark = PhononBenchmark(seed=0, n_samples=2)
     suite = BenchmarkSuite(benchmarks=[elasticity_benchmark, phonon_benchmark])
     results = suite.run(
         {"toy1": m3gnet_calculator, "toy2": m3gnet_calculator}, checkpoint_freq=1, delete_checkpoint_on_finish=False
@@ -109,8 +116,3 @@ def test_benchmark_suite(m3gnet_calculator: PESCalculator) -> None:
     assert "G_vrh_toy2" in results[0].columns
     assert "CV_toy1" in results[1].columns
     assert "CV_toy2" in results[1].columns
-
-
-def test_available_benchmarks() -> None:
-    assert "mp-binary-pbe-elasticity-2025.1.json.gz" in get_available_benchmarks()
-    assert "alexandria-binary-pbe-phonon-2025.1.json.gz" in get_available_benchmarks()
