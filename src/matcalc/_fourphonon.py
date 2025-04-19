@@ -76,7 +76,7 @@ class FourPhononCalc(PropCalc):
     :type calc_4ph: bool
     :ivar many_T: Flag indicating if multiple temperatures should be used for
         thermal conductivity calculations.
-    :type many_T: bool 
+    :type many_T: bool
     :ivar scalebroad: Broadening factor for thermal conductivity calculations.
     :type scalebroad: float
     :ivar core_number: Number of cores for parallel calculations.
@@ -123,7 +123,7 @@ class FourPhononCalc(PropCalc):
     ) -> None:
         """
         Initializes the class for thermal conductivity calculation and structure relaxation
-        utilizing third-order force constants (fc3) and fourth-order force constants(fc4). 
+        utilizing third-order force constants (fc3) and fourth-order force constants(fc4).
         Before use this class requires the installation of the FourPhonon and ShengBTE packages.
         The class provides configurable parameters for the relaxation process, thermal conductivity
         calculation, and file output management.
@@ -177,7 +177,7 @@ class FourPhononCalc(PropCalc):
         :param parallelled_calc: Flag to indicate if the calculation should be run in
                                 parallel mode. Defaults to False.
         :type parallelled_calc: bool
-        
+
         """
         self.calculator = calculator  # type: ignore[assignment]
         self.min_length = min_length
@@ -217,8 +217,8 @@ class FourPhononCalc(PropCalc):
 
         This method processes a given atomic structure and calculates its thermal
         conductivity through third-order and fourth-order force constants (FC3) computations.
-        The process involves optional relaxation of the input structure. 
-        The results include computed thermal conductivity over specified temperatures, 
+        The process involves optional relaxation of the input structure.
+        The results include computed thermal conductivity over specified temperatures,
         along with intermediate ShengBTE/FourPhonon configurations.
 
         :param structure: The atomic structure to compute thermal conductivity for. This can
@@ -309,9 +309,9 @@ class FourPhononCalc(PropCalc):
 
         # Combine all namelists
         namelists = {
-            "allocations": allocations, 
-            "crystal": crystal, 
-            "parameters": parameters, 
+            "allocations": allocations,
+            "crystal": crystal,
+            "parameters": parameters,
             "flags": flags
             }
 
@@ -324,7 +324,7 @@ class FourPhononCalc(PropCalc):
 
         logging.info("Running shengbte/fourphonon for thermal conductivity...")
 
-        # check the os system using the mpirun or srun 
+        # check the os system using the mpirun or srun
         try:
             if self.parallelled_calc:
                 if self.srun:
@@ -333,7 +333,7 @@ class FourPhononCalc(PropCalc):
                     subprocess.run(["mpirun", "-np", str(self.core_number), "ShengBTE"], check=True)
             else:
                 subprocess.run(["ShengBTE"], check=True)
-    
+
             logging.info("ShengBTE executed successfully.")
         except subprocess.CalledProcessError as e:
             logging.exception(f"Error executing shengbte: {e}")
