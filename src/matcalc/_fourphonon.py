@@ -103,6 +103,7 @@ class FourPhononCalc(PropCalc):
         force_diagonal: bool = True,
         supercell_matrix: ArrayLike | None = None,
         mesh_numbers: ArrayLike = (10, 10, 10),
+        # suggest to use 40,000 
         reciprocal_density: int | None = None,
         disp_kwargs: dict[str, Any] | None = None,
         thermal_conductivity_kwargs: dict | None = None,
@@ -285,11 +286,12 @@ class FourPhononCalc(PropCalc):
         # Namelist: &allocations
 
         if self.reciprocal_density:
-            kpoints = Kpoints.automatic_density(structure=structure_in, self.reciprocal_density)
-            ngrid = kpoints.kpts[0]
-            allocations = {"nelements": len(unique_elements), "natoms": len(positions), "ngrid": ngrid, "norientations": 0}
+            kpoints = Kpoints.automatic_density(structure=structure_in, kppa=self.reciprocal_density)
+            kpoint_r = kpoints.kpts[0]
+            ngrid = [kpoint_r[0], kpoint_r[1], kpoint_r[2]]
+            allocations = {"nelements": len(unique_elements), "natoms": len(positions), "ngrid(:)": ngrid, "norientations": 0}
         else:
-            allocations = {"nelements": len(unique_elements), "natoms": len(positions), "ngrid": ngrid, "norientations": 0}
+            allocations = {"nelements": len(unique_elements), "natoms": len(positions), "ngrid(:)": ngrid, "norientations": 0}
 
         # Namelist: &crystal
 
