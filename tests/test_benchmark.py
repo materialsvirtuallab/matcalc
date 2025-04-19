@@ -4,8 +4,6 @@ import itertools
 import os
 from typing import TYPE_CHECKING
 
-from pathlib import Path
-
 import numpy as np
 import pytest
 
