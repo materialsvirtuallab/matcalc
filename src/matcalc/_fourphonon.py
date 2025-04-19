@@ -2,20 +2,17 @@
 
 from __future__ import annotations
 
+import logging
+import subprocess
 from typing import TYPE_CHECKING
 
-import subprocess
-import logging
-
-
 import numpy as np
+import phonopy
+from phonopy.interface.vasp import read_vasp, write_vasp
 from pymatgen.io.phonopy import get_phonopy_structure
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )
-import phonopy
-from phonopy.interface.vasp import write_vasp, read_vasp
-
 
 try:
     import f90nml
@@ -227,27 +224,21 @@ class FourPhononCalc(PropCalc):
                  self.mesh_numbers[1], 
                  self.mesh_numbers[2]]
 
-
         # begin to write a control file for shengbte software
         # Namelist: &allocations
 
-        allocations = {'nelements': len(unique_elements),
-                       'natoms': len(positions),
-                       'ngrid': ngrid,
-                       'norientations': 0
-                       }
+        allocations = {"nelements": len(unique_elements), "natoms": len(positions), "ngrid": ngrid, "norientations": 0}
 
         # Namelist: &crystal
 
         crystal = {
-            'lfactor': 0.1,
-            'lattvec': lattvec,
-            'elements': unique_elements,
-            'types': [unique_elements.index(el) + 1 for el in symbols],
-            'positions': np.array(positions).tolist(),
-            'scell': scell
-            }
-        
+            "lfactor": 0.1,
+            "lattvec": lattvec,
+            "elements": unique_elements,
+            "types": [unique_elements.index(el) + 1 for el in symbols],
+            "positions": np.array(positions).tolist(),
+            "scell": scell,
+        }
 
         # Namelist: &parameters
         if self.many_T:
@@ -280,12 +271,7 @@ class FourPhononCalc(PropCalc):
                 }
 
         # Combine all namelists
-        namelists = {
-            'allocations': allocations,
-            'crystal': crystal,
-            'parameters': parameters,
-            'flags': flags
-            }
+        namelists = {"allocations": allocations, "crystal": crystal, "parameters": parameters, "flags": flags}
 
         # Write to CONTROL file
         f90nml.write(namelists, 'CONTROL', force=True)
@@ -306,7 +292,6 @@ class FourPhononCalc(PropCalc):
             logging.error("shengbte executable not found.")
             raise RuntimeError("shengbte executable not found. " \
             "Please ensure it is installed and in your PATH.")
-
 
         return {
             "phonon3": None,
