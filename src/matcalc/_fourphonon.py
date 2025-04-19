@@ -13,6 +13,7 @@ from pymatgen.io.phonopy import get_phonopy_structure
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )
+from pymatgen.io.vasp import Kpoints
 
 try:
     import f90nml
@@ -47,6 +48,8 @@ class FourPhononCalc(PropCalc):
 
     :ivar mesh_numbers: Mesh grid dimensions for phonon calculations.
     :type mesh_numbers: ArrayLike
+    :ivar min_length: Minimum length of the supercell in Angstroms.
+    :type min_length: float
     :ivar disp_kwargs: Keyword arguments for displacement generation.
     :type disp_kwargs: dict[str, Any] | None
     :ivar thermal_conductivity_kwargs: Keyword arguments for thermal conductivity
@@ -100,6 +103,7 @@ class FourPhononCalc(PropCalc):
         force_diagonal: bool = True,
         supercell_matrix: ArrayLike | None = None,
         mesh_numbers: ArrayLike = (10, 10, 10),
+        reciprocal_density: int | None = None,
         disp_kwargs: dict[str, Any] | None = None,
         thermal_conductivity_kwargs: dict | None = None,
         relax_structure: bool = True,
@@ -136,6 +140,8 @@ class FourPhononCalc(PropCalc):
         :type supercell_matrix: ArrayLike | None
         :param mesh_numbers: The grid size for reciprocal space mesh used in phonon calculations.
         :type mesh_numbers: ArrayLike
+        :param reciprocal_density: The density of the reciprocal space mesh.
+        :type reciprocal_density: float
         :param disp_kwargs: Dictionary containing optional parameters for displacement generation
                             in force constant calculation.
         :type disp_kwargs: dict[str, Any] | None
@@ -184,6 +190,7 @@ class FourPhononCalc(PropCalc):
         self.supercell_matrix = supercell_matrix
 
         self.mesh_numbers = mesh_numbers
+        self.reciprocal_density = reciprocal_density
         self.disp_kwargs = disp_kwargs if disp_kwargs is not None else {}
         self.thermal_conductivity_kwargs = (
             thermal_conductivity_kwargs if thermal_conductivity_kwargs is not None else {}
@@ -245,6 +252,8 @@ class FourPhononCalc(PropCalc):
             result |= relaxer.calc(structure_in)
             structure_in = result["final_structure"]
 
+
+
         cell = get_phonopy_structure(structure_in)
 
         if self.supercell_matrix is None:
@@ -275,7 +284,12 @@ class FourPhononCalc(PropCalc):
         # begin to write a control file for shengbte software
         # Namelist: &allocations
 
-        allocations = {"nelements": len(unique_elements), "natoms": len(positions), "ngrid": ngrid, "norientations": 0}
+        if self.reciprocal_density:
+            kpoints = Kpoints.automatic_density(structure=structure_in, self.reciprocal_density)
+            ngrid = kpoints.kpts[0]
+            allocations = {"nelements": len(unique_elements), "natoms": len(positions), "ngrid": ngrid, "norientations": 0}
+        else:
+            allocations = {"nelements": len(unique_elements), "natoms": len(positions), "ngrid": ngrid, "norientations": 0}
 
         # Namelist: &crystal
 
