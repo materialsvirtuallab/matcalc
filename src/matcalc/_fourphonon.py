@@ -342,7 +342,6 @@ class FourPhononCalc(PropCalc):
         logging.info("CONTROL file successfully written.")
 
         # Run shengbte/fourphonon
-
         logging.info("Running shengbte/fourphonon for thermal conductivity...")
 
         # check the os system using the mpirun or srun
