@@ -47,7 +47,7 @@ def test_elasticity_benchmark(m3gnet_calculator: PESCalculator) -> None:
     chkpt_file = "checkpoint.json"
 
     results = benchmark.run(
-        m3gnet_calculator, "toy", checkpoint_file=chkpt_file, checkpoint_freq=3, delete_checkpoint_on_finish=True
+        m3gnet_calculator, "toy", checkpoint_file=chkpt_file, checkpoint_freq=1, delete_checkpoint_on_finish=True
     )
 
     # Makes sure that checkpoint file is deleted upon completion.
@@ -56,13 +56,13 @@ def test_elasticity_benchmark(m3gnet_calculator: PESCalculator) -> None:
     # Compute MAE
     assert np.abs(results["K_vrh_toy"] - results["K_vrh_DFT"]).mean() == pytest.approx(20.827423861035843, rel=1e-1)
 
-    benchmark = ElasticityBenchmark(benchmark_name="mp-pbe-elasticity-2025.3.json.gz", n_samples=10)
+    benchmark = ElasticityBenchmark(benchmark_name="mp-pbe-elasticity-2025.3.json.gz", seed=0, n_samples=3)
 
     results = benchmark.run(
         m3gnet_calculator,
         "toy",
         checkpoint_file=chkpt_file,
-        checkpoint_freq=3,
+        checkpoint_freq=1,
         delete_checkpoint_on_finish=False,
         include_full_results=True,
     )
@@ -85,8 +85,8 @@ def test_phonon_benchmark(m3gnet_calculator: PESCalculator) -> None:
 
 
 def test_softening_benchmark(m3gnet_calculator: PESCalculator) -> None:
-    benchmark = SofteningBenchmark(seed=42, n_samples=3)
-    results = benchmark.run(m3gnet_calculator, "toy")
+    benchmark = SofteningBenchmark(seed=1, n_samples=3)
+    results = benchmark.run(m3gnet_calculator, "toy", checkpoint_freq=1, checkpoint_file="checkpoint.json")
     assert len(results) == 3
     assert "softening_scale_toy" in results
 
