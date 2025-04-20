@@ -151,7 +151,11 @@ class EnergeticsCalc(PropCalc):
             relaxer.perturb_distance = None
             structure = self.elemental_refs[el.symbol]["structure"]
             structure_list = [structure] if not isinstance(structure, list) else structure
-            return min(r["energy"] / r["final_structure"].num_sites for r in list(relaxer.calc_many(structure_list)))
+            return min(
+                r["energy"] / r["final_structure"].num_sites
+                for r in list(relaxer.calc_many(structure_list))
+                if r is not None
+            )
 
         comp = structure_in.composition
         e_form = energy - sum([get_gs_energy(el) * amt for el, amt in comp.items()])

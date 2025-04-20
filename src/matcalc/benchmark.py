@@ -573,7 +573,9 @@ class EquilibriumBenchmark(Benchmark):
         for el in needed_els:
             info = full_refs[el]
             struct_list = [info["structure"]] if not isinstance(info["structure"], list) else info["structure"]
-            energy_per_atom = [r["energy"] / r["final_structure"].num_sites for r in relaxer.calc_many(struct_list)]
+            energy_per_atom = [
+                r["energy"] / r["final_structure"].num_sites for r in relaxer.calc_many(struct_list) if r is not None
+            ]
             self.elemental_refs[el] = {
                 "energy_per_atom": min(energy_per_atom),
             }
