@@ -113,7 +113,7 @@ def publish(ctx):
 
 
 @task
-def release_github(ctx):  # noqa: ARG001
+def release(ctx):  # noqa: ARG001
     desc = get_changelog()
 
     payload = {
@@ -131,14 +131,6 @@ def release_github(ctx):  # noqa: ARG001
         timeout=10,
     )
     pprint(response.json())
-
-
-@task
-def release(ctx, notest: bool = False) -> None:  # noqa: FBT001, FBT002
-    ctx.run("rm -r dist build matcalc.egg-info", warn=True)
-    if not notest:
-        ctx.run("pytest tests")
-    release_github(ctx)
 
 
 def get_changelog():
