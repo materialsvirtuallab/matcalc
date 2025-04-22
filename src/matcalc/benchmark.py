@@ -638,7 +638,8 @@ class ElasticityBenchmark(Benchmark):
            calculator and keyword arguments.
         :rtype: PropCalc
         """
-        return ElasticityCalc(calculator, fmax=0.05, **kwargs)
+        kwargs.setdefault("fmax", 0.05)
+        return ElasticityCalc(calculator, **kwargs)
 
     def process_result(self, result: dict | None, model_name: str) -> dict:
         """
