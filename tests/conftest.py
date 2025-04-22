@@ -71,7 +71,7 @@ def matpes_calculator() -> PESCalculator:
     return matcalc.load_up("TensorNet-MatPES-PBE-v2025.1-PES")
 
 
-@pytest.fixture(autouse=True, scope="session")
+@pytest.fixture(autouse=True)
 def setup_teardown() -> Generator:
     """Setup and teardown for all tests"""
     # Add before test code here.
