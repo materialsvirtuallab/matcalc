@@ -9,18 +9,19 @@ from inspect import isclass
 from typing import TYPE_CHECKING, Any, Literal
 
 import ase.optimize
+from ase import Atoms
 from ase.calculators.calculator import Calculator
 from ase.optimize.optimize import Optimizer
+from pymatgen.core import Structure
+from pymatgen.io.ase import AseAtomsAdaptor
 
 from .units import eVA3ToGPa
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from ase import Atoms
     from maml.apps.pes import LMPStaticCalculator
     from pyace.basis import ACEBBasisSet, ACECTildeBasisSet, BBasisConfiguration
-    from pymatgen.core import Structure
 
 
 # Listing of supported universal calculators.
@@ -489,3 +490,36 @@ def get_ase_optimizer(optimizer: str | Optimizer) -> Optimizer:
         raise ValueError(f"Unknown {optimizer=}, must be one of {VALID_OPTIMIZERS}")
 
     return getattr(ase.optimize, optimizer) if isinstance(optimizer, str) else optimizer
+
+
+def to_ase_atoms(structure: Atoms | Structure) -> Atoms:
+    """
+    Converts a given structure into an ASE Atoms object. This function checks
+    if the input structure is already an ASE Atoms object. If not, it converts
+    a pymatgen Structure object to an ASE Atoms object using the AseAtomsAdaptor.
+
+    :param structure: The input structure, which can be either an ASE Atoms object
+        or a pymatgen Structure object.
+    :type structure: Atoms | Structure
+    :return: An ASE Atoms object representing the given structure.
+    :rtype: Atoms
+    """
+    return structure if isinstance(structure, Atoms) else AseAtomsAdaptor.get_atoms(structure)
+
+
+def to_pmg_structure(structure: Atoms | Structure) -> Structure:
+    """
+    Converts a given structure of type Atoms or Structure into a Structure
+    object. If the input structure is already of type Structure, it is
+    returned unchanged. If the input structure is of type Atoms, it is
+    converted to a Structure using the AseAtomsAdaptor.
+
+    :param structure: The input structure to be converted. This can be of
+        type Atoms or Structure.
+    :type structure: Atoms | Structure
+    :return: A Structure object corresponding to the input structure. If the
+        input is already a Structure, it is returned as-is. Otherwise, it is
+        converted.
+    :rtype: Structure
+    """
+    return structure if isinstance(structure, Structure) else AseAtomsAdaptor.get_structure(structure)

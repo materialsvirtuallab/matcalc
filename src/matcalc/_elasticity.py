@@ -10,11 +10,13 @@ from pymatgen.analysis.elasticity.elastic import get_strain_state_dict
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
+from .utils import to_ase_atoms, to_pmg_structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
+    from ase import Atoms
     from ase.calculators.calculator import Calculator
     from numpy.typing import ArrayLike
     from pymatgen.core import Structure
@@ -125,7 +127,7 @@ class ElasticityCalc(PropCalc):
             - `structure`: The (potentially relaxed) final structure after calculations.
         """
         result = super().calc(structure)
-        structure_in: Structure = result["final_structure"]
+        structure_in: Structure | Atoms = result["final_structure"]
 
         if self.relax_structure or self.relax_deformed_structures:
             relax_calc = RelaxCalc(self.calculator, fmax=self.fmax, **(self.relax_calc_kwargs or {}))
@@ -136,7 +138,7 @@ class ElasticityCalc(PropCalc):
                 relax_calc.relax_cell = False
 
         deformed_structure_set = DeformedStructureSet(
-            structure_in,
+            to_pmg_structure(structure_in),
             self.norm_strains,
             self.shear_strains,
             self.symmetry,
@@ -145,7 +147,7 @@ class ElasticityCalc(PropCalc):
         for deformed_structure in deformed_structure_set:
             if self.relax_deformed_structures:
                 deformed_structure_relaxed = relax_calc.calc(deformed_structure)["final_structure"]  # pyright:ignore (reportPossiblyUnboundVariable)
-                atoms = deformed_structure_relaxed.to_ase_atoms()
+                atoms = to_ase_atoms(deformed_structure_relaxed)
             else:
                 atoms = deformed_structure.to_ase_atoms()
 
@@ -153,7 +155,7 @@ class ElasticityCalc(PropCalc):
             stresses.append(atoms.get_stress(voigt=False))
 
         strains = [Strain.from_deformation(deformation) for deformation in deformed_structure_set.deformations]
-        atoms = structure_in.to_ase_atoms()
+        atoms = to_ase_atoms(structure_in)
         atoms.calc = self.calculator
         elastic_tensor, residuals_sum = self._elastic_tensor_from_strains(
             strains,

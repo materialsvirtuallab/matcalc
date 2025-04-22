@@ -6,14 +6,15 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from monty.serialization import loadfn
-from pymatgen.io.ase import AseAtomsAdaptor
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
+from .utils import to_ase_atoms, to_pmg_structure
 
 if TYPE_CHECKING:
     from typing import Any
 
+    from ase import Atoms
     from ase.calculators.calculator import Calculator
     from pymatgen.core import Element, Species, Structure
 
@@ -90,7 +91,7 @@ class EnergeticsCalc(PropCalc):
         self.relax_structure = relax_structure
         self.relax_calc_kwargs = relax_calc_kwargs
 
-    def calc(self, structure: Structure | dict[str, Any]) -> dict[str, Any]:
+    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict[str, Any]:
         """
         Calculates the formation energy per atom, cohesive energy per atom, and final
         relaxed structure for a given input structure using a relaxation calculation
@@ -105,7 +106,7 @@ class EnergeticsCalc(PropCalc):
         :rtype: dict[str, Any]
         """
         result = super().calc(structure)
-        structure_in: Structure = result["final_structure"]
+        structure_in: Structure | Atoms = result["final_structure"]
         relaxer = RelaxCalc(
             self.calculator,
             **(self.relax_calc_kwargs or {}),
@@ -114,7 +115,7 @@ class EnergeticsCalc(PropCalc):
             result |= relaxer.calc(structure_in)
             structure_in = result["final_structure"]
 
-        atoms = AseAtomsAdaptor.get_atoms(structure_in)
+        atoms = to_ase_atoms(structure_in)
         atoms.calc = self.calculator
         energy = atoms.get_potential_energy()
         nsites = len(structure_in)
@@ -133,7 +134,7 @@ class EnergeticsCalc(PropCalc):
             eldata = relaxer.calc(self.elemental_refs[el.symbol]["structure"])
             return eldata["energy"] / eldata["final_structure"].num_sites
 
-        comp = structure_in.composition
+        comp = to_pmg_structure(structure_in).composition
         e_form = energy - sum([get_gs_energy(el) * amt for el, amt in comp.items()])
 
         e_coh = energy - sum([self.elemental_refs[el.symbol]["energy_atomic"] * amt for el, amt in comp.items()])
