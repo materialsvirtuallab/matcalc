@@ -17,9 +17,10 @@ import pytest
 from pymatgen.util.testing import PymatgenTest
 
 import matcalc
-from matcalc.utils import PESCalculator
+from matcalc.utils import PESCalculator, to_ase_atoms
 
 if TYPE_CHECKING:
+    from ase.atoms import Atoms
     from pymatgen.core import Structure
 
 import matgl
@@ -46,6 +47,12 @@ def Li2O() -> Structure:
 def Si() -> Structure:
     """Si structure as session-scoped fixture."""
     return PymatgenTest.get_structure("Si")
+
+
+@pytest.fixture(scope="session")
+def Si_atoms() -> Atoms:
+    """Si atoms as session-scoped fixture."""
+    return to_ase_atoms(PymatgenTest.get_structure("Si"))
 
 
 @pytest.fixture(scope="session")

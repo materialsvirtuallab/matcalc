@@ -11,11 +11,13 @@ from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
+from .utils import to_pmg_structure
 
 if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
 
+    from ase import Atoms
     from ase.calculators.calculator import Calculator
     from numpy.typing import ArrayLike
     from pymatgen.core import Structure
@@ -140,7 +142,7 @@ class Phonon3Calc(PropCalc):
         for key, val, default_path in (("write_phonon3", self.write_phonon3, "phonon3.yaml"),):
             setattr(self, key, str({True: default_path, False: ""}.get(val, val)))  # type: ignore[arg-type]
 
-    def calc(self, structure: Structure | dict[str, Any]) -> dict:
+    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict:
         """
         Performs thermal conductivity calculations using the Phono3py library.
 
@@ -176,7 +178,7 @@ class Phonon3Calc(PropCalc):
             result |= relaxer.calc(structure_in)
             structure_in = result["final_structure"]
 
-        cell = get_phonopy_structure(structure_in)
+        cell = get_phonopy_structure(to_pmg_structure(structure_in))
         phonon3 = Phono3py(
             unitcell=cell,
             supercell_matrix=self.fc3_supercell,
@@ -189,7 +191,6 @@ class Phonon3Calc(PropCalc):
 
         phonon3.generate_displacements(**self.disp_kwargs)
 
-        len(phonon3.phonon_supercells_with_displacements[0])
         phonon_forces = []
         for supercell in phonon3.phonon_supercells_with_displacements:
             struct_supercell = get_pmg_structure(supercell)
@@ -201,7 +202,6 @@ class Phonon3Calc(PropCalc):
         fc2_set = np.array(phonon_forces)
         phonon3.phonon_forces = fc2_set
 
-        len(phonon3.supercells_with_displacements[0])
         forces = []
         for supercell in phonon3.supercells_with_displacements:
             if supercell is not None:

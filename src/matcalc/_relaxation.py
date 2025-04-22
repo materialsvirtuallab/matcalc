@@ -9,13 +9,13 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ase.filters import FrechetCellFilter
-from pymatgen.io.ase import AseAtomsAdaptor
-
-from matcalc.utils import get_ase_optimizer
 
 from ._base import PropCalc
+from .utils import get_ase_optimizer, to_ase_atoms, to_pmg_structure
 
 if TYPE_CHECKING:
+    from typing import Any
+
     import numpy as np
     from ase import Atoms
     from ase.calculators.calculator import Calculator
@@ -181,7 +181,7 @@ class RelaxCalc(PropCalc):
         self.cell_filter = cell_filter
         self.perturb_distance = perturb_distance
 
-    def calc(self, structure: Structure | dict) -> dict:
+    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict:
         """
         Calculate the final relaxed structure, energy, forces, and stress for a given
         structure and update the result dictionary with additional geometric properties.
@@ -200,11 +200,12 @@ class RelaxCalc(PropCalc):
         :rtype: dict
         """
         result = super().calc(structure)
-        structure_in: Structure = result["final_structure"].copy()
+
+        structure_in: Structure | Atoms = result["final_structure"]
 
         if self.perturb_distance is not None:
-            structure_in = structure_in.perturb(distance=self.perturb_distance, seed=None)  # type: ignore[arg-type]
-        atoms = AseAtomsAdaptor.get_atoms(structure_in)
+            structure_in = to_pmg_structure(structure_in).perturb(distance=self.perturb_distance, seed=None)
+        atoms = to_ase_atoms(structure_in)
         atoms.calc = self.calculator
         if self.relax_atoms:
             stream = io.StringIO()
@@ -223,10 +224,10 @@ class RelaxCalc(PropCalc):
             energy = obs.energies[-1]
             forces = obs.forces[-1]
             stress = obs.stresses[-1]
-            final_structure: Structure = AseAtomsAdaptor.get_structure(atoms)
+            final_structure: Structure = to_pmg_structure(atoms)
 
         else:
-            final_structure = structure_in
+            final_structure = to_pmg_structure(structure_in)
             energy = atoms.get_potential_energy()
             forces = atoms.get_forces()
             stress = atoms.get_stress()

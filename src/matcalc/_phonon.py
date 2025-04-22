@@ -6,16 +6,17 @@ from typing import TYPE_CHECKING
 
 import phonopy
 from phonopy.file_IO import write_FORCE_CONSTANTS as write_force_constants
-from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
+from .utils import to_ase_atoms, to_pmg_structure
 
 if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
 
+    from ase import Atoms
     from ase.calculators.calculator import Calculator
     from numpy.typing import ArrayLike
     from phonopy.structure.atoms import PhonopyAtoms
@@ -145,7 +146,7 @@ class PhononCalc(PropCalc):
         ):
             setattr(self, key, str({True: default_path, False: ""}.get(val, val)))  # type: ignore[arg-type]
 
-    def calc(self, structure: Structure | dict[str, Any]) -> dict:
+    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict:
         """Calculates thermal properties of Pymatgen structure with phonopy.
 
         Args:
@@ -183,7 +184,7 @@ class PhononCalc(PropCalc):
             )
             result |= relaxer.calc(structure_in)
             structure_in = result["final_structure"]
-        cell = get_phonopy_structure(structure_in)
+        cell = get_phonopy_structure(to_pmg_structure(structure_in))
         phonon = phonopy.Phonopy(cell, self.supercell_matrix)  # type: ignore[arg-type]
         phonon.generate_displacements(distance=self.atom_disp)
         disp_supercells = phonon.supercells_with_displacements
@@ -217,6 +218,6 @@ def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:
         forces
     """
     struct = get_pmg_structure(supercell)
-    atoms = AseAtomsAdaptor.get_atoms(struct)
+    atoms = to_ase_atoms(struct)
     atoms.calc = calculator
     return atoms.get_forces()

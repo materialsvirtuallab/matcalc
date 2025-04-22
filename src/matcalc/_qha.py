@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
 
+    from ase import Atoms
     from ase.calculators.calculator import Calculator
     from pymatgen.core import Structure
 
@@ -201,7 +202,7 @@ class QHACalc(PropCalc):
         ):
             setattr(self, key, str({True: default_path, False: ""}.get(val, val)))  # type: ignore[arg-type]
 
-    def calc(self, structure: Structure | dict[str, Any]) -> dict:
+    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict:
         """Calculates thermal properties of Pymatgen structure with phonopy under quasi-harmonic approximation.
 
         Args:

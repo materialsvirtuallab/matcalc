@@ -24,7 +24,7 @@ def test_bad_input(Li2O: Structure, m3gnet_calculator: PESCalculator) -> None:
         relax_atoms=True,
         relax_cell=True,
     )
-    with pytest.raises(ValueError, match="Structure must be either a pymatgen Structure or a dict"):
+    with pytest.raises(ValueError, match="Structure must be either a pymatgen Structure"):
         relax_calc.calc({"bad": Li2O})
 
     data = list(relax_calc.calc_many([Li2O, None], allow_errors=True))
