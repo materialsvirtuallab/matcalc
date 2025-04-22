@@ -6,6 +6,11 @@ nav_order: 2
 
 # Change Log
 
+## v0.4.0
+- All PropCalcs now support ASE Atoms as inputs, as well as pymatgen Structures.
+- Added MDCalc class for molecular dynamics simulations. (@rul048)
+- Minor updates to EquilibriumBenchmark to make it easier to reproduce matpes.ai/benchmarks results.  (@rul048)
+
 ## v0.3.3
 - SurfaceCalc class for computing surface energies. (@atulcthakur)
 - NEBCalc now returns MEP information. (@drakeyu)

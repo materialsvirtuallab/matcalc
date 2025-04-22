@@ -2685,7 +2685,7 @@ wheels = [
 
 [[package]]
 name = "matcalc"
-version = "0.3.3"
+version = "0.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "ase" },
@@ -2809,7 +2809,7 @@ requires-dist = [
     { name = "phonopy", specifier = ">=2.38.0" },
     { name = "pre-commit", marker = "extra == 'ci'", specifier = ">=4.2.0" },
     { name = "pyace", marker = "extra == 'ace'", specifier = ">=0.1.1" },
-    { name = "pymatgen", specifier = ">=2025.4.19" },
+    { name = "pymatgen", specifier = ">=2025.4.20" },
     { name = "pynanoflann", marker = "extra == 'orb'", specifier = ">=0.10.0" },
     { name = "pytest", marker = "extra == 'ci'", specifier = ">=8.3.5" },
     { name = "pytest-cov", marker = "extra == 'ci'", specifier = ">=6.0.0" },
@@ -4518,7 +4518,7 @@ wheels = [
 
 [[package]]
 name = "pymatgen"
-version = "2025.4.19"
+version = "2025.4.20"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bibtexparser" },
@@ -4539,27 +4539,32 @@ dependencies = [
     { name = "tqdm" },
     { name = "uncertainties" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/30/d8/c0a99f4a3f0e38eef2b32e110a895d8cdaf5eb0689f813a73b9ca1061a44/pymatgen-2025.4.19.tar.gz", hash = "sha256:030d474b9a763012c7277f8bcd26afc726bd7609911438eb632b50c21fd5c9e2", size = 3158221 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d8/89/bb71248e919ca2ba3806e08134bbe6165a0a57170d167e60423141f6af0c/pymatgen-2025.4.19-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:48655e986e8858d63acfa45e430f951cc72a57e6c369c3e01ec4717058a4967c", size = 3694298 },
-    { url = "https://files.pythonhosted.org/packages/50/a6/d52277171453b0d37688955186ea88a2894a7ea7d3c2714d32911ac40bb9/pymatgen-2025.4.19-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:8ab9cf2827b057e2626ceaef66121d15e30887100f2fe2ec67e19ac2f4cd2888", size = 3675216 },
-    { url = "https://files.pythonhosted.org/packages/d1/32/8313c2d03d5acf3876e5fbd1a7052816bfb64d3ff0270552d73f98250185/pymatgen-2025.4.19-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:358cc78c876cc7c02b9afe4e3bd8289c4ad579644420e1948dc4f4b85e119971", size = 4960846 },
-    { url = "https://files.pythonhosted.org/packages/49/d0/20e6cf32baf449a145848bb9faa4c03f618150674d82f5f51da846ef08a6/pymatgen-2025.4.19-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:77b4e7d56a71d8181c25111db07b1516f2e453bb042b67e849385f3ea6e987b3", size = 4983075 },
-    { url = "https://files.pythonhosted.org/packages/7b/fb/d918eb10702a79f10401c91e85f1b860b58ac142bcd78243d351a12b1c08/pymatgen-2025.4.19-cp310-cp310-win32.whl", hash = "sha256:44225c2445c0dd74a7f739303faf377588ac55a4586eaada182303ffc4fe48a4", size = 3626856 },
-    { url = "https://files.pythonhosted.org/packages/b9/fc/86e259c79e54af78c0f4bdc60e85ddf2f903084c054ddcf9e5346dddc6ef/pymatgen-2025.4.19-cp310-cp310-win_amd64.whl", hash = "sha256:20107229a337518a54be05137f93d4d4778946a8948f0e3cc5864a9586206698", size = 3667779 },
-    { url = "https://files.pythonhosted.org/packages/3d/7b/276af60207377fbf0b5dc478e085aed6405685422fa777da331cd5f367a2/pymatgen-2025.4.19-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:468aea2ca84ae96948fae97da3c7b3d26b204f63eef1504c0695aa360d8b78f3", size = 4000975 },
-    { url = "https://files.pythonhosted.org/packages/5f/c5/a2c70854113d984d6c075e808526e0d886e64cd61d5d4f45b3850b88ba91/pymatgen-2025.4.19-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:780e139bbfcd0251b5402b8da0f8baa49f2f47655f68e261aaeca52577649483", size = 3694233 },
-    { url = "https://files.pythonhosted.org/packages/3c/cd/bd1b80c83dee1b4c28520d260ee3beca157a7bd4019a523d94827c8417cd/pymatgen-2025.4.19-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:8fe60ce53651bcbf46158ba5debbe0fd2fe4825f3b290f0350017f59926bfbdd", size = 3674992 },
-    { url = "https://files.pythonhosted.org/packages/46/9a/da44f85ad2dcbdb6efa808c09fe93b95783997fad07dab564475efddfd1d/pymatgen-2025.4.19-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:892335f08d35f0ba4a72758048fc5ebcdb25bb92c00c4988cbd4eb0c134875fb", size = 5076899 },
-    { url = "https://files.pythonhosted.org/packages/3b/6e/4fd130b69ed1cbe856be7c35a94c8240c1015257914c13e35bb34a98dd39/pymatgen-2025.4.19-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:70ed65425a7b4792953e69fed86e020b28268b0de33d8f3f95f619ea0d0ea2c8", size = 5104360 },
-    { url = "https://files.pythonhosted.org/packages/c2/b9/40c7ab8e102ee880d1a00ecab8a352633976eb882e90f168f7878132390d/pymatgen-2025.4.19-cp311-cp311-win32.whl", hash = "sha256:f922ba6a6a7411af76b678f183c8906e74e91d918be062aa93b9d08e7626e56d", size = 3626061 },
-    { url = "https://files.pythonhosted.org/packages/23/24/b203041e7e0ff10b17ece93271d71f5e3eeee11c85f2e53c603940fa276f/pymatgen-2025.4.19-cp311-cp311-win_amd64.whl", hash = "sha256:709303ae78c4b615671b10fb314ae89164620c393cc425dc6b156cd59e4aad22", size = 3668368 },
-    { url = "https://files.pythonhosted.org/packages/2a/2d/709a365e1d96208cf63a7242cb9a41d2daa98965329e55073cc97535d3ab/pymatgen-2025.4.19-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:58bf6e8ac30da008efc12f6cc8b168a3244c5825d7af2bf8abbf4551381553fa", size = 3696043 },
-    { url = "https://files.pythonhosted.org/packages/e7/f8/3b9b339481ccb54d14c6731c0899eb340184fcbc65f98dcc44d0dfd0a050/pymatgen-2025.4.19-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:d5d2b4ecb5f701cb6ca5eefc4ac81413c38a7f2c0eb46b6f050154570f600c4e", size = 3676480 },
-    { url = "https://files.pythonhosted.org/packages/07/2b/8ed1e541c3d2bc4e17c5020e1945eda56a15fd95f629970dafd0f1fc6ade/pymatgen-2025.4.19-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5d38e60a3317c44fd591e594bc5e383b0add95bb24d3914ac291e969e4d0816e", size = 5059474 },
-    { url = "https://files.pythonhosted.org/packages/ef/41/9868c2e9b77eee5ebdb2ad89d8b25352adda96400be2958ce3a195d7bbc4/pymatgen-2025.4.19-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2d82709f26dffe0efe9d142e48da25cd2fff40f36fc019c003e1370572936b7b", size = 5092729 },
-    { url = "https://files.pythonhosted.org/packages/3d/99/a1702fedf10fd0a0b50c47f9de2efa8226f744b6cd34d5db819ed1dde415/pymatgen-2025.4.19-cp312-cp312-win32.whl", hash = "sha256:ac12ce769f0d7ff8a5d5e400316a2bcaf7ed5e3d8ae69729ca41e2480e078fdb", size = 3626137 },
-    { url = "https://files.pythonhosted.org/packages/2e/b8/0eafbe2290071c42237ddf4e62215659554f887477810e9566f0f83b9fd0/pymatgen-2025.4.19-cp312-cp312-win_amd64.whl", hash = "sha256:8384ad27537e9cf265b81b7cea0d6609bc9ba2a8275ece1ac59e1f019a1c9e3d", size = 3667982 },
+    { url = "https://files.pythonhosted.org/packages/d2/ab/11fc72a965cf249a85def07eb8c2215334be9fdfe26c8a8af0a21e442160/pymatgen-2025.4.20-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:ad829ebe70f9d3a2036dc3b78743f187b43c507e309a7bc73465cfe1ca883cdd", size = 3694494 },
+    { url = "https://files.pythonhosted.org/packages/57/7e/05179d82e49cb7e854503501fbd34cc1689f3c15ff28a30e7d30bdd6e1d3/pymatgen-2025.4.20-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:db7db5c0edfd9187335376639083c5d72d0753c8ec932c21f420b7018d08d14a", size = 3675411 },
+    { url = "https://files.pythonhosted.org/packages/3e/13/38b103a4b719b74333e73eb657d008134ee45140c731fc3f1bbf5c58a0bc/pymatgen-2025.4.20-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a6408c2d196866a0d7318cff4d07e47a1094e8170d7754ea0a3121a66e15cb0a", size = 4961039 },
+    { url = "https://files.pythonhosted.org/packages/2b/8a/ebd06b2b7c4864d5e22913c5fa07f25ab13e15e651330cfa41848ffbec45/pymatgen-2025.4.20-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4bdb11ccb9045d4db501114f080f4be2f11493403e45d11a91fb782e506d44ab", size = 4983265 },
+    { url = "https://files.pythonhosted.org/packages/1f/ec/23866568d3e9d7dd9969ff97d76f48f80bd901e20c7eb9d105f72afb6617/pymatgen-2025.4.20-cp310-cp310-win32.whl", hash = "sha256:7c222de72cd8587aa438665fbe60d8aea20891e00728bfdc2279f581f6cd8f4b", size = 3627074 },
+    { url = "https://files.pythonhosted.org/packages/65/e9/7903fcc7816b18a5e190b13d94102861623e1164b921067f2fe139ffde80/pymatgen-2025.4.20-cp310-cp310-win_amd64.whl", hash = "sha256:42212d6d54f0d1418c08e944a1360564f9fdcdd60fad36fe2aa42ed2ee4e2421", size = 3667989 },
+    { url = "https://files.pythonhosted.org/packages/17/ed/ac966a3893d56a028756d61de937eaf9a8e2d1c826772df04219a7f45d1f/pymatgen-2025.4.20-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:bcf92906f8ebb68929be262fc885f5a4ba3acbd2690638abd1a6b3375e8ca7dd", size = 3694429 },
+    { url = "https://files.pythonhosted.org/packages/23/13/6d6208d9119dff171ac618ad54627db9adebd40ec129cc143ab821e00a89/pymatgen-2025.4.20-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:1e05dd6613f5c3cdf315676d7c3fc52575cb79724eaf9460d6818369f629a322", size = 3675183 },
+    { url = "https://files.pythonhosted.org/packages/c6/6e/3f0c2dd2bc710b9d8252ea4f8f4c6883748a4c8c9fd129d9ac55e4cd3282/pymatgen-2025.4.20-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:19d20b57ba35b2852fd4b441b98bf7bbea2dcb46bd868c40762a01b6e63f52da", size = 5077097 },
+    { url = "https://files.pythonhosted.org/packages/60/f7/266cdb10cc5715f338c071715765eebc4f5cc096d84d49f791e88a59775b/pymatgen-2025.4.20-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ff1a5dbb0ccbc194cea38a7513b6e5a3f2f5eaf5266b0d9e83074dbe7769cf0a", size = 5104550 },
+    { url = "https://files.pythonhosted.org/packages/da/97/595ea4b6942047d65fc55d1af1237a5ed06c921e295dea24d32c5d57c1df/pymatgen-2025.4.20-cp311-cp311-win32.whl", hash = "sha256:73ecdf01bae747d1f8eda08957d4b3cae578c3443f9954c3f6f04dbdbfd77847", size = 3626278 },
+    { url = "https://files.pythonhosted.org/packages/cb/f4/5ffb27f847c4f79ba24581fa5247c11d229940ffcf3e24a2e57b7577cee0/pymatgen-2025.4.20-cp311-cp311-win_amd64.whl", hash = "sha256:01a3c09c9646bd62e2a31c1d2496b64591627b56459e168098bbd05d66ac2aab", size = 3668579 },
+    { url = "https://files.pythonhosted.org/packages/a3/46/989eff347f201d9cd98a6ac00d554d2c6a12bbff9715cf30cdf736a637e3/pymatgen-2025.4.20-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:1ef9cc9fcaa14c21f1ecb3acbd3430ffdbe2ff3b29e6448953c6c6cc6ee8a313", size = 3696249 },
+    { url = "https://files.pythonhosted.org/packages/be/ff/5a1f31ad94ef02906007b53d923439a968454df7d38879309166f093c6ab/pymatgen-2025.4.20-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:4c013a044b3c22c1b8b8ebcc127fb63826580885e1d4d670e1c522a1d5014af8", size = 3696236 },
+    { url = "https://files.pythonhosted.org/packages/4b/40/e3a4ce16fa3ff5181edbf40b4e15bd79b5cffbb4eb133f5baae1dd7b8c9c/pymatgen-2025.4.20-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:5b5c233b67c86e8757365c89798b2e1e4f8be8c1c5ae6c67fe74bcb147005df2", size = 3676663 },
+    { url = "https://files.pythonhosted.org/packages/3d/6b/3a7dba46fc1862cf1f56214614bcd06b5f17ce7fee05182bbbb5313b6378/pymatgen-2025.4.20-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:fc906f15d77b0efe10328f55840bdf0e167c5c17c6390ca2f39c48442eb88887", size = 5059668 },
+    { url = "https://files.pythonhosted.org/packages/56/34/6a8d5fb9dfb3315ae3b58a8ee2cd24527668c8601ed0fe321bebd1d5a4a2/pymatgen-2025.4.20-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:baadca1a59db108bd9ad52a109ad9f9445ad4789ce6eece0c8d553447f087b93", size = 5092920 },
+    { url = "https://files.pythonhosted.org/packages/2f/94/f8830606604228833ea97df25db563d7cde541b833862b6f1de5fbe8c67b/pymatgen-2025.4.20-cp312-cp312-win32.whl", hash = "sha256:2bbda86b8644587c9d930ccaafe8e60fbb109d0b470cb38a94edf8307fd586f3", size = 3626352 },
+    { url = "https://files.pythonhosted.org/packages/1d/f7/b58b37193230334b123306e57948b11993927db434c7b6a585b69ad6fbf2/pymatgen-2025.4.20-cp312-cp312-win_amd64.whl", hash = "sha256:19fb2502258f8569284b3c0734a8378495a99f8b75c7bc48a9a52b25828bf9ec", size = 3668196 },
+    { url = "https://files.pythonhosted.org/packages/84/1c/4d1df972ba3eaf2b1fcd61bf8d9f0f1e41f34cd9c2adf0710263475ca545/pymatgen-2025.4.20-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:c2a56cb24057d13a1db17eade91e3e2d555935b7c6e8c5429aae792ca1c67b8b", size = 3693050 },
+    { url = "https://files.pythonhosted.org/packages/62/6a/5de3c5886711c8844cd3de52d0325ea907dbf5fb8c4a309c8ba7d817542b/pymatgen-2025.4.20-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:cb7423e3ee8c1be214189e64040384560e84148c31618dc13058b406e80d0465", size = 3672836 },
+    { url = "https://files.pythonhosted.org/packages/cb/4e/445103c6fcad5bc5521b0382a0128b413addfe3530808edc5247f95cc28a/pymatgen-2025.4.20-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ecfbe1aa7767d415ebd7ec22ae2f678002391f43bc7cdcadfdc6f781943a13b4", size = 5050448 },
+    { url = "https://files.pythonhosted.org/packages/05/a4/e539f5ea45bd590552ec0ccaefd22ec8e79afbde9ab75a5737db4f81a88c/pymatgen-2025.4.20-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d2cb9edb643c63b068ab80b9b38767f5054a67f25d4ca555c2227252b261e4f6", size = 5089140 },
+    { url = "https://files.pythonhosted.org/packages/49/32/80cbac096ef17b3b42abdefbd235dbbe1ae3540bcd8742ed0e13d9131f26/pymatgen-2025.4.20-cp313-cp313-win32.whl", hash = "sha256:87c0e2c72e98a657effd29754a343809100d1452f399d03cd7a9efd3180eea2f", size = 3625978 },
+    { url = "https://files.pythonhosted.org/packages/df/53/0826c4ecca55e0e2ee7d7987d37ab1cd5a038eba073cce7c61ae021d2bd3/pymatgen-2025.4.20-cp313-cp313-win_amd64.whl", hash = "sha256:b424de1f3cfebad80a151f1d7bc02b85c89ba58f8d2443b27d45e424e04738aa", size = 3667416 },
 ]
 
 [[package]]

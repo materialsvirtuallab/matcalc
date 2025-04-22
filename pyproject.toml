@@ -39,13 +39,13 @@ dependencies = [
     "ase>=3.23.0",
     "numpy<2.0.0",
     "scikit-learn>=1.6.1",
-    "pymatgen>=2025.4.19",
+    "pymatgen>=2025.4.20",
     "fsspec>=2025.3.0",
     "joblib>=1.4.2",
     "phonopy>=2.38.0",
     "phono3py>=3.15.0",
 ]
-version = "0.3.3"
+version = "0.4.0"
 
 [project.optional-dependencies]
 phonon = ["seekpath"]
