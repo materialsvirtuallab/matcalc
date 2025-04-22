@@ -10,6 +10,7 @@ from ._base import PropCalc
 from ._relaxation import RelaxCalc
 
 if TYPE_CHECKING:
+    from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
     from pymatgen.core import Structure
@@ -189,7 +190,7 @@ class SurfaceCalc(PropCalc):
 
     def calc(
         self,
-        structure: Structure | dict[str, Any],
+        structure: Structure | Atoms | dict[str, Any],
     ) -> dict[str, Any]:
         """
         Performs surface energy calculation for a given structure dictionary. The function handles

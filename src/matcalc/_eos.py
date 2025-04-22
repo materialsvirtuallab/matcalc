@@ -10,10 +10,12 @@ from sklearn.metrics import r2_score
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
+from .utils import to_pmg_structure
 
 if TYPE_CHECKING:
     from typing import Any
 
+    from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
     from pymatgen.core import Structure
@@ -100,7 +102,7 @@ class EOSCalc(PropCalc):
         self.max_steps = max_steps
         self.relax_calc_kwargs = relax_calc_kwargs
 
-    def calc(self, structure: Structure | dict[str, Any]) -> dict:
+    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict:
         """
         Performs energy-strain calculations using Birch-Murnaghan equations of state to extract
         equation of state properties such as bulk modulus and R-squared score of the fit.
@@ -119,7 +121,7 @@ class EOSCalc(PropCalc):
             data.
         """
         result = super().calc(structure)
-        structure_in: Structure = result["final_structure"]
+        structure_in: Structure = to_pmg_structure(result["final_structure"])
 
         if self.relax_structure:
             relaxer = RelaxCalc(
@@ -142,7 +144,7 @@ class EOSCalc(PropCalc):
             **(self.relax_calc_kwargs or {}),
         )
 
-        temp_structure = structure_in.copy()
+        temp_structure = to_pmg_structure(structure_in).copy()
         for idx in np.linspace(-self.max_abs_strain, self.max_abs_strain, self.n_points)[self.n_points // 2 :]:
             structure_strained = temp_structure.copy()
             structure_strained.apply_strain(
@@ -161,7 +163,6 @@ class EOSCalc(PropCalc):
             result = relaxer.calc(structure_strained)
             volumes.append(result["final_structure"].volume)
             energies.append(result["energy"])
-            temp_structure = result["final_structure"]
 
         bm = BirchMurnaghan(volumes=volumes, energies=energies)
         bm.fit()

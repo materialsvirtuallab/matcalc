@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
-from ase import Atoms, units
+from ase import units
 from ase.md import Langevin
 from ase.md.andersen import Andersen
 from ase.md.bussi import Bussi
@@ -14,11 +14,10 @@ from ase.md.nptberendsen import Inhomogeneous_NPTBerendsen, NPTBerendsen
 from ase.md.nvtberendsen import NVTBerendsen
 from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 from ase.md.verlet import VelocityVerlet
-from pymatgen.core.structure import Structure
-from pymatgen.io.ase import AseAtomsAdaptor
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
+from .utils import to_ase_atoms
 
 if TYPE_CHECKING:
     from typing import Any
@@ -296,7 +295,7 @@ class MDCalc(PropCalc):
             ]
             atoms.set_cell(new_basis, scale_atoms=True)
 
-    def calc(self, structure: Structure | dict[str, Any]) -> dict:
+    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict:
         """
         Performs the MD simulation calculation for the input structure. Prior to generating initial velocities,
         this method calls the superclass's calc method for preprocessing and optionally relaxes the structure.
@@ -304,7 +303,7 @@ class MDCalc(PropCalc):
         and returns the final energy along with the final atomic configuration.
 
         Parameters:
-            structure (Structure | dict[str, Any]): Input structure as a Structure instance or a dictionary.
+            structure (Structure | Atoms | dict[str, Any]): Input structure as a Structure instance or a dictionary.
 
         Returns:
             dict: A dictionary containing the final energy and the final atomic configuration.
@@ -334,7 +333,7 @@ class MDCalc(PropCalc):
 
         # Convert the structure to an ASE atoms object,
         # which is required for subsequent molecular dynamics (MD) simulation.
-        atoms = AseAtomsAdaptor().get_atoms(structure_in)
+        atoms = to_ase_atoms(structure_in)
 
         # Initialize the atomic velocities based on the Maxwell-Boltzmann distribution
         # at the specified temperature, ensuring proper kinetic energy.
