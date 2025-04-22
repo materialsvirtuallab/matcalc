@@ -11,6 +11,8 @@ of "function".
 
 from __future__ import annotations
 
+import glob
+import os
 from typing import TYPE_CHECKING
 
 import pytest
@@ -20,6 +22,8 @@ import matcalc
 from matcalc.utils import PESCalculator, to_ase_atoms
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from ase.atoms import Atoms
     from pymatgen.core import Structure
 
@@ -65,3 +69,14 @@ def m3gnet_calculator() -> PESCalculator:
 def matpes_calculator() -> PESCalculator:
     """TensorNet calculator as session-scoped fixture."""
     return matcalc.load_up("TensorNet-MatPES-PBE-v2025.1-PES")
+
+
+@pytest.fixture(autouse=True, scope="session")
+def setup_teardown() -> Generator:
+    """Setup and teardown for all tests"""
+    # Add before test code here.
+    yield
+    # Cleanup yaml files after each test.
+    for ext in ["yaml", "dat"]:
+        for f in glob.iglob(f"*.{ext}"):
+            os.remove(f)
