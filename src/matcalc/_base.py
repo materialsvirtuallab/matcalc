@@ -153,7 +153,7 @@ class ChainedCalc(PropCalc):
         """
         self.prop_calcs = tuple(prop_calcs)
 
-    def calc(self, structure: Structure | dict[str, Any]) -> dict[str, Any]:
+    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict[str, Any]:
         """
         Runs the series of PropCalcs on a structure.
 
