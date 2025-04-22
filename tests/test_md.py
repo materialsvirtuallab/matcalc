@@ -10,6 +10,7 @@ import pytest
 from matcalc import MDCalc
 
 if TYPE_CHECKING:
+    from ase import Atoms
     from matgl.ext.ase import PESCalculator
     from pymatgen.core import Structure
 
@@ -68,6 +69,26 @@ def test_md_calc(
     # Verify that the log file and trajectory file have been created
     assert os.path.isfile(str(log_file))
     assert os.path.isfile(str(traj_file))
+
+
+def test_md_atoms(
+    Si_atoms: Atoms,
+    matpes_calculator: PESCalculator,
+) -> None:
+    """Tests for MDCalc class"""
+    # Note: fmax is set relatively high for testing purposes only.
+    md_calc = MDCalc(
+        calculator=matpes_calculator,
+        temperature=300,
+        taut=0.1,
+        taup=0.1,
+        steps=1,
+        frames=5,
+        compressibility_au=1,
+    )
+    results = md_calc.calc(Si_atoms)
+
+    assert isinstance(results, dict)
 
 
 def test_invalid_ensemble(Si: Structure, matpes_calculator: PESCalculator) -> None:

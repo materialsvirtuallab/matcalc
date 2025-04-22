@@ -10,6 +10,7 @@ from ase.filters import ExpCellFilter
 from matcalc import EOSCalc
 
 if TYPE_CHECKING:
+    from ase import Atoms
     from matgl.ext.ase import PESCalculator
     from pymatgen.core import Structure
 
@@ -62,3 +63,15 @@ def test_eos_calc(
     results = list(eos_calc.calc_many([Li2O, LiFePO4]))
     assert len(results) == 2
     assert results[1]["bulk_modulus_bm"] == pytest.approx(54.5953851822073, rel=1e-1)
+
+
+def test_eos_calc_atoms(
+    Si_atoms: Atoms,
+    m3gnet_calculator: PESCalculator,
+) -> None:
+    """Tests for EOSCalc class"""
+    # Note that the fmax is probably too high. This is for testing purposes only.
+    eos_calc = EOSCalc(m3gnet_calculator, fmax=0.1, relax_structure=False)
+    result = eos_calc.calc(Si_atoms)
+
+    assert result["bulk_modulus_bm"] == pytest.approx(87.31159138735727, rel=1e-1)

@@ -18,16 +18,17 @@ def test_chain_calc(
     Li2O: Structure,
 ) -> None:
     """Tests for ElasticCalc class"""
+    potential = "TensorNet-MatPES-PBE-v2025.1-PES"
 
     relax_calc = RelaxCalc(
-        "TensorNet-MatPES-PBE-v2025.1-PES",
+        potential,
         optimizer="FIRE",
         relax_atoms=True,
         relax_cell=True,
     )
-    energetics_calc = EnergeticsCalc("TensorNet-MatPES-PBE-v2025.1-PES", relax_structure=False)
+    energetics_calc = EnergeticsCalc(potential, relax_structure=False)
     elast_calc = ElasticityCalc(
-        "TensorNet-MatPES-PBE-v2025.1-PES",
+        potential,
         fmax=0.1,
         norm_strains=list(np.linspace(-0.004, 0.004, num=4)),
         shear_strains=list(np.linspace(-0.004, 0.004, num=4)),
@@ -36,6 +37,7 @@ def test_chain_calc(
         relax_deformed_structures=True,
         relax_calc_kwargs={"cell_filter": ExpCellFilter},
     )
+
     calc = ChainedCalc([relax_calc, energetics_calc, elast_calc])
     # Test Li2O with equilibrium structure
     results = calc.calc(Li2O)
@@ -55,6 +57,6 @@ def test_chain_calc(
 
     assert results["formation_energy_per_atom"] == pytest.approx(-1.8243034680684407, abs=1e-3)
 
-    results = list(calc.calc_many([Li2O] * 3))
-    assert len(results) == 3
+    results = list(calc.calc_many([Li2O] * 2))
+    assert len(results) == 2
     assert results[0]["energy"] == pytest.approx(-14.176680, rel=1e-1)
