@@ -203,7 +203,7 @@ class RelaxCalc(PropCalc):
         structure_in: Structure | Atoms = result["final_structure"]
 
         if self.perturb_distance is not None:
-            structure_in = structure_in.perturb(distance=self.perturb_distance)
+            structure_in = to_pmg_structure(structure_in).perturb(distance=self.perturb_distance)
         atoms = to_ase_atoms(structure_in)
         atoms.calc = self.calculator
         if self.relax_atoms:
@@ -226,7 +226,7 @@ class RelaxCalc(PropCalc):
             final_structure: Structure = to_pmg_structure(atoms)
 
         else:
-            final_structure = structure_in
+            final_structure = to_pmg_structure(structure_in)
             energy = atoms.get_potential_energy()
             forces = atoms.get_forces()
             stress = atoms.get_stress()

@@ -104,7 +104,7 @@ class ElasticityCalc(PropCalc):
             self.use_equilibrium = True
         self.relax_calc_kwargs = relax_calc_kwargs
 
-    def calc(self, structure: Structure | dict[str, Any]) -> dict[str, Any]:
+    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict[str, Any]:
         """
         Performs a calculation to determine the elastic tensor and related elastic
         properties. It involves multiple steps such as optionally relaxing the input
