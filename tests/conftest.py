@@ -11,8 +11,8 @@ of "function".
 
 from __future__ import annotations
 
-import glob
 import os
+import tempfile
 from typing import TYPE_CHECKING
 
 import pytest
@@ -73,10 +73,14 @@ def matpes_calculator() -> PESCalculator:
 
 @pytest.fixture(autouse=True)
 def setup_teardown() -> Generator:
-    """Setup and teardown for all tests"""
-    # Add before test code here.
-    yield
-    # Cleanup yaml files after each test.
-    for ext in ["yaml", "dat"]:
-        for f in glob.iglob(f"*.{ext}"):
-            os.remove(f)
+    """
+    Fixture method for setting up and tearing down temporary directory environment for testing.
+
+    Returns:
+        Generator: A generator yielding the path of the temporary directory.
+    """
+    cwd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.chdir(tmpdir)
+        yield tmpdir
+    os.chdir(cwd)
