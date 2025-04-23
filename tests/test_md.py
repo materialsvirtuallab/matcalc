@@ -82,7 +82,7 @@ def test_md_atoms(
         temperature=300,
         taut=0.1,
         taup=0.1,
-        steps=1,
+        steps=10,
         frames=5,
         compressibility_au=1,
     )
@@ -95,8 +95,8 @@ def test_invalid_ensemble(Si: Structure, matpes_calculator: PESCalculator) -> No
     with pytest.raises(
         ValueError,
         match="The specified ensemble is not supported, choose from 'nve', 'nvt',"
-        "'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
-        "'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'",
+        " 'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
+        " 'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'.",
     ):
         MDCalc(
             calculator=matpes_calculator,
