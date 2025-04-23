@@ -12,8 +12,8 @@ except PackageNotFoundError:
 from ._base import ChainedCalc, PropCalc
 from ._elasticity import ElasticityCalc
 from ._eos import EOSCalc
-from ._md import MDCalc
 from ._lammps import LAMMPSMDCalc
+from ._md import MDCalc
 from ._neb import NEBCalc
 from ._phonon import PhononCalc
 from ._phonon3 import Phonon3Calc
