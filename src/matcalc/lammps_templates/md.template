@@ -17,8 +17,7 @@ read_data       md.data
 # If you want to use CUDA GPU, please switch gnnp to gnnp/gpu in pair_style
 # Consult official document for detailed formats
 
-#pair_style      gnnp $home_dir/.local/share/lammps/src/ML-GNNP
-pair_style      gnnp /global/homes/r/rul048/repos/lammps/src/ML-GNNP
+pair_style      gnnp $home_dir/.local/share/lammps/src/ML-GNNP
 pair_coeff      * *  $gnnp_type $model_name  $symbol_set
 
 # Energy Minimization
