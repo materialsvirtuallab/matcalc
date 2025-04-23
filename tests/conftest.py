@@ -12,7 +12,6 @@ of "function".
 from __future__ import annotations
 
 import os
-import tempfile
 from typing import TYPE_CHECKING
 
 import pytest
@@ -79,8 +78,9 @@ def setup_teardown() -> Generator:
     Returns:
         Generator: A generator yielding the path of the temporary directory.
     """
-    cwd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tmpdir:
-        os.chdir(tmpdir)
-        yield tmpdir
-    os.chdir(cwd)
+    initial_files = os.listdir()
+    yield
+    for f in os.listdir():
+        if f not in initial_files:
+            print(f"Deleting generated file: {f}")  # noqa:T201
+            os.remove(f)
