@@ -3,12 +3,18 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
+from typing import TYPE_CHECKING
+
 import pytest
 
 from matcalc import LAMMPSMDCalc
 
-from ase import Atoms
-from pymatgen.core import Structure
+if TYPE_CHECKING:
+    from ase import Atoms
+    from pymatgen.core import Structure
+
+LAMMPS_TEMPLATES_DIR = Path(__file__).parent.parent / "src" / "matcalc" / "lammps_templates"
 
 
 @pytest.mark.parametrize(
@@ -59,6 +65,9 @@ def test_lammps_calc(
 
 def test_lammps_atoms(Si_atoms: Atoms) -> None:
     """Tests for MDCalc class using ASE Atoms input"""
+    with open(Path(LAMMPS_TEMPLATES_DIR / "md.template")) as f:
+        script_template = f.read()
+
     md_calc = LAMMPSMDCalc(
         calculator="TensorNet",
         temperature=300,
@@ -67,6 +76,7 @@ def test_lammps_atoms(Si_atoms: Atoms) -> None:
         steps=10,
         frames=5,
     )
+    md_calc.write_inputs(Si_atoms, script_template=script_template)
     results = md_calc.calc(Si_atoms)
     assert isinstance(results, dict)
 

@@ -143,13 +143,15 @@ class LAMMPSMDCalc(PropCalc):
         )
 
     def write_inputs(
-        self, structure: Structure | Atoms | dict[str, Any], script_template: str | Path | None = None
+        self,
+        structure: Structure | Atoms | dict[str, Any],
+        script_template: str | Path = Path(LAMMPS_TEMPLATES_DIR / "md.template"),
     ) -> LammpsRun:
         """Write LAMMPS input files based on a given structure.
 
         Parameters:
             structure (Structure | Atoms | dict[str, Any]): Input pymatgen Structure or equivalent dictionary.
-            script_template (str | Path | None): Path of/Template of the input script.
+            script_template (str | Path): Template of the input script.
 
         Returns:
             LammpsRun: Instance representing written LAMMPS inputs.
@@ -197,8 +199,6 @@ class LAMMPSMDCalc(PropCalc):
         full_settings = {**default_settings, **(self.settings or {})}
 
         if not isinstance(script_template, str):
-            if script_template is None:
-                script_template = LAMMPS_TEMPLATES_DIR / "md.template"
             with open(script_template) as f:
                 script_template = f.read()
 
