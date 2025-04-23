@@ -73,7 +73,12 @@ def matpes_calculator() -> PESCalculator:
 
 @pytest.fixture(autouse=True)
 def setup_teardown() -> Generator:
-    """Use tempdir for all tests, which will automatically delete all temporary files created."""
+    """
+    Fixture method for setting up and tearing down temporary directory environment for testing.
+
+    Returns:
+        Generator: A generator yielding the path of the temporary directory.
+    """
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmpdir:
         os.chdir(tmpdir)
