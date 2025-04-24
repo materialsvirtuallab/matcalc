@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import contextlib
 import io
-import os
 import pickle
 from dataclasses import dataclass, field
 from inspect import isclass
@@ -17,6 +16,7 @@ import ase
 from ase.filters import FrechetCellFilter
 from ase.optimize.optimize import Optimizer
 
+from .config import SIMULATION_BACKEND
 from .utils import to_ase_atoms, to_pmg_structure
 
 if TYPE_CHECKING:
@@ -238,6 +238,6 @@ def run_pes_calc(*arg, **kwargs) -> PESResult:  # noqa:ANN002,ANN003
         backend.
     :rtype: PESResult
     """
-    if os.environ.get("MATCALC_BACKEND", "ASE").upper() == "ASE":
+    if SIMULATION_BACKEND == "ASE":
         return run_ase(*arg, **kwargs)
     return run_lammps(*arg, **kwargs)
