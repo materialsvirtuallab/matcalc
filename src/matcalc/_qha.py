@@ -7,10 +7,10 @@ from typing import TYPE_CHECKING
 import numpy as np
 from phonopy import PhonopyQHA
 
+from ._backend import run_ase
 from ._base import PropCalc
 from ._phonon import PhononCalc
 from ._relaxation import RelaxCalc
-from .simulation import run_ase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

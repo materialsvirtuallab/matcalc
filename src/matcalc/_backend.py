@@ -9,19 +9,76 @@ import contextlib
 import io
 import pickle
 from dataclasses import dataclass, field
+from inspect import isclass
 from typing import TYPE_CHECKING, NamedTuple
 
+import ase
 from ase.filters import FrechetCellFilter
+from ase.optimize.optimize import Optimizer
 
-from .utils import get_ase_optimizer, to_ase_atoms, to_pmg_structure
+from .utils import to_ase_atoms, to_pmg_structure
 
 if TYPE_CHECKING:
     import numpy as np
     from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.filters import Filter
-    from ase.optimize.optimize import Optimizer
     from pymatgen.core.structure import Structure
+
+
+def is_ase_optimizer(key: str | Optimizer) -> bool:
+    """
+    Determines whether the given key is an ASE optimizer. A key can
+    either be a string representing the name of an optimizer class
+    within `ase.optimize` or directly be an optimizer class that
+    subclasses `Optimizer`.
+
+    If the key is a string, the function checks whether it corresponds
+    to a class in `ase.optimize` that is a subclass of `Optimizer`.
+
+    :param key: The key to check, either a string name of an ASE
+        optimizer class or a class object that potentially subclasses
+        `Optimizer`.
+    :return: True if the key is either a string corresponding to an
+        ASE optimizer subclass name in `ase.optimize` or a class that
+        is a subclass of `Optimizer`. Otherwise, returns False.
+    """
+    if isclass(key) and issubclass(key, Optimizer):
+        return True
+    if isinstance(key, str):
+        return isclass(obj := getattr(ase.optimize, key, None)) and issubclass(obj, Optimizer)
+    return False
+
+
+VALID_OPTIMIZERS = [key for key in dir(ase.optimize) if is_ase_optimizer(key)]
+
+
+def get_ase_optimizer(optimizer: str | Optimizer) -> Optimizer:
+    """
+    Retrieve an ASE optimizer instance based on the provided input. This function accepts either a
+    string representing the name of a valid ASE optimizer or an instance/subclass of the Optimizer
+    class. If a string is provided, it checks the validity of the optimizer name, and if valid, retrieves
+    the corresponding optimizer from ASE. An error is raised if the optimizer name is invalid.
+
+    If an Optimizer subclass or instance is provided as input, it is returned directly.
+
+    :param optimizer: The optimizer to be retrieved. Can be a string representing a valid ASE
+        optimizer name or an instance/subclass of the Optimizer class.
+    :type optimizer: str | Optimizer
+
+    :return: The corresponding ASE optimizer instance or the input Optimizer instance/subclass.
+    :rtype: Optimizer
+
+    :raises ValueError: If the optimizer name provided as a string is not among the valid ASE
+        optimizer names defined by `VALID_OPTIMIZERS`.
+    """
+    if isclass(optimizer) and issubclass(optimizer, Optimizer):
+        return optimizer
+
+    if optimizer not in VALID_OPTIMIZERS:
+        raise ValueError(f"Unknown {optimizer=}, must be one of {VALID_OPTIMIZERS}")
+
+    return getattr(ase.optimize, optimizer) if isinstance(optimizer, str) else optimizer
 
 
 class PESResult(NamedTuple):

@@ -7,9 +7,9 @@ from typing import TYPE_CHECKING, Literal
 
 from monty.serialization import loadfn
 
+from ._backend import run_ase
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
-from .simulation import run_ase
 from .utils import to_pmg_structure
 
 if TYPE_CHECKING:
