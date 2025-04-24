@@ -10,14 +10,15 @@ import io
 import pickle
 from dataclasses import dataclass, field
 from inspect import isclass
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING
 
 import ase
 from ase.filters import FrechetCellFilter
 from ase.optimize.optimize import Optimizer
 
-from .config import SIMULATION_BACKEND
-from .utils import to_ase_atoms, to_pmg_structure
+from matcalc.utils import to_ase_atoms, to_pmg_structure
+
+from ._base import PESResult
 
 if TYPE_CHECKING:
     import numpy as np
@@ -80,15 +81,6 @@ def get_ase_optimizer(optimizer: str | Optimizer) -> Optimizer:
         raise ValueError(f"Unknown {optimizer=}, must be one of {VALID_OPTIMIZERS}")
 
     return getattr(ase.optimize, optimizer) if isinstance(optimizer, str) else optimizer
-
-
-class PESResult(NamedTuple):
-    """Container for results from PES calculators."""
-
-    structure: Structure
-    energy: float
-    forces: np.ndarray
-    stress: np.ndarray
 
 
 @dataclass
@@ -192,52 +184,3 @@ def run_ase(
     return PESResult(
         to_pmg_structure(structure), atoms.get_potential_energy(), atoms.get_forces(), atoms.get_stress(voigt=False)
     )
-
-
-def run_lammps(
-    structure: Structure | Atoms,
-    calculator: Calculator,
-    *,
-    relax_atoms: bool = False,
-    relax_cell: bool = False,
-    optimizer: Optimizer | str = "FIRE",
-    max_steps: int = 500,
-    traj_file: str | None = None,
-    interval: int = 1,
-    fmax: float = 0.1,
-    cell_filter: Filter = FrechetCellFilter,  # type:ignore[assignment]
-) -> PESResult:
-    """
-    Run LAMMPS calculation using the given structure and calculator.
-
-    Parameters:
-    structure (Structure|Atoms): The input structure to calculate potential energy, forces, and stress.
-    calculator (Calculator): The calculator object to use for the calculation.
-
-    Returns:
-    PESResult: Object containing potential energy, forces, and stress of the input structure.
-    """
-    raise NotImplementedError("LAMMPS calculation is not yet implemented.")
-
-
-def run_pes_calc(*arg, **kwargs) -> PESResult:  # noqa:ANN002,ANN003
-    """
-    Executes the potential energy surface (PES) calculation using the appropriate backend.
-
-    This function determines the backend to use for the PES calculation based on the
-    environment variable `MATCALC_BACKEND`. If the variable is set to `"ASE"` (case-insensitive)
-    or is not explicitly provided, the ASE backend is used. Otherwise, the LAMMPS backend is
-    selected. The function then forwards the arguments and keyword arguments to the respective
-    backend function for execution.
-
-    :param arg: Variable-length positional arguments passed to the backend calculation function.
-    :type arg: tuple
-    :param kwargs: Arbitrary keyword arguments passed to the backend calculation function.
-    :type kwargs: dict
-    :return: The result of the potential energy surface calculation performed by the selected
-        backend.
-    :rtype: PESResult
-    """
-    if SIMULATION_BACKEND == "ASE":
-        return run_ase(*arg, **kwargs)
-    return run_lammps(*arg, **kwargs)

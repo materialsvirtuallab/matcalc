@@ -8,9 +8,9 @@ import numpy as np
 from pymatgen.analysis.elasticity import DeformedStructureSet, ElasticTensor, Strain
 from pymatgen.analysis.elasticity.elastic import get_strain_state_dict
 
-from ._backend import run_pes_calc
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
+from .backend import run_pes_calc
 from .utils import to_pmg_structure
 
 if TYPE_CHECKING:
