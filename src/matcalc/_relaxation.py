@@ -2,83 +2,22 @@
 
 from __future__ import annotations
 
-import contextlib
-import io
-import pickle
-from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ase.filters import FrechetCellFilter
 
+from ._backend import run_pes_calc
 from ._base import PropCalc
-from .utils import get_ase_optimizer, to_ase_atoms, to_pmg_structure
+from .utils import to_pmg_structure
 
 if TYPE_CHECKING:
     from typing import Any
 
-    import numpy as np
     from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.filters import Filter
     from ase.optimize.optimize import Optimizer
     from pymatgen.core import Structure
-
-
-@dataclass
-class TrajectoryObserver:
-    """
-    Class for observing and recording the properties of an atomic structure during relaxation.
-
-    The `TrajectoryObserver` class is designed to track and store the atomic properties like
-    energies, forces, stresses, atom positions, and cell structure of an atomic system
-    represented by an `Atoms` object. It provides functionality to save recorded data
-    to a file for further analysis or usage.
-
-    :ivar atoms: The atomic structure being observed.
-    :type atoms: Atoms
-    :ivar energies: List of potential energy values of the atoms during relaxation.
-    :type energies: list[float]
-    :ivar forces: List of force arrays recorded for the atoms during relaxation.
-    :type forces: list[np.ndarray]
-    :ivar stresses: List of stress tensors recorded for the atoms during relaxation.
-    :type stresses: list[np.ndarray]
-    :ivar atom_positions: List of atomic positions recorded during relaxation.
-    :type atom_positions: list[np.ndarray]
-    :ivar cells: List of unit cell arrays recorded during relaxation.
-    :type cells: list[np.ndarray]
-    """
-
-    atoms: Atoms
-    energies: list[float] = field(default_factory=list)
-    forces: list[np.ndarray] = field(default_factory=list)
-    stresses: list[np.ndarray] = field(default_factory=list)
-    atom_positions: list[np.ndarray] = field(default_factory=list)
-    cells: list[np.ndarray] = field(default_factory=list)
-
-    def __call__(self) -> None:
-        """The logic for saving the properties of an Atoms during the relaxation."""
-        self.energies.append(float(self.atoms.get_potential_energy()))
-        self.forces.append(self.atoms.get_forces())
-        self.stresses.append(self.atoms.get_stress())
-        self.atom_positions.append(self.atoms.get_positions())
-        self.cells.append(self.atoms.get_cell()[:])
-
-    def save(self, filename: str) -> None:
-        """Save the trajectory to file.
-
-        Args:
-            filename (str): filename to save the trajectory.
-        """
-        out = {
-            "energy": self.energies,
-            "forces": self.forces,
-            "stresses": self.stresses,
-            "atom_positions": self.atom_positions,
-            "cell": self.cells,
-            "atomic_number": self.atoms.get_atomic_numbers(),
-        }
-        with open(filename, "wb") as file:
-            pickle.dump(out, file)
 
 
 class RelaxCalc(PropCalc):
@@ -171,7 +110,7 @@ class RelaxCalc(PropCalc):
         """
         self.calculator = calculator  # type: ignore[assignment]
 
-        self.optimizer = get_ase_optimizer(optimizer)
+        self.optimizer = optimizer
         self.fmax = fmax
         self.interval = interval
         self.max_steps = max_steps
@@ -205,40 +144,27 @@ class RelaxCalc(PropCalc):
 
         if self.perturb_distance is not None:
             structure_in = to_pmg_structure(structure_in).perturb(distance=self.perturb_distance, seed=None)
-        atoms = to_ase_atoms(structure_in)
-        atoms.calc = self.calculator
-        if self.relax_atoms:
-            stream = io.StringIO()
-            with contextlib.redirect_stdout(stream):
-                obs = TrajectoryObserver(atoms)
-                if self.relax_cell:
-                    atoms = self.cell_filter(atoms)  # type:ignore[operator]
-                optimizer = self.optimizer(atoms)  # type:ignore[operator]
-                optimizer.attach(obs, interval=self.interval)
-                optimizer.run(fmax=self.fmax, steps=self.max_steps)
-                if self.traj_file is not None:
-                    obs()
-                    obs.save(self.traj_file)
-            if self.relax_cell:
-                atoms = atoms.atoms  # type:ignore[attr-defined]
-            energy = obs.energies[-1]
-            forces = obs.forces[-1]
-            stress = obs.stresses[-1]
-            final_structure: Structure = to_pmg_structure(atoms)
 
-        else:
-            final_structure = to_pmg_structure(structure_in)
-            energy = atoms.get_potential_energy()
-            forces = atoms.get_forces()
-            stress = atoms.get_stress()
+        r = run_pes_calc(
+            structure_in,
+            self.calculator,
+            relax_atoms=self.relax_atoms,
+            relax_cell=self.relax_cell,
+            optimizer=self.optimizer,
+            max_steps=self.max_steps,
+            traj_file=self.traj_file,
+            interval=self.interval,
+            fmax=self.fmax,
+            cell_filter=self.cell_filter,
+        )
 
-        lattice = final_structure.lattice
+        lattice = r.structure.lattice
         result.update(
             {
-                "final_structure": final_structure,
-                "energy": energy,
-                "forces": forces,
-                "stress": stress,
+                "final_structure": r.structure,
+                "energy": r.energy,
+                "forces": r.forces,
+                "stress": r.stress,
                 "a": lattice.a,
                 "b": lattice.b,
                 "c": lattice.c,

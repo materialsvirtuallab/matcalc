@@ -7,9 +7,10 @@ from typing import TYPE_CHECKING, Literal
 
 from monty.serialization import loadfn
 
+from ._backend import run_pes_calc
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
-from .utils import to_ase_atoms, to_pmg_structure
+from .utils import to_pmg_structure
 
 if TYPE_CHECKING:
     from typing import Any
@@ -131,9 +132,7 @@ class EnergeticsCalc(PropCalc):
             structure_in = result["final_structure"]
             energy = result["energy"]
         else:
-            atoms = to_ase_atoms(structure_in)
-            atoms.calc = self.calculator
-            energy = atoms.get_potential_energy()
+            energy = run_pes_calc(structure_in, self.calculator).energy
         nsites = len(structure_in)
 
         def get_gs_energy(el: Element | Species) -> float:
