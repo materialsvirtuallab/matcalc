@@ -8,7 +8,7 @@ import phonopy
 from phonopy.file_IO import write_FORCE_CONSTANTS as write_force_constants
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
 
-from ._backend import run_ase
+from ._backend import run_pes_calc
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
 from .utils import to_pmg_structure
@@ -189,7 +189,7 @@ class PhononCalc(PropCalc):
         phonon.generate_displacements(distance=self.atom_disp)
         disp_supercells = phonon.supercells_with_displacements
         phonon.forces = [  # type: ignore[assignment]
-            run_ase(get_pmg_structure(supercell), self.calculator).forces
+            run_pes_calc(get_pmg_structure(supercell), self.calculator).forces
             for supercell in disp_supercells  # type:ignore[union-attr]
             if supercell is not None
         ]

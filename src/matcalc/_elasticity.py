@@ -8,7 +8,7 @@ import numpy as np
 from pymatgen.analysis.elasticity import DeformedStructureSet, ElasticTensor, Strain
 from pymatgen.analysis.elasticity.elastic import get_strain_state_dict
 
-from ._backend import run_ase
+from ._backend import run_pes_calc
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
 from .utils import to_pmg_structure
@@ -148,13 +148,13 @@ class ElasticityCalc(PropCalc):
         for deformed_structure in deformed_structure_set:
             if self.relax_deformed_structures:
                 deformed_relaxed = relax_calc.calc(deformed_structure)["final_structure"]  # pyright:ignore (reportPossiblyUnboundVariable)
-                sim = run_ase(deformed_relaxed, self.calculator)
+                sim = run_pes_calc(deformed_relaxed, self.calculator)
             else:
-                sim = run_ase(deformed_structure, self.calculator)
+                sim = run_pes_calc(deformed_structure, self.calculator)
             stresses.append(sim.stress)
 
         strains = [Strain.from_deformation(deformation) for deformation in deformed_structure_set.deformations]
-        sim = run_ase(structure_in, self.calculator)
+        sim = run_pes_calc(structure_in, self.calculator)
         elastic_tensor, residuals_sum = self._elastic_tensor_from_strains(
             strains,
             stresses,

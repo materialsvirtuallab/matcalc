@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from ase.filters import FrechetCellFilter
 
-from ._backend import run_ase
+from ._backend import run_pes_calc
 from ._base import PropCalc
 from .utils import to_pmg_structure
 
@@ -145,7 +145,7 @@ class RelaxCalc(PropCalc):
         if self.perturb_distance is not None:
             structure_in = to_pmg_structure(structure_in).perturb(distance=self.perturb_distance, seed=None)
 
-        r = run_ase(
+        r = run_pes_calc(
             structure_in,
             self.calculator,
             relax_atoms=self.relax_atoms,
