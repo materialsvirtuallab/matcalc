@@ -10,7 +10,8 @@ from pymatgen.analysis.elasticity.elastic import get_strain_state_dict
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
-from .utils import to_ase_atoms, to_pmg_structure
+from .simulation import run_ase_static
+from .utils import to_pmg_structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -146,21 +147,18 @@ class ElasticityCalc(PropCalc):
         stresses = []
         for deformed_structure in deformed_structure_set:
             if self.relax_deformed_structures:
-                deformed_structure_relaxed = relax_calc.calc(deformed_structure)["final_structure"]  # pyright:ignore (reportPossiblyUnboundVariable)
-                atoms = to_ase_atoms(deformed_structure_relaxed)
+                deformed_relaxed = relax_calc.calc(deformed_structure)["final_structure"]  # pyright:ignore (reportPossiblyUnboundVariable)
+                sim = run_ase_static(deformed_relaxed, self.calculator)
             else:
-                atoms = deformed_structure.to_ase_atoms()
-
-            atoms.calc = self.calculator
-            stresses.append(atoms.get_stress(voigt=False))
+                sim = run_ase_static(deformed_structure, self.calculator)
+            stresses.append(sim.stress)
 
         strains = [Strain.from_deformation(deformation) for deformation in deformed_structure_set.deformations]
-        atoms = to_ase_atoms(structure_in)
-        atoms.calc = self.calculator
+        sim = run_ase_static(structure_in, self.calculator)
         elastic_tensor, residuals_sum = self._elastic_tensor_from_strains(
             strains,
             stresses,
-            eq_stress=atoms.get_stress(voigt=False) if self.use_equilibrium else None,
+            eq_stress=sim.stress if self.use_equilibrium else None,
         )
         return result | {
             "elastic_tensor": elastic_tensor,

@@ -9,7 +9,8 @@ from monty.serialization import loadfn
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
-from .utils import to_ase_atoms, to_pmg_structure
+from .simulation import run_ase_static
+from .utils import to_pmg_structure
 
 if TYPE_CHECKING:
     from typing import Any
@@ -131,9 +132,7 @@ class EnergeticsCalc(PropCalc):
             structure_in = result["final_structure"]
             energy = result["energy"]
         else:
-            atoms = to_ase_atoms(structure_in)
-            atoms.calc = self.calculator
-            energy = atoms.get_potential_energy()
+            energy = run_ase_static(structure_in, self.calculator).energy
         nsites = len(structure_in)
 
         def get_gs_energy(el: Element | Species) -> float:
