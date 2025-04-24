@@ -8,9 +8,9 @@ import phonopy
 from phonopy.file_IO import write_FORCE_CONSTANTS as write_force_constants
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
 
-from ._backend import run_pes_calc
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
+from .backend import run_pes_calc
 from .utils import to_pmg_structure
 
 if TYPE_CHECKING:

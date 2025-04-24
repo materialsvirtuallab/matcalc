@@ -3,7 +3,6 @@ name = "matcalc"
 authors = [
     { name = "Runze Liu", email = "rul048@ucsd.edu" },
     { name = "Eliott Liu", email = "elliottliu17@gmail.com" },
-    { name = "Janosh Riebesell", email = "janosh@lbl.gov" },
     { name = "Ji Qi", email = "j1qi@ucsd.edu" },
     { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
     { name = "Tsz Wai Ko", email = "t1ko@ucsd.edu" },
