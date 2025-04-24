@@ -101,7 +101,7 @@ def run_ase(
     traj_file: str | None = None,
     interval: int = 1,
     fmax: float = 0.1,
-    cell_filter: Filter = FrechetCellFilter,
+    cell_filter: Filter = FrechetCellFilter,  # type:ignore[assignment]
 ) -> PESResult:
     """
     Run ASE static calculation using the given structure and calculator.
@@ -131,4 +131,6 @@ def run_ase(
             atoms = atoms.atoms  # type:ignore[attr-defined]
         return PESResult(to_pmg_structure(atoms), obs.energies[-1], obs.forces[-1], obs.stresses[-1])
 
-    return PESResult(to_pmg_structure(structure), atoms.get_potential_energy(), atoms.get_forces(), atoms.get_stress())
+    return PESResult(
+        to_pmg_structure(structure), atoms.get_potential_energy(), atoms.get_forces(), atoms.get_stress(voigt=False)
+    )
