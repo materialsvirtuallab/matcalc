@@ -13,6 +13,7 @@ from matcalc import PhononCalc
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from ase import Atoms
     from matgl.ext.ase import PESCalculator
     from pymatgen.core import Structure
 
@@ -74,3 +75,23 @@ def test_phonon_calc(
             assert os.path.isfile(str(instance_val))
         elif not default_path and not instance_val:
             assert not os.path.isfile(default_path)
+
+
+def test_phonon_calc_atoms(
+    Si_atoms: Atoms,
+    m3gnet_calculator: PESCalculator,
+) -> None:
+    """Tests for PhononCalc class"""
+    phonon_calc = PhononCalc(
+        calculator=m3gnet_calculator,
+        supercell_matrix=((2, 0, 0), (0, 2, 0), (0, 0, 2)),
+        fmax=0.1,
+        t_step=50,
+        t_max=1000,
+    )
+    result = phonon_calc.calc(Si_atoms)
+
+    # Test values at 100 K
+    thermal_props = result["thermal_properties"]
+    ind = thermal_props["temperatures"].tolist().index(300)
+    assert thermal_props["heat_capacity"][ind] == pytest.approx(43.3138042001517, rel=1e-1)

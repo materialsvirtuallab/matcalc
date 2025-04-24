@@ -5,22 +5,20 @@ from __future__ import annotations
 import functools
 import warnings
 from enum import Enum
-from inspect import isclass
 from typing import TYPE_CHECKING, Any, Literal
 
-import ase.optimize
+from ase import Atoms
 from ase.calculators.calculator import Calculator
-from ase.optimize.optimize import Optimizer
+from pymatgen.core import Structure
+from pymatgen.io.ase import AseAtomsAdaptor
 
 from .units import eVA3ToGPa
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from ase import Atoms
     from maml.apps.pes import LMPStaticCalculator
     from pyace.basis import ACEBBasisSet, ACECTildeBasisSet, BBasisConfiguration
-    from pymatgen.core import Structure
 
 
 # Listing of supported universal calculators.
@@ -436,56 +434,34 @@ class PESCalculator(Calculator):
         return result
 
 
-def is_ase_optimizer(key: str | Optimizer) -> bool:
+def to_ase_atoms(structure: Atoms | Structure) -> Atoms:
     """
-    Determines whether the given key is an ASE optimizer. A key can
-    either be a string representing the name of an optimizer class
-    within `ase.optimize` or directly be an optimizer class that
-    subclasses `Optimizer`.
+    Converts a given structure into an ASE Atoms object. This function checks
+    if the input structure is already an ASE Atoms object. If not, it converts
+    a pymatgen Structure object to an ASE Atoms object using the AseAtomsAdaptor.
 
-    If the key is a string, the function checks whether it corresponds
-    to a class in `ase.optimize` that is a subclass of `Optimizer`.
-
-    :param key: The key to check, either a string name of an ASE
-        optimizer class or a class object that potentially subclasses
-        `Optimizer`.
-    :return: True if the key is either a string corresponding to an
-        ASE optimizer subclass name in `ase.optimize` or a class that
-        is a subclass of `Optimizer`. Otherwise, returns False.
+    :param structure: The input structure, which can be either an ASE Atoms object
+        or a pymatgen Structure object.
+    :type structure: Atoms | Structure
+    :return: An ASE Atoms object representing the given structure.
+    :rtype: Atoms
     """
-    if isclass(key) and issubclass(key, Optimizer):
-        return True
-    if isinstance(key, str):
-        return isclass(obj := getattr(ase.optimize, key, None)) and issubclass(obj, Optimizer)
-    return False
+    return structure if isinstance(structure, Atoms) else AseAtomsAdaptor.get_atoms(structure)
 
 
-VALID_OPTIMIZERS = [key for key in dir(ase.optimize) if is_ase_optimizer(key)]
-
-
-def get_ase_optimizer(optimizer: str | Optimizer) -> Optimizer:
+def to_pmg_structure(structure: Atoms | Structure) -> Structure:
     """
-    Retrieve an ASE optimizer instance based on the provided input. This function accepts either a
-    string representing the name of a valid ASE optimizer or an instance/subclass of the Optimizer
-    class. If a string is provided, it checks the validity of the optimizer name, and if valid, retrieves
-    the corresponding optimizer from ASE. An error is raised if the optimizer name is invalid.
+    Converts a given structure of type Atoms or Structure into a Structure
+    object. If the input structure is already of type Structure, it is
+    returned unchanged. If the input structure is of type Atoms, it is
+    converted to a Structure using the AseAtomsAdaptor.
 
-    If an Optimizer subclass or instance is provided as input, it is returned directly.
-
-    :param optimizer: The optimizer to be retrieved. Can be a string representing a valid ASE
-        optimizer name or an instance/subclass of the Optimizer class.
-    :type optimizer: str | Optimizer
-
-    :return: The corresponding ASE optimizer instance or the input Optimizer instance/subclass.
-    :rtype: Optimizer
-
-    :raises ValueError: If the optimizer name provided as a string is not among the valid ASE
-        optimizer names defined by `VALID_OPTIMIZERS`.
+    :param structure: The input structure to be converted. This can be of
+        type Atoms or Structure.
+    :type structure: Atoms | Structure
+    :return: A Structure object corresponding to the input structure. If the
+        input is already a Structure, it is returned as-is. Otherwise, it is
+        converted.
+    :rtype: Structure
     """
-    if isclass(optimizer) and issubclass(optimizer, Optimizer):
-        return optimizer
-
-    if optimizer not in VALID_OPTIMIZERS:
-        raise ValueError(f"Unknown {optimizer=}, must be one of {VALID_OPTIMIZERS}")
-
-    return getattr(ase.optimize, optimizer) if isinstance(optimizer, str) else optimizer
+    return structure if isinstance(structure, Structure) else AseAtomsAdaptor.get_structure(structure)

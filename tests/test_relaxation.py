@@ -24,7 +24,7 @@ def test_bad_input(Li2O: Structure, m3gnet_calculator: PESCalculator) -> None:
         relax_atoms=True,
         relax_cell=True,
     )
-    with pytest.raises(ValueError, match="Structure must be either a pymatgen Structure or a dict"):
+    with pytest.raises(ValueError, match="Structure must be either a pymatgen Structure"):
         relax_calc.calc({"bad": Li2O})
 
     data = list(relax_calc.calc_many([Li2O, None], allow_errors=True))
@@ -147,12 +147,9 @@ def test_relax_calc_relax_atoms(
             ),
             np.array(
                 [
-                    0.00242333,
-                    0.00257503,
-                    0.00192819,
-                    -0.00038525,
-                    -0.00052359,
-                    -0.00024411,
+                    [0.00242333, -0.00024411, -0.00052359],
+                    [-0.00024411, 0.00257503, -0.00038525],
+                    [-0.00052359, -0.00038525, 0.00192819],
                 ],
                 dtype=np.float32,
             ),
@@ -208,6 +205,6 @@ def test_relax_calc_many(
     assert results[-1]["a"] == pytest.approx(expected_a, rel=1e-1)
 
 
-def test_relax_calc_invalid_optimizer(m3gnet_calculator: PESCalculator) -> None:
+def test_relax_calc_invalid_optimizer(m3gnet_calculator: PESCalculator, Li2O: Structure) -> None:
     with pytest.raises(ValueError, match="Unknown optimizer='invalid', must be one of "):
-        RelaxCalc(m3gnet_calculator, optimizer="invalid")
+        RelaxCalc(m3gnet_calculator, optimizer="invalid").calc(Li2O)

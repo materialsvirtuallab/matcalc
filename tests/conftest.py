@@ -11,15 +11,19 @@ of "function".
 
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 
 import pytest
 from pymatgen.util.testing import PymatgenTest
 
 import matcalc
-from matcalc.utils import PESCalculator
+from matcalc.utils import PESCalculator, to_ase_atoms
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    from ase.atoms import Atoms
     from pymatgen.core import Structure
 
 import matgl
@@ -49,6 +53,12 @@ def Si() -> Structure:
 
 
 @pytest.fixture(scope="session")
+def Si_atoms() -> Atoms:
+    """Si atoms as session-scoped fixture."""
+    return to_ase_atoms(PymatgenTest.get_structure("Si"))
+
+
+@pytest.fixture(scope="session")
 def m3gnet_calculator() -> PESCalculator:
     """M3GNet calculator as session-scoped fixture."""
     return PESCalculator.load_matgl("M3GNet-MP-2021.2.8-PES")
@@ -58,3 +68,19 @@ def m3gnet_calculator() -> PESCalculator:
 def matpes_calculator() -> PESCalculator:
     """TensorNet calculator as session-scoped fixture."""
     return matcalc.load_up("TensorNet-MatPES-PBE-v2025.1-PES")
+
+
+@pytest.fixture(autouse=True)
+def setup_teardown() -> Generator:
+    """
+    Fixture method for setting up and tearing down temporary directory environment for testing.
+
+    Returns:
+        Generator: A generator yielding the path of the temporary directory.
+    """
+    initial_files = os.listdir()
+    yield
+    for f in os.listdir():
+        if f not in initial_files:
+            print(f"Deleting generated file: {f}")  # noqa:T201
+            os.remove(f)

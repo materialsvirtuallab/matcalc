@@ -70,6 +70,25 @@ def test_elastic_calc(
     assert results["bulk_modulus_vrh"] == pytest.approx(0.40877813076228825, rel=1e-1)
 
 
+def test_elastic_calc_atoms(
+    Si_atoms: Structure,
+    m3gnet_calculator: PESCalculator,
+) -> None:
+    # Test atoms input. This is not meant to be accurate.
+    elast_calc = ElasticityCalc(
+        m3gnet_calculator,
+        fmax=0.1,
+        norm_strains=list(np.linspace(-0.004, 0.004, num=4)),
+        shear_strains=list(np.linspace(-0.004, 0.004, num=4)),
+        use_equilibrium=False,
+        relax_structure=False,
+        relax_calc_kwargs={"cell_filter": ExpCellFilter},
+    )
+
+    results = elast_calc.calc(Si_atoms)
+    assert results["bulk_modulus_vrh"] == pytest.approx(0.5798804241502018, rel=1e-1)
+
+
 def test_elastic_calc_invalid_states(m3gnet_calculator: PESCalculator) -> None:
     with pytest.raises(ValueError, match="shear_strains is empty"):
         ElasticityCalc(m3gnet_calculator, shear_strains=[])

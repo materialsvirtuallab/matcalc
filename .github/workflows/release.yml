@@ -12,7 +12,7 @@ on:
         description: Trigger a release manually.
 
 permissions:
-  contents: read
+  id-token: write
 
 jobs:
   test:

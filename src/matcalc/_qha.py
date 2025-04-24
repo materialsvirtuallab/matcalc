@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from phonopy import PhonopyQHA
 
+from ._backend import run_pes_calc
 from ._base import PropCalc
 from ._phonon import PhononCalc
 from ._relaxation import RelaxCalc
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
 
+    from ase import Atoms
     from ase.calculators.calculator import Calculator
     from pymatgen.core import Structure
 
@@ -201,7 +203,7 @@ class QHACalc(PropCalc):
         ):
             setattr(self, key, str({True: default_path, False: ""}.get(val, val)))  # type: ignore[arg-type]
 
-    def calc(self, structure: Structure | dict[str, Any]) -> dict:
+    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict:
         """Calculates thermal properties of Pymatgen structure with phonopy under quasi-harmonic approximation.
 
         Args:
@@ -262,7 +264,7 @@ class QHACalc(PropCalc):
         for scale_factor in self.scale_factors:
             struct = self._scale_structure(structure, scale_factor)
             volumes.append(struct.volume)
-            electronic_energies.append(self._calculate_energy(struct))
+            electronic_energies.append(run_pes_calc(struct, self.calculator).energy)
             thermal_properties = self._calculate_thermal_properties(struct)
             free_energies.append(thermal_properties["free_energy"])
             entropies.append(thermal_properties["entropy"])
@@ -282,18 +284,6 @@ class QHACalc(PropCalc):
         struct = structure.copy()
         struct.apply_strain(scale_factor - 1)
         return struct
-
-    def _calculate_energy(self, structure: Structure) -> float:
-        """Helper to calculate the electronic energy of a structure.
-
-        Args:
-            structure: Pymatgen structure for which the energy is calculated.
-
-        Returns:
-            Electronic energy of the structure.
-        """
-        static_calc = RelaxCalc(self.calculator, relax_atoms=False, relax_cell=False)
-        return static_calc.calc(structure)["energy"]
 
     def _calculate_thermal_properties(self, structure: Structure) -> dict:
         """Helper to calculate the thermal properties of a structure.

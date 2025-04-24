@@ -30,11 +30,12 @@ The API documentation and tutorials are available at https://matcalc.ai.
 ## Outline
 
 The main base class in MatCalc is `PropCalc` (property calculator). [All `PropCalc` subclasses](https://github.com/search?q=repo%3Amaterialsvirtuallab%2Fmatcalc%20%22(PropCalc)%22) should implement a
-`calc(pymatgen.Structure) -> dict` method that returns a dictionary of properties.
+`calc(pymatgen.Structure | ase.Atoms | dict) -> dict` method that returns a dictionary of properties.
 
 In general, `PropCalc` should be initialized with an ML model or [ASE] calculator, which is then used by either ASE,
 LAMMPS or some other simulation code to perform calculations of properties. The `matcalc.PESCalculator` class
-provides easy access to many universal MLIPs as well as an interface to
+provides easy access to many universal MLIPs as well as an interface to MAML for custom MLIPs such as MTP, NNP, GAP,
+etc.
 
 # Basic Usage
 

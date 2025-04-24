@@ -12,6 +12,7 @@ from .utils import PESCalculator
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
+    from ase import Atoms
     from ase.calculators.calculator import Calculator
     from pymatgen.core import Structure
 
@@ -56,7 +57,7 @@ class PropCalc(abc.ABC):
         self._pes_calculator = PESCalculator.load_universal(val) if isinstance(val, str) else val
 
     @abc.abstractmethod
-    def calc(self, structure: Structure | dict[str, Any]) -> dict[str, Any]:
+    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict[str, Any]:
         """
         Abstract method to calculate and return a standardized format of structural data.
 
@@ -85,14 +86,14 @@ class PropCalc(abc.ABC):
                 return structure | {"final_structure": structure["structure"]}
 
             raise ValueError(
-                "Structure must be either a pymatgen Structure or a dict containing a Structure in the"
-                "final_structure or structure"
+                "Structure must be either a pymatgen Structure, ASE Atoms, or a dict containing a Structure/Atoms in "
+                "the final_structure or structure"
             )
         return {"final_structure": structure}
 
     def calc_many(
         self,
-        structures: Sequence[Structure | dict[str, Any]],
+        structures: Sequence[Structure | dict[str, Any] | Atoms],
         n_jobs: None | int = None,
         allow_errors: bool = False,  # noqa: FBT001,FBT002
         **kwargs: Any,
@@ -105,7 +106,7 @@ class PropCalc(abc.ABC):
         support multi-job execution and manage error handling behavior based
         on user configuration.
 
-        :param structures: A sequence of `Structure` objects or dictionaries
+        :param structures: A sequence of `Structure` or `Atoms` objects or dictionaries
             representing the input structures to be processed. Each entry in
             the sequence is processed independently.
         :param n_jobs: The number of jobs to run in parallel. If set to None,
@@ -124,7 +125,7 @@ class PropCalc(abc.ABC):
         """
         parallel = Parallel(n_jobs=n_jobs, return_as="generator", **kwargs)
 
-        def _func(s: Structure) -> dict | None:
+        def _func(s: Structure | Atoms) -> dict | None:
             try:
                 return self.calc(s)
             except Exception as ex:
@@ -152,7 +153,7 @@ class ChainedCalc(PropCalc):
         """
         self.prop_calcs = tuple(prop_calcs)
 
-    def calc(self, structure: Structure | dict[str, Any]) -> dict[str, Any]:
+    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict[str, Any]:
         """
         Runs the series of PropCalcs on a structure.
 
@@ -171,7 +172,7 @@ class ChainedCalc(PropCalc):
 
     def calc_many(
         self,
-        structures: Sequence[Structure | dict[str, Any]],
+        structures: Sequence[Structure | Atoms | dict[str, Any]],
         n_jobs: None | int = None,
         allow_errors: bool = False,  # noqa: FBT001,FBT002
         **kwargs: Any,

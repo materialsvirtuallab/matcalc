@@ -9,16 +9,16 @@ from ase.io import Trajectory
 from ase.mep import NEBTools
 from ase.neb import NEB
 from ase.utils.forcecurve import fit_images
-from pymatgen.core import Structure
-from pymatgen.io.ase import AseAtomsAdaptor
 
+from ._backend import get_ase_optimizer
 from ._base import PropCalc
-from .utils import get_ase_optimizer
+from .utils import to_ase_atoms, to_pmg_structure
 
 if TYPE_CHECKING:
     from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
+    from pymatgen.core import Structure
 
 
 class NEBCalc(PropCalc):
@@ -95,7 +95,7 @@ class NEBCalc(PropCalc):
 
     def calc(
         self,
-        structure: Structure | dict[str, Any],
+        structure: Structure | Atoms | dict[str, Any],
     ) -> dict[str, Any]:
         """Calculate the energy barrier using the nudged elastic band method.
 
@@ -114,7 +114,7 @@ class NEBCalc(PropCalc):
             )
         images: list[Atoms] = []
         for _, image in sorted(structure.items(), key=lambda x: x[0]):
-            atoms = image.to_ase_atoms() if isinstance(image, Structure) else image
+            atoms = to_ase_atoms(image)
             atoms.calc = self.calculator
             images.append(atoms)
 
@@ -135,7 +135,7 @@ class NEBCalc(PropCalc):
 
         energies = fit_images(self.neb.images).energies
         mep = {
-            f"image{i:02d}": {"structure": AseAtomsAdaptor.get_structure(image), "energy": energy}
+            f"image{i:02d}": {"structure": to_pmg_structure(image), "energy": energy}
             for i, (image, energy) in enumerate(zip(self.neb.images, energies, strict=False))
         }
         result["mep"] = mep

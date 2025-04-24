@@ -13,6 +13,7 @@ from matcalc import QHACalc
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from ase import Atoms
     from matgl.ext.ase import PESCalculator
     from pymatgen.core import Structure
 
@@ -119,7 +120,23 @@ def test_qha_calc(
         elif not default_path and not instance_val:
             assert not os.path.isfile(default_path)
 
-    import glob
 
-    for f in glob.glob("*.dat"):
-        os.remove(f)
+def test_qha_calc_atoms(
+    Si_atoms: Atoms,
+    m3gnet_calculator: PESCalculator,
+) -> None:
+    """Tests for QHACalc class."""
+
+    # Initialize QHACalc
+    qha_calc = QHACalc(
+        calculator=m3gnet_calculator,
+        t_step=50,
+        t_max=1000,
+        scale_factors=[0.97, 0.98, 0.99, 1.00, 1.01, 1.02, 1.03],
+    )
+
+    result = qha_calc.calc(Si_atoms)
+
+    # Test values at 300 K
+    ind = result["temperatures"].tolist().index(300)
+    assert result["thermal_expansion_coefficients"][ind] == pytest.approx(1.1186261906022136e-05, rel=1e-1)

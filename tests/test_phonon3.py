@@ -62,3 +62,27 @@ def test_phonon3_calc(
         assert os.path.isfile(f"kappa-m{''.join(map(str, mesh_numbers))}.hdf5")
     else:
         assert not os.path.isfile(f"kappa-m{''.join(map(str, mesh_numbers))}.hdf5")
+
+
+def test_phonon3_calc_atoms(
+    Si_atoms: Structure,
+    matpes_calculator: PESCalculator,
+) -> None:
+    """Tests for Phonon3Calc class"""
+    mesh_numbers = (10, 10, 10)
+
+    phonon3_calc = Phonon3Calc(
+        calculator=matpes_calculator,
+        fc2_supercell=((2, 0, 0), (0, 2, 0), (0, 0, 2)),
+        fc3_supercell=((2, 0, 0), (0, 2, 0), (0, 0, 2)),
+        fmax=0.1,
+        t_step=50,
+        t_max=1000,
+        mesh_numbers=mesh_numbers,
+        disp_kwargs={"distance": 0.03},
+        thermal_conductivity_kwargs={"is_isotope": True, "conductivity_type": "wigner"},
+    )
+
+    result = phonon3_calc.calc(Si_atoms)
+    ind = result["temperatures"].tolist().index(300)
+    assert result["thermal_conductivity"][ind] == pytest.approx(175.94838119, rel=1e-1)
