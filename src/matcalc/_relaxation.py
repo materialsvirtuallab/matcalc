@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 
 from ase.filters import FrechetCellFilter
 
-from ._backend import run_pes_calc
 from ._base import PropCalc
+from .backend import run_pes_calc
 from .utils import to_pmg_structure
 
 if TYPE_CHECKING:
