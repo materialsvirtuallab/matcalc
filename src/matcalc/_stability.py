@@ -9,7 +9,7 @@ from monty.serialization import loadfn
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
-from .simulation import run_ase_static
+from .simulation import run_ase
 from .utils import to_pmg_structure
 
 if TYPE_CHECKING:
@@ -132,7 +132,7 @@ class EnergeticsCalc(PropCalc):
             structure_in = result["final_structure"]
             energy = result["energy"]
         else:
-            energy = run_ase_static(structure_in, self.calculator).energy
+            energy = run_ase(structure_in, self.calculator).energy
         nsites = len(structure_in)
 
         def get_gs_energy(el: Element | Species) -> float:

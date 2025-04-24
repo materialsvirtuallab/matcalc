@@ -10,7 +10,7 @@ from phonopy import PhonopyQHA
 from ._base import PropCalc
 from ._phonon import PhononCalc
 from ._relaxation import RelaxCalc
-from .simulation import run_ase_static
+from .simulation import run_ase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -264,7 +264,7 @@ class QHACalc(PropCalc):
         for scale_factor in self.scale_factors:
             struct = self._scale_structure(structure, scale_factor)
             volumes.append(struct.volume)
-            electronic_energies.append(run_ase_static(struct, self.calculator).energy)
+            electronic_energies.append(run_ase(struct, self.calculator).energy)
             thermal_properties = self._calculate_thermal_properties(struct)
             free_energies.append(thermal_properties["free_energy"])
             entropies.append(thermal_properties["entropy"])
