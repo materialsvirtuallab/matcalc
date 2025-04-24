@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from phono3py import Phono3py
-from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
 
+from ._backend import run_pes_calc
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
 from .utils import to_pmg_structure
@@ -194,10 +194,8 @@ class Phonon3Calc(PropCalc):
         phonon_forces = []
         for supercell in phonon3.phonon_supercells_with_displacements:
             struct_supercell = get_pmg_structure(supercell)
-            atoms_supercell = AseAtomsAdaptor.get_atoms(struct_supercell)
-            atoms_supercell.calc = self.calculator
-            f = atoms_supercell.get_forces()
-
+            r = run_pes_calc(struct_supercell, self.calculator)
+            f = r.forces
             phonon_forces.append(f)
         fc2_set = np.array(phonon_forces)
         phonon3.phonon_forces = fc2_set
@@ -206,9 +204,8 @@ class Phonon3Calc(PropCalc):
         for supercell in phonon3.supercells_with_displacements:
             if supercell is not None:
                 struct_supercell = get_pmg_structure(supercell)
-                atoms_supercell = AseAtomsAdaptor.get_atoms(struct_supercell)
-                atoms_supercell.calc = self.calculator
-                f = atoms_supercell.get_forces()
+                r = run_pes_calc(struct_supercell, self.calculator)
+                f = r.forces
                 forces.append(f)
         fc3_set = np.array(forces)
         phonon3.forces = fc3_set

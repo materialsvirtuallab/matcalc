@@ -19,7 +19,6 @@ from matminer.featurizers.site import CrystalNNFingerprint
 from matminer.featurizers.structure import SiteStatsFingerprint
 from monty.json import MontyDecoder
 from monty.serialization import dumpfn, loadfn
-from pymatgen.io.ase import AseAtomsAdaptor
 from scipy.optimize import curve_fit
 
 if TYPE_CHECKING:
@@ -29,6 +28,7 @@ if TYPE_CHECKING:
 
     from ._base import PropCalc
 
+from ._backend import run_pes_calc
 from ._elasticity import ElasticityCalc
 from ._phonon import PhononCalc
 from ._relaxation import RelaxCalc
@@ -857,9 +857,8 @@ class SofteningBenchmark:
             try:
                 force_ground_truth, force_prediction = [], []
                 for frame in frames.values():
-                    atoms = AseAtomsAdaptor.get_atoms(frame["structure"])
-                    atoms.calc = calculator
-                    forces = atoms.get_forces().tolist()
+                    r = run_pes_calc(frame["structure"], calculator)
+                    forces = r.forces.tolist()
                     force_prediction.append(forces)
                     force_ground_truth.append(frame["vasp_f"])
 
