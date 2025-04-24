@@ -21,7 +21,7 @@ from ._qha import QHACalc
 from ._relaxation import RelaxCalc
 from ._stability import EnergeticsCalc
 from ._surface import SurfaceCalc
-from .config import clear_cache
+from .config import SIMULATION_BACKEND, clear_cache
 from .utils import UNIVERSAL_CALCULATORS, PESCalculator
 
 # Provide an alias for loading calculators quickly.
