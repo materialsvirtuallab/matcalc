@@ -5,7 +5,7 @@ import pytest
 from ase.calculators.calculator import Calculator
 from ase.optimize.optimize import Optimizer
 
-from matcalc._backend import VALID_OPTIMIZERS, get_ase_optimizer, is_ase_optimizer
+from matcalc.backend._ase import VALID_OPTIMIZERS, get_ase_optimizer, is_ase_optimizer
 
 
 def test_get_ase_optimizer() -> None:
