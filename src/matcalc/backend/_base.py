@@ -7,10 +7,10 @@ if TYPE_CHECKING:
     from pymatgen.core.structure import Structure
 
 
-class PESResult(NamedTuple):
+class SimulationResult(NamedTuple):
     """Container for results from PES calculators."""
 
     structure: Structure
     energy: float
-    forces: np.ndarray
-    stress: np.ndarray
+    forces: np.typing.NDArray[np.float64]
+    stress: np.typing.NDArray[np.float64]

@@ -97,7 +97,7 @@ class PropCalc(abc.ABC):
         n_jobs: None | int = None,
         allow_errors: bool = False,  # noqa: FBT001,FBT002
         **kwargs: Any,
-    ) -> Generator[dict | None]:
+    ) -> Generator[dict | None, None, None]:
         """
         Calculate properties for multiple structures concurrently.
 
@@ -176,7 +176,7 @@ class ChainedCalc(PropCalc):
         n_jobs: None | int = None,
         allow_errors: bool = False,  # noqa: FBT001,FBT002
         **kwargs: Any,
-    ) -> Generator[dict | None]:
+    ) -> Generator[dict | None, None, None]:
         """Runs the sequence of PropCalc on many structures.
 
         Args:
