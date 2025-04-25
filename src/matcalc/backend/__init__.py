@@ -2,15 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from matcalc.config import SIMULATION_BACKEND
 
 from ._ase import run_ase
+from ._base import PESResult  # noqa: TC001
 from ._lammps import run_lammps
-
-if TYPE_CHECKING:
-    from ._base import PESResult
 
 
 def run_pes_calc(*arg, **kwargs) -> PESResult:  # noqa:ANN002,ANN003
