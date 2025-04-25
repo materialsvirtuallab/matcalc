@@ -10,8 +10,8 @@ from ase.mep import NEBTools
 from ase.neb import NEB
 from ase.utils.forcecurve import fit_images
 
-from ._backend import get_ase_optimizer
 from ._base import PropCalc
+from .backend._ase import get_ase_optimizer
 from .utils import to_ase_atoms, to_pmg_structure
 
 if TYPE_CHECKING:
