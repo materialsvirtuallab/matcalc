@@ -28,11 +28,11 @@ if TYPE_CHECKING:
 
     from ._base import PropCalc
 
-from ._backend import run_pes_calc
 from ._elasticity import ElasticityCalc
 from ._phonon import PhononCalc
 from ._relaxation import RelaxCalc
 from ._stability import EnergeticsCalc
+from .backend import run_pes_calc
 from .config import BENCHMARK_DATA_DIR, BENCHMARK_DATA_DOWNLOAD_URL, BENCHMARK_DATA_URL
 from .units import eVA3ToGPa
 
