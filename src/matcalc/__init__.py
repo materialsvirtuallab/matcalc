@@ -25,3 +25,4 @@ from .utils import UNIVERSAL_CALCULATORS, PESCalculator
 
 # Provide an alias for loading calculators quickly.
 load_up = PESCalculator.load_universal
+load_fp = PESCalculator.load_universal

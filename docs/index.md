@@ -65,8 +65,8 @@ While we generally recommend users to specify exactly the model they would like 
 
 ```python
 import matcalc as mtc
-pbe_calculator = mtc.load_up("pbe")
-r2scan_calculator = mtc.load_up("r2scan")
+pbe_calculator = mtc.load_fp("pbe")
+r2scan_calculator = mtc.load_fp("r2scan")
 ```
 
 At the time of writing, these are the TensorNet-MatPES models. However, these recommendations may updated as improved
@@ -101,7 +101,7 @@ do not redo the relatively expensive relaxation.
 ```python
 import matcalc as mtc
 import numpy as np
-calculator = mtc.load_up("pbe")
+calculator = mtc.load_fp("pbe")
 relax_calc = mtc.RelaxCalc(
     calculator,
     optimizer="FIRE",
@@ -140,12 +140,12 @@ matcalc calc -p ElasticityCalc -s Li2O.cif
 MatCalc makes it easy to perform a large number of calculations rapidly. With the release of MatPES, we have released
 the `MatCalc-Benchmark`.
 
-For example, the following code can be used to run the ElasticityBenchmark on `TensorNet-MatPES-PBE-v2025.1-PES` UMLIP.
+For example, the following code can be used to run the ElasticityBenchmark on `TensorNet-MatPES-PBE-v2025.1-PES` FP.
 
 ```python
 import matcalc as mtc
 
-calculator = mtc.load_up("TensorNet-MatPES-PBE-v2025.1-PES")
+calculator = mtc.load_fp("TensorNet-MatPES-PBE-v2025.1-PES")
 benchmark = mtc.benchmark.ElasticityBenchmark(fmax=0.05, relax_structure=True)
 results = benchmark.run(calculator, "TensorNet-MatPES")
 ```
@@ -157,8 +157,8 @@ You can even run entire suites of benchmarks on multiple models, as follows:
 ```python
 import matcalc as mtc
 
-tensornet = mtc.load_up("TensorNet-MatPES-PBE-v2025.1-PES")
-m3gnet = mtc.load_up("M3GNet-MatPES-PBE-v2025.1-PES")
+tensornet = mtc.load_fp("TensorNet-MatPES-PBE-v2025.1-PES")
+m3gnet = mtc.load_fp("M3GNet-MatPES-PBE-v2025.1-PES")
 
 elasticity_benchmark = mtc.benchmark.ElasticityBenchmark(fmax=0.5, relax_structure=True)
 phonon_benchmark = mtc.benchmark.PhononBenchmark(write_phonon=False)

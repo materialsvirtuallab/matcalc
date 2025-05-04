@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import functools
 import warnings
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal
@@ -344,12 +343,11 @@ class PESCalculator(Calculator):
         return DP(model=model_path, **kwargs)
 
     @staticmethod
-    @functools.lru_cache(maxsize=20)
     def load_universal(name: str | Calculator, **kwargs: Any) -> Calculator:  # noqa: C901
         """
         Loads a calculator instance based on the provided name or an existing calculator object. The
         method supports multiple pre-built universal models and aliases for ease of use. If an existing calculator
-        object is passed instead of a name, it will directly return that calculator instance. Supported UMLIPs
+        object is passed instead of a name, it will directly return that calculator instance. Supported FPs
         include SOTA potentials such as M3GNet, CHGNet, TensorNet, MACE, GRACE, SevenNet, ORB, etc.
 
         This method is designed to provide a universal interface to load various calculator types, which
