@@ -32,9 +32,16 @@
 - Uses PBE PAW datasets version 52.
 - 972 materials, 9308 structures.
 
+## [mvl-batt-sub-pbe-diffusion-2025.5.json]
+- Mean square displacement, diffusion coefficient and ionic conductivity at various temperatures of well-known battery materials studied by [MVL] over the past decade, collated in May 2025.
+- Li3ClO, Li10Ge(PS6)2, Li3PS4, Li6PS5Cl, Li3YBr6, Li3YCl6, Na2ZrCl6, Na3PS4, Na3Zr2Si2PO12, Na5YZrCl12.
+- 101 calculations.
+
+
 [WBM]: https://figshare.com/articles/dataset/Matbench_Discovery_v1_0_0/22715158
 [Materials Project]: http://materialsproject.org
 [Alexandria Materials Database]: https://alexandria.icams.rub.de
 [WBM high energy states]: https://figshare.com/articles/dataset/WBM_high_energy_states/27307776?file=50005317
+[MVL] http://www.mavrl.org
 [Materials Project Documentation]: https://docs.materialsproject.org/methodology/materials-methodology/calculation-details/gga+u-calculations/pseudopotentials
 [pymatgen#2968]: https://github.com/materialsproject/pymatgen/issues/2968
