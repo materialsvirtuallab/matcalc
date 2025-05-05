@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
     from pymatgen.core.structure import Structure
 
-    from ._base import PESResult
+    from ._base import SimulationResult
 
 
 def run_lammps(
@@ -22,7 +22,7 @@ def run_lammps(
     interval: int = 1,
     fmax: float = 0.1,
     cell_filter: str | None = None,  # type:ignore[assignment]
-) -> PESResult:
+) -> SimulationResult:
     """
     Run LAMMPS calculation using the given structure and calculator.
 

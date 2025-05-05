@@ -34,8 +34,8 @@ The main base class in MatCalc is `PropCalc` (property calculator). [All `PropCa
 
 In general, `PropCalc` should be initialized with an ML model or [ASE] calculator, which is then used by either ASE,
 LAMMPS or some other simulation code to perform calculations of properties. The `matcalc.PESCalculator` class
-provides easy access to many universal MLIPs as well as an interface to MAML for custom MLIPs such as MTP, NNP, GAP,
-etc.
+provides easy access to many foundation potentials (FPs) as well as an interface to MAML for custom MLIPs
+such as MTP, NNP, GAP, etc.
 
 # Basic Usage
 
@@ -58,7 +58,7 @@ The calculated `K_VRH` is about 102 GPa, in reasonably good agreement with the e
 You can easily access a list of universal calculators (not comprehensive) using the UNIVERSAL_CALCULATORS enum.
 
 ```python
-print(mtc.UNIVERSAL_CALCULATPRS)
+print(mtc.UNIVERSAL_CALCULATORS)
 ```
 
 While we generally recommend users to specify exactly the model they would like to use, MatCalc provides useful
@@ -66,8 +66,8 @@ While we generally recommend users to specify exactly the model they would like 
 
 ```python
 import matcalc as mtc
-pbe_calculator = mtc.load_up("pbe")
-r2scan_calculator = mtc.load_up("r2scan")
+pbe_calculator = mtc.load_fp("pbe")
+r2scan_calculator = mtc.load_fp("r2scan")
 ```
 
 At the time of writing, these are the `TensorNet-MatPES-v2025.1` models for these functionals. However, these
@@ -102,7 +102,7 @@ do not redo the relatively expensive relaxation.
 ```python
 import matcalc as mtc
 import numpy as np
-calculator = mtc.load_up("pbe")
+calculator = mtc.load_fp("pbe")
 relax_calc = mtc.RelaxCalc(
     calculator,
     optimizer="FIRE",
@@ -130,7 +130,7 @@ Chaining can also be used with the `calc_many` method, with parallelization.
 
 ### CLI tool
 
-A CLI tool provides a means to use universal MLIPs to obtain properties for any structure. Example usage:
+A CLI tool provides a means to use FPs to obtain properties for any structure. Example usage:
 
 ```shell
 matcalc calc -p ElasticityCalc -s Li2O.cif
@@ -141,12 +141,12 @@ matcalc calc -p ElasticityCalc -s Li2O.cif
 MatCalc makes it easy to perform a large number of calculations rapidly. With the release of MatPES, we have released
 the `MatCalc-Benchmark`.
 
-For example, the following code can be used to run the ElasticityBenchmark on `TensorNet-MatPES-PBE-v2025.1-PES` UMLIP.
+For example, the following code can be used to run the ElasticityBenchmark on `TensorNet-MatPES-PBE-v2025.1-PES` FP.
 
 ```python
 import matcalc as mtc
 
-calculator = mtc.load_up("TensorNet-MatPES-PBE-v2025.1-PES")
+calculator = mtc.load_fp("TensorNet-MatPES-PBE-v2025.1-PES")
 benchmark = mtc.benchmark.ElasticityBenchmark(fmax=0.05, relax_structure=True)
 results = benchmark.run(calculator, "TensorNet-MatPES")
 ```
@@ -158,8 +158,8 @@ You can even run entire suites of benchmarks on multiple models, as follows:
 ```python
 import matcalc as mtc
 
-tensornet = mtc.load_up("TensorNet-MatPES-PBE-v2025.1-PES")
-m3gnet = mtc.load_up("M3GNet-MatPES-PBE-v2025.1-PES")
+tensornet = mtc.load_fp("TensorNet-MatPES-PBE-v2025.1-PES")
+m3gnet = mtc.load_fp("M3GNet-MatPES-PBE-v2025.1-PES")
 
 elasticity_benchmark = mtc.benchmark.ElasticityBenchmark(fmax=0.5, relax_structure=True)
 phonon_benchmark = mtc.benchmark.PhononBenchmark(write_phonon=False)

@@ -18,7 +18,7 @@ from ase.optimize.optimize import Optimizer
 
 from matcalc.utils import to_ase_atoms, to_pmg_structure
 
-from ._base import PESResult
+from ._base import SimulationResult
 
 if TYPE_CHECKING:
     import numpy as np
@@ -152,7 +152,7 @@ def run_ase(
     interval: int = 1,
     fmax: float = 0.1,
     cell_filter: Filter = FrechetCellFilter,  # type:ignore[assignment]
-) -> PESResult:
+) -> SimulationResult:
     """
     Run ASE static calculation using the given structure and calculator.
 
@@ -179,8 +179,8 @@ def run_ase(
                 obs.save(traj_file)
         if relax_cell:
             atoms = atoms.atoms  # type:ignore[attr-defined]
-        return PESResult(to_pmg_structure(atoms), obs.energies[-1], obs.forces[-1], obs.stresses[-1])
+        return SimulationResult(to_pmg_structure(atoms), obs.energies[-1], obs.forces[-1], obs.stresses[-1])
 
-    return PESResult(
+    return SimulationResult(
         to_pmg_structure(structure), atoms.get_potential_energy(), atoms.get_forces(), atoms.get_stress(voigt=False)
     )

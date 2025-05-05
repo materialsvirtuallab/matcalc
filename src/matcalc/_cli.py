@@ -23,7 +23,7 @@ def calculate_property(args: Any) -> None:
     :param args:
     :return:
     """
-    calculator = mtc.load_up(args.model)
+    calculator = mtc.load_fp(args.model)
     mod = mtc.__dict__[args.property](calculator)
     results = []
     for f in args.structure:

@@ -16,7 +16,7 @@ import warnings
 
 import pandas as pd
 
-from matcalc import load_up
+from matcalc import load_fp
 from matcalc.benchmark import SofteningBenchmark
 ```
 
@@ -31,7 +31,7 @@ for model_name in [
     "CHGNet-MPtrj-2023.12.1-2.7M-PES",
     "TensorNet-MatPES-PBE-v2025.1-PES",
 ]:
-    calculator = load_up(model_name)
+    calculator = load_fp(model_name)
     short_name = "-".join(model_name.split("-")[:2])
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")

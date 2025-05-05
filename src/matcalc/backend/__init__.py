@@ -2,18 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from matcalc.config import SIMULATION_BACKEND
 
 from ._ase import run_ase
+from ._base import SimulationResult  # noqa: TC001
 from ._lammps import run_lammps
 
-if TYPE_CHECKING:
-    from ._base import PESResult
 
-
-def run_pes_calc(*arg, **kwargs) -> PESResult:  # noqa:ANN002,ANN003
+def run_pes_calc(*arg, **kwargs) -> SimulationResult:  # noqa:ANN002,ANN003
     """
     Executes the potential energy surface (PES) calculation using the appropriate backend.
 
@@ -29,7 +25,7 @@ def run_pes_calc(*arg, **kwargs) -> PESResult:  # noqa:ANN002,ANN003
     :type kwargs: dict
     :return: The result of the potential energy surface calculation performed by the selected
         backend.
-    :rtype: PESResult
+    :rtype: SimulationResult
     """
     if SIMULATION_BACKEND == "ASE":
         return run_ase(*arg, **kwargs)
