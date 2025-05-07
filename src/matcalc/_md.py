@@ -267,8 +267,8 @@ class MDCalc(PropCalc):
         else:
             raise ValueError(
                 "The specified ensemble is not supported, choose from 'nve', 'nvt',"
-                "'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
-                "'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'"
+                " 'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
+                " 'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'."
             )
         return md
 
