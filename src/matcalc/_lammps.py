@@ -181,7 +181,6 @@ class LAMMPSMDCalc(PropCalc):
         lmpdata = LammpsData.from_structure(structure_in, atom_style="atomic")
 
         default_settings = {
-            "home_dir": os.environ["HOME"],
             "logfile": self.logfile,
             "trajfile": self.trajfile,
             "gnnp_type": self.gnnp_type,
@@ -221,7 +220,7 @@ class LAMMPSMDCalc(PropCalc):
         if not (os.path.exists(self.infile) and os.path.exists("md.data")):
             self.write_inputs(structure_in)
 
-        lammps_command = f"{os.environ['HOME']}/.local/bin/lmp < {self.infile}"
+        lammps_command = f"lmp < {self.infile}"
         subprocess.run(lammps_command, shell=True, check=False)  # noqa: S602
 
         # Create a list to record the state of atoms at each simulation step.
