@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
+import numpy as np
 import pytest
 
 from matcalc import MDCalc
@@ -63,6 +64,11 @@ def test_md_calc(
     assert "total_energy" in results
 
     assert results["total_energy"] == pytest.approx(expected_energy, rel=1e-1)
+
+    energies = [traj["total_energy"] for traj in results["trajectory"]]
+
+    if ensemble != "nve":
+        assert not np.allclose(energies - energies[0], 0, atol=1e-9), f"Energies are too close for {ensemble}"
 
     assert len(results["trajectory"]) == 5
 
