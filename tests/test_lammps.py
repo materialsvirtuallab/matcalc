@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from shutil import which
 from typing import TYPE_CHECKING
 
 import pytest
@@ -30,6 +31,8 @@ def test_lammps_calc(
     expected_energy: float,
     Si: Structure,
 ) -> None:
+    if not which("lmp"):
+        pytest.skip("lammps not available")
     """Tests for LAMMPSMDCalc class"""
     in_file = f"{ensemble}.in"
     log_file = f"{ensemble}.log"
@@ -65,6 +68,8 @@ def test_lammps_calc(
 
 def test_lammps_atoms(Si_atoms: Atoms) -> None:
     """Tests for MDCalc class using ASE Atoms input"""
+    if not which("lmp"):
+        pytest.skip("lammps not available")
     with open(Path(LAMMPS_TEMPLATES_DIR / "md.template")) as f:
         script_template = f.read()
 
