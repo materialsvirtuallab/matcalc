@@ -6,7 +6,7 @@ nav_order: 2
 
 # Change Log
 
-## 0.4.1
+## v0.4.1
 - Bug fix for bad trajectory snapshotting in MDCalc.
 - Beta LAMMPSMDCalc.
 
