@@ -73,7 +73,7 @@ class MDCalc(PropCalc):
         relax_structure: bool = True,
         fmax: float = 0.1,
         optimizer: str = "FIRE",
-        frames: int = 10,
+        frames: int | None = None,
         relax_calc_kwargs: dict | None = None,
     ) -> None:
         """
@@ -106,7 +106,8 @@ class MDCalc(PropCalc):
             relax_structure (bool): Whether to relax the input structure before MD simulation. Default to True.
             fmax (float): Maximum force tolerance for structure relaxation (in eV/Å). Default to 0.1.
             optimizer (str): Optimizer used for structure relaxation. Default to "FIRE".
-            frames (int): Number of MD frames for analysis. Default to 10.
+            frames (int): Number of MD frames for analysis. Default to None, which means all frames will be
+            returned, i.e., frames = steps.
             relax_calc_kwargs (dict | None): Additional keyword arguments for the relaxation calculation.
                 Default to None.
         """
@@ -132,7 +133,7 @@ class MDCalc(PropCalc):
         self.relax_structure = relax_structure
         self.fmax = fmax
         self.optimizer = optimizer
-        self.frames = frames
+        self.frames = frames if frames is not None else self.steps
         self.relax_calc_kwargs = relax_calc_kwargs
 
     def _initialize_md(self, atoms: Atoms) -> Any:
