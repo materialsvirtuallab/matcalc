@@ -1,0 +1,58 @@
+# Sample input script template for MD
+
+# Initialization
+
+log             $logfile
+
+units           metal
+boundary        p p p
+atom_style      atomic
+
+# Atom definition
+
+read_data       md.data
+#read_restart    md_final.restart
+
+# Force field settings (matgl|chgnet|mace|mace-off|orb|mattersim|fairchem)
+# If you want to use CUDA GPU, please switch gnnp to gnnp/gpu in pair_style
+# Consult official document for detailed formats
+
+pair_style      gnnp
+pair_coeff      * *  $gnnp_type $model_name  $symbol_set
+
+# Energy Minimization
+
+#minimize        1.0e-4 1.0e-6 100 1000
+
+# Create velocities
+
+velocity        all create $temperature 142857 mom yes rot yes dist gaussian
+
+# Ensemble constraints
+
+$fix_command
+
+# Various operations within timestepping
+
+#fix             ...
+#compute         ...
+
+# Output settings
+
+thermo_style    custom step time cpu pe ke etotal temp press vol density  # control the thermo data type to output
+thermo          $loginterval  # output thermo data every $loginterval step(s)
+
+dump            1 all custom $loginterval $trajfile id element x y z  # dump a snapshot every $loginterval step(s)
+dump_modify     1 sort id element $symbol_set
+
+#restart         1000 md_1.restart md_2.restart
+
+# Simulation actions
+
+timestep        $timestep
+run             $steps
+
+# Save final configuration
+
+#write_data      md_final.data
+#write_restart   md_final.restart
