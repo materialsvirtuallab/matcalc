@@ -11,6 +11,8 @@ class SimulationResult(NamedTuple):
     """Container for results from PES calculators."""
 
     structure: Structure
+    potential_energy: float
+    kinetic_energy: float
     energy: float
     forces: np.typing.NDArray[np.float64]
     stress: np.typing.NDArray[np.float64]

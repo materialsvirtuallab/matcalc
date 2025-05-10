@@ -108,7 +108,9 @@ class TrajectoryObserver:
     """
 
     atoms: Atoms
-    energies: list[float] = field(default_factory=list)
+    potential_energies: list[float] = field(default_factory=list)
+    kinetic_energies: list[float] = field(default_factory=list)
+    total_energies: list[float] = field(default_factory=list)
     forces: list[np.ndarray] = field(default_factory=list)
     stresses: list[np.ndarray] = field(default_factory=list)
     atom_positions: list[np.ndarray] = field(default_factory=list)
@@ -116,11 +118,39 @@ class TrajectoryObserver:
 
     def __call__(self) -> None:
         """The logic for saving the properties of an Atoms during the relaxation."""
-        self.energies.append(float(self.atoms.get_potential_energy()))
+        self.potential_energies.append(float(self.atoms.get_potential_energy()))
+        self.kinetic_energies.append(float(self.atoms.get_kinetic_energy()))
+        self.total_energies.append(float(self.atoms.get_total_energy()))
         self.forces.append(self.atoms.get_forces())
         self.stresses.append(self.atoms.get_stress())
         self.atom_positions.append(self.atoms.get_positions())
         self.cells.append(self.atoms.get_cell()[:])
+
+    def __len__(self) -> int:
+        return len(self.total_energies)
+
+    def get_slice(self, sl: slice) -> TrajectoryObserver:
+        """
+        This method returns a TrajectoryObserver object containing subsets of information derived from the provided
+        slice object.
+
+        Parameters:
+            sl: slice - The slice object indicating which subset of data to extract from the original data.
+
+        Return:
+            TrajectoryObserver - A new TrajectoryObserver object containing the subset of data as specified by the
+            slice.
+        """
+        return TrajectoryObserver(
+            self.atoms,
+            self.potential_energies[sl],
+            self.kinetic_energies[sl],
+            self.total_energies[sl],
+            self.forces[sl],
+            self.stresses[sl],
+            self.atom_positions[sl],
+            self.cells[sl],
+        )
 
     def save(self, filename: str) -> None:
         """Save the trajectory to file.
@@ -129,7 +159,9 @@ class TrajectoryObserver:
             filename (str): filename to save the trajectory.
         """
         out = {
-            "energy": self.energies,
+            "potential_energies": self.potential_energies,
+            "kinetic_energies": self.kinetic_energies,
+            "total_energies": self.total_energies,
             "forces": self.forces,
             "stresses": self.stresses,
             "atom_positions": self.atom_positions,
@@ -179,8 +211,20 @@ def run_ase(
                 obs.save(traj_file)
         if relax_cell:
             atoms = atoms.atoms  # type:ignore[attr-defined]
-        return SimulationResult(to_pmg_structure(atoms), obs.energies[-1], obs.forces[-1], obs.stresses[-1])
+        return SimulationResult(
+            to_pmg_structure(atoms),
+            obs.potential_energies[-1],
+            obs.kinetic_energies[-1],
+            obs.total_energies[-1],
+            obs.forces[-1],
+            obs.stresses[-1],
+        )
 
     return SimulationResult(
-        to_pmg_structure(structure), atoms.get_potential_energy(), atoms.get_forces(), atoms.get_stress(voigt=False)
+        to_pmg_structure(structure),
+        atoms.get_potential_energy(),
+        atoms.get_kinetic_energy(),
+        atoms.get_total_energy(),
+        atoms.get_forces(),
+        atoms.get_stress(voigt=False),
     )

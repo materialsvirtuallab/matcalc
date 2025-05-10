@@ -162,7 +162,7 @@ class RelaxCalc(PropCalc):
         result.update(
             {
                 "final_structure": r.structure,
-                "energy": r.energy,
+                "energy": r.potential_energy,
                 "forces": r.forces,
                 "stress": r.stress,
                 "a": lattice.a,

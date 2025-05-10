@@ -17,6 +17,7 @@ from ase.md.verlet import VelocityVerlet
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
+from .backend._ase import TrajectoryObserver
 from .utils import to_ase_atoms
 
 if TYPE_CHECKING:
@@ -342,35 +343,21 @@ class MDCalc(PropCalc):
         # Initialize the molecular dynamics (MD) simulation and set up the simulation parameters.
         md = self._initialize_md(atoms)
 
-        # Create a list to record the state of atoms at each simulation step.
-        traj: list[dict[str, Any]] = []
-
-        def _record_snapshot(atm: Atoms) -> None:
-            traj.append(
-                {
-                    "snapshot": atm.copy(),  # This needs to be a copy.
-                    "potential_energy": atm.get_potential_energy(),
-                    "kinetic_energy": atm.get_kinetic_energy(),
-                    "total_energy": atm.get_total_energy(),
-                    "volume": atm.get_volume(),
-                }
-            )
-
         # Attach a callback to the MD simulation to record the atoms' state at intervals defined by self.loginterval.
-        md.attach(_record_snapshot, interval=self.loginterval, atm=atoms)
+        traj = TrajectoryObserver(atoms)
+        md.attach(traj)
 
         # Run the MD simulation for the specified number of steps.
         md.run(self.steps)
 
-        # Select the last 'self.frames' frames from the trajectory for further analysis.
-        traj = traj[-self.frames :]
+        traj = traj.get_slice(slice(-self.frames, len(traj), 1))
 
         # Calculate the average potential energy over the selected frames.
-        energy_pot = sum(frame["potential_energy"] for frame in traj) / len(traj)
+        energy_pot = sum(traj.potential_energies) / self.frames
         # Calculate the average kinetic energy over the selected frames.
-        energy_kin = sum(frame["kinetic_energy"] for frame in traj) / len(traj)
+        energy_kin = sum(traj.kinetic_energies) / self.frames
         # Calculate the average total energy (potential + kinetic) over the selected frames.
-        energy_tot = sum(frame["total_energy"] for frame in traj) / len(traj)
+        energy_tot = sum(traj.total_energies) / self.frames
 
         # Update the result dictionary with the simulation trajectory and computed energy.
         result |= {

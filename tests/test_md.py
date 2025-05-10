@@ -65,7 +65,7 @@ def test_md_calc(
 
     assert results["total_energy"] == pytest.approx(expected_energy, rel=1e-1)
 
-    energies = [traj["total_energy"] for traj in results["trajectory"]]
+    energies = np.array(results["trajectory"].total_energies)
 
     if ensemble != "nve":
         assert not np.allclose(energies - energies[0], 0, atol=1e-9), f"Energies are too close for {ensemble}"
