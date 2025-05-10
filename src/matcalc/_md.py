@@ -345,7 +345,7 @@ class MDCalc(PropCalc):
 
         # Attach a callback to the MD simulation to record the atoms' state at intervals defined by self.loginterval.
         traj = TrajectoryObserver(atoms)
-        md.attach(traj)
+        md.attach(traj, interval=self.loginterval)
 
         # Run the MD simulation for the specified number of steps.
         md.run(self.steps)
