@@ -45,39 +45,43 @@ class PropCalc(abc.ABC):
     @calculator.setter
     def calculator(self, val: str | Calculator) -> None:
         """
-        Set the calculator for PES calculation.
+        The `calculator` setter allows assigning a PESCalculator instance or a file path to load a universal
+        PESCalculator.
 
-        Parameters:
-            val (str | Calculator): A string path to load a PESCalculator or a PESCalculator object.
+        Attributes:
+            _pes_calculator (PESCalculator): An instance of the PESCalculator used for processing.
 
-        Return:
+        Args:
+            val (str | Calculator): A file path in string format to load a universal PESCalculator or an
+                                     existing instance of a Calculator.
+
+        Returns:
             None
-
         """
         self._pes_calculator = PESCalculator.load_universal(val) if isinstance(val, str) else val
 
     @abc.abstractmethod
     def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict[str, Any]:
         """
-        Abstract method to calculate and return a standardized format of structural data.
+        This is an abstract method intended to calculate and return a dictionary
+        based on the provided structural data. The method supports multiple input
+        types, including a `Structure`, `Atoms`, or a dictionary containing specific
+        keys. The behavior of the method changes depending on the structure of the
+        input to ensure compatibility and consistent output.
 
-        This method processes input structural data, which could either be a dictionary
-        or a pymatgen Structure object, and returns a dictionary representation. If a
-        dictionary is provided, it must include either the key ``final_structure`` or
-        ``structure``. For a pymatgen Structure input, it will be converted to a dictionary
-        with the key ``final_structure``. To support chaining, a super() call should be made
-        by subclasses to ensure that the input dictionary is standardized.
+        Args:
+            structure (Structure | Atoms | dict[str, Any]): Input structural data that may
+                either be a `Structure` or `Atoms` object, or a dictionary containing information
+                related to the structure.
 
-        :param structure: A pymatgen Structure object or a dictionary containing structural
-            data with keys such as ``final_structure`` or ``structure``.
-        :type structure: Structure | dict[str, Any]
+        Returns:
+            dict[str, Any]: A dictionary containing the final structure data. If the input is a
+                dictionary containing a `structure` or `final_structure` key, it enhances and
+                returns the given data.
 
-        :return: A dictionary with the key ``final_structure`` mapping to the corresponding
-            structural data.
-        :rtype: dict[str, Any]
-
-        :raises ValueError: If the input dictionary does not include the required keys
-            ``final_structure`` or ``structure``.
+        Raises:
+            ValueError: Raised if the input dictionary does not contain either "structure" or
+                "final_structure" keys.
         """
         if isinstance(structure, dict):
             if "final_structure" in structure:
@@ -99,29 +103,33 @@ class PropCalc(abc.ABC):
         **kwargs: Any,
     ) -> Generator[dict | None, None, None]:
         """
-        Calculate properties for multiple structures concurrently.
+        Calculates multiple structures in parallel with optional error tolerance.
 
-        This method leverages parallel processing to compute properties for a
-        given sequence of structures. It uses the `joblib.Parallel` library to
-        support multi-job execution and manage error handling behavior based
-        on user configuration.
+        This method processes a sequence of structures, allowing them to be calculated in
+        parallel. It offers the ability to handle errors on a per-structure basis. If error
+        tolerance is enabled, calculation failures for individual structures result in returning
+        `None` for those structures, without raising exceptions.
 
-        :param structures: A sequence of `Structure` or `Atoms` objects or dictionaries
-            representing the input structures to be processed. Each entry in
-            the sequence is processed independently.
-        :param n_jobs: The number of jobs to run in parallel. If set to None,
-            joblib will determine the optimal number of jobs based on the
-            system's CPU configuration.
-        :param allow_errors: A boolean flag indicating whether to tolerate
-            exceptions during processing. When set to True, any failed
-            calculation will result in a `None` value for that structure
-            instead of raising an exception.
-        :param kwargs: Additional keyword arguments passed directly to
-            `joblib.Parallel`, which allows customization of parallel
-            processing behavior.
-        :return: A generator yielding dictionaries with computed properties
-            for each structure or `None` if an error occurred (depending on
-            the `allow_errors` flag).
+        Args:
+            structures (Sequence[Structure | dict[str, Any] | Atoms]): A sequence of structures
+                to be processed. Each structure can be represented as `Structure`, a dictionary
+                containing structure-related data, or `Atoms`.
+            n_jobs (None | int, optional): The number of jobs to use for parallel processing. If
+                `None`, the default parallelism settings of the `Parallel` utility will be used.
+                Defaults to `None`.
+            allow_errors (bool, optional): If `True`, exceptions encountered during the
+                calculation of a structure will be caught, and `None` will be returned for that
+                structure. If `False`, the exception is raised. Defaults to `False`.
+            **kwargs (Any): Additional keyword arguments to pass to the `Parallel` utility.
+
+        Returns:
+            Generator[dict | None, None, None]: A generator that yields the results of the
+                calculations for the input structures. If an exception occurs and `allow_errors`
+                is `True`, `None` will be yielded for the corresponding structure.
+
+        Raises:
+            Exception: If any error occurs during the calculation of a structure and
+                `allow_errors` is `False`, the exception will be raised.
         """
         parallel = Parallel(n_jobs=n_jobs, return_as="generator", **kwargs)
 
