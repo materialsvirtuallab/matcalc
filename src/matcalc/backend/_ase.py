@@ -86,25 +86,29 @@ def get_ase_optimizer(optimizer: str | Optimizer) -> Optimizer:
 @dataclass
 class TrajectoryObserver:
     """
-    Class for observing and recording the properties of an atomic structure during relaxation.
+    Handles the observation and tracking of the trajectory-related properties of an Atoms object.
 
-    The `TrajectoryObserver` class is designed to track and store the atomic properties like
-    energies, forces, stresses, atom positions, and cell structure of an atomic system
-    represented by an `Atoms` object. It provides functionality to save recorded data
-    to a file for further analysis or usage.
+    The class captures and stores various physical properties of an Atoms object during relaxation steps
+    or a simulation. It allows for the extraction of property snapshots, slicing trajectory data,
+    and saving the stored data to a file for further analysis or reuse.
 
-    :ivar atoms: The atomic structure being observed.
-    :type atoms: Atoms
-    :ivar energies: List of potential energy values of the atoms during relaxation.
-    :type energies: list[float]
-    :ivar forces: List of force arrays recorded for the atoms during relaxation.
-    :type forces: list[np.ndarray]
-    :ivar stresses: List of stress tensors recorded for the atoms during relaxation.
-    :type stresses: list[np.ndarray]
-    :ivar atom_positions: List of atomic positions recorded during relaxation.
-    :type atom_positions: list[np.ndarray]
-    :ivar cells: List of unit cell arrays recorded during relaxation.
-    :type cells: list[np.ndarray]
+    Attributes:
+        atoms: Atoms
+            The instance of Atoms to observe and track properties for.
+        potential_energies: list[float]
+            List to store the potential energies recorded during the trajectory.
+        kinetic_energies: list[float]
+            List to store the kinetic energies recorded during the trajectory.
+        total_energies: list[float]
+            List to store the total energies recorded during the trajectory.
+        forces: list[np.ndarray]
+            List to store the atomic forces measured during the trajectory.
+        stresses: list[np.ndarray]
+            List to store the stress tensors recorded during the trajectory.
+        atom_positions: list[np.ndarray]
+            List to store the atomic positions recorded during the trajectory.
+        cells: list[np.ndarray]
+            List to store the simulation cell geometries recorded during the trajectory.
     """
 
     atoms: Atoms
@@ -131,15 +135,18 @@ class TrajectoryObserver:
 
     def get_slice(self, sl: slice) -> TrajectoryObserver:
         """
-        This method returns a TrajectoryObserver object containing subsets of information derived from the provided
-        slice object.
+        Gets a sliced view of the trajectory data encapsulated within a new TrajectoryObserver
+        object, based on the provided slice. This method extracts the corresponding segment of
+        the trajectory data for all relevant attributes and returns a new TrajectoryObserver
+        object containing the sliced values.
 
-        Parameters:
-            sl: slice - The slice object indicating which subset of data to extract from the original data.
+        Args:
+            sl (slice): The slice object specifying the indices to extract from the trajectory
+                data.
 
-        Return:
-            TrajectoryObserver - A new TrajectoryObserver object containing the subset of data as specified by the
-            slice.
+        Returns:
+            TrajectoryObserver: A new TrajectoryObserver instance containing the sliced
+                trajectory data.
         """
         return TrajectoryObserver(
             self.atoms,
