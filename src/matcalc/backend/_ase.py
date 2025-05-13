@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.filters import Filter
+    from numpy.typing import NDArray
     from pymatgen.core.structure import Structure
 
 
@@ -115,10 +116,10 @@ class TrajectoryObserver:
     potential_energies: list[float] = field(default_factory=list)
     kinetic_energies: list[float] = field(default_factory=list)
     total_energies: list[float] = field(default_factory=list)
-    forces: list[np.ndarray] = field(default_factory=list)
-    stresses: list[np.ndarray] = field(default_factory=list)
-    atom_positions: list[np.ndarray] = field(default_factory=list)
-    cells: list[np.ndarray] = field(default_factory=list)
+    forces: list[NDArray[np.float64]] = field(default_factory=list)
+    stresses: list[NDArray[np.float64]] = field(default_factory=list)
+    atom_positions: list[NDArray[np.float64]] = field(default_factory=list)
+    cells: list[NDArray[np.float64]] = field(default_factory=list)
 
     def __call__(self) -> None:
         """The logic for saving the properties of an Atoms during the relaxation."""
