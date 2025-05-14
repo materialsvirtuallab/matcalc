@@ -18,13 +18,14 @@ from ase.optimize.optimize import Optimizer
 
 from matcalc.utils import to_ase_atoms, to_pmg_structure
 
-from ._base import PESResult
+from ._base import SimulationResult
 
 if TYPE_CHECKING:
     import numpy as np
     from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.filters import Filter
+    from numpy.typing import NDArray
     from pymatgen.core.structure import Structure
 
 
@@ -86,41 +87,78 @@ def get_ase_optimizer(optimizer: str | Optimizer) -> Optimizer:
 @dataclass
 class TrajectoryObserver:
     """
-    Class for observing and recording the properties of an atomic structure during relaxation.
+    Handles the observation and tracking of the trajectory-related properties of an Atoms object.
 
-    The `TrajectoryObserver` class is designed to track and store the atomic properties like
-    energies, forces, stresses, atom positions, and cell structure of an atomic system
-    represented by an `Atoms` object. It provides functionality to save recorded data
-    to a file for further analysis or usage.
+    The class captures and stores various physical properties of an Atoms object during relaxation steps
+    or a simulation. It allows for the extraction of property snapshots, slicing trajectory data,
+    and saving the stored data to a file for further analysis or reuse.
 
-    :ivar atoms: The atomic structure being observed.
-    :type atoms: Atoms
-    :ivar energies: List of potential energy values of the atoms during relaxation.
-    :type energies: list[float]
-    :ivar forces: List of force arrays recorded for the atoms during relaxation.
-    :type forces: list[np.ndarray]
-    :ivar stresses: List of stress tensors recorded for the atoms during relaxation.
-    :type stresses: list[np.ndarray]
-    :ivar atom_positions: List of atomic positions recorded during relaxation.
-    :type atom_positions: list[np.ndarray]
-    :ivar cells: List of unit cell arrays recorded during relaxation.
-    :type cells: list[np.ndarray]
+    Attributes:
+        atoms: Atoms
+            The instance of Atoms to observe and track properties for.
+        potential_energies: list[float]
+            List to store the potential energies recorded during the trajectory.
+        kinetic_energies: list[float]
+            List to store the kinetic energies recorded during the trajectory.
+        total_energies: list[float]
+            List to store the total energies recorded during the trajectory.
+        forces: list[np.ndarray]
+            List to store the atomic forces measured during the trajectory.
+        stresses: list[np.ndarray]
+            List to store the stress tensors recorded during the trajectory.
+        atom_positions: list[np.ndarray]
+            List to store the atomic positions recorded during the trajectory.
+        cells: list[np.ndarray]
+            List to store the simulation cell geometries recorded during the trajectory.
     """
 
     atoms: Atoms
-    energies: list[float] = field(default_factory=list)
-    forces: list[np.ndarray] = field(default_factory=list)
-    stresses: list[np.ndarray] = field(default_factory=list)
-    atom_positions: list[np.ndarray] = field(default_factory=list)
-    cells: list[np.ndarray] = field(default_factory=list)
+    potential_energies: list[float] = field(default_factory=list)
+    kinetic_energies: list[float] = field(default_factory=list)
+    total_energies: list[float] = field(default_factory=list)
+    forces: list[NDArray[np.float64]] = field(default_factory=list)
+    stresses: list[NDArray[np.float64]] = field(default_factory=list)
+    atom_positions: list[NDArray[np.float64]] = field(default_factory=list)
+    cells: list[NDArray[np.float64]] = field(default_factory=list)
 
     def __call__(self) -> None:
         """The logic for saving the properties of an Atoms during the relaxation."""
-        self.energies.append(float(self.atoms.get_potential_energy()))
+        self.potential_energies.append(float(self.atoms.get_potential_energy()))
+        self.kinetic_energies.append(float(self.atoms.get_kinetic_energy()))
+        self.total_energies.append(float(self.atoms.get_total_energy()))
         self.forces.append(self.atoms.get_forces())
         self.stresses.append(self.atoms.get_stress())
         self.atom_positions.append(self.atoms.get_positions())
         self.cells.append(self.atoms.get_cell()[:])
+
+    def __len__(self) -> int:
+        return len(self.total_energies)
+
+    def get_slice(self, sl: slice) -> TrajectoryObserver:
+        """
+        Gets a sliced view of the trajectory data encapsulated within a new TrajectoryObserver
+        object, based on the provided slice. This method extracts the corresponding segment of
+        the trajectory data for all relevant attributes and returns a new TrajectoryObserver
+        object containing the sliced values.
+
+        Args:
+            sl (slice): The slice object specifying the indices to extract from the trajectory
+                data.
+
+        Returns:
+            TrajectoryObserver: A new TrajectoryObserver instance containing the sliced
+                trajectory data.
+        """
+        return TrajectoryObserver(
+            self.atoms,
+            self.potential_energies[sl],
+            self.kinetic_energies[sl],
+            self.total_energies[sl],
+            self.forces[sl],
+            self.stresses[sl],
+            self.atom_positions[sl],
+            self.cells[sl],
+        )
 
     def save(self, filename: str) -> None:
         """Save the trajectory to file.
@@ -129,7 +167,9 @@ class TrajectoryObserver:
             filename (str): filename to save the trajectory.
         """
         out = {
-            "energy": self.energies,
+            "potential_energies": self.potential_energies,
+            "kinetic_energies": self.kinetic_energies,
+            "total_energies": self.total_energies,
             "forces": self.forces,
             "stresses": self.stresses,
             "atom_positions": self.atom_positions,
@@ -152,7 +192,7 @@ def run_ase(
     interval: int = 1,
     fmax: float = 0.1,
     cell_filter: Filter = FrechetCellFilter,  # type:ignore[assignment]
-) -> PESResult:
+) -> SimulationResult:
     """
     Run ASE static calculation using the given structure and calculator.
 
@@ -179,8 +219,20 @@ def run_ase(
                 obs.save(traj_file)
         if relax_cell:
             atoms = atoms.atoms  # type:ignore[attr-defined]
-        return PESResult(to_pmg_structure(atoms), obs.energies[-1], obs.forces[-1], obs.stresses[-1])
+        return SimulationResult(
+            to_pmg_structure(atoms),
+            obs.potential_energies[-1],
+            obs.kinetic_energies[-1],
+            obs.total_energies[-1],
+            obs.forces[-1],
+            obs.stresses[-1],
+        )
 
-    return PESResult(
-        to_pmg_structure(structure), atoms.get_potential_energy(), atoms.get_forces(), atoms.get_stress(voigt=False)
+    return SimulationResult(
+        to_pmg_structure(structure),
+        atoms.get_potential_energy(),
+        atoms.get_kinetic_energy(),
+        atoms.get_total_energy(),
+        atoms.get_forces(),
+        atoms.get_stress(voigt=False),
     )

@@ -32,52 +32,61 @@ class PropCalc(abc.ABC):
     @property
     def calculator(self) -> Calculator:
         """
-        This method returns the Calculator object associated with the current instance.
+        Provides access to the `Calculator` instance used internally.
 
-        Parameters:
-            None
+        This property retrieves an instance of the `Calculator` class, which is
+        associated with the current object and utilized internally for
+        performing operations or calculations. The property ensures encapsulation
+        and controlled access to the underlying calculator.
 
         Returns:
-            Calculator: The Calculator object associated with the current instance.
+            Calculator: The internal `Calculator` instance.
         """
         return self._pes_calculator
 
     @calculator.setter
     def calculator(self, val: str | Calculator) -> None:
         """
-        Set the calculator for PES calculation.
+        Sets the calculator property for the current object. If a string is provided, it
+        loads the universal PESCalculator using the given value. Otherwise, it sets
+        the provided Calculator instance.
 
         Parameters:
-            val (str | Calculator): A string path to load a PESCalculator or a PESCalculator object.
+            val (str | Calculator): The new value to assign to the calculator property.
+            It can either be a string representing a PESCalculator configuration or an
+            existing Calculator object.
 
-        Return:
+        Returns:
             None
 
+        Exceptions:
+            None
         """
         self._pes_calculator = PESCalculator.load_universal(val) if isinstance(val, str) else val
 
     @abc.abstractmethod
     def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict[str, Any]:
         """
-        Abstract method to calculate and return a standardized format of structural data.
+        Abstract method to calculate and process a given structure.
 
-        This method processes input structural data, which could either be a dictionary
-        or a pymatgen Structure object, and returns a dictionary representation. If a
-        dictionary is provided, it must include either the key ``final_structure`` or
-        ``structure``. For a pymatgen Structure input, it will be converted to a dictionary
-        with the key ``final_structure``. To support chaining, a super() call should be made
-        by subclasses to ensure that the input dictionary is standardized.
+        Processes a provided structure in the form of a pymatgen `Structure`, ASE `Atoms`,
+        or a dictionary with specific keys, and returns a processed dictionary. If the input
+        structure is a dictionary, it must contain the key `final_structure` or `structure`;
+        otherwise, a `ValueError` is raised. The returned dictionary includes the key
+        `final_structure` pointing to the provided or derived structure.
 
-        :param structure: A pymatgen Structure object or a dictionary containing structural
-            data with keys such as ``final_structure`` or ``structure``.
-        :type structure: Structure | dict[str, Any]
+        Args:
+            structure: A `Structure`, `Atoms`, or `dict` containing structural data to be
+                processed. If a dictionary is provided, it must include either `final_structure`
+                or `structure` keys.
 
-        :return: A dictionary with the key ``final_structure`` mapping to the corresponding
-            structural data.
-        :rtype: dict[str, Any]
+        Returns:
+            A dictionary with the key `final_structure`, representing the provided structure
+            or the structure derived from the dictionary input.
 
-        :raises ValueError: If the input dictionary does not include the required keys
-            ``final_structure`` or ``structure``.
+        Raises:
+            ValueError: If the provided dictionary does not contain the required keys `final_structure`
+                or `structure`.
         """
         if isinstance(structure, dict):
             if "final_structure" in structure:
@@ -97,31 +106,35 @@ class PropCalc(abc.ABC):
         n_jobs: None | int = None,
         allow_errors: bool = False,  # noqa: FBT001,FBT002
         **kwargs: Any,
-    ) -> Generator[dict | None]:
+    ) -> Generator[dict | None, None, None]:
         """
-        Calculate properties for multiple structures concurrently.
+        Calculates multiple structures in parallel with optional error tolerance.
 
-        This method leverages parallel processing to compute properties for a
-        given sequence of structures. It uses the `joblib.Parallel` library to
-        support multi-job execution and manage error handling behavior based
-        on user configuration.
+        This method processes a sequence of structures, allowing them to be calculated in
+        parallel. It offers the ability to handle errors on a per-structure basis. If error
+        tolerance is enabled, calculation failures for individual structures result in returning
+        `None` for those structures, without raising exceptions.
 
-        :param structures: A sequence of `Structure` or `Atoms` objects or dictionaries
-            representing the input structures to be processed. Each entry in
-            the sequence is processed independently.
-        :param n_jobs: The number of jobs to run in parallel. If set to None,
-            joblib will determine the optimal number of jobs based on the
-            system's CPU configuration.
-        :param allow_errors: A boolean flag indicating whether to tolerate
-            exceptions during processing. When set to True, any failed
-            calculation will result in a `None` value for that structure
-            instead of raising an exception.
-        :param kwargs: Additional keyword arguments passed directly to
-            `joblib.Parallel`, which allows customization of parallel
-            processing behavior.
-        :return: A generator yielding dictionaries with computed properties
-            for each structure or `None` if an error occurred (depending on
-            the `allow_errors` flag).
+        Args:
+            structures (Sequence[Structure | dict[str, Any] | Atoms]): A sequence of structures
+                to be processed. Each structure can be represented as `Structure`, a dictionary
+                containing structure-related data, or `Atoms`.
+            n_jobs (None | int, optional): The number of jobs to use for parallel processing. If
+                `None`, the default parallelism settings of the `Parallel` utility will be used.
+                Defaults to `None`.
+            allow_errors (bool, optional): If `True`, exceptions encountered during the
+                calculation of a structure will be caught, and `None` will be returned for that
+                structure. If `False`, the exception is raised. Defaults to `False`.
+            **kwargs (Any): Additional keyword arguments to pass to the `Parallel` utility.
+
+        Returns:
+            Generator[dict | None, None, None]: A generator that yields the results of the
+                calculations for the input structures. If an exception occurs and `allow_errors`
+                is `True`, `None` will be yielded for the corresponding structure.
+
+        Raises:
+            Exception: If any error occurs during the calculation of a structure and
+                `allow_errors` is `False`, the exception will be raised.
         """
         parallel = Parallel(n_jobs=n_jobs, return_as="generator", **kwargs)
 
@@ -176,7 +189,7 @@ class ChainedCalc(PropCalc):
         n_jobs: None | int = None,
         allow_errors: bool = False,  # noqa: FBT001,FBT002
         **kwargs: Any,
-    ) -> Generator[dict | None]:
+    ) -> Generator[dict | None, None, None]:
         """Runs the sequence of PropCalc on many structures.
 
         Args:

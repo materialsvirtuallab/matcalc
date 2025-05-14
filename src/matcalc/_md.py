@@ -17,6 +17,7 @@ from ase.md.verlet import VelocityVerlet
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
+from .backend._ase import TrajectoryObserver
 from .utils import to_ase_atoms
 
 if TYPE_CHECKING:
@@ -72,7 +73,7 @@ class MDCalc(PropCalc):
         relax_structure: bool = True,
         fmax: float = 0.1,
         optimizer: str = "FIRE",
-        frames: int = 10,
+        frames: int | None = None,
         relax_calc_kwargs: dict | None = None,
     ) -> None:
         """
@@ -105,7 +106,8 @@ class MDCalc(PropCalc):
             relax_structure (bool): Whether to relax the input structure before MD simulation. Default to True.
             fmax (float): Maximum force tolerance for structure relaxation (in eV/Å). Default to 0.1.
             optimizer (str): Optimizer used for structure relaxation. Default to "FIRE".
-            frames (int): Number of MD frames for analysis. Default to 10.
+            frames (int): Number of MD frames for analysis. Default to None, which means all frames will be
+            returned, i.e., frames = steps.
             relax_calc_kwargs (dict | None): Additional keyword arguments for the relaxation calculation.
                 Default to None.
         """
@@ -131,7 +133,7 @@ class MDCalc(PropCalc):
         self.relax_structure = relax_structure
         self.fmax = fmax
         self.optimizer = optimizer
-        self.frames = frames
+        self.frames = frames if frames is not None else self.steps
         self.relax_calc_kwargs = relax_calc_kwargs
 
     def _initialize_md(self, atoms: Atoms) -> Any:
@@ -151,7 +153,7 @@ class MDCalc(PropCalc):
         taup = self.taup if self.taup is not None else 1000 * self.timestep * units.fs
         mask = self.mask if self.mask is not None else np.array([(1, 0, 0), (0, 1, 0), (0, 0, 1)])
         external_stress = self.external_stress if self.external_stress is not None else 0.0
-        md: Any = None
+        md: Any
 
         if self.ensemble.lower() == "nve":
             md = VelocityVerlet(
@@ -267,8 +269,8 @@ class MDCalc(PropCalc):
         else:
             raise ValueError(
                 "The specified ensemble is not supported, choose from 'nve', 'nvt',"
-                "'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
-                "'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'"
+                " 'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
+                " 'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'."
             )
         return md
 
@@ -295,7 +297,7 @@ class MDCalc(PropCalc):
             ]
             atoms.set_cell(new_basis, scale_atoms=True)
 
-    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict:
+    def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict[str, Any]:
         """
         Performs the MD simulation calculation for the input structure. Prior to generating initial velocities,
         this method calls the superclass's calc method for preprocessing and optionally relaxes the structure.
@@ -342,24 +344,21 @@ class MDCalc(PropCalc):
         # Initialize the molecular dynamics (MD) simulation and set up the simulation parameters.
         md = self._initialize_md(atoms)
 
-        # Create a list to record the state of atoms at each simulation step.
-        traj = []
-
         # Attach a callback to the MD simulation to record the atoms' state at intervals defined by self.loginterval.
-        md.attach(lambda atoms: traj.append(atoms), interval=self.loginterval, atoms=atoms)
+        traj = TrajectoryObserver(atoms)
+        md.attach(traj, interval=self.loginterval)
 
         # Run the MD simulation for the specified number of steps.
         md.run(self.steps)
 
-        # Select the last 'self.frames' frames from the trajectory for further analysis.
-        traj = traj[-self.frames :]
+        traj = traj.get_slice(slice(-self.frames, len(traj), 1))
 
         # Calculate the average potential energy over the selected frames.
-        energy_pot = sum(frame.get_potential_energy() for frame in traj) / len(traj)
+        energy_pot = sum(traj.potential_energies) / self.frames
         # Calculate the average kinetic energy over the selected frames.
-        energy_kin = sum(frame.get_kinetic_energy() for frame in traj) / len(traj)
+        energy_kin = sum(traj.kinetic_energies) / self.frames
         # Calculate the average total energy (potential + kinetic) over the selected frames.
-        energy_tot = sum(frame.get_total_energy() for frame in traj) / len(traj)
+        energy_tot = sum(traj.total_energies) / self.frames
 
         # Update the result dictionary with the simulation trajectory and computed energy.
         result |= {

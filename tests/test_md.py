@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
+import numpy as np
 import pytest
 
 from matcalc import MDCalc
@@ -64,6 +65,11 @@ def test_md_calc(
 
     assert results["total_energy"] == pytest.approx(expected_energy, rel=1e-1)
 
+    energies = np.array(results["trajectory"].total_energies)
+
+    if ensemble != "nve":
+        assert not np.allclose(energies - energies[0], 0, atol=1e-9), f"Energies are too close for {ensemble}"
+
     assert len(results["trajectory"]) == 5
 
     # Verify that the log file and trajectory file have been created
@@ -82,7 +88,7 @@ def test_md_atoms(
         temperature=300,
         taut=0.1,
         taup=0.1,
-        steps=1,
+        steps=10,
         frames=5,
         compressibility_au=1,
     )
@@ -95,8 +101,8 @@ def test_invalid_ensemble(Si: Structure, matpes_calculator: PESCalculator) -> No
     with pytest.raises(
         ValueError,
         match="The specified ensemble is not supported, choose from 'nve', 'nvt',"
-        "'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
-        "'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'",
+        " 'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
+        " 'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'.",
     ):
         MDCalc(
             calculator=matpes_calculator,

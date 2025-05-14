@@ -20,7 +20,7 @@ import os
 from ase.mep import NEBTools
 from pymatgen.ext.matproj import MPRester
 
-from matcalc import NEBCalc, RelaxCalc, load_up
+from matcalc import NEBCalc, RelaxCalc, load_fp
 
 mpr = MPRester()
 
@@ -58,7 +58,7 @@ s_LFPO.lattice.abc, s_LFPO.formula
 
 
 ```python
-model = load_up("M3GNet-MP-2021.2.8-DIRECT-PES")
+model = load_fp("M3GNet-MP-2021.2.8-DIRECT-PES")
 ```
 
 

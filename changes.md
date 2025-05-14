@@ -6,6 +6,10 @@ nav_order: 2
 
 # Change Log
 
+## v0.4.1
+- Bug fix for bad trajectory snapshotting in MDCalc.
+- Beta LAMMPSMDCalc.
+
 ## v0.4.0
 - All PropCalcs now support ASE Atoms as inputs, as well as pymatgen Structures.
 - Added MDCalc class for molecular dynamics simulations. (@rul048)
@@ -27,7 +31,7 @@ nav_order: 2
 
 ## v0.2.2
 - Added ChainedCalc helper class to performed chaining of PropCalcs more easily.
-- Added matcalc.load_up alias for easier loading of universal MLIPs.
+- Added matcalc.load_fp alias for easier loading of universal MLIPs.
 
 ## v0.2.0
 - Major new feature: Most PropCalc now supports chaining. This allows someone to obtain multiple properties at once.

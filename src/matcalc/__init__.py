@@ -13,6 +13,7 @@ from ._base import ChainedCalc, PropCalc
 from ._elasticity import ElasticityCalc
 from ._eos import EOSCalc
 from ._fourphonon import FourPhononCalc
+from ._lammps import LAMMPSMDCalc
 from ._md import MDCalc
 from ._neb import NEBCalc
 from ._pheasy import PheasyCalc
@@ -27,3 +28,4 @@ from .utils import UNIVERSAL_CALCULATORS, PESCalculator
 
 # Provide an alias for loading calculators quickly.
 load_up = PESCalculator.load_universal
+load_fp = PESCalculator.load_universal
