@@ -185,7 +185,7 @@ class LAMMPSMDCalc(PropCalc):
             "trajfile": self.trajfile,
             "gnnp_type": self.gnnp_type,
             "model_name": self.model_name,
-            "symbol_set": " ".join(structure_in.symbol_set),
+            "symbol_set": " ".join(structure_in.composition.as_dict()),
             "temperature": self.temperature,
             "timestep": self.timestep,
             "steps": self.steps,
