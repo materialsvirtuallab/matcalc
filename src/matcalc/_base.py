@@ -32,30 +32,34 @@ class PropCalc(abc.ABC):
     @property
     def calculator(self) -> Calculator:
         """
-        This method returns the Calculator object associated with the current instance.
+        Provides access to the `Calculator` instance used internally.
 
-        Parameters:
-            None
+        This property retrieves an instance of the `Calculator` class, which is
+        associated with the current object and utilized internally for
+        performing operations or calculations. The property ensures encapsulation
+        and controlled access to the underlying calculator.
 
         Returns:
-            Calculator: The Calculator object associated with the current instance.
+            Calculator: The internal `Calculator` instance.
         """
         return self._pes_calculator
 
     @calculator.setter
     def calculator(self, val: str | Calculator) -> None:
         """
-        The `calculator` setter allows assigning a PESCalculator instance or a file path to load a universal
-        PESCalculator.
+        Sets the calculator property for the current object. If a string is provided, it
+        loads the universal PESCalculator using the given value. Otherwise, it sets
+        the provided Calculator instance.
 
-        Attributes:
-            _pes_calculator (PESCalculator): An instance of the PESCalculator used for processing.
-
-        Args:
-            val (str | Calculator): A file path in string format to load a universal PESCalculator or an
-                                     existing instance of a Calculator.
+        Parameters:
+            val (str | Calculator): The new value to assign to the calculator property.
+            It can either be a string representing a PESCalculator configuration or an
+            existing Calculator object.
 
         Returns:
+            None
+
+        Exceptions:
             None
         """
         self._pes_calculator = PESCalculator.load_universal(val) if isinstance(val, str) else val
@@ -63,25 +67,26 @@ class PropCalc(abc.ABC):
     @abc.abstractmethod
     def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict[str, Any]:
         """
-        This is an abstract method intended to calculate and return a dictionary
-        based on the provided structural data. The method supports multiple input
-        types, including a `Structure`, `Atoms`, or a dictionary containing specific
-        keys. The behavior of the method changes depending on the structure of the
-        input to ensure compatibility and consistent output.
+        Abstract method to calculate and process a given structure.
+
+        Processes a provided structure in the form of a pymatgen `Structure`, ASE `Atoms`,
+        or a dictionary with specific keys, and returns a processed dictionary. If the input
+        structure is a dictionary, it must contain the key `final_structure` or `structure`;
+        otherwise, a `ValueError` is raised. The returned dictionary includes the key
+        `final_structure` pointing to the provided or derived structure.
 
         Args:
-            structure (Structure | Atoms | dict[str, Any]): Input structural data that may
-                either be a `Structure` or `Atoms` object, or a dictionary containing information
-                related to the structure.
+            structure: A `Structure`, `Atoms`, or `dict` containing structural data to be
+                processed. If a dictionary is provided, it must include either `final_structure`
+                or `structure` keys.
 
         Returns:
-            dict[str, Any]: A dictionary containing the final structure data. If the input is a
-                dictionary containing a `structure` or `final_structure` key, it enhances and
-                returns the given data.
+            A dictionary with the key `final_structure`, representing the provided structure
+            or the structure derived from the dictionary input.
 
         Raises:
-            ValueError: Raised if the input dictionary does not contain either "structure" or
-                "final_structure" keys.
+            ValueError: If the provided dictionary does not contain the required keys `final_structure`
+                or `structure`.
         """
         if isinstance(structure, dict):
             if "final_structure" in structure:
