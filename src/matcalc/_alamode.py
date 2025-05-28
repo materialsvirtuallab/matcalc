@@ -507,6 +507,7 @@ class AlamodeCalc(PropCalc):
                 disp = supercell.get_positions() - phonon.supercell.get_positions()
                 disp_array.append(np.array(disp))
             disp_array = np.array(disp_array)
+            num_anh = disp_array.shape[0]
 
             output_file = "DFSET_anharmonic"
             logger.info("Saving disp_array and phonon.forces in files...")
@@ -527,21 +528,32 @@ class AlamodeCalc(PropCalc):
                 f.write(f"  NAT = {total_atoms}\n")
                 f.write(f"  NKD = {len(elements)}\n")
                 f.write("  KD = " + " ".join(elements) + "\n")
+                f.write("  FC3_SHENGBTE=1\n")
+                f.write("  FC4_SHENGBTE=1\n")
                 f.write("/\n\n")
 
                 # &INTERACTION
                 f.write("&interaction\n")
-                f.write("  NORDER = 1\n")
+                f.write("  NORDER = 3\n")
+                f.write("  NBODY = 2 3 3\n")
                 f.write("/\n\n")
 
                 # &CUTOFF
                 f.write("&cutoff\n")
-                f.write("  *-*  18\n")
+                f.write("  *-* 18 10 7.5\n")
                 f.write("/\n\n")
 
                 # &OPTIMIZE
                 f.write("&optimize\n")
+                f.write(f"  NDATA ={num_anh}\n")
+                f.write(" LMODEL = enet\n")
                 f.write("  DFSET = DFSET_anharmonic\n")
+                f.write("  FC2XML = EuZnAs_harmonic.xml\n")
+                f.write("  ICONST = 11\n")
+                f.write("  L1_ALPHA = 3.82925e-06\n")
+                f.write("  STANDARDIZE = 1\n")
+                f.write("  CONV_TOL = 1.0e-8\n")
+
                 f.write("/\n\n")
 
                 # &CELL
@@ -557,7 +569,8 @@ class AlamodeCalc(PropCalc):
                     f.write("  {:d}   {:.16f}   {:.16f}   {:.16f}\n".format(*pos))
                 f.write("/\n")
 
-        subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode_anhar.in"], check=True)
+        #subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode_anhar.in"], check=True)
+        subprocess.run("mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode_anhar.in", shell=True, check=False)
 
 
 
@@ -638,3 +651,4 @@ def _write_fc2_phonopy(map_p2s, fc2_compact, filename="FORCE_CONSTANTS"):
                     for l in range(3):
                         f.write(f"{fc2_compact[i, j, k, l]:20.15f}")
                     f.write("\n")
+
