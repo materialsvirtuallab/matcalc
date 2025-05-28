@@ -444,23 +444,13 @@ class AlamodeCalc(PropCalc):
                 f.write("  {:d}   {:.16f}   {:.16f}   {:.16f}\n".format(*pos))
             f.write("/\n")
 
-<<<<<<< HEAD
-            #subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
-            #subprocess.run(["mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
+        #subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
+        #subprocess.run(["mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
         subprocess.run("mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in", shell=True)
 
         map_p2s, fc2_compact = _get_forceconstants_xml("EuZnAs_harmonic.xml")
         _write_fc2_phonopy(map_p2s, fc2_compact, filename="FORCE_CONSTANTS")
-
-
-
-
-=======
-            # subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
-            # subprocess.run(["mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
-        subprocess.run("mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in", shell=True, check=False)
->>>>>>> 00d86a9999b3773b750b95bf247a9af86449f475
-
+        
         logger.info("...Finished running Alamode and higher-order FCs are ready...")
 
         return result | {"phonon": phonon}
@@ -480,7 +470,7 @@ def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:
     atoms = AseAtomsAdaptor.get_atoms(struct)
     atoms.calc = calculator
     return atoms.get_forces()
-<<<<<<< HEAD
+
 
 def _parse_xml(fname_xml):
     try:
@@ -537,7 +527,4 @@ def _write_fc2_phonopy(map_p2s, fc2_compact, filename="FORCE_CONSTANTS"):
                     for l in range(3):
                         f.write("{:20.15f}".format(fc2_compact[i, j, k, l]))
                     f.write("\n")
-
-
-=======
->>>>>>> 00d86a9999b3773b750b95bf247a9af86449f475
+                    
