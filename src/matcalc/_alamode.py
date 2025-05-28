@@ -452,6 +452,11 @@ class AlamodeCalc(PropCalc):
             #subprocess.run(["mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
         subprocess.run("mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in", shell=True)
 
+        map_p2s, fc2_compact = _get_forceconstants_xml("EuZnAs_harmonic.xml")
+        _write_fc2_phonopy(map_p2s, fc2_compact, filename="FORCE_CONSTANTS")
+
+
+
 
 
         logger.info("...Finished running Alamode and higher-order FCs are ready...")
@@ -473,4 +478,61 @@ def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:
     atoms = AseAtomsAdaptor.get_atoms(struct)
     atoms.calc = calculator
     return atoms.get_forces()
+
+def _parse_xml(fname_xml):
+    try:
+        # Attempt to parse the XML file directly with lxml
+        tree = etree.parse(fname_xml)
+        return tree
+    except etree.XMLSyntaxError:
+        # If a parsing error occurs with lxml,
+        # attempt to repair by re-reading the file with the 'recover' parser
+        repair_parser = etree.XMLParser(recover=True)
+        tree = etree.parse(fname_xml, parser=repair_parser)
+        return tree
+
+def _get_forceconstants_xml(fname_xml):
+
+    xml = _parse_xml(fname_xml)
+    root = xml.getroot()
+
+    natom_super = int(root.find('Structure/NumberOfAtoms').text)
+    ntrans = int(root.find('Symmetry/NumberOfTranslations').text)
+    natom_prim = natom_super // ntrans
+
+    # parse mapping table
+    map_p2s = np.zeros((ntrans, natom_prim), dtype=int)
+    for elems in root.findall('Symmetry/Translations/map'):
+        itran = int(elems.get('tran')) - 1
+        iatom = int(elems.get('atom')) - 1
+        map_p2s[itran, iatom] = int(elems.text) - 1
+
+
+    # parse harmonic force constants
+    fc2_compact = np.zeros((natom_prim, natom_super, 3, 3), dtype=float)
+
+    for elems in root.findall('ForceConstants/HARMONIC/FC2'):
+        atom1, xyz1 = [int(t)-1 for t in elems.get('pair1').split()]
+        atom2, xyz2, icell2 = [int(t)-1 for t in elems.get('pair2').split()]
+        fcsval = float(elems.text)
+
+        fc2_compact[atom1, atom2, xyz1, xyz2] += fcsval
+
+    fc2_compact *= Rydberg / (Bohr**2)
+
+    return map_p2s, fc2_compact
+
+def _write_fc2_phonopy(map_p2s, fc2_compact, filename="FORCE_CONSTANTS"):
+    natom_prim, natom_super = fc2_compact.shape[:2]
+
+    with open(filename, 'w') as f:
+        f.write("{:5d} {:5d}\n".format(natom_prim, natom_super))
+        for i in range(natom_prim):
+            for j in range(natom_super):
+                f.write("{:5d} {:5d}\n".format(map_p2s[0, i] + 1, j + 1))
+                for k in range(3):
+                    for l in range(3):
+                        f.write("{:20.15f}".format(fc2_compact[i, j, k, l]))
+                    f.write("\n")
+
 
