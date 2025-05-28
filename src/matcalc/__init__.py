@@ -19,6 +19,7 @@ from ._neb import NEBCalc
 from ._pheasy import PheasyCalc
 from ._phonon import PhononCalc
 from ._phonon3 import Phonon3Calc
+from ._alamode import AlamodeCalc
 from ._qha import QHACalc
 from ._relaxation import RelaxCalc
 from ._stability import EnergeticsCalc
