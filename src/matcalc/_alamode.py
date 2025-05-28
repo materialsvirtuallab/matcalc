@@ -481,10 +481,88 @@ class AlamodeCalc(PropCalc):
         #write_force_constants_to_hdf5(fc_full,filename='force_constants_300K.hdf5') # change to the filename what you want
         write_FORCE_CONSTANTS(force_constants=fc_full, filename='FORCE_CONSTANTS_2ND') # the same as the above comment
 
+        if self.calc_anharmonic:
+            logger.info("...Start to Calculate anharmonic force constants using LASSO in pheasy...")
+
+            if self.num_anharmonic_snapshots is None:
+                phonon.generate_displacements(distance=self.atom_disp_anhar)
+                self.num_anharmonic_snapshots = len(phonon.displacements) * 10
+                phonon.generate_displacements(
+                    distance=self.atom_disp_anhar, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42
+                )
+            else:
+                phonon.generate_displacements(
+                    distance=self.atom_disp_anhar, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42
+                )
+            
+            disp_supercells = phonon.supercells_with_displacements
+            disp_array = []
+            phonon.forces = [  # type: ignore[assignment]
+                _calc_forces(self.calculator, supercell)
+                for supercell in disp_supercells  # type:ignore[union-attr]
+                if supercell is not None
+            ]
+            force_equilibrium = _calc_forces(self.calculator, phonon.supercell)
+            phonon.forces = np.array(phonon.forces) - force_equilibrium
+            for i, supercell in enumerate(disp_supercells):
+                disp = supercell.get_positions() - phonon.supercell.get_positions()
+                disp_array.append(np.array(disp))
+            disp_array = np.array(disp_array)
+
+            output_file = "DFSET_anharmonic"
+            logger.info("Saving disp_array and phonon.forces in files...")
+            with open(output_file, "w") as f:
+                for i, (disp, force) in enumerate(zip(disp_array, phonon.forces, strict=False)):
+                    f.write(f"# supercell {i + 1}\n")
+                    for d, fr in zip(disp, force, strict=False):
+                        d_bohr = d * bohr_per_angstrom
+                        fr_ryd_bohr = fr * ryd_per_ev_angstrom
+                        line = " ".join(f"{val:.8f}" for val in np.concatenate((d_bohr, fr_ryd_bohr)))
+                        f.write(line + "\n")
+            
+            with open("alamode_anhar.in", "w") as f:
+                # &GENERAL
+                f.write("&general\n")
+                f.write("  PREFIX = EuZnAs_harmonic\n")
+                f.write("  MODE = optimize\n")
+                f.write(f"  NAT = {total_atoms}\n")
+                f.write(f"  NKD = {len(elements)}\n")
+                f.write("  KD = " + " ".join(elements) + "\n")
+                f.write("/\n\n")
+
+                # &INTERACTION
+                f.write("&interaction\n")
+                f.write("  NORDER = 1\n")
+                f.write("/\n\n")
+
+                # &CUTOFF
+                f.write("&cutoff\n")
+                f.write("  *-*  18\n")
+                f.write("/\n\n")
+
+                # &OPTIMIZE
+                f.write("&optimize\n")
+                f.write("  DFSET = DFSET_anharmonic\n")
+                f.write("/\n\n")
+
+                # &CELL
+                f.write("&cell\n")
+                f.write(f"  {scaling_factor:.16f} # factor \n")
+                for vec in lattice_vectors:
+                    f.write(f"  {vec[0]:.10f}   {vec[1]:.10f}   {vec[2]:.10f}\n")
+                f.write("# cell matrix\n/\n\n")
+
+                # &POSITION
+                f.write("&position\n")
+                for pos in positions:
+                    f.write("  {:d}   {:.16f}   {:.16f}   {:.16f}\n".format(*pos))
+                f.write("/\n")
+
+            subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode_anhar.in"], check=True)
 
 
 
-        
+
         logger.info("...Finished running Alamode and higher-order FCs are ready...")
 
         return result | {"phonon": phonon}
