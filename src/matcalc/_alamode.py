@@ -3,14 +3,11 @@
 from __future__ import annotations
 
 import logging
-import pickle
 import subprocess
 from typing import TYPE_CHECKING
 
 import numpy as np
 import phonopy
-from phonopy.file_IO import parse_FORCE_CONSTANTS
-from phonopy.file_IO import write_FORCE_CONSTANTS as write_force_constants
 from phonopy.interface.vasp import write_vasp
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
@@ -359,14 +356,13 @@ class AlamodeCalc(PropCalc):
         output_file = "DFSET_harmonic"
 
         with open(output_file, "w") as f:
-            for i, (disp, force) in enumerate(zip(disp_array, phonon.forces)):
-                f.write(f"# supercell {i+1}\n")
-                for d, fr in zip(disp, force):
+            for i, (disp, force) in enumerate(zip(disp_array, phonon.forces, strict=False)):
+                f.write(f"# supercell {i + 1}\n")
+                for d, fr in zip(disp, force, strict=False):
                     d_bohr = d * bohr_per_angstrom
                     fr_ryd_bohr = fr * ryd_per_ev_angstrom
                     line = " ".join(f"{val:.8f}" for val in np.concatenate((d_bohr, fr_ryd_bohr)))
                     f.write(line + "\n")
-
 
         supercell = phonon.get_supercell()
 
@@ -385,14 +381,13 @@ class AlamodeCalc(PropCalc):
             "3D materials. npj Computational Materials 8.1 (2022): 236."
         )
 
-
-        # alamode setting 
+        # alamode setting
 
         # Define the path to your SPOSCAR file
-        sposcar_path = 'SPOSCAR'
+        sposcar_path = "SPOSCAR"
 
         # Read SPOSCAR content
-        with open(sposcar_path, 'r') as f:
+        with open(sposcar_path) as f:
             lines = f.readlines()
 
         scaling_factor = float(lines[1].strip())
@@ -402,7 +397,7 @@ class AlamodeCalc(PropCalc):
         total_atoms = sum(num_atoms)
 
         # Read atomic positions
-        position_lines = lines[8:8 + total_atoms]
+        position_lines = lines[8 : 8 + total_atoms]
         positions = []
         for element_idx, count in enumerate(num_atoms):
             for _ in range(count):
@@ -411,11 +406,11 @@ class AlamodeCalc(PropCalc):
                 positions.append([element_idx + 1] + coords)
 
         # Define namelists (manually write all to control formatting)
-        with open('alamode.in', 'w') as f:
+        with open("alamode.in", "w") as f:
             # &GENERAL
             f.write("&general\n")
-            f.write(f"  PREFIX = EuZnAs_harmonic\n")
-            f.write(f"  MODE = optimize\n")
+            f.write("  PREFIX = EuZnAs_harmonic\n")
+            f.write("  MODE = optimize\n")
             f.write(f"  NAT = {total_atoms}\n")
             f.write(f"  NKD = {len(elements)}\n")
             f.write("  KD = " + " ".join(elements) + "\n")
@@ -449,11 +444,9 @@ class AlamodeCalc(PropCalc):
                 f.write("  {:d}   {:.16f}   {:.16f}   {:.16f}\n".format(*pos))
             f.write("/\n")
 
-            #subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
-            #subprocess.run(["mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
-        subprocess.run("mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in", shell=True)
-
-
+            # subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
+            # subprocess.run(["mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
+        subprocess.run("mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in", shell=True, check=False)
 
         logger.info("...Finished running Pheasy and higher-order FCs are ready...")
 
@@ -474,4 +467,3 @@ def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:
     atoms = AseAtomsAdaptor.get_atoms(struct)
     atoms.calc = calculator
     return atoms.get_forces()
-
