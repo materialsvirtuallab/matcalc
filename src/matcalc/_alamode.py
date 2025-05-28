@@ -8,18 +8,18 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import phonopy
+from ase.units import Bohr, Rydberg
+from lxml import etree
+from phonopy.file_IO import (
+    parse_FORCE_CONSTANTS,
+    write_FORCE_CONSTANTS,
+)
+from phonopy.harmonic.force_constants import (
+    compact_fc_to_full_fc,
+)
 from phonopy.interface.vasp import write_vasp
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
-
-import sys
-from lxml import etree
-from ase.units import Rydberg, Bohr
-
-from phonopy.file_IO import parse_FORCE_SETS, parse_BORN, read_force_constants_hdf5, write_FORCE_CONSTANTS, write_force_constants_to_hdf5, parse_FORCE_CONSTANTS
-from phonopy.harmonic.force_constants import distribute_force_constants, distribute_force_constants_by_translations, \
-    compact_fc_to_full_fc
-from phonopy import Phonopy
 
 # import pymatgen libraries to determine supercell
 from pymatgen.transformations.advanced_transformations import (
@@ -460,31 +460,26 @@ class AlamodeCalc(PropCalc):
         map_p2s, fc2_compact = _get_forceconstants_xml("EuZnAs_harmonic.xml")
         _write_fc2_phonopy(map_p2s, fc2_compact, filename="FORCE_CONSTANTS")
 
-        
         primitive = phonon.primitive
 
-        #symmetry = phonon.get_symmetry()
+        # symmetry = phonon.get_symmetry()
 
-        #p2s = primitive.get_primitive_to_supercell_map()
+        # p2s = primitive.get_primitive_to_supercell_map()
 
-        #write_force_constants_to_hdf5(f,p2s_map=p2s)
+        # write_force_constants_to_hdf5(f,p2s_map=p2s)
 
-        #fc = read_force_constants_hdf5(filename="force_constants.hdf5")
-        #write_FORCE_CONSTANTS(force_constants=fc)
+        # fc = read_force_constants_hdf5(filename="force_constants.hdf5")
+        # write_FORCE_CONSTANTS(force_constants=fc)
         fc = parse_FORCE_CONSTANTS("FORCE_CONSTANTS")
 
         fc_full = compact_fc_to_full_fc(primitive, fc, log_level=0)
 
-        #print(np.shape(fc_full))
-        #print (np.shape())
+        # print(np.shape(fc_full))
+        # print (np.shape())
 
-        #write_force_constants_to_hdf5(fc_full,filename='force_constants_300K.hdf5') # change to the filename what you want
-        write_FORCE_CONSTANTS(force_constants=fc_full, filename='FORCE_CONSTANTS_2ND') # the same as the above comment
+        # write_force_constants_to_hdf5(fc_full,filename='force_constants_300K.hdf5') # change to the filename what you want
+        write_FORCE_CONSTANTS(force_constants=fc_full, filename="FORCE_CONSTANTS_2ND")  # the same as the above comment
 
-
-
-
-        
         logger.info("...Finished running Alamode and higher-order FCs are ready...")
 
         return result | {"phonon": phonon}
