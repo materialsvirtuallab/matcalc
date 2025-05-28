@@ -569,7 +569,7 @@ class AlamodeCalc(PropCalc):
                     f.write("  {:d}   {:.16f}   {:.16f}   {:.16f}\n".format(*pos))
                 f.write("/\n")
 
-        #subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode_anhar.in"], check=True)
+        # subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode_anhar.in"], check=True)
         subprocess.run("mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode_anhar.in", shell=True, check=False)
 
         logger.info("...Finished running Alamode and higher-order FCs are ready...")
@@ -648,4 +648,3 @@ def _write_fc2_phonopy(map_p2s, fc2_compact, filename="FORCE_CONSTANTS"):
                     for l in range(3):
                         f.write(f"{fc2_compact[i, j, k, l]:20.15f}")
                     f.write("\n")
-
