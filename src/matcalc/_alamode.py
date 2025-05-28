@@ -3,14 +3,11 @@
 from __future__ import annotations
 
 import logging
-import pickle
 import subprocess
 from typing import TYPE_CHECKING
 
 import numpy as np
 import phonopy
-from phonopy.file_IO import parse_FORCE_CONSTANTS
-from phonopy.file_IO import write_FORCE_CONSTANTS as write_force_constants
 from phonopy.interface.vasp import write_vasp
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
@@ -363,14 +360,13 @@ class AlamodeCalc(PropCalc):
         output_file = "DFSET_harmonic"
 
         with open(output_file, "w") as f:
-            for i, (disp, force) in enumerate(zip(disp_array, phonon.forces)):
-                f.write(f"# supercell {i+1}\n")
-                for d, fr in zip(disp, force):
+            for i, (disp, force) in enumerate(zip(disp_array, phonon.forces, strict=False)):
+                f.write(f"# supercell {i + 1}\n")
+                for d, fr in zip(disp, force, strict=False):
                     d_bohr = d * bohr_per_angstrom
                     fr_ryd_bohr = fr * ryd_per_ev_angstrom
                     line = " ".join(f"{val:.8f}" for val in np.concatenate((d_bohr, fr_ryd_bohr)))
                     f.write(line + "\n")
-
 
         supercell = phonon.get_supercell()
 
@@ -389,14 +385,13 @@ class AlamodeCalc(PropCalc):
             "3D materials. npj Computational Materials 8.1 (2022): 236."
         )
 
-
-        # alamode setting 
+        # alamode setting
 
         # Define the path to your SPOSCAR file
-        sposcar_path = 'SPOSCAR'
+        sposcar_path = "SPOSCAR"
 
         # Read SPOSCAR content
-        with open(sposcar_path, 'r') as f:
+        with open(sposcar_path) as f:
             lines = f.readlines()
 
         scaling_factor = float(lines[1].strip())
@@ -406,7 +401,7 @@ class AlamodeCalc(PropCalc):
         total_atoms = sum(num_atoms)
 
         # Read atomic positions
-        position_lines = lines[8:8 + total_atoms]
+        position_lines = lines[8 : 8 + total_atoms]
         positions = []
         for element_idx, count in enumerate(num_atoms):
             for _ in range(count):
@@ -415,11 +410,11 @@ class AlamodeCalc(PropCalc):
                 positions.append([element_idx + 1] + coords)
 
         # Define namelists (manually write all to control formatting)
-        with open('alamode.in', 'w') as f:
+        with open("alamode.in", "w") as f:
             # &GENERAL
             f.write("&general\n")
-            f.write(f"  PREFIX = EuZnAs_harmonic\n")
-            f.write(f"  MODE = optimize\n")
+            f.write("  PREFIX = EuZnAs_harmonic\n")
+            f.write("  MODE = optimize\n")
             f.write(f"  NAT = {total_atoms}\n")
             f.write(f"  NKD = {len(elements)}\n")
             f.write("  KD = " + " ".join(elements) + "\n")
@@ -453,12 +448,10 @@ class AlamodeCalc(PropCalc):
                 f.write("  {:d}   {:.16f}   {:.16f}   {:.16f}\n".format(*pos))
             f.write("/\n")
 
-        #subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
-        #subprocess.run(["mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
+            #subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
+            #subprocess.run(["mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
         subprocess.run("mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in", shell=True)
 
-        map_p2s, fc2_compact = _get_forceconstants_xml("fEuZnAs_harmonic.xml")
-        _write_fc2_phonopy(map_p2s, fc2_compact, filename="FORCE_CONSTANTS")
 
 
         logger.info("...Finished running Alamode and higher-order FCs are ready...")
@@ -480,74 +473,4 @@ def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:
     atoms = AseAtomsAdaptor.get_atoms(struct)
     atoms.calc = calculator
     return atoms.get_forces()
-
-def _parse_xml(fname_xml):
-    try:
-        # Attempt to parse the XML file directly with lxml
-        tree = etree.parse(fname_xml)
-        return tree
-    except etree.XMLSyntaxError:
-        # If a parsing error occurs with lxml,
-        # attempt to repair by re-reading the file with the 'recover' parser
-        repair_parser = etree.XMLParser(recover=True)
-        tree = etree.parse(fname_xml, parser=repair_parser)
-        return tree
-
-def _get_forceconstants_xml(fname_xml):
-
-    xml = _parse_xml(fname_xml)
-    root = xml.getroot()
-
-    natom_super = int(root.find('Structure/NumberOfAtoms').text)
-    ntrans = int(root.find('Symmetry/NumberOfTranslations').text)
-    natom_prim = natom_super // ntrans
-
-    # parse mapping table
-    map_p2s = np.zeros((ntrans, natom_prim), dtype=int)
-    for elems in root.findall('Symmetry/Translations/map'):
-        itran = int(elems.get('tran')) - 1
-        iatom = int(elems.get('atom')) - 1
-        map_p2s[itran, iatom] = int(elems.text) - 1
-
-
-    # parse harmonic force constants
-    fc2_compact = np.zeros((natom_prim, natom_super, 3, 3), dtype=float)
-
-    for elems in root.findall('ForceConstants/HARMONIC/FC2'):
-        atom1, xyz1 = [int(t)-1 for t in elems.get('pair1').split()]
-        atom2, xyz2, icell2 = [int(t)-1 for t in elems.get('pair2').split()]
-        fcsval = float(elems.text)
-
-        fc2_compact[atom1, atom2, xyz1, xyz2] += fcsval
-
-    fc2_compact *= Rydberg / (Bohr**2)
-
-    return map_p2s, fc2_compact
-
-def _print_fc2_phonopy(map_p2s, fc2_compact):
-
-    natom_prim, natom_super = fc2_compact.shape[:2]
-
-    print("{:5d} {:5d}".format(natom_prim, natom_super))
-    for i in range(natom_prim):
-        for j in range(natom_super):
-            print("{:5d} {:5d}".format(map_p2s[0,i]+1, j+1))
-            for k in range(3):
-                for l in range(3):
-                    print("{:20.15f}".format(fc2_compact[i, j, k, l]), end='')
-                print('')
-
-def _write_fc2_phonopy(map_p2s, fc2_compact, filename="FORCE_CONSTANTS"):
-    natom_prim, natom_super = fc2_compact.shape[:2]
-
-    with open(filename, 'w') as f:
-        f.write("{:5d} {:5d}\n".format(natom_prim, natom_super))
-        for i in range(natom_prim):
-            for j in range(natom_super):
-                f.write("{:5d} {:5d}\n".format(map_p2s[0, i] + 1, j + 1))
-                for k in range(3):
-                    for l in range(3):
-                        f.write("{:20.15f}".format(fc2_compact[i, j, k, l]))
-                    f.write("\n")
-
 
