@@ -12,10 +12,6 @@ from phonopy.interface.vasp import write_vasp
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
 
-import sys
-from lxml import etree
-from ase.units import Rydberg, Bohr
-
 # import pymatgen libraries to determine supercell
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
@@ -448,11 +444,9 @@ class AlamodeCalc(PropCalc):
                 f.write("  {:d}   {:.16f}   {:.16f}   {:.16f}\n".format(*pos))
             f.write("/\n")
 
-            #subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
-            #subprocess.run(["mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
-        subprocess.run("mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in", shell=True)
-
-
+            # subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
+            # subprocess.run(["mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in"], check=True)
+        subprocess.run("mpirun -n 1 /home/jzheng4/alamode/_build/alm/alm alamode.in", shell=True, check=False)
 
         logger.info("...Finished running Alamode and higher-order FCs are ready...")
 
@@ -473,4 +467,3 @@ def _calc_forces(calculator: Calculator, supercell: PhonopyAtoms) -> ArrayLike:
     atoms = AseAtomsAdaptor.get_atoms(struct)
     atoms.calc = calculator
     return atoms.get_forces()
-
