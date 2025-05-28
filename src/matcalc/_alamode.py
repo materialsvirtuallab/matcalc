@@ -493,7 +493,7 @@ class AlamodeCalc(PropCalc):
                 phonon.generate_displacements(
                     distance=self.atom_disp_anhar, number_of_snapshots=self.num_anharmonic_snapshots, random_seed=42
                 )
-            
+
             disp_supercells = phonon.supercells_with_displacements
             disp_array = []
             phonon.forces = [  # type: ignore[assignment]
@@ -518,7 +518,7 @@ class AlamodeCalc(PropCalc):
                         fr_ryd_bohr = fr * ryd_per_ev_angstrom
                         line = " ".join(f"{val:.8f}" for val in np.concatenate((d_bohr, fr_ryd_bohr)))
                         f.write(line + "\n")
-            
+
             with open("alamode_anhar.in", "w") as f:
                 # &GENERAL
                 f.write("&general\n")
@@ -558,9 +558,6 @@ class AlamodeCalc(PropCalc):
                 f.write("/\n")
 
         subprocess.run(["mpirun", "-n", "1", "/home/jzheng4/alamode/_build/alm/alm alamode_anhar.in"], check=True)
-
-
-
 
         logger.info("...Finished running Alamode and higher-order FCs are ready...")
 
