@@ -5,7 +5,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.10
+    rev: v0.11.11
     hooks:
       - id: ruff
         args: [--fix]
@@ -41,6 +41,6 @@ repos:
         args: [--drop-empty-cells, --keep-output]
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.400
+    rev: v1.1.401
     hooks:
       - id: pyright
