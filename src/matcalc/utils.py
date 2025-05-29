@@ -138,7 +138,7 @@ class PESCalculator(Calculator):
         system_changes = system_changes or all_changes
         super().calculate(atoms=atoms, properties=properties, system_changes=system_changes)
 
-        structure: Structure | IStructure = AseAtomsAdaptor.get_structure(atoms)  # type: ignore[arg-type]
+        structure: Structure | IStructure = AseAtomsAdaptor.get_structure(atoms)  # type: ignore[arg-type,assignment]
         efs_calculator = EnergyForceStress(ff_settings=self.potential)
         energy, forces, stresses = efs_calculator.calculate([structure])[0]
 
