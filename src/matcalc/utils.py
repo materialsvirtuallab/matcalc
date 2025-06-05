@@ -403,14 +403,14 @@ class PESCalculator(Calculator):
             result = MatterSimCalculator(**kwargs)
 
         elif name.lower() == "fairchem":  # pragma: no cover
-            from fairchem.core import pretrained_mlip, FAIRChemCalculator
+            from fairchem.core import FAIRChemCalculator, pretrained_mlip
 
             device = kwargs.pop("device", "cpu")
             model = kwargs.pop("model", "uma-s-1")
             task_name = kwargs.pop("task_name", "omat")
             predictor = pretrained_mlip.get_predict_unit(model, device=device)
             result = FAIRChemCalculator(predictor, task_name=task_name, **kwargs)
-            
+
         elif name.lower() == "petmad":  # pragma: no cover
             from pet_mad.calculator import PETMADCalculator
 
