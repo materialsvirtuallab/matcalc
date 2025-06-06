@@ -229,7 +229,7 @@ class LAMMPSMDCalc(PropCalc):
             lattice = snapshot.box.to_lattice()
             coords = snapshot.data[["x", "y", "z"]].to_numpy()
             species = snapshot.data["element"].tolist()
-            struct = Structure(lattice, species, coords)
+            struct = Structure(lattice, species, coords, coords_are_cartesian=True)
 
             traj.append(AseAtomsAdaptor.get_atoms(struct))
         # Select the last 'self.frames' frames from the trajectory for further analysis.
