@@ -167,6 +167,7 @@ ignore = [
     "PTH", # prefer Path to os.path
     "SIM105", # Use contextlib.suppress(OSError) instead of try-except-pass
     "TRY003",
+    "PLC0415"
 ]
 exclude = ["docs/conf.py"]
 pydocstyle.convention = "google"
