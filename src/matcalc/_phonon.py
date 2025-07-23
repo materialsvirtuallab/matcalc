@@ -203,5 +203,5 @@ class PhononCalc(PropCalc):
         if self.write_total_dos:
             phonon.auto_total_dos(write_dat=True, filename=self.write_total_dos)
         if self.write_phonon:
-            phonon.save(filename=self.write_phonon)
+            phonon.save(filename=self.write_phonon)  # type: ignore[arg-type]
         return result | {"phonon": phonon, "thermal_properties": phonon.get_thermal_properties_dict()}
