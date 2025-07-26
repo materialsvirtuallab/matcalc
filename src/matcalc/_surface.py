@@ -230,9 +230,9 @@ class SurfaceCalc(PropCalc):
                 **(self.relax_calc_kwargs or {}),
             )
             bulk_opt = relaxer.calc(structure["bulk"])
-            bulk_energy_per_atom = bulk_opt["energy"] / len(structure["final_bulk"])
+            bulk_energy_per_atom = bulk_opt["energy"] / len(bulk_opt["final_structure"])
             result_dict["bulk_energy_per_atom"] = bulk_energy_per_atom
-            result_dict["final_bulk"] = structure["final_bulk"]
+            result_dict["final_bulk"] = bulk_opt["final_structure"]
 
         slab = structure["slab"]
         relaxer = RelaxCalc(
