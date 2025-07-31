@@ -6,7 +6,7 @@ nav_order: 2
 
 # Change Log
 
-## 0.4.2
+## v0.4.2
 - Bug fix for surface calculations (@computron).
 - Update OCPCalculator with the newer FairChemCalculator (@atulcthakur)
 
