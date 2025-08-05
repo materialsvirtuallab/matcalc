@@ -19,16 +19,16 @@ if TYPE_CHECKING:
 @pytest.mark.parametrize(
     ("ensemble", "expected_energy"),
     [
-        ("nve", -10.74606),
-        ("nvt", -10.81289),
-        ("nvt_berendsen", -10.73112),
-        ("nvt_langevin", -10.78238),
-        ("nvt_andersen", -10.82750),
-        ("nvt_bussi", -10.77756),
-        ("npt_inhomogeneous", -10.74737),
-        ("npt_berendsen", -10.74714),
-        ("npt_nose_hoover", -10.86120),
-        ("npt_isotropic_mtk", -10.76271),
+        ("nve", -10.839367595419139),
+        ("nvt", -10.752140577997002),
+        ("nvt_berendsen", -10.79344712397928),
+        ("nvt_langevin", -10.719885845311552),
+        ("nvt_andersen", -10.838280482248559),
+        ("nvt_bussi", -10.83345229703825),
+        ("npt_inhomogeneous", -10.778117238180538),
+        ("npt_berendsen", -10.797141692994748),
+        ("npt_nose_hoover", -10.773028687488921),
+        ("npt_isotropic_mtk", -10.817933454243002),
     ],
 )
 def test_md_calc(
@@ -62,7 +62,7 @@ def test_md_calc(
     assert "kinetic_energy" in results
     assert "total_energy" in results
 
-    assert results["total_energy"] == pytest.approx(expected_energy, rel=1e-1)
+    assert results["total_energy"] == pytest.approx(expected_energy, rel=1e-2)
 
     energies = np.array(results["trajectory"].total_energies)
 
