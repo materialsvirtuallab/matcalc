@@ -9,7 +9,7 @@ from ase import units
 from ase.md import Langevin
 from ase.md.andersen import Andersen
 from ase.md.bussi import Bussi
-from ase.md.nose_hoover_chain import IsotropicMTKNPT
+from ase.md.nose_hoover_chain import IsotropicMTKNPT, MTKNPT
 from ase.md.npt import NPT
 from ase.md.nptberendsen import Inhomogeneous_NPTBerendsen, NPTBerendsen
 from ase.md.nvtberendsen import NVTBerendsen
@@ -53,6 +53,7 @@ class MDCalc(PropCalc):
             "npt_nose_hoover",
             "npt_berendsen",
             "npt_inhomogeneous",
+            "npt_mtk",
             "npt_isotropic_mtk",
         ] = "nvt",
         temperature: int = 300,
@@ -89,8 +90,8 @@ class MDCalc(PropCalc):
             calculator (Calculator): The calculator used for energy, force, and stress evaluations.
                 Default to the provided calculator.
             ensemble (str): Ensemble for MD simulation. Options include "nve", "nvt_langevin",
-                "nvt_andersen", "nvt_bussi", "npt", "npt_berendsen", "npt_nose_hoover", "npt_mtk".
-                Default to "nvt".
+                "nvt_andersen", "nvt_bussi", "npt", "npt_berendsen", "npt_nose_hoover", "npt_mtk",
+                "npt_isotropic_mtk". Default to "nvt".
             temperature (int): Simulation temperature in Kelvin. Default to 300.
             timestep (float): Time step in femtoseconds. Default to 1.0.
             steps (int): Number of MD simulation steps. Default to 100.
@@ -287,6 +288,23 @@ class MDCalc(PropCalc):
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
+        elif self.ensemble.lower() == "npt_mtk":
+            md = MTKNPT(
+                atoms,
+                timestep=timestep_fs,
+                temperature_K=self.temperature,
+                pressure_au=self.pressure,
+                tdamp=taut,
+                pdamp=taup,
+                tchain=self.tchain,
+                pchain=self.pchain,
+                tloop=self.tloop,
+                ploop=self.ploop,
+                trajectory=self.trajfile,
+                logfile=self.logfile,
+                loginterval=self.loginterval,
+                append_trajectory=self.append_trajectory,
+            )
         elif self.ensemble.lower() == "npt_isotropic_mtk":
             md = IsotropicMTKNPT(
                 atoms,
@@ -310,7 +328,7 @@ class MDCalc(PropCalc):
                 "The specified ensemble is not supported, choose from 'nve', 'nvt',"
                 " 'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
                 " 'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous',"
-                " 'npt_isotropic_mtk'."
+                " 'npt_mtk', 'npt_isotropic_mtk'."
             )
         return md
 
