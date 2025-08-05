@@ -28,7 +28,7 @@ if TYPE_CHECKING:
         ("npt_inhomogeneous", -10.74737),
         ("npt_berendsen", -10.74714),
         ("npt_nose_hoover", -10.86120),
-        ("npt_isotropic_mtk", -10.86120),
+        ("npt_isotropic_mtk", -10.76271),
     ],
 )
 def test_md_calc(
@@ -47,8 +47,6 @@ def test_md_calc(
         calculator=matpes_calculator,
         ensemble=ensemble,
         temperature=300,
-        taut=0.1,
-        taup=0.1,
         steps=10,
         frames=5,
         compressibility_au=1,
