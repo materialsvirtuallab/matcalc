@@ -9,7 +9,7 @@ from ase import units
 from ase.md import Langevin
 from ase.md.andersen import Andersen
 from ase.md.bussi import Bussi
-from ase.md.nose_hoover_chain import IsotropicMTKNPT, MTKNPT
+from ase.md.nose_hoover_chain import MTKNPT, IsotropicMTKNPT
 from ase.md.npt import NPT
 from ase.md.nptberendsen import Inhomogeneous_NPTBerendsen, NPTBerendsen
 from ase.md.nvtberendsen import NVTBerendsen
