@@ -157,7 +157,7 @@ class MDCalc(PropCalc):
         self.frames = frames if frames is not None else self.steps
         self.relax_calc_kwargs = relax_calc_kwargs
 
-    def _initialize_md(self, atoms: Atoms) -> Any:
+    def _initialize_md(self, atoms: Atoms) -> Any:  # noqa: C901
         """
         Initializes the MD simulation object based on the provided ASE atoms object and simulation parameters.
 
