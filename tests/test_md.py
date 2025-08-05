@@ -28,6 +28,7 @@ if TYPE_CHECKING:
         ("npt_inhomogeneous", -10.74737),
         ("npt_berendsen", -10.74714),
         ("npt_nose_hoover", -10.86120),
+        ("npt_isotropic_mtk", -10.86120),
     ],
 )
 def test_md_calc(
