@@ -9,6 +9,7 @@ from ase import units
 from ase.md import Langevin
 from ase.md.andersen import Andersen
 from ase.md.bussi import Bussi
+from ase.md.nose_hoover_chain import IsotropicMTKNPT
 from ase.md.npt import NPT
 from ase.md.nptberendsen import Inhomogeneous_NPTBerendsen, NPTBerendsen
 from ase.md.nvtberendsen import NVTBerendsen
@@ -52,6 +53,7 @@ class MDCalc(PropCalc):
             "npt_nose_hoover",
             "npt_berendsen",
             "npt_inhomogeneous",
+            "npt_isotropic_mtk",
         ] = "nvt",
         temperature: int = 300,
         timestep: float = 1.0,
@@ -65,6 +67,10 @@ class MDCalc(PropCalc):
         pfactor: float = 75.0**2.0,
         external_stress: float | np.ndarray | None = None,
         compressibility_au: float | None = None,
+        tchain: int = 3,
+        pchain: int = 3,
+        tloop: int = 1,
+        ploop: int = 1,
         trajfile: Any = None,
         logfile: str | None = None,
         loginterval: int = 1,
@@ -83,13 +89,16 @@ class MDCalc(PropCalc):
             calculator (Calculator): The calculator used for energy, force, and stress evaluations.
                 Default to the provided calculator.
             ensemble (str): Ensemble for MD simulation. Options include "nve", "nvt_langevin",
-                "nvt_andersen", "nvt_bussi", "npt", "npt_berendsen", "npt_nose_hoover". Default to "nvt".
+                "nvt_andersen", "nvt_bussi", "npt", "npt_berendsen", "npt_nose_hoover", "npt_mtk".
+                Default to "nvt".
             temperature (int): Simulation temperature in Kelvin. Default to 300.
             timestep (float): Time step in femtoseconds. Default to 1.0.
             steps (int): Number of MD simulation steps. Default to 100.
             pressure (float): External pressure for NPT simulations (in eV/Å³). Default to 1.01325 * units.bar.
             taut (float | None): Time constant for temperature coupling. If None, defaults to 100 * timestep * fs.
+                For npt_isotropic_mtk, this is the time constant for temperature damping.
             taup (float | None): Time constant for pressure coupling. If None, defaults to 1000 * timestep * fs.
+                For npt_isotropic_mtk, this is the time constant for pressure damping.
             friction (float): Friction coefficient for Langevin dynamics. Default to 1.0e-3.
             andersen_prob (float): Collision probability for Andersen thermostat. Default to 1.0e-2.
             ttime (float): Characteristic time scale for the thermostat in ASE units (fs). Default to 25.0.
@@ -97,6 +106,14 @@ class MDCalc(PropCalc):
             external_stress (float | np.ndarray | None): External stress applied to the system.
                 If not provided, defaults to 0.0.
             compressibility_au (float | None): Material compressibility in Å³/eV. Default to None.
+            tchain (int): The number of thermostat variables in the Nose-Hoover thermostat. Default to 3.
+                Only used by IsotropicMTKNPT.
+            pchain (int): The number of barostat variables in the Nose-Hoover barostat. Default to 3.
+                Only used by IsotropicMTKNPT.
+            tloop (int): The number of sub-steps in thermostat integration. Default to 1.
+                Only used by IsotropicMTKNPT.
+            ploop (int): T The number of sub-steps in barostat integration. Default to 1.
+                Only used by IsotropicMTKNPT.
             trajfile (Any): Trajectory object or file for storing simulation data. Default to None.
             logfile (str | None): Filename for simulation logs. Default to None.
             loginterval (int): Interval (in steps) for logging simulation data. Default to 1.
@@ -125,6 +142,10 @@ class MDCalc(PropCalc):
         self.pfactor = pfactor
         self.external_stress = external_stress
         self.compressibility_au = compressibility_au
+        self.tchain = tchain
+        self.pchain = pchain
+        self.tloop = tloop
+        self.ploop = ploop
         self.trajfile = trajfile
         self.logfile = logfile
         self.loginterval = loginterval
@@ -266,11 +287,30 @@ class MDCalc(PropCalc):
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
+        elif self.ensemble.lower() == "npt_isotropic_mtk":
+            md = IsotropicMTKNPT(
+                atoms,
+                timestep=timestep_fs,
+                temperature_K=self.temperature,
+                pressure_au=self.pressure,
+                tdamp=taut,
+                pdamp=taup,
+                tchain=self.tchain,
+                pchain=self.pchain,
+                tloop=self.tloop,
+                ploop=self.ploop,
+                trajectory=self.trajfile,
+                logfile=self.logfile,
+                loginterval=self.loginterval,
+                append_trajectory=self.append_trajectory,
+            )
+
         else:
             raise ValueError(
                 "The specified ensemble is not supported, choose from 'nve', 'nvt',"
                 " 'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
-                " 'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'."
+                " 'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous',"
+                " 'npt_isotropic_mtk'."
             )
         return md
 
