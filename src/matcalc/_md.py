@@ -190,9 +190,7 @@ class MDCalc(PropCalc):
                 append_trajectory=self.append_trajectory,
             )
         elif self.ensemble.lower() == "nvt" or self.ensemble.lower() == "nvt_nose_hoover":
-            warnings.warn("The ASE documentation strongly recommends against using the `NPT` class.
-                          Please read https://wiki.fysik.dtu.dk/ase/ase/md.html#constant-npt-simulations-the-isothermal-isobaric-ensemble
-                          for additional details.", UserWarning)
+            warnings.warn("The ASE documentation strongly recommends against using the `NPT` class. Please read https://wiki.fysik.dtu.dk/ase/ase/md.html#constant-npt-simulations-the-isothermal-isobaric-ensemble for additional details.", UserWarning)
             self._upper_triangular_cell(atoms)
             md = NPT(
                 atoms,
