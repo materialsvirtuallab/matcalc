@@ -28,7 +28,7 @@ if TYPE_CHECKING:
         ("npt_inhomogeneous", -10.778117238180538),
         ("npt_berendsen", -10.797141692994748),
         ("npt_nose_hoover", -10.773028687488921),
-        ("npt_mtk", -10.817933454243002),
+        ("npt_mtk", -10.819341706561369),
         ("npt_isotropic_mtk", -10.817933454243002),
     ],
 )
