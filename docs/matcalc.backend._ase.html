@@ -1,0 +1,364 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>matcalc.backend._ase module &mdash; matcalc 0.4.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
+
+  
+    <link rel="canonical" href="http://matcalc.aimatcalc.backend._ase.html"/>
+      <script src="assets/jquery.js?v=5d32c60e"></script>
+      <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="assets/documentation_options.js?v=ff822928"></script>
+      <script src="assets/doctools.js?v=9bcbadda"></script>
+      <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="assets/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="matcalc.backend._base module" href="matcalc.backend._base.html" />
+    <link rel="prev" title="matcalc.backend package" href="matcalc.backend.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+
+          
+          
+          <a href="index.html">
+            
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="matcalc.html">matcalc package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="matcalc.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="matcalc.backend.html">matcalc.backend package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="matcalc.backend.html#matcalc.backend.run_pes_calc"><code class="docutils literal notranslate"><span class="pre">run_pes_calc()</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="matcalc.backend.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="matcalc.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">matcalc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="matcalc.html">matcalc package</a></li>
+          <li class="breadcrumb-item"><a href="matcalc.backend.html">matcalc.backend package</a></li>
+      <li class="breadcrumb-item active">matcalc.backend._ase module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/materialsvirtuallab/matcalc/blob/master/docs_rst/matcalc.backend._ase.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-matcalc.backend._ase">
+<span id="matcalc-backend-ase-module"></span><h1>matcalc.backend._ase module<a class="headerlink" href="#module-matcalc.backend._ase" title="Link to this heading"></a></h1>
+<p>This module implements convenience functions to perform various atomic simulation types, specifically relaxation and
+static, using either ASE or LAMMPS. This enables the code to use either for the computation of various properties.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="matcalc.backend._ase.TrajectoryObserver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TrajectoryObserver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms:</span> <span class="pre">Atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_energies:</span> <span class="pre">list[float]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinetic_energies:</span> <span class="pre">list[float]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_energies:</span> <span class="pre">list[float]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forces:</span> <span class="pre">list[NDArray[np.float64]]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses:</span> <span class="pre">list[NDArray[np.float64]]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_positions:</span> <span class="pre">list[NDArray[np.float64]]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cells:</span> <span class="pre">list[NDArray[np.float64]]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/backend/_ase.py#L87-L180"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.TrajectoryObserver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Handles the observation and tracking of the trajectory-related properties of an Atoms object.</p>
+<p>The class captures and stores various physical properties of an Atoms object during relaxation steps
+or a simulation. It allows for the extraction of property snapshots, slicing trajectory data,
+and saving the stored data to a file for further analysis or reuse.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc.backend._ase.TrajectoryObserver.atoms">
+<span class="sig-name descname"><span class="pre">atoms</span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.TrajectoryObserver.atoms" title="Link to this definition"></a></dt>
+<dd><p>Atoms
+The instance of Atoms to observe and track properties for.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Atoms</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc.backend._ase.TrajectoryObserver.potential_energies">
+<span class="sig-name descname"><span class="pre">potential_energies</span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.TrajectoryObserver.potential_energies" title="Link to this definition"></a></dt>
+<dd><p>list[float]
+List to store the potential energies recorded during the trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc.backend._ase.TrajectoryObserver.kinetic_energies">
+<span class="sig-name descname"><span class="pre">kinetic_energies</span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.TrajectoryObserver.kinetic_energies" title="Link to this definition"></a></dt>
+<dd><p>list[float]
+List to store the kinetic energies recorded during the trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc.backend._ase.TrajectoryObserver.total_energies">
+<span class="sig-name descname"><span class="pre">total_energies</span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.TrajectoryObserver.total_energies" title="Link to this definition"></a></dt>
+<dd><p>list[float]
+List to store the total energies recorded during the trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc.backend._ase.TrajectoryObserver.forces">
+<span class="sig-name descname"><span class="pre">forces</span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.TrajectoryObserver.forces" title="Link to this definition"></a></dt>
+<dd><p>list[np.ndarray]
+List to store the atomic forces measured during the trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[NDArray[np.float64]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc.backend._ase.TrajectoryObserver.stresses">
+<span class="sig-name descname"><span class="pre">stresses</span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.TrajectoryObserver.stresses" title="Link to this definition"></a></dt>
+<dd><p>list[np.ndarray]
+List to store the stress tensors recorded during the trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[NDArray[np.float64]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc.backend._ase.TrajectoryObserver.atom_positions">
+<span class="sig-name descname"><span class="pre">atom_positions</span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.TrajectoryObserver.atom_positions" title="Link to this definition"></a></dt>
+<dd><p>list[np.ndarray]
+List to store the atomic positions recorded during the trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[NDArray[np.float64]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc.backend._ase.TrajectoryObserver.cells">
+<span class="sig-name descname"><span class="pre">cells</span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.TrajectoryObserver.cells" title="Link to this definition"></a></dt>
+<dd><p>list[np.ndarray]
+List to store the simulation cell geometries recorded during the trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[NDArray[np.float64]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">atom_positions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><span class="pre">np.float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">atoms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Atoms</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">cells</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><span class="pre">np.float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">forces</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><span class="pre">np.float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="matcalc.backend._ase.TrajectoryObserver.get_slice">
+<span class="sig-name descname"><span class="pre">get_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">slice</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#matcalc.backend._ase.TrajectoryObserver" title="matcalc.backend._ase.TrajectoryObserver"><span class="pre">TrajectoryObserver</span></a></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/backend/_ase.py#L137-L161"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.TrajectoryObserver.get_slice" title="Link to this definition"></a></dt>
+<dd><p>Gets a sliced view of the trajectory data encapsulated within a new TrajectoryObserver
+object, based on the provided slice. This method extracts the corresponding segment of
+the trajectory data for all relevant attributes and returns a new TrajectoryObserver
+object containing the sliced values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sl</strong> (<em>slice</em>) – The slice object specifying the indices to extract from the trajectory
+data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A new TrajectoryObserver instance containing the sliced</dt><dd><p>trajectory data.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#matcalc.backend._ase.TrajectoryObserver" title="matcalc.backend._ase.TrajectoryObserver">TrajectoryObserver</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">kinetic_energies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">potential_energies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="matcalc.backend._ase.TrajectoryObserver.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/backend/_ase.py#L163-L180"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.TrajectoryObserver.save" title="Link to this definition"></a></dt>
+<dd><p>Save the trajectory to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – filename to save the trajectory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id6">
+<span class="sig-name descname"><span class="pre">stresses</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><span class="pre">np.float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id6" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">total_energies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/backend/_ase.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="matcalc.backend._ase.get_ase_optimizer">
+<span class="sig-name descname"><span class="pre">get_ase_optimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Optimizer</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optimizer</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/backend/_ase.py#L59-L84"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.get_ase_optimizer" title="Link to this definition"></a></dt>
+<dd><p>Retrieve an ASE optimizer instance based on the provided input. This function accepts either a
+string representing the name of a valid ASE optimizer or an instance/subclass of the Optimizer
+class. If a string is provided, it checks the validity of the optimizer name, and if valid, retrieves
+the corresponding optimizer from ASE. An error is raised if the optimizer name is invalid.</p>
+<p>If an Optimizer subclass or instance is provided as input, it is returned directly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>optimizer</strong> (<em>str</em><em> | </em><em>Optimizer</em>) – The optimizer to be retrieved. Can be a string representing a valid ASE
+optimizer name or an instance/subclass of the Optimizer class.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The corresponding ASE optimizer instance or the input Optimizer instance/subclass.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optimizer</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the optimizer name provided as a string is not among the valid ASE
+optimizer names defined by <cite>VALID_OPTIMIZERS</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="matcalc.backend._ase.is_ase_optimizer">
+<span class="sig-name descname"><span class="pre">is_ase_optimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Optimizer</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/backend/_ase.py#L32-L53"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.is_ase_optimizer" title="Link to this definition"></a></dt>
+<dd><p>Determines whether the given key is an ASE optimizer. A key can
+either be a string representing the name of an optimizer class
+within <cite>ase.optimize</cite> or directly be an optimizer class that
+subclasses <cite>Optimizer</cite>.</p>
+<p>If the key is a string, the function checks whether it corresponds
+to a class in <cite>ase.optimize</cite> that is a subclass of <cite>Optimizer</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> – The key to check, either a string name of an ASE
+optimizer class or a class object that potentially subclasses
+<cite>Optimizer</cite>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the key is either a string corresponding to an
+ASE optimizer subclass name in <cite>ase.optimize</cite> or a class that
+is a subclass of <cite>Optimizer</cite>. Otherwise, returns False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="matcalc.backend._ase.run_ase">
+<span class="sig-name descname"><span class="pre">run_ase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure:</span> <span class="pre">Structure</span> <span class="pre">|</span> <span class="pre">Atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculator:</span> <span class="pre">Calculator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_atoms:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_cell:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer:</span> <span class="pre">Optimizer</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'FIRE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj_file:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_filter:</span> <span class="pre">Filter</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'ase.filters.FrechetCellFilter'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult" title="matcalc.backend._base.SimulationResult"><span class="pre">SimulationResult</span></a></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/backend/_ase.py#L183-L238"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend._ase.run_ase" title="Link to this definition"></a></dt>
+<dd><p>Run ASE static calculation using the given structure and calculator.</p>
+<p>Parameters:
+structure (Structure|Atoms): The input structure to calculate potential energy, forces, and stress.
+calculator (Calculator): The calculator object to use for the calculation.</p>
+<p>Returns:
+PESResult: Object containing potential energy, forces, and stress of the input structure.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Materials Virtual Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

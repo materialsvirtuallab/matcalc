@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>matcalc._base module &mdash; matcalc 0.3.3 documentation</title>
+  <title>matcalc._base module &mdash; matcalc 0.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
@@ -15,14 +15,14 @@
     <link rel="canonical" href="http://matcalc.aimatcalc._base.html"/>
       <script src="assets/jquery.js?v=5d32c60e"></script>
       <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="assets/documentation_options.js?v=d5a15cff"></script>
+      <script src="assets/documentation_options.js?v=ff822928"></script>
       <script src="assets/doctools.js?v=9bcbadda"></script>
       <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="matcalc._cli module" href="matcalc._cli.html" />
-    <link rel="prev" title="matcalc package" href="matcalc.html" />
+    <link rel="prev" title="matcalc.backend._lammps module" href="matcalc.backend._lammps.html" />
 </head>
 
 <body class="wy-body-for-nav">
@@ -46,6 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="matcalc.html">matcalc package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="matcalc.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="matcalc.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">matcalc._base module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#matcalc._base.ChainedCalc"><code class="docutils literal notranslate"><span class="pre">ChainedCalc</span></code></a></li>
@@ -55,6 +56,8 @@
 <li class="toctree-l3"><a class="reference internal" href="matcalc._cli.html">matcalc._cli module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._elasticity.html">matcalc._elasticity module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._eos.html">matcalc._eos module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._lammps.html">matcalc._lammps module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._md.html">matcalc._md module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._neb.html">matcalc._neb module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html">matcalc._phonon module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html">matcalc._phonon3 module</a></li>
@@ -102,7 +105,7 @@
 <p>Define basic API.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="matcalc._base.ChainedCalc">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChainedCalc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop_calcs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#matcalc._base.PropCalc" title="matcalc._base.PropCalc"><span class="pre">PropCalc</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_base.py#L138-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.ChainedCalc" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChainedCalc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop_calcs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#matcalc._base.PropCalc" title="matcalc._base.PropCalc"><span class="pre">PropCalc</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_base.py#L152-L212"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.ChainedCalc" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#matcalc._base.PropCalc" title="matcalc._base.PropCalc"><code class="xref py py-class docutils literal notranslate"><span class="pre">PropCalc</span></code></a></p>
 <p>A chained calculator that runs a series of PropCalcs on a structure or set of structures.</p>
 <p>Often, you may want to obtain multiple properties at once, e.g., perform a relaxation with a formation energy
@@ -116,12 +119,12 @@ Note that it is likely</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="matcalc._base.ChainedCalc._abc_impl">
-<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/matcalc/_base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.ChainedCalc._abc_impl" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/_base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.ChainedCalc._abc_impl" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="matcalc._base.ChainedCalc.calc">
-<span class="sig-name descname"><span class="pre">calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_base.py#L155-L170"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.ChainedCalc.calc" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Atoms</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_base.py#L169-L184"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.ChainedCalc.calc" title="Link to this definition"></a></dt>
 <dd><p>Runs the series of PropCalcs on a structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -140,7 +143,7 @@ by an elasticity calculation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="matcalc._base.ChainedCalc.calc_many">
-<span class="sig-name descname"><span class="pre">calc_many</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_base.py#L172-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.ChainedCalc.calc_many" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calc_many</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Atoms</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_base.py#L186-L212"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.ChainedCalc.calc_many" title="Link to this definition"></a></dt>
 <dd><p>Runs the sequence of PropCalc on many structures.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -166,7 +169,7 @@ Defaults to False.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="matcalc._base.PropCalc">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PropCalc</span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_base.py#L19-L135"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.PropCalc" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PropCalc</span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_base.py#L20-L149"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.PropCalc" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Abstract base class for property calculations.</p>
 <p>This class defines the interface for performing property calculations on
@@ -177,85 +180,90 @@ an implementation of the <cite>calc_many</cite> method, which enables concurrent
 on multiple structures using joblib.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="matcalc._base.PropCalc._abc_impl">
-<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/matcalc/_base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.PropCalc._abc_impl" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/_base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.PropCalc._abc_impl" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="matcalc._base.PropCalc.calc">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_base.py#L58-L91"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.PropCalc.calc" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to calculate and return a standardized format of structural data.</p>
-<p>This method processes input structural data, which could either be a dictionary
-or a pymatgen Structure object, and returns a dictionary representation. If a
-dictionary is provided, it must include either the key <code class="docutils literal notranslate"><span class="pre">final_structure</span></code> or
-<code class="docutils literal notranslate"><span class="pre">structure</span></code>. For a pymatgen Structure input, it will be converted to a dictionary
-with the key <code class="docutils literal notranslate"><span class="pre">final_structure</span></code>. To support chaining, a super() call should be made
-by subclasses to ensure that the input dictionary is standardized.</p>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Atoms</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_base.py#L67-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.PropCalc.calc" title="Link to this definition"></a></dt>
+<dd><p>Abstract method to calculate and process a given structure.</p>
+<p>Processes a provided structure in the form of a pymatgen <cite>Structure</cite>, ASE <cite>Atoms</cite>,
+or a dictionary with specific keys, and returns a processed dictionary. If the input
+structure is a dictionary, it must contain the key <cite>final_structure</cite> or <cite>structure</cite>;
+otherwise, a <cite>ValueError</cite> is raised. The returned dictionary includes the key
+<cite>final_structure</cite> pointing to the provided or derived structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>structure</strong> (<em>Structure</em><em> | </em><em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – A pymatgen Structure object or a dictionary containing structural
-data with keys such as <code class="docutils literal notranslate"><span class="pre">final_structure</span></code> or <code class="docutils literal notranslate"><span class="pre">structure</span></code>.</p>
+<dd class="field-odd"><p><strong>structure</strong> – A <cite>Structure</cite>, <cite>Atoms</cite>, or <cite>dict</cite> containing structural data to be
+processed. If a dictionary is provided, it must include either <cite>final_structure</cite>
+or <cite>structure</cite> keys.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary with the key <code class="docutils literal notranslate"><span class="pre">final_structure</span></code> mapping to the corresponding
-structural data.</p>
+<dd class="field-even"><p>A dictionary with the key <cite>final_structure</cite>, representing the provided structure
+or the structure derived from the dictionary input.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict[str, Any]</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the input dictionary does not include the required keys
-<code class="docutils literal notranslate"><span class="pre">final_structure</span></code> or <code class="docutils literal notranslate"><span class="pre">structure</span></code>.</p>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the provided dictionary does not contain the required keys <cite>final_structure</cite>
+    or <cite>structure</cite>.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="matcalc._base.PropCalc.calc_many">
-<span class="sig-name descname"><span class="pre">calc_many</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_base.py#L93-L135"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.PropCalc.calc_many" title="Link to this definition"></a></dt>
-<dd><p>Calculate properties for multiple structures concurrently.</p>
-<p>This method leverages parallel processing to compute properties for a
-given sequence of structures. It uses the <cite>joblib.Parallel</cite> library to
-support multi-job execution and manage error handling behavior based
-on user configuration.</p>
+<span class="sig-name descname"><span class="pre">calc_many</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Atoms</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_base.py#L103-L149"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.PropCalc.calc_many" title="Link to this definition"></a></dt>
+<dd><p>Calculates multiple structures in parallel with optional error tolerance.</p>
+<p>This method processes a sequence of structures, allowing them to be calculated in
+parallel. It offers the ability to handle errors on a per-structure basis. If error
+tolerance is enabled, calculation failures for individual structures result in returning
+<cite>None</cite> for those structures, without raising exceptions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>structures</strong> – A sequence of <cite>Structure</cite> objects or dictionaries
-representing the input structures to be processed. Each entry in
-the sequence is processed independently.</p></li>
-<li><p><strong>n_jobs</strong> – The number of jobs to run in parallel. If set to None,
-joblib will determine the optimal number of jobs based on the
-system’s CPU configuration.</p></li>
-<li><p><strong>allow_errors</strong> – A boolean flag indicating whether to tolerate
-exceptions during processing. When set to True, any failed
-calculation will result in a <cite>None</cite> value for that structure
-instead of raising an exception.</p></li>
-<li><p><strong>kwargs</strong> – Additional keyword arguments passed directly to
-<cite>joblib.Parallel</cite>, which allows customization of parallel
-processing behavior.</p></li>
+<li><p><strong>structures</strong> (<em>Sequence</em><em>[</em><em>Structure</em><em> | </em><em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>Atoms</em><em>]</em>) – A sequence of structures
+to be processed. Each structure can be represented as <cite>Structure</cite>, a dictionary
+containing structure-related data, or <cite>Atoms</cite>.</p></li>
+<li><p><strong>n_jobs</strong> (<em>None</em><em> | </em><em>int</em><em>, </em><em>optional</em>) – The number of jobs to use for parallel processing. If
+<cite>None</cite>, the default parallelism settings of the <cite>Parallel</cite> utility will be used.
+Defaults to <cite>None</cite>.</p></li>
+<li><p><strong>allow_errors</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <cite>True</cite>, exceptions encountered during the
+calculation of a structure will be caught, and <cite>None</cite> will be returned for that
+structure. If <cite>False</cite>, the exception is raised. Defaults to <cite>False</cite>.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – Additional keyword arguments to pass to the <cite>Parallel</cite> utility.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A generator yielding dictionaries with computed properties
-for each structure or <cite>None</cite> if an error occurred (depending on
-the <cite>allow_errors</cite> flag).</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>A generator that yields the results of the</dt><dd><p>calculations for the input structures. If an exception occurs and <cite>allow_errors</cite>
+is <cite>True</cite>, <cite>None</cite> will be yielded for the corresponding structure.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator[dict | None, None, None]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If any error occurs during the calculation of a structure and
+    <cite>allow_errors</cite> is <cite>False</cite>, the exception will be raised.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="matcalc._base.PropCalc.calculator">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calculator</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Calculator</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/matcalc/_base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.PropCalc.calculator" title="Link to this definition"></a></dt>
-<dd><p>This method returns the Calculator object associated with the current instance.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calculator</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Calculator</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/_base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._base.PropCalc.calculator" title="Link to this definition"></a></dt>
+<dd><p>Provides access to the <cite>Calculator</cite> instance used internally.</p>
+<p>This property retrieves an instance of the <cite>Calculator</cite> class, which is
+associated with the current object and utilized internally for
+performing operations or calculations. The property ensures encapsulation
+and controlled access to the underlying calculator.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>None</strong></p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The internal <cite>Calculator</cite> instance.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The Calculator object associated with the current instance.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Calculator</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Calculator</p>
 </dd>
 </dl>
 </dd></dl>

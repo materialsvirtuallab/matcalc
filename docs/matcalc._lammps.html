@@ -1,0 +1,204 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>matcalc._lammps module &mdash; matcalc 0.4.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
+
+  
+    <link rel="canonical" href="http://matcalc.aimatcalc._lammps.html"/>
+      <script src="assets/jquery.js?v=5d32c60e"></script>
+      <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="assets/documentation_options.js?v=ff822928"></script>
+      <script src="assets/doctools.js?v=9bcbadda"></script>
+      <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="assets/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="matcalc._md module" href="matcalc._md.html" />
+    <link rel="prev" title="matcalc._eos module" href="matcalc._eos.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+
+          
+          
+          <a href="index.html">
+            
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="matcalc.html">matcalc package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="matcalc.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="matcalc.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="matcalc._base.html">matcalc._base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._cli.html">matcalc._cli module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._elasticity.html">matcalc._elasticity module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._eos.html">matcalc._eos module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">matcalc._lammps module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc._lammps.LAMMPSMDCalc"><code class="docutils literal notranslate"><span class="pre">LAMMPSMDCalc</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._md.html">matcalc._md module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._neb.html">matcalc._neb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html">matcalc._phonon module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html">matcalc._phonon3 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html">matcalc._qha module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html">matcalc._relaxation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._stability.html">matcalc._stability module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._surface.html">matcalc._surface module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.benchmark.html">matcalc.benchmark module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.config.html">matcalc.config module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.units.html">matcalc.units module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html">matcalc.utils module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">matcalc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="matcalc.html">matcalc package</a></li>
+      <li class="breadcrumb-item active">matcalc._lammps module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/materialsvirtuallab/matcalc/blob/master/docs_rst/matcalc._lammps.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-matcalc._lammps">
+<span id="matcalc-lammps-module"></span><h1>matcalc._lammps module<a class="headerlink" href="#module-matcalc._lammps" title="Link to this heading"></a></h1>
+<p>Calculator for MD properties using LAMMPS.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="matcalc._lammps.LAMMPSMDCalc">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LAMMPSMDCalc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensemble</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'nve'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'nvt'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'npt'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'nvt_nose_hoover'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'npt_nose_hoover'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'nvt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taut</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'in.md'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'md.lammpstrj'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'log.lammps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loginterval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FIRE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_calc_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_lammps.py#L36-L255"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._lammps.LAMMPSMDCalc" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc" title="matcalc._base.PropCalc"><code class="xref py py-class docutils literal notranslate"><span class="pre">PropCalc</span></code></a></p>
+<p>Class to manage molecular dynamics simulations using LAMMPS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>calculator</strong> – Name of the potential/calculator model.</p></li>
+<li><p><strong>temperature</strong> – Simulation temperature in Kelvin.</p></li>
+<li><p><strong>ensemble</strong> – Statistical ensemble for simulation.</p></li>
+<li><p><strong>timestep</strong> – Simulation timestep in picoseconds.</p></li>
+<li><p><strong>steps</strong> – Number of MD steps.</p></li>
+<li><p><strong>pressure</strong> – Simulation pressure in bars.</p></li>
+<li><p><strong>taut</strong> – Temperature coupling constant (ps).</p></li>
+<li><p><strong>taup</strong> – Pressure coupling constant (ps).</p></li>
+<li><p><strong>infile</strong> – File for Input.</p></li>
+<li><p><strong>trajfile</strong> – File for trajectory output.</p></li>
+<li><p><strong>logfile</strong> – Logfile path.</p></li>
+<li><p><strong>loginterval</strong> – Logging interval in steps.</p></li>
+<li><p><strong>relax_structure</strong> – Whether to perform initial structural relaxation.</p></li>
+<li><p><strong>fmax</strong> – Maximum force for relaxation convergence.</p></li>
+<li><p><strong>optimizer</strong> – Optimizer for structural relaxation.</p></li>
+<li><p><strong>frames</strong> – Number of frames saved from the trajectory.</p></li>
+<li><p><strong>settings</strong> – Settings for the template script.</p></li>
+<li><p><strong>relax_calc_kwargs</strong> – Additional kwargs for relaxation calculation.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Initialize LAMMPSMDCalc with simulation parameters.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="matcalc._lammps.LAMMPSMDCalc._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/_lammps.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._lammps.LAMMPSMDCalc._abc_impl" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="matcalc._lammps.LAMMPSMDCalc._generate_fix_command">
+<span class="sig-name descname"><span class="pre">_generate_fix_command</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_lammps.py#L129-L143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._lammps.LAMMPSMDCalc._generate_fix_command" title="Link to this definition"></a></dt>
+<dd><p>Generate LAMMPS fix command based on the selected ensemble.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="matcalc._lammps.LAMMPSMDCalc.calc">
+<span class="sig-name descname"><span class="pre">calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Atoms</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_lammps.py#L213-L255"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._lammps.LAMMPSMDCalc.calc" title="Link to this definition"></a></dt>
+<dd><p>Run the MD calculation using LAMMPS.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="matcalc._lammps.LAMMPSMDCalc.write_inputs">
+<span class="sig-name descname"><span class="pre">write_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Atoms</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">script_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PosixPath('/Users/shyue/repos/matcalc/src/matcalc/lammps_templates/md.template')</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">LammpsRun</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_lammps.py#L145-L211"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._lammps.LAMMPSMDCalc.write_inputs" title="Link to this definition"></a></dt>
+<dd><p>Write LAMMPS input files based on a given structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<em>Structure</em><em> | </em><em>Atoms</em><em> | </em><em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Input pymatgen Structure or equivalent dictionary.</p></li>
+<li><p><strong>script_template</strong> (<em>str</em><em> | </em><em>Path</em>) – Template of the input script.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance representing written LAMMPS inputs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>LammpsRun</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Materials Virtual Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

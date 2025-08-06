@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>matcalc._stability module &mdash; matcalc 0.3.3 documentation</title>
+  <title>matcalc._stability module &mdash; matcalc 0.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
@@ -15,7 +15,7 @@
     <link rel="canonical" href="http://matcalc.aimatcalc._stability.html"/>
       <script src="assets/jquery.js?v=5d32c60e"></script>
       <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="assets/documentation_options.js?v=d5a15cff"></script>
+      <script src="assets/documentation_options.js?v=ff822928"></script>
       <script src="assets/doctools.js?v=9bcbadda"></script>
       <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
@@ -46,11 +46,14 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="matcalc.html">matcalc package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="matcalc.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="matcalc.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="matcalc._base.html">matcalc._base module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._cli.html">matcalc._cli module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._elasticity.html">matcalc._elasticity module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._eos.html">matcalc._eos module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._lammps.html">matcalc._lammps module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._md.html">matcalc._md module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._neb.html">matcalc._neb module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html">matcalc._phonon module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html">matcalc._phonon3 module</a></li>
@@ -101,7 +104,7 @@
 <p>Calculator for stability related properties.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="matcalc._stability.EnergeticsCalc">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EnergeticsCalc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Calculator</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elemental_refs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'MatPES-PBE'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'MatPES-r2SCAN'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'MatPES-PBE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_dft_gs_reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_calc_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_stability.py#L23-L144"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._stability.EnergeticsCalc" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EnergeticsCalc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Calculator</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elemental_refs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'MP-PBE'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'MatPES-PBE'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'MatPES-r2SCAN'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'MatPES-PBE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FIRE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturb_distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_gs_reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_calc_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_stability.py#L25-L170"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._stability.EnergeticsCalc" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc" title="matcalc._base.PropCalc"><code class="xref py py-class docutils literal notranslate"><span class="pre">PropCalc</span></code></a></p>
 <p>Handles the computation of energetic properties such as formation energy per atom,
 cohesive energy per atom, and relaxed structures for input compositions. This class
@@ -113,9 +116,9 @@ on different reference data and relaxation configurations.</p>
 <li><p><strong>calculator</strong> – The computational calculator used for numerical simulations and property
 evaluations.</p></li>
 <li><p><strong>elemental_refs</strong> – Reference data dictionary or identifier for elemental properties.
-If a string (“MatPES-PBE” or “MatPES-r2SCAN”), loads default references;
+If a string (“MP-PBE”, “MatPES-PBE” or “MatPES-r2SCAN”), loads default references;
 if a dictionary, uses custom provided data.</p></li>
-<li><p><strong>use_dft_gs_reference</strong> – Whether to use DFT ground state data for energy computations
+<li><p><strong>use_gs_reference</strong> – Whether to use DFT ground state data for energy computations
 when referencing elemental properties.</p></li>
 <li><p><strong>relax_structure</strong> – Specifies whether to relax the input structures before property
 calculations. If True, relaxation is applied.</p></li>
@@ -136,26 +139,33 @@ relaxation preferences.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>calculator</strong> (<em>Calculator</em><em> | </em><em>str</em>) – An ASE calculator object used to perform energy and force
 calculations. If string is provided, the corresponding universal calculator is loaded.</p></li>
-<li><p><strong>elemental_refs</strong> (<em>Literal</em><em>[</em><em>&quot;MatPES-PBE&quot;</em><em>, </em><em>&quot;MatPES-r2SCAN&quot;</em><em>] </em><em>| </em><em>dict</em>) – Specifies the elemental references to be used. It can either be
-a predefined string identifier (“MatPES-PBE”, “MatPES-r2SCAN”) or a dictionary
+<li><p><strong>elemental_refs</strong> (<em>Literal</em><em>[</em><em>&quot;MP-PBE&quot;</em><em>, </em><em>&quot;MatPES-PBE&quot;</em><em>, </em><em>&quot;MatPES-r2SCAN&quot;</em><em>] </em><em>| </em><em>dict</em>) – Specifies the elemental references to be used. It can either be
+a predefined string identifier (“MP-PBE”, “MatPES-PBE”, “MatPES-r2SCAN”) or a dictionary
 mapping elements to their energy references.</p></li>
-<li><p><strong>use_dft_gs_reference</strong> (<em>bool</em>) – Determines whether to use DFT ground state
-energy as a reference. Defaults to False.</p></li>
+<li><p><strong>use_gs_reference</strong> (<em>bool</em>) – Determines whether to use ground state energy as a reference.
+Defaults to False.</p></li>
 <li><p><strong>relax_structure</strong> (<em>bool</em>) – Specifies if the structure should be relaxed before
 proceeding with calculations. Defaults to True.</p></li>
 <li><p><strong>relax_calc_kwargs</strong> (<em>dict</em><em> | </em><em>None</em>) – Additional keyword arguments for the relaxation
 calculation. Can be a dictionary of settings or None. Defaults to None.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>fmax</strong> – Force tolerance for convergence (eV/Å).</p></li>
+<li><p><strong>optimizer</strong> – Algorithm for performing the optimization.</p></li>
+<li><p><strong>perturb_distance</strong> – Distance (Å) for random perturbation to break symmetry.</p></li>
+</ul>
+</dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="matcalc._stability.EnergeticsCalc._abc_impl">
-<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/matcalc/_stability.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._stability.EnergeticsCalc._abc_impl" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/_stability.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._stability.EnergeticsCalc._abc_impl" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="matcalc._stability.EnergeticsCalc.calc">
-<span class="sig-name descname"><span class="pre">calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_stability.py#L93-L144"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._stability.EnergeticsCalc.calc" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Atoms</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_stability.py#L107-L170"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._stability.EnergeticsCalc.calc" title="Link to this definition"></a></dt>
 <dd><p>Calculates the formation energy per atom, cohesive energy per atom, and final
 relaxed structure for a given input structure using a relaxation calculation
 and reference elemental data. This function also optionally utilizes DFT

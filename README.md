@@ -25,7 +25,7 @@ Calculator).
 
 ## Documentation
 
-The API documentation and tutorials are available at https://matcalc.ai.
+The API documentation and tutorials are available at http://matcalc.ai.
 
 ## Outline
 
