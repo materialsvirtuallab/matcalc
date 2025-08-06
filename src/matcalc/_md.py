@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from ase import __version__ as _ase_version
-import warnings
 from ase import units
 from ase.md import Langevin
 from ase.md.andersen import Andersen
@@ -190,7 +190,10 @@ class MDCalc(PropCalc):
                 append_trajectory=self.append_trajectory,
             )
         elif self.ensemble.lower() == "nvt" or self.ensemble.lower() == "nvt_nose_hoover":
-            warnings.warn("The ASE documentation strongly recommends against using the `NPT` class. Please read https://wiki.fysik.dtu.dk/ase/ase/md.html#constant-npt-simulations-the-isothermal-isobaric-ensemble for additional details.", UserWarning)
+            warnings.warn(
+                "The ASE documentation strongly recommends against using the `NPT` class. Please read https://wiki.fysik.dtu.dk/ase/ase/md.html#constant-npt-simulations-the-isothermal-isobaric-ensemble for additional details.",
+                UserWarning,
+            )
             self._upper_triangular_cell(atoms)
             md = NPT(
                 atoms,
