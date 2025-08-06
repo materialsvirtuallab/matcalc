@@ -175,6 +175,11 @@ initializing the benchmark to limit the number of calculations to do some testin
 
 Docker images with MatCalc and LAMMPS support are available at the [Materials Virtual Lab Docker Repository].
 
+## Tutorials
+
+Anubhav Jain (@computron) has created a nice [YouTube tutorial](https://youtu.be/57Elhe4IIhI?si=KbZh5s7HAyNGvmFT) on
+how to use MatCalc to quickly obtain properties of materials.
+
 ## Citing
 
 A manuscript on `matcalc` is currently in the works. In the meantime, please see [`citation.cff`](citation.cff) or the GitHub
