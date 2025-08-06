@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>matcalc package &mdash; matcalc 0.3.3 documentation</title>
+  <title>matcalc package &mdash; matcalc 0.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
@@ -15,13 +15,13 @@
     <link rel="canonical" href="http://matcalc.aimatcalc.html"/>
       <script src="assets/jquery.js?v=5d32c60e"></script>
       <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="assets/documentation_options.js?v=d5a15cff"></script>
+      <script src="assets/documentation_options.js?v=ff822928"></script>
       <script src="assets/doctools.js?v=9bcbadda"></script>
       <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="matcalc._base module" href="matcalc._base.html" />
+    <link rel="next" title="matcalc.backend package" href="matcalc.backend.html" />
     <link rel="prev" title="matcalc" href="index.html" />
 </head>
 
@@ -46,11 +46,17 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">matcalc package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend.html">matcalc.backend package</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._base.html">matcalc._base module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._cli.html">matcalc._cli module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._elasticity.html">matcalc._elasticity module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._eos.html">matcalc._eos module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._lammps.html">matcalc._lammps module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._md.html">matcalc._md module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._neb.html">matcalc._neb module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html">matcalc._phonon module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html">matcalc._phonon3 module</a></li>
@@ -95,6 +101,23 @@
   <section id="module-matcalc">
 <span id="matcalc-package"></span><h1>matcalc package<a class="headerlink" href="#module-matcalc" title="Link to this heading"></a></h1>
 <p>Calculators for materials properties.</p>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="matcalc.backend.html">matcalc.backend package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="matcalc.backend.html#matcalc.backend.run_pes_calc"><code class="docutils literal notranslate"><span class="pre">run_pes_calc()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="matcalc.backend.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html">matcalc.backend._ase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._base.html">matcalc.backend._base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._lammps.html">matcalc.backend._lammps module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
@@ -138,6 +161,26 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="matcalc._lammps.html">matcalc._lammps module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="matcalc._lammps.html#matcalc._lammps.LAMMPSMDCalc"><code class="docutils literal notranslate"><span class="pre">LAMMPSMDCalc</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._lammps.html#matcalc._lammps.LAMMPSMDCalc._abc_impl"><code class="docutils literal notranslate"><span class="pre">LAMMPSMDCalc._abc_impl</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._lammps.html#matcalc._lammps.LAMMPSMDCalc._generate_fix_command"><code class="docutils literal notranslate"><span class="pre">LAMMPSMDCalc._generate_fix_command()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._lammps.html#matcalc._lammps.LAMMPSMDCalc.calc"><code class="docutils literal notranslate"><span class="pre">LAMMPSMDCalc.calc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._lammps.html#matcalc._lammps.LAMMPSMDCalc.write_inputs"><code class="docutils literal notranslate"><span class="pre">LAMMPSMDCalc.write_inputs()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="matcalc._md.html">matcalc._md module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="matcalc._md.html#matcalc._md.MDCalc"><code class="docutils literal notranslate"><span class="pre">MDCalc</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._md.html#matcalc._md.MDCalc._abc_impl"><code class="docutils literal notranslate"><span class="pre">MDCalc._abc_impl</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._md.html#matcalc._md.MDCalc._initialize_md"><code class="docutils literal notranslate"><span class="pre">MDCalc._initialize_md()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._md.html#matcalc._md.MDCalc._upper_triangular_cell"><code class="docutils literal notranslate"><span class="pre">MDCalc._upper_triangular_cell()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._md.html#matcalc._md.MDCalc.calc"><code class="docutils literal notranslate"><span class="pre">MDCalc.calc()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="matcalc._neb.html">matcalc._neb module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="matcalc._neb.html#matcalc._neb.NEBCalc"><code class="docutils literal notranslate"><span class="pre">NEBCalc</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._neb.html#matcalc._neb.NEBCalc._abc_impl"><code class="docutils literal notranslate"><span class="pre">NEBCalc._abc_impl</span></code></a></li>
@@ -153,7 +196,6 @@
 <li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon.PhononCalc.calc"><code class="docutils literal notranslate"><span class="pre">PhononCalc.calc()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="matcalc._phonon.html#matcalc._phonon._calc_forces"><code class="docutils literal notranslate"><span class="pre">_calc_forces()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="matcalc._phonon3.html">matcalc._phonon3 module</a><ul>
@@ -167,7 +209,6 @@
 <li class="toctree-l1"><a class="reference internal" href="matcalc._qha.html">matcalc._qha module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc"><code class="docutils literal notranslate"><span class="pre">QHACalc</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc._abc_impl"><code class="docutils literal notranslate"><span class="pre">QHACalc._abc_impl</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc._calculate_energy"><code class="docutils literal notranslate"><span class="pre">QHACalc._calculate_energy()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc._calculate_thermal_properties"><code class="docutils literal notranslate"><span class="pre">QHACalc._calculate_thermal_properties()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc._collect_properties"><code class="docutils literal notranslate"><span class="pre">QHACalc._collect_properties()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html#matcalc._qha.QHACalc._create_qha"><code class="docutils literal notranslate"><span class="pre">QHACalc._create_qha()</span></code></a></li>
@@ -183,16 +224,6 @@
 <li class="toctree-l2"><a class="reference internal" href="matcalc._relaxation.html#matcalc._relaxation.RelaxCalc"><code class="docutils literal notranslate"><span class="pre">RelaxCalc</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html#matcalc._relaxation.RelaxCalc._abc_impl"><code class="docutils literal notranslate"><span class="pre">RelaxCalc._abc_impl</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html#matcalc._relaxation.RelaxCalc.calc"><code class="docutils literal notranslate"><span class="pre">RelaxCalc.calc()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="matcalc._relaxation.html#matcalc._relaxation.TrajectoryObserver"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html#matcalc._relaxation.TrajectoryObserver.atom_positions"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.atom_positions</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html#matcalc._relaxation.TrajectoryObserver.atoms"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.atoms</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html#matcalc._relaxation.TrajectoryObserver.cells"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.cells</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html#matcalc._relaxation.TrajectoryObserver.energies"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.energies</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html#matcalc._relaxation.TrajectoryObserver.forces"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.forces</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html#matcalc._relaxation.TrajectoryObserver.save"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.save()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="matcalc._relaxation.html#matcalc._relaxation.TrajectoryObserver.stresses"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.stresses</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -240,6 +271,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="matcalc.benchmark.html#matcalc.benchmark.EquilibriumBenchmark"><code class="docutils literal notranslate"><span class="pre">EquilibriumBenchmark</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="matcalc.benchmark.html#matcalc.benchmark.EquilibriumBenchmark._abc_impl"><code class="docutils literal notranslate"><span class="pre">EquilibriumBenchmark._abc_impl</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.benchmark.html#matcalc.benchmark.EquilibriumBenchmark._prepare_elemental_refs"><code class="docutils literal notranslate"><span class="pre">EquilibriumBenchmark._prepare_elemental_refs()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc.benchmark.html#matcalc.benchmark.EquilibriumBenchmark.get_prop_calc"><code class="docutils literal notranslate"><span class="pre">EquilibriumBenchmark.get_prop_calc()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc.benchmark.html#matcalc.benchmark.EquilibriumBenchmark.process_result"><code class="docutils literal notranslate"><span class="pre">EquilibriumBenchmark.process_result()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc.benchmark.html#matcalc.benchmark.EquilibriumBenchmark.run"><code class="docutils literal notranslate"><span class="pre">EquilibriumBenchmark.run()</span></code></a></li>
@@ -281,8 +313,25 @@
 <li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.PESCalculator.load_universal"><code class="docutils literal notranslate"><span class="pre">PESCalculator.load_universal()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.get_ase_optimizer"><code class="docutils literal notranslate"><span class="pre">get_ase_optimizer()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.is_ase_optimizer"><code class="docutils literal notranslate"><span class="pre">is_ase_optimizer()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.CHGNet"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.CHGNet</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.DeePMD"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.DeePMD</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.FAIRChem"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.FAIRChem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.GRACE"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.GRACE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.M3GNet"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.M3GNet</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.MACE"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.MACE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.MatterSim"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.MatterSim</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.ORB"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.ORB</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.PBE"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.PBE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.PETMAD"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.PETMAD</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.SevenNet"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.SevenNet</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.TensorNet"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.TensorNet</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.TensorPotential"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.TensorPotential</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.UNIVERSAL_CALCULATORS.r2SCAN"><code class="docutils literal notranslate"><span class="pre">UNIVERSAL_CALCULATORS.r2SCAN</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.to_ase_atoms"><code class="docutils literal notranslate"><span class="pre">to_ase_atoms()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="matcalc.utils.html#matcalc.utils.to_pmg_structure"><code class="docutils literal notranslate"><span class="pre">to_pmg_structure()</span></code></a></li>
 </ul>
 </li>
 </ul>

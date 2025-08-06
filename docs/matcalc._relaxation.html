@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>matcalc._relaxation module &mdash; matcalc 0.3.3 documentation</title>
+  <title>matcalc._relaxation module &mdash; matcalc 0.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
@@ -15,7 +15,7 @@
     <link rel="canonical" href="http://matcalc.aimatcalc._relaxation.html"/>
       <script src="assets/jquery.js?v=5d32c60e"></script>
       <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="assets/documentation_options.js?v=d5a15cff"></script>
+      <script src="assets/documentation_options.js?v=ff822928"></script>
       <script src="assets/doctools.js?v=9bcbadda"></script>
       <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
@@ -46,18 +46,20 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="matcalc.html">matcalc package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="matcalc.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="matcalc.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="matcalc._base.html">matcalc._base module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._cli.html">matcalc._cli module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._elasticity.html">matcalc._elasticity module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._eos.html">matcalc._eos module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._lammps.html">matcalc._lammps module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc._md.html">matcalc._md module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._neb.html">matcalc._neb module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._phonon.html">matcalc._phonon module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._phonon3.html">matcalc._phonon3 module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._qha.html">matcalc._qha module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">matcalc._relaxation module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#matcalc._relaxation.RelaxCalc"><code class="docutils literal notranslate"><span class="pre">RelaxCalc</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#matcalc._relaxation.TrajectoryObserver"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="matcalc._stability.html">matcalc._stability module</a></li>
@@ -102,7 +104,7 @@
 <p>Relaxation properties.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="matcalc._relaxation.RelaxCalc">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RelaxCalc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator:</span> <span class="pre">Calculator</span> <span class="pre">|</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer:</span> <span class="pre">Optimizer</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'FIRE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj_file:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_atoms:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_cell:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_filter:</span> <span class="pre">Filter</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'ase.filters.FrechetCellFilter'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturb_distance:</span> <span class="pre">float</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_relaxation.py#L84-L251"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.RelaxCalc" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RelaxCalc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculator:</span> <span class="pre">Calculator</span> <span class="pre">|</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer:</span> <span class="pre">Optimizer</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'FIRE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj_file:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_atoms:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_cell:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_filter:</span> <span class="pre">Filter</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'ase.filters.FrechetCellFilter'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturb_distance:</span> <span class="pre">float</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_relaxation.py#L23-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.RelaxCalc" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="matcalc._base.html#matcalc._base.PropCalc" title="matcalc._base.PropCalc"><code class="xref py py-class docutils literal notranslate"><span class="pre">PropCalc</span></code></a></p>
 <p>A class to perform structural relaxation calculations using ASE (Atomic Simulation Environment).</p>
 <p>This class facilitates structural relaxation by integrating with ASE tools for
@@ -162,12 +164,12 @@ is applied. Defaults to None.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="matcalc._relaxation.RelaxCalc._abc_impl">
-<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/matcalc/_relaxation.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.RelaxCalc._abc_impl" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/matcalc/_relaxation.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.RelaxCalc._abc_impl" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="matcalc._relaxation.RelaxCalc.calc">
-<span class="sig-name descname"><span class="pre">calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_relaxation.py#L184-L251"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.RelaxCalc.calc" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Atoms</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/_relaxation.py#L123-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.RelaxCalc.calc" title="Link to this definition"></a></dt>
 <dd><p>Calculate the final relaxed structure, energy, forces, and stress for a given
 structure and update the result dictionary with additional geometric properties.</p>
 <p>This method takes an input structure and performs a relaxation process
@@ -190,70 +192,6 @@ energy, forces, stress, and lattice parameters.</p>
 </dd>
 </dl>
 </dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="matcalc._relaxation.TrajectoryObserver">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TrajectoryObserver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms:</span> <span class="pre">Atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies:</span> <span class="pre">list[float]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forces:</span> <span class="pre">list[np.ndarray]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses:</span> <span class="pre">list[np.ndarray]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_positions:</span> <span class="pre">list[np.ndarray]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cells:</span> <span class="pre">list[np.ndarray]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_relaxation.py#L27-L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.TrajectoryObserver" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class for observing and recording the properties of an atomic structure during relaxation.</p>
-<p>The <cite>TrajectoryObserver</cite> class is designed to track and store the atomic properties like
-energies, forces, stresses, atom positions, and cell structure of an atomic system
-represented by an <cite>Atoms</cite> object. It provides functionality to save recorded data
-to a file for further analysis or usage.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Variables<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>atoms</strong> – The atomic structure being observed.</p></li>
-<li><p><strong>energies</strong> – List of potential energy values of the atoms during relaxation.</p></li>
-<li><p><strong>forces</strong> – List of force arrays recorded for the atoms during relaxation.</p></li>
-<li><p><strong>stresses</strong> – List of stress tensors recorded for the atoms during relaxation.</p></li>
-<li><p><strong>atom_positions</strong> – List of atomic positions recorded during relaxation.</p></li>
-<li><p><strong>cells</strong> – List of unit cell arrays recorded during relaxation.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._relaxation.TrajectoryObserver.atom_positions">
-<span class="sig-name descname"><span class="pre">atom_positions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">np.ndarray</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/matcalc/_relaxation.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.TrajectoryObserver.atom_positions" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._relaxation.TrajectoryObserver.atoms">
-<span class="sig-name descname"><span class="pre">atoms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Atoms</span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/matcalc/_relaxation.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.TrajectoryObserver.atoms" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._relaxation.TrajectoryObserver.cells">
-<span class="sig-name descname"><span class="pre">cells</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">np.ndarray</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/matcalc/_relaxation.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.TrajectoryObserver.cells" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._relaxation.TrajectoryObserver.energies">
-<span class="sig-name descname"><span class="pre">energies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/matcalc/_relaxation.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.TrajectoryObserver.energies" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._relaxation.TrajectoryObserver.forces">
-<span class="sig-name descname"><span class="pre">forces</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">np.ndarray</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/matcalc/_relaxation.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.TrajectoryObserver.forces" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="matcalc._relaxation.TrajectoryObserver.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/src/matcalc/_relaxation.py#L66-L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.TrajectoryObserver.save" title="Link to this definition"></a></dt>
-<dd><p>Save the trajectory to file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – filename to save the trajectory.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="matcalc._relaxation.TrajectoryObserver.stresses">
-<span class="sig-name descname"><span class="pre">stresses</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">np.ndarray</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.3.3/matcalc/_relaxation.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc._relaxation.TrajectoryObserver.stresses" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 

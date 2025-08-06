@@ -1,0 +1,201 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>matcalc.backend package &mdash; matcalc 0.4.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
+
+  
+    <link rel="canonical" href="http://matcalc.aimatcalc.backend.html"/>
+      <script src="assets/jquery.js?v=5d32c60e"></script>
+      <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="assets/documentation_options.js?v=ff822928"></script>
+      <script src="assets/doctools.js?v=9bcbadda"></script>
+      <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="assets/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="matcalc.backend._ase module" href="matcalc.backend._ase.html" />
+    <link rel="prev" title="matcalc package" href="matcalc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+
+          
+          
+          <a href="index.html">
+            
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="matcalc.html">matcalc package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="matcalc.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">matcalc.backend package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#matcalc.backend.run_pes_calc"><code class="docutils literal notranslate"><span class="pre">run_pes_calc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="matcalc.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">matcalc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="matcalc.html">matcalc package</a></li>
+      <li class="breadcrumb-item active">matcalc.backend package</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/materialsvirtuallab/matcalc/blob/master/docs_rst/matcalc.backend.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-matcalc.backend">
+<span id="matcalc-backend-package"></span><h1>matcalc.backend package<a class="headerlink" href="#module-matcalc.backend" title="Link to this heading"></a></h1>
+<p>Provides various backends of running simulations.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="matcalc.backend.run_pes_calc">
+<span class="sig-name descname"><span class="pre">run_pes_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult" title="matcalc.backend._base.SimulationResult"><span class="pre">SimulationResult</span></a></span></span><a class="reference external" href="https://github.com/materialsvirtuallab/matcalc/blob/v0.4.2/src/matcalc/backend/__init__.py#L12-L32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#matcalc.backend.run_pes_calc" title="Link to this definition"></a></dt>
+<dd><p>Executes the potential energy surface (PES) calculation using the appropriate backend.</p>
+<p>This function determines the backend to use for the PES calculation based on the
+environment variable <cite>MATCALC_BACKEND</cite>. If the variable is set to <cite>“ASE”</cite> (case-insensitive)
+or is not explicitly provided, the ASE backend is used. Otherwise, the LAMMPS backend is
+selected. The function then forwards the arguments and keyword arguments to the respective
+backend function for execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arg</strong> (<em>tuple</em>) – Variable-length positional arguments passed to the backend calculation function.</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Arbitrary keyword arguments passed to the backend calculation function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The result of the potential energy surface calculation performed by the selected
+backend.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult" title="matcalc.backend._base.SimulationResult">SimulationResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="matcalc.backend._ase.html">matcalc.backend._ase module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.TrajectoryObserver"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.TrajectoryObserver.atoms"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.atoms</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.TrajectoryObserver.potential_energies"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.potential_energies</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.TrajectoryObserver.kinetic_energies"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.kinetic_energies</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.TrajectoryObserver.total_energies"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.total_energies</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.TrajectoryObserver.forces"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.forces</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.TrajectoryObserver.stresses"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.stresses</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.TrajectoryObserver.atom_positions"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.atom_positions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.TrajectoryObserver.cells"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.cells</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#id0"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.atom_positions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#id1"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.atoms</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#id2"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.cells</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#id3"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.forces</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.TrajectoryObserver.get_slice"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.get_slice()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#id4"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.kinetic_energies</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#id5"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.potential_energies</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.TrajectoryObserver.save"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.save()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#id6"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.stresses</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._ase.html#id7"><code class="docutils literal notranslate"><span class="pre">TrajectoryObserver.total_energies</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.get_ase_optimizer"><code class="docutils literal notranslate"><span class="pre">get_ase_optimizer()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.is_ase_optimizer"><code class="docutils literal notranslate"><span class="pre">is_ase_optimizer()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="matcalc.backend._ase.html#matcalc.backend._ase.run_ase"><code class="docutils literal notranslate"><span class="pre">run_ase()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="matcalc.backend._base.html">matcalc.backend._base module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult"><code class="docutils literal notranslate"><span class="pre">SimulationResult</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult._asdict"><code class="docutils literal notranslate"><span class="pre">SimulationResult._asdict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult._field_defaults"><code class="docutils literal notranslate"><span class="pre">SimulationResult._field_defaults</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult._fields"><code class="docutils literal notranslate"><span class="pre">SimulationResult._fields</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult._make"><code class="docutils literal notranslate"><span class="pre">SimulationResult._make()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult._replace"><code class="docutils literal notranslate"><span class="pre">SimulationResult._replace()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult.energy"><code class="docutils literal notranslate"><span class="pre">SimulationResult.energy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult.forces"><code class="docutils literal notranslate"><span class="pre">SimulationResult.forces</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult.kinetic_energy"><code class="docutils literal notranslate"><span class="pre">SimulationResult.kinetic_energy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult.potential_energy"><code class="docutils literal notranslate"><span class="pre">SimulationResult.potential_energy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult.stress"><code class="docutils literal notranslate"><span class="pre">SimulationResult.stress</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="matcalc.backend._base.html#matcalc.backend._base.SimulationResult.structure"><code class="docutils literal notranslate"><span class="pre">SimulationResult.structure</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="matcalc.backend._lammps.html">matcalc.backend._lammps module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="matcalc.backend._lammps.html#matcalc.backend._lammps.run_lammps"><code class="docutils literal notranslate"><span class="pre">run_lammps()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Materials Virtual Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

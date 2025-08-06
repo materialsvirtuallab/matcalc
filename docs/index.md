@@ -31,16 +31,17 @@ Calculator).
 
 ## Documentation
 
-The API documentation and tutorials are available at https://matcalc.ai.
+The API documentation and tutorials are available at http://matcalc.ai.
 
 ## Outline
 
 The main base class in MatCalc is `PropCalc` (property calculator). [All `PropCalc` subclasses](https://github.com/search?q=repo%3Amaterialsvirtuallab%2Fmatcalc%20%22(PropCalc)%22) should implement a
-`calc(pymatgen.Structure) -> dict` method that returns a dictionary of properties.
+`calc(pymatgen.Structure | ase.Atoms | dict) -> dict` method that returns a dictionary of properties.
 
 In general, `PropCalc` should be initialized with an ML model or [ASE] calculator, which is then used by either ASE,
 LAMMPS or some other simulation code to perform calculations of properties. The `matcalc.PESCalculator` class
-provides easy access to many universal MLIPs as well as an interface to
+provides easy access to many foundation potentials (FPs) as well as an interface to MAML for custom MLIPs
+such as MTP, NNP, GAP, etc.
 
 # Basic Usage
 
@@ -60,6 +61,12 @@ print(f"K_VRH = {props['bulk_modulus_vrh'] * 160.2176621} GPa")
 
 The calculated `K_VRH` is about 102 GPa, in reasonably good agreement with the experimental and DFT values.
 
+You can easily access a list of universal calculators (not comprehensive) using the UNIVERSAL_CALCULATORS enum.
+
+```python
+print(mtc.UNIVERSAL_CALCULATORS)
+```
+
 While we generally recommend users to specify exactly the model they would like to use, MatCalc provides useful
 (case-insensitive) aliases to our recommended models for PBE and r2SCAN predictions. These can be loaded using:
 
@@ -69,8 +76,8 @@ pbe_calculator = mtc.load_fp("pbe")
 r2scan_calculator = mtc.load_fp("r2scan")
 ```
 
-At the time of writing, these are the TensorNet-MatPES models. However, these recommendations may updated as improved
-models become available.
+At the time of writing, these are the `TensorNet-MatPES-v2025.1` models for these functionals. However, these
+recommendations may updated as improved models become available.
 
 MatCalc also supports trivial parallelization using joblib via the `calc_many` method.
 
@@ -129,7 +136,7 @@ Chaining can also be used with the `calc_many` method, with parallelization.
 
 ### CLI tool
 
-A CLI tool provides a means to use universal MLIPs to obtain properties for any structure. Example usage:
+A CLI tool provides a means to use FPs to obtain properties for any structure. Example usage:
 
 ```shell
 matcalc calc -p ElasticityCalc -s Li2O.cif
@@ -173,6 +180,11 @@ initializing the benchmark to limit the number of calculations to do some testin
 ## Docker Images
 
 Docker images with MatCalc and LAMMPS support are available at the [Materials Virtual Lab Docker Repository].
+
+## Tutorials
+
+Anubhav Jain (@computron) has created a nice [YouTube tutorial](https://youtu.be/57Elhe4IIhI?si=KbZh5s7HAyNGvmFT) on
+how to use MatCalc to quickly obtain properties of materials.
 
 ## Citing
 

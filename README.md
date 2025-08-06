@@ -25,7 +25,7 @@ Calculator).
 
 ## Documentation
 
-The API documentation and tutorials are available at https://matcalc.ai.
+The API documentation and tutorials are available at http://matcalc.ai.
 
 ## Outline
 
@@ -174,6 +174,11 @@ initializing the benchmark to limit the number of calculations to do some testin
 ## Docker Images
 
 Docker images with MatCalc and LAMMPS support are available at the [Materials Virtual Lab Docker Repository].
+
+## Tutorials
+
+Anubhav Jain (@computron) has created a nice [YouTube tutorial](https://youtu.be/57Elhe4IIhI?si=KbZh5s7HAyNGvmFT) on
+how to use MatCalc to quickly obtain properties of materials.
 
 ## Citing
 
