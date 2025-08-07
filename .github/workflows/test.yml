@@ -33,6 +33,7 @@ jobs:
         run: |
           pip install dgl==2.4.0 -f https://data.dgl.ai/wheels/torch-2.4/repo.html
           pip install -e '.[ci]'
+          pip install git+https://gitlab.com/ase/ase.git # Can remove after 3.26.0 is released.
 
           apt-get install curl  # Curl is not part of the minimal container image, but is required for CodeCov upload.
       - name: pytest

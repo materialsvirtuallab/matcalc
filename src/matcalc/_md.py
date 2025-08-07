@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
-import warnings
+from ase import __version__ as _ase_version
 from ase import units
 from ase.md import Langevin
 from ase.md.andersen import Andersen
@@ -16,6 +17,7 @@ from ase.md.nptberendsen import Inhomogeneous_NPTBerendsen, NPTBerendsen
 from ase.md.nvtberendsen import NVTBerendsen
 from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 from ase.md.verlet import VelocityVerlet
+from packaging.version import Version
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
@@ -54,6 +56,7 @@ class MDCalc(PropCalc):
             "npt_nose_hoover",
             "npt_berendsen",
             "npt_inhomogeneous",
+            "npt_mtk",
             "npt_isotropic_mtk",
         ] = "nvt",
         temperature: int = 300,
@@ -90,8 +93,8 @@ class MDCalc(PropCalc):
             calculator (Calculator): The calculator used for energy, force, and stress evaluations.
                 Default to the provided calculator.
             ensemble (str): Ensemble for MD simulation. Options include "nve", "nvt_langevin",
-                "nvt_andersen", "nvt_bussi", "npt", "npt_berendsen", "npt_nose_hoover", "npt_mtk".
-                Default to "nvt".
+                "nvt_andersen", "nvt_bussi", "npt", "npt_berendsen", "npt_nose_hoover", "npt_mtk",
+                "npt_isotropic_mtk". Default to "nvt".
             temperature (int): Simulation temperature in Kelvin. Default to 300.
             timestep (float): Time step in femtoseconds. Default to 1.0.
             steps (int): Number of MD simulation steps. Default to 100.
@@ -187,9 +190,14 @@ class MDCalc(PropCalc):
                 append_trajectory=self.append_trajectory,
             )
         elif self.ensemble.lower() == "nvt" or self.ensemble.lower() == "nvt_nose_hoover":
-            warnings.warn("The ASE documentation strongly recommends against using the `NPT` class.
-                          Please read https://wiki.fysik.dtu.dk/ase/ase/md.html#constant-npt-simulations-the-isothermal-isobaric-ensemble
-                          for additional details.", UserWarning)
+            warnings.warn(
+                (
+                    "The ASE documentation strongly recommends against using the `NPT` class. "
+                    "Please read https://wiki.fysik.dtu.dk/ase/ase/md.html#constant-npt-simulations-the-isothermal-isobaric-ensemble for additional details."  # noqa: E501
+                ),
+                UserWarning,
+                stacklevel=2,
+            )
             self._upper_triangular_cell(atoms)
             md = NPT(
                 atoms,
@@ -291,6 +299,27 @@ class MDCalc(PropCalc):
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
+        elif self.ensemble.lower() == "npt_mtk":
+            if Version(_ase_version) > Version("3.25.0"):
+                from ase.md.nose_hoover_chain import MTKNPT
+            else:
+                raise ImportError("MTKNPT is only available in ASE version 3.26.0 or later.")
+            md = MTKNPT(
+                atoms,
+                timestep=timestep_fs,
+                temperature_K=self.temperature,
+                pressure_au=self.pressure,
+                tdamp=taut,
+                pdamp=taup,
+                tchain=self.tchain,
+                pchain=self.pchain,
+                tloop=self.tloop,
+                ploop=self.ploop,
+                trajectory=self.trajfile,
+                logfile=self.logfile,
+                loginterval=self.loginterval,
+                append_trajectory=self.append_trajectory,
+            )
         elif self.ensemble.lower() == "npt_isotropic_mtk":
             md = IsotropicMTKNPT(
                 atoms,
@@ -314,7 +343,7 @@ class MDCalc(PropCalc):
                 "The specified ensemble is not supported, choose from 'nve', 'nvt',"
                 " 'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
                 " 'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous',"
-                " 'npt_isotropic_mtk'."
+                " 'npt_mtk', 'npt_isotropic_mtk'."
             )
         return md
 

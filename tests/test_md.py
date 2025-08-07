@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
+from ase import __version__ as _ase_version
+from packaging.version import Version
 
 from matcalc import MDCalc
 
@@ -16,19 +18,32 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
+@pytest.fixture(scope="module", autouse=True)
+def set_seed() -> None:
+    np.random.seed(42)  # noqa: NPY002
+
+
 @pytest.mark.parametrize(
     ("ensemble", "expected_energy"),
     [
-        ("nve", -10.839367595419139),
-        ("nvt", -10.752140577997002),
-        ("nvt_berendsen", -10.79344712397928),
-        ("nvt_langevin", -10.719885845311552),
-        ("nvt_andersen", -10.838280482248559),
-        ("nvt_bussi", -10.83345229703825),
-        ("npt_inhomogeneous", -10.778117238180538),
-        ("npt_berendsen", -10.797141692994748),
-        ("npt_nose_hoover", -10.773028687488921),
-        ("npt_isotropic_mtk", -10.817933454243002),
+        ("nve", -10.819535868347996),
+        ("nvt", -10.84265926910263),
+        ("nvt_berendsen", -10.82033001817293),
+        ("nvt_langevin", -10.774126994388347),
+        ("nvt_andersen", -10.827990433233442),
+        ("nvt_bussi", -10.772954463144568),
+        ("npt_inhomogeneous", -10.8222801574377),
+        ("npt_berendsen", -10.801131048759578),
+        ("npt_nose_hoover", -10.776961885598102),
+        ("npt_isotropic_mtk", -10.802633196032712),
+        pytest.param(
+            "npt_mtk",
+            -10.819341706561369,
+            marks=pytest.mark.skipif(
+                Version(_ase_version) <= Version("3.25.0"),
+                reason="npt_mtk requires ASE >= 3.26.0",
+            ),
+        ),
     ],
 )
 def test_md_calc(
