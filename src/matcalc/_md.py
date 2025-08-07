@@ -301,7 +301,7 @@ class MDCalc(PropCalc):
             )
         elif self.ensemble.lower() == "npt_mtk":
             if Version(_ase_version) > Version("3.25.0"):
-                from ase.md.nose_hoover_chain import MTKNPT
+                from ase.md.nose_hoover_chain import MTKNPT  # type:ignore[attr-defined]
             else:
                 raise ImportError("MTKNPT is only available in ASE version 3.26.0 or later.")
             md = MTKNPT(
