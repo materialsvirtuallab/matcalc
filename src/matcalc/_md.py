@@ -11,7 +11,7 @@ from ase import units
 from ase.md import Langevin
 from ase.md.andersen import Andersen
 from ase.md.bussi import Bussi
-from ase.md.nose_hoover_chain import IsotropicMTKNPT
+from ase.md.nose_hoover_chain import IsotropicMTKNPT, NoseHooverChainNVT
 from ase.md.npt import NPT
 from ase.md.nptberendsen import Inhomogeneous_NPTBerendsen, NPTBerendsen
 from ase.md.nvtberendsen import NVTBerendsen
@@ -161,7 +161,7 @@ class MDCalc(PropCalc):
         self.frames = frames if frames is not None else self.steps
         self.relax_calc_kwargs = relax_calc_kwargs
 
-    def _initialize_md(self, atoms: Atoms) -> Any:  # noqa: C901,PLR0912
+    def _initialize_md(self, atoms: Atoms) -> Any:  # noqa: C901,PLR0912,PLR0911
         """
         Initializes the MD simulation object based on the provided ASE atoms object and simulation parameters.
 
@@ -178,10 +178,10 @@ class MDCalc(PropCalc):
         taup = self.taup if self.taup is not None else 1000 * self.timestep * units.fs
         mask = self.mask if self.mask is not None else np.array([(1, 0, 0), (0, 1, 0), (0, 0, 1)])
         external_stress = self.external_stress if self.external_stress is not None else 0.0
-        md: Any
+        ensemble = self.ensemble.lower()
 
-        if self.ensemble.lower() == "nve":
-            md = VelocityVerlet(
+        if ensemble == "nve":
+            return VelocityVerlet(
                 atoms,
                 timestep_fs,
                 trajectory=self.trajfile,
@@ -189,7 +189,7 @@ class MDCalc(PropCalc):
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
-        elif self.ensemble.lower() == "nvt" or self.ensemble.lower() == "nvt_nose_hoover":
+        if ensemble in ("nvt", "nvt_nose_hoover"):
             warnings.warn(
                 (
                     "The ASE documentation strongly recommends against using the `NPT` class. "
@@ -199,7 +199,7 @@ class MDCalc(PropCalc):
                 stacklevel=2,
             )
             self._upper_triangular_cell(atoms)
-            md = NPT(
+            return NoseHooverChainNVT(
                 atoms,
                 timestep_fs,
                 temperature_K=self.temperature,
@@ -212,8 +212,8 @@ class MDCalc(PropCalc):
                 append_trajectory=self.append_trajectory,
                 mask=mask,
             )
-        elif self.ensemble.lower() == "nvt_berendsen":
-            md = NVTBerendsen(
+        if ensemble == "nvt_berendsen":
+            return NVTBerendsen(
                 atoms,
                 timestep_fs,
                 temperature_K=self.temperature,
@@ -223,8 +223,8 @@ class MDCalc(PropCalc):
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
-        elif self.ensemble.lower() == "nvt_langevin":
-            md = Langevin(
+        if ensemble == "nvt_langevin":
+            return Langevin(
                 atoms,
                 timestep_fs,
                 temperature_K=self.temperature,
@@ -234,8 +234,8 @@ class MDCalc(PropCalc):
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
-        elif self.ensemble.lower() == "nvt_andersen":
-            md = Andersen(
+        if ensemble == "nvt_andersen":
+            return Andersen(
                 atoms,
                 timestep_fs,
                 temperature_K=self.temperature,
@@ -245,8 +245,8 @@ class MDCalc(PropCalc):
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
-        elif self.ensemble.lower() == "nvt_bussi":
-            md = Bussi(
+        if ensemble == "nvt_bussi":
+            return Bussi(
                 atoms,
                 timestep_fs,
                 temperature_K=self.temperature,
@@ -256,9 +256,9 @@ class MDCalc(PropCalc):
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
-        elif self.ensemble.lower() == "npt" or self.ensemble.lower() == "npt_nose_hoover":
+        if ensemble in ("npt", "npt_nose_hoover"):
             self._upper_triangular_cell(atoms)
-            md = NPT(
+            return NPT(
                 atoms,
                 timestep_fs,
                 temperature_K=self.temperature,
@@ -271,8 +271,8 @@ class MDCalc(PropCalc):
                 append_trajectory=self.append_trajectory,
                 mask=mask,
             )
-        elif self.ensemble.lower() == "npt_berendsen":
-            md = NPTBerendsen(
+        if ensemble == "npt_berendsen":
+            return NPTBerendsen(
                 atoms,
                 timestep_fs,
                 temperature_K=self.temperature,
@@ -285,8 +285,8 @@ class MDCalc(PropCalc):
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
-        elif self.ensemble.lower() == "npt_inhomogeneous":
-            md = Inhomogeneous_NPTBerendsen(
+        if ensemble == "npt_inhomogeneous":
+            return Inhomogeneous_NPTBerendsen(
                 atoms,
                 timestep_fs,
                 temperature_K=self.temperature,
@@ -299,12 +299,12 @@ class MDCalc(PropCalc):
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
-        elif self.ensemble.lower() == "npt_mtk":
+        if ensemble == "npt_mtk":
             if Version(_ase_version) > Version("3.25.0"):
                 from ase.md.nose_hoover_chain import MTKNPT  # type:ignore[attr-defined]
             else:
                 raise ImportError("MTKNPT is only available in ASE version 3.26.0 or later.")
-            md = MTKNPT(
+            return MTKNPT(
                 atoms,
                 timestep=timestep_fs,
                 temperature_K=self.temperature,
@@ -320,8 +320,8 @@ class MDCalc(PropCalc):
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
             )
-        elif self.ensemble.lower() == "npt_isotropic_mtk":
-            md = IsotropicMTKNPT(
+        if ensemble == "npt_isotropic_mtk":
+            return IsotropicMTKNPT(
                 atoms,
                 timestep=timestep_fs,
                 temperature_K=self.temperature,
@@ -338,14 +338,12 @@ class MDCalc(PropCalc):
                 append_trajectory=self.append_trajectory,
             )
 
-        else:
-            raise ValueError(
-                "The specified ensemble is not supported, choose from 'nve', 'nvt',"
-                " 'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
-                " 'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous',"
-                " 'npt_mtk', 'npt_isotropic_mtk'."
-            )
-        return md
+        raise ValueError(
+            "The specified ensemble is not supported, choose from 'nve', 'nvt',"
+            " 'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
+            " 'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous',"
+            " 'npt_mtk', 'npt_isotropic_mtk'."
+        )
 
     def _upper_triangular_cell(self, atoms: Atoms) -> None:
         """
