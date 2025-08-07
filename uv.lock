@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.13' and sys_platform == 'win32'",
@@ -2862,7 +2862,7 @@ test-models = [
 
 [package.metadata]
 requires-dist = [
-    { name = "ase", specifier = ">=3.23.0" },
+    { name = "ase", specifier = ">=3.25.0" },
     { name = "codecov-cli", marker = "extra == 'ci'", specifier = ">=10.3.0" },
     { name = "coverage", marker = "extra == 'ci'", specifier = ">=7.7.1" },
     { name = "coveralls", marker = "extra == 'ci'", specifier = ">=4.0.1" },
