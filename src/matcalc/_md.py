@@ -204,14 +204,10 @@ class MDCalc(PropCalc):
                 timestep_fs,
                 tdamp=taut,
                 temperature_K=self.temperature,
-                externalstress=external_stress,  # type: ignore[arg-type]
-                ttime=self.ttime * units.fs,
-                pfactor=None,  # Disable pressure coupling to convert to NVT ensemble
                 trajectory=self.trajfile,
                 logfile=self.logfile,
                 loginterval=self.loginterval,
                 append_trajectory=self.append_trajectory,
-                mask=mask,
             )
         if ensemble == "nvt_berendsen":
             return NVTBerendsen(
