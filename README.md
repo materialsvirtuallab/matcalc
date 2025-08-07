@@ -190,4 +190,4 @@ sidebar for a BibTeX and APA citation.
 [MatPES]: https://matpes.ai
 [MatCalc]: https://matcalc.ai
 [ASE]: https://wiki.fysik.dtu.dk/ase/
-[Materials Virtual Lab Docker Repository]: https://hub.docker.com/orgs/materialsvirtuallab/repositories
+[Materials Virtual Lab Docker Repository]: https://hub.docker.com/u/materialsvirtuallab
