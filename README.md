@@ -71,7 +71,7 @@ r2scan_calculator = mtc.load_fp("r2scan")
 ```
 
 At the time of writing, these are the `TensorNet-MatPES-v2025.1` models for these functionals. However, these
-recommendations may updated as improved models become available.
+recommendations may be updated as improved models become available.
 
 MatCalc also supports trivial parallelization using joblib via the `calc_many` method.
 
@@ -177,8 +177,8 @@ Docker images with MatCalc and LAMMPS support are available at the [Materials Vi
 
 ## Tutorials
 
-Anubhav Jain (@computron) has created a nice [YouTube tutorial](https://youtu.be/57Elhe4IIhI?si=KbZh5s7HAyNGvmFT) on
-how to use MatCalc to quickly obtain properties of materials.
+Anubhav Jain (@computron) has created a nice [YouTube tutorial](https://youtu.be/57Elhe4IIhI?si=KbZh5s7HAyNGvmFT) on how to use MatCalc to quickly obtain properties
+of materials.
 
 ## Citing
 
