@@ -202,6 +202,7 @@ class MDCalc(PropCalc):
             return NoseHooverChainNVT(
                 atoms,
                 timestep_fs,
+                tdamp=taut,
                 temperature_K=self.temperature,
                 externalstress=external_stress,  # type: ignore[arg-type]
                 ttime=self.ttime * units.fs,
