@@ -110,13 +110,13 @@ class MDCalc(PropCalc):
                 If not provided, defaults to 0.0.
             compressibility_au (float | None): Material compressibility in Å³/eV. Default to None.
             tchain (int): The number of thermostat variables in the Nose-Hoover thermostat. Default to 3.
-                Only used by IsotropicMTKNPT.
+                Only used by IsotropicMTKNPT and MTKNPT.
             pchain (int): The number of barostat variables in the Nose-Hoover barostat. Default to 3.
-                Only used by IsotropicMTKNPT.
+                Only used by IsotropicMTKNPT and MTKNPT.
             tloop (int): The number of sub-steps in thermostat integration. Default to 1.
-                Only used by IsotropicMTKNPT.
+                Only used by IsotropicMTKNPT and MTKNPT.
             ploop (int): T The number of sub-steps in barostat integration. Default to 1.
-                Only used by IsotropicMTKNPT.
+                Only used by IsotropicMTKNPT and MTKNPT.
             trajfile (Any): Trajectory object or file for storing simulation data. Default to None.
             logfile (str | None): Filename for simulation logs. Default to None.
             loginterval (int): Interval (in steps) for logging simulation data. Default to 1.
