@@ -97,9 +97,9 @@ class MDCalc(PropCalc):
             steps (int): Number of MD simulation steps. Default to 100.
             pressure (float): External pressure for NPT simulations (in eV/Å³). Default to 1.01325 * units.bar.
             taut (float | None): Time constant for temperature coupling. If None, defaults to 100 * timestep * fs.
-                For npt_isotropic_mtk, this is the time constant for temperature damping.
+                For npt_mtk and npt_isotropic_mtk, this is the time constant for temperature damping.
             taup (float | None): Time constant for pressure coupling. If None, defaults to 1000 * timestep * fs.
-                For npt_isotropic_mtk, this is the time constant for pressure damping.
+                For npt_mtk and npt_isotropic_mtk, this is the time constant for pressure damping.
             friction (float): Friction coefficient for Langevin dynamics. Default to 1.0e-3.
             andersen_prob (float): Collision probability for Andersen thermostat. Default to 1.0e-2.
             ttime (float): Characteristic time scale for the thermostat in ASE units (fs). Default to 25.0.
