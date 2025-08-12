@@ -7,8 +7,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
-from ase import __version__ as _ase_version
-from packaging.version import Version
 
 from matcalc import MDCalc
 
@@ -36,9 +34,8 @@ def set_seed() -> None:
         ("npt_berendsen", -10.801131048759578),
         ("npt_nose_hoover", -10.776961885598102),
         ("npt_isotropic_mtk", -10.802633196032712),
-        (    "npt_mtk",
-            -10.819341706561369)
-            ],
+        ("npt_mtk", -10.819341706561369),
+    ],
 )
 def test_md_calc(
     Si: Structure,
