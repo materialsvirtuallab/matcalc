@@ -5,18 +5,17 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
-from ase import __version__ as _ase_version
 from ase import units
 from ase.md import Langevin
 from ase.md.andersen import Andersen
 from ase.md.bussi import Bussi
-from ase.md.nose_hoover_chain import IsotropicMTKNPT, MTKNPT, NoseHooverChainNVT
+from ase.md.nose_hoover_chain import MTKNPT, IsotropicMTKNPT, NoseHooverChainNVT
 from ase.md.npt import NPT
 from ase.md.nptberendsen import Inhomogeneous_NPTBerendsen, NPTBerendsen
 from ase.md.nvtberendsen import NVTBerendsen
 from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 from ase.md.verlet import VelocityVerlet
-from packaging.version import Version
+
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
 from .backend._ase import TrajectoryObserver
@@ -159,7 +158,7 @@ class MDCalc(PropCalc):
         self.frames = frames if frames is not None else self.steps
         self.relax_calc_kwargs = relax_calc_kwargs
 
-    def _initialize_md(self, atoms: Atoms) -> Any:  # noqa: C901,PLR0912,PLR0911
+    def _initialize_md(self, atoms: Atoms) -> Any:  # noqa: C901, PLR0911
         """
         Initializes the MD simulation object based on the provided ASE atoms object and simulation parameters.
 
