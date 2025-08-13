@@ -46,7 +46,7 @@ try:
     # Auto-load all available PES models from matgl if installed.
     import matgl
 
-    _universal_calculators += [m for m in matgl.get_available_pretrained_models() 
+    _universal_calculators += [m for m in matgl.get_available_pretrained_models()
                                if "PES" in m and "ANI-1x-Subset-PES" not in m]
     _universal_calculators = sorted(set(_universal_calculators))
 except Exception:  # noqa: BLE001
