@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
+
 from matcalc import MDCalc
 
 if TYPE_CHECKING:
@@ -73,15 +74,11 @@ def test_md_calc(
     energies = np.array(results["trajectory"].total_energies)
 
     if ensemble != "nve":
-        assert not np.allclose(energies - energies[0], 0, atol=1e-9), (
-            f"Energies are too close for {ensemble}"
-        )
+        assert not np.allclose(energies - energies[0], 0, atol=1e-9), f"Energies are too close for {ensemble}"
 
     if ensemble.startswith("nvt"):
         # There should be no volume change for NVT simulations.
-        assert np.linalg.det(results["trajectory"].cells[-1]) == pytest.approx(
-            initial_vol, rel=1e-2
-        )
+        assert np.linalg.det(results["trajectory"].cells[-1]) == pytest.approx(initial_vol, rel=1e-2)
 
     assert len(results["trajectory"]) == 5
 
