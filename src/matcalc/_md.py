@@ -373,14 +373,9 @@ class MDCalc(PropCalc):
         if self.relax_structure:
             # Create a RelaxCalc instance with the specified calculator, convergence criteria (fmax),
             # optimizer, and any additional keyword arguments for the relaxation calculation.
-            relaxer = RelaxCalc(
-                self.calculator,
-                fmax=self.fmax,
-                optimizer=self.optimizer,
-                relax_atoms=True,
-                relax_cell=False,
-                **(self.relax_calc_kwargs or {}),
-            )
+            full_relax_calc_kwargs = {"fmax": self.fmax, "optimizer": self.optimizer, "relax_atoms": True, "relax_cell": False} | (self.relax_calc_kwargs or {})
+            
+            relaxer = RelaxCalc(self.calculator, **relax_calc_kwargs)
             # Run the relaxation calculation and update the result dictionary.
             result |= relaxer.calc(structure_in)
             # Update the input structure with the relaxed final structure.
