@@ -113,6 +113,7 @@ def test_md_relax_cell(
     """Tests for MDCalc class with cell relaxation"""
     # Note: fmax is set relatively high for testing purposes only.
 
+    # default behavior (relax_cell = False)
     md_calc = MDCalc(
         calculator=matpes_calculator,
         ensemble="npt_mtk",
@@ -121,7 +122,6 @@ def test_md_relax_cell(
         compressibility_au=1,
         logfile="test.log",
         trajfile="test.traj,
-        relax_calc_kwargs={"relax_cell": True}
     )
     initial_vol = Si.lattice.volume
     volume_after_relax = np.linalg.det(results["trajectory"].cells[0])
