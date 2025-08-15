@@ -124,6 +124,7 @@ def test_md_relax_cell(
         trajfile="test.traj,
     )
     initial_vol = Si.lattice.volume
+    results = md_calc.calc(Si)
     volume_after_relax = np.linalg.det(results["trajectory"].cells[0])
     assert volume_after_relax == pytest.approx(initial_vol)
 
@@ -138,6 +139,7 @@ def test_md_relax_cell(
         relax_calc_kwargs={"relax_cell": True}
     )
     initial_vol = Si.lattice.volume
+    results = md_calc.calc(Si)
     volume_after_relax = np.linalg.det(results["trajectory"].cells[0])
     assert volume_after_relax != pytest.approx(initial_vol, rel=0.1)
 
