@@ -107,6 +107,40 @@ def test_md_atoms(
     assert isinstance(results, dict)
 
 
+def test_md_relax_cell(
+    Si: Structure,
+    matpes_calculator: PESCalculator,
+) -> None:
+    """Tests for MDCalc class with cell relaxation"""
+    # Note: fmax is set relatively high for testing purposes only.
+
+    # default behavior (relax_cell = False)
+    md_calc = MDCalc(
+        calculator=matpes_calculator,
+        ensemble="npt_mtk",
+        temperature=300,
+        steps=1,
+        compressibility_au=1,
+    )
+    initial_vol = Si.lattice.volume
+    results = md_calc.calc(Si)
+    volume_after_relax = np.linalg.det(results["trajectory"].cells[0])
+    assert volume_after_relax == pytest.approx(initial_vol, rel=1e-4)
+
+    md_calc = MDCalc(
+        calculator=matpes_calculator,
+        ensemble="npt_mtk",
+        temperature=300,
+        steps=1,
+        compressibility_au=1,
+        relax_calc_kwargs={"relax_cell": True},
+    )
+    initial_vol = Si.lattice.volume
+    results = md_calc.calc(Si)
+    volume_after_relax = np.linalg.det(results["trajectory"].cells[0])
+    assert abs(volume_after_relax - initial_vol) > 0.1
+
+
 def test_invalid_ensemble(Si: Structure, matpes_calculator: PESCalculator) -> None:
     with pytest.raises(
         ValueError,
