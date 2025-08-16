@@ -82,6 +82,8 @@ class MDCalc(PropCalc):
         optimizer: str = "FIRE",
         frames: int | None = None,
         relax_calc_kwargs: dict | None = None,
+        set_com_stationary: bool = False,
+        set_zero_rotation: bool = False,
     ) -> None:
         """
         Initializes an MDCalc instance with the specified simulation parameters and relaxation settings.
@@ -128,6 +130,10 @@ class MDCalc(PropCalc):
             returned, i.e., frames = steps.
             relax_calc_kwargs (dict | None): Additional keyword arguments for the relaxation calculation.
                 Default to None.
+            set_com_stationary (bool): Whether to set the center-of-mass momentum to zero.
+                Default to False.
+            set_zero_rotation (bool): Whether to set the total angular momentum to zero.
+                Default to False.
         """
         self.calculator = calculator
         self.ensemble = ensemble
@@ -393,6 +399,12 @@ class MDCalc(PropCalc):
         # Initialize the atomic velocities based on the Maxwell-Boltzmann distribution
         # at the specified temperature, ensuring proper kinetic energy.
         MaxwellBoltzmannDistribution(atoms, temperature_K=self.temperature)
+
+        if self.set_com_stationary:
+            Stationary(atoms)
+
+        if self.set_zero_rotation:
+            ZeroRotation(atoms)
 
         # Initialize the molecular dynamics (MD) simulation and set up the simulation parameters.
         md = self._initialize_md(atoms)
