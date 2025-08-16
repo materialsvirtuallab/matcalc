@@ -163,6 +163,8 @@ class MDCalc(PropCalc):
         self.optimizer = optimizer
         self.frames = frames if frames is not None else self.steps
         self.relax_calc_kwargs = relax_calc_kwargs
+        self.set_com_stationary = set_com_stationary
+        self.set_zero_rotation = set_zero_rotation
 
     def _initialize_md(self, atoms: Atoms) -> Any:  # noqa: C901, PLR0911
         """
