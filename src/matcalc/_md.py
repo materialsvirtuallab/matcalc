@@ -130,9 +130,11 @@ class MDCalc(PropCalc):
             returned, i.e., frames = steps.
             relax_calc_kwargs (dict | None): Additional keyword arguments for the relaxation calculation.
                 Default to None.
-            set_com_stationary (bool): Whether to set the center-of-mass momentum to zero.
+            set_com_stationary (bool): Whether to set the center-of-mass momentum to zero after setting up the
+                Maxwell-Boltzmann distribution.
                 Default to False.
-            set_zero_rotation (bool): Whether to set the total angular momentum to zero.
+            set_zero_rotation (bool): Whether to set the total angular momentum to zero after setting up the
+                Maxwell-Boltzmann distribution.
                 Default to False.
         """
         self.calculator = calculator
