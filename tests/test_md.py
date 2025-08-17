@@ -7,17 +7,20 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
+from ase.io import read
 
 from matcalc import MDCalc
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from ase import Atoms
     from matgl.ext.ase import PESCalculator
     from pymatgen.core import Structure
 
 
 @pytest.fixture(scope="module", autouse=True)
-def set_seed() -> None:
+def _set_seed() -> None:
     np.random.seed(42)  # noqa: NPY002
 
 
@@ -139,6 +142,36 @@ def test_md_relax_cell(
     results = md_calc.calc(Si)
     volume_after_relax = np.linalg.det(results["trajectory"].cells[0])
     assert abs(volume_after_relax - initial_vol) > 0.1
+
+
+def test_stationary(Si_atoms: Atoms, matpes_calculator: PESCalculator, tmp_path: Path) -> None:
+    """Tests for MDCalc class with stationary states"""
+    md_calc = MDCalc(
+        calculator=matpes_calculator,
+        ensemble="npt_mtk",
+        temperature=300,
+        steps=10,
+        compressibility_au=1,
+        trajfile=tmp_path / "test.traj",
+    )
+    md_calc.calc(Si_atoms)
+    assert read(tmp_path / "test.traj", index=":")[-1].get_center_of_mass() != pytest.approx(
+        Si_atoms.get_center_of_mass(), abs=1e-2
+    )
+
+    md_calc = MDCalc(
+        calculator=matpes_calculator,
+        ensemble="npt_mtk",
+        temperature=300,
+        steps=10,
+        compressibility_au=1,
+        set_com_stationary=True,
+        trajfile=tmp_path / "test2.traj",
+    )
+    md_calc.calc(Si_atoms)
+    assert read(tmp_path / "test2.traj", index=":")[-1].get_center_of_mass() == pytest.approx(
+        Si_atoms.get_center_of_mass(), abs=1e-3
+    )
 
 
 def test_invalid_ensemble(Si: Structure, matpes_calculator: PESCalculator) -> None:
