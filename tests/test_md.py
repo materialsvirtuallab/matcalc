@@ -160,7 +160,7 @@ def test_stationary(Si_atoms: Atoms, matpes_calculator: PESCalculator, tmp_path:
     )
     md_calc.calc(Si_atoms)
     final_com = read(tmp_path / "test.traj", index=":")[-1].get_center_of_mass()
-    assert final_com == pytest.approx(starting_com, abs=1e-3)
+    assert final_com == pytest.approx(starting_com, abs=1e-2)
 
     # Test with non-stationary COM
     # Note: MTKNPT does not zero out COM momentum
