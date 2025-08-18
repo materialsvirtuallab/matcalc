@@ -13,7 +13,7 @@ from ase.md.nose_hoover_chain import MTKNPT, IsotropicMTKNPT, NoseHooverChainNVT
 from ase.md.npt import NPT
 from ase.md.nptberendsen import Inhomogeneous_NPTBerendsen, NPTBerendsen
 from ase.md.nvtberendsen import NVTBerendsen
-from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
+from ase.md.velocitydistribution import MaxwellBoltzmannDistribution, Stationary, ZeroRotation
 from ase.md.verlet import VelocityVerlet
 
 from ._base import PropCalc
@@ -82,6 +82,8 @@ class MDCalc(PropCalc):
         optimizer: str = "FIRE",
         frames: int | None = None,
         relax_calc_kwargs: dict | None = None,
+        set_com_stationary: bool = False,
+        set_zero_rotation: bool = False,
     ) -> None:
         """
         Initializes an MDCalc instance with the specified simulation parameters and relaxation settings.
@@ -128,6 +130,12 @@ class MDCalc(PropCalc):
             returned, i.e., frames = steps.
             relax_calc_kwargs (dict | None): Additional keyword arguments for the relaxation calculation.
                 Default to None.
+            set_com_stationary (bool): Whether to set the center-of-mass momentum to zero after setting up the
+                Maxwell-Boltzmann distribution.
+                Default to False.
+            set_zero_rotation (bool): Whether to set the total angular momentum to zero after setting up the
+                Maxwell-Boltzmann distribution.
+                Default to False.
         """
         self.calculator = calculator
         self.ensemble = ensemble
@@ -157,6 +165,8 @@ class MDCalc(PropCalc):
         self.optimizer = optimizer
         self.frames = frames if frames is not None else self.steps
         self.relax_calc_kwargs = relax_calc_kwargs
+        self.set_com_stationary = set_com_stationary
+        self.set_zero_rotation = set_zero_rotation
 
     def _initialize_md(self, atoms: Atoms) -> Any:  # noqa: C901, PLR0911
         """
@@ -393,6 +403,12 @@ class MDCalc(PropCalc):
         # Initialize the atomic velocities based on the Maxwell-Boltzmann distribution
         # at the specified temperature, ensuring proper kinetic energy.
         MaxwellBoltzmannDistribution(atoms, temperature_K=self.temperature)
+
+        if self.set_com_stationary:
+            Stationary(atoms)
+
+        if self.set_zero_rotation:
+            ZeroRotation(atoms)
 
         # Initialize the molecular dynamics (MD) simulation and set up the simulation parameters.
         md = self._initialize_md(atoms)
