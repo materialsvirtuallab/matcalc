@@ -20,6 +20,7 @@ from matminer.featurizers.structure import SiteStatsFingerprint
 from monty.json import MontyDecoder
 from monty.serialization import dumpfn, loadfn
 from scipy.optimize import curve_fit
+from tqdm import tqdm
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -342,10 +343,11 @@ class Benchmark(metaclass=abc.ABCMeta):
             structures = list(self.structures)
 
         prop_calc = self.get_prop_calc(calculator, **self.kwargs)
-        # We make sure of the generator from prop_calc.calc_many to do this in a memory efficient manner.
+        # We make use of the generator from prop_calc.calc_many to do this in a memory efficient manner.
         # allow_errors typically should be true since some of the calculations may fail.
-        for row, d in zip(
-            ground_truth, prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs), strict=True
+        for row, d in tqdm(
+            zip(ground_truth, prop_calc.calc_many(structures, n_jobs=n_jobs, allow_errors=True, **kwargs), strict=True),
+            total=len(structures),
         ):
             r = dict(row)
             r.update(self.process_result(d, model_name))
