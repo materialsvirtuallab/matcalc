@@ -5,18 +5,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
-from ase import __version__ as _ase_version
 from ase import units
 from ase.md import Langevin
 from ase.md.andersen import Andersen
 from ase.md.bussi import Bussi
-from ase.md.nose_hoover_chain import IsotropicMTKNPT, NoseHooverChainNVT
+from ase.md.nose_hoover_chain import MTKNPT, IsotropicMTKNPT, NoseHooverChainNVT
 from ase.md.npt import NPT
 from ase.md.nptberendsen import Inhomogeneous_NPTBerendsen, NPTBerendsen
 from ase.md.nvtberendsen import NVTBerendsen
-from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
+from ase.md.velocitydistribution import MaxwellBoltzmannDistribution, Stationary, ZeroRotation
 from ase.md.verlet import VelocityVerlet
-from packaging.version import Version
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
@@ -84,6 +82,8 @@ class MDCalc(PropCalc):
         optimizer: str = "FIRE",
         frames: int | None = None,
         relax_calc_kwargs: dict | None = None,
+        set_com_stationary: bool = False,
+        set_zero_rotation: bool = False,
     ) -> None:
         """
         Initializes an MDCalc instance with the specified simulation parameters and relaxation settings.
@@ -99,9 +99,9 @@ class MDCalc(PropCalc):
             steps (int): Number of MD simulation steps. Default to 100.
             pressure (float): External pressure for NPT simulations (in eV/Å³). Default to 1.01325 * units.bar.
             taut (float | None): Time constant for temperature coupling. If None, defaults to 100 * timestep * fs.
-                For npt_isotropic_mtk, this is the time constant for temperature damping.
+                For npt_mtk and npt_isotropic_mtk, this is the time constant for temperature damping.
             taup (float | None): Time constant for pressure coupling. If None, defaults to 1000 * timestep * fs.
-                For npt_isotropic_mtk, this is the time constant for pressure damping.
+                For npt_mtk and npt_isotropic_mtk, this is the time constant for pressure damping.
             friction (float): Friction coefficient for Langevin dynamics. Default to 1.0e-3.
             andersen_prob (float): Collision probability for Andersen thermostat. Default to 1.0e-2.
             ttime (float): Characteristic time scale for the thermostat in ASE units (fs). Default to 25.0.
@@ -110,13 +110,13 @@ class MDCalc(PropCalc):
                 If not provided, defaults to 0.0.
             compressibility_au (float | None): Material compressibility in Å³/eV. Default to None.
             tchain (int): The number of thermostat variables in the Nose-Hoover thermostat. Default to 3.
-                Only used by IsotropicMTKNPT.
+                Only used by IsotropicMTKNPT and MTKNPT.
             pchain (int): The number of barostat variables in the Nose-Hoover barostat. Default to 3.
-                Only used by IsotropicMTKNPT.
+                Only used by IsotropicMTKNPT and MTKNPT.
             tloop (int): The number of sub-steps in thermostat integration. Default to 1.
-                Only used by IsotropicMTKNPT.
+                Only used by IsotropicMTKNPT and MTKNPT.
             ploop (int): T The number of sub-steps in barostat integration. Default to 1.
-                Only used by IsotropicMTKNPT.
+                Only used by IsotropicMTKNPT and MTKNPT.
             trajfile (Any): Trajectory object or file for storing simulation data. Default to None.
             logfile (str | None): Filename for simulation logs. Default to None.
             loginterval (int): Interval (in steps) for logging simulation data. Default to 1.
@@ -130,6 +130,12 @@ class MDCalc(PropCalc):
             returned, i.e., frames = steps.
             relax_calc_kwargs (dict | None): Additional keyword arguments for the relaxation calculation.
                 Default to None.
+            set_com_stationary (bool): Whether to set the center-of-mass momentum to zero after setting up the
+                Maxwell-Boltzmann distribution.
+                Default to False.
+            set_zero_rotation (bool): Whether to set the total angular momentum to zero after setting up the
+                Maxwell-Boltzmann distribution.
+                Default to False.
         """
         self.calculator = calculator
         self.ensemble = ensemble
@@ -159,8 +165,10 @@ class MDCalc(PropCalc):
         self.optimizer = optimizer
         self.frames = frames if frames is not None else self.steps
         self.relax_calc_kwargs = relax_calc_kwargs
+        self.set_com_stationary = set_com_stationary
+        self.set_zero_rotation = set_zero_rotation
 
-    def _initialize_md(self, atoms: Atoms) -> Any:  # noqa: C901,PLR0912,PLR0911
+    def _initialize_md(self, atoms: Atoms) -> Any:  # noqa: C901, PLR0911
         """
         Initializes the MD simulation object based on the provided ASE atoms object and simulation parameters.
 
@@ -288,10 +296,6 @@ class MDCalc(PropCalc):
                 append_trajectory=self.append_trajectory,
             )
         if ensemble == "npt_mtk":
-            if Version(_ase_version) > Version("3.25.0"):
-                from ase.md.nose_hoover_chain import MTKNPT  # type:ignore[attr-defined]
-            else:
-                raise ImportError("MTKNPT is only available in ASE version 3.26.0 or later.")
             return MTKNPT(
                 atoms,
                 timestep=timestep_fs,
@@ -379,14 +383,14 @@ class MDCalc(PropCalc):
         if self.relax_structure:
             # Create a RelaxCalc instance with the specified calculator, convergence criteria (fmax),
             # optimizer, and any additional keyword arguments for the relaxation calculation.
-            relaxer = RelaxCalc(
-                self.calculator,
-                fmax=self.fmax,
-                optimizer=self.optimizer,
-                relax_atoms=True,
-                relax_cell=False,
-                **(self.relax_calc_kwargs or {}),
-            )
+            merged_relax_calc_kwargs = {
+                "fmax": self.fmax,
+                "optimizer": self.optimizer,
+                "relax_atoms": True,
+                "relax_cell": False,
+            } | (self.relax_calc_kwargs or {})
+
+            relaxer = RelaxCalc(self.calculator, **merged_relax_calc_kwargs)
             # Run the relaxation calculation and update the result dictionary.
             result |= relaxer.calc(structure_in)
             # Update the input structure with the relaxed final structure.
@@ -399,6 +403,12 @@ class MDCalc(PropCalc):
         # Initialize the atomic velocities based on the Maxwell-Boltzmann distribution
         # at the specified temperature, ensuring proper kinetic energy.
         MaxwellBoltzmannDistribution(atoms, temperature_K=self.temperature)
+
+        if self.set_com_stationary:
+            Stationary(atoms)
+
+        if self.set_zero_rotation:
+            ZeroRotation(atoms)
 
         # Initialize the molecular dynamics (MD) simulation and set up the simulation parameters.
         md = self._initialize_md(atoms)
