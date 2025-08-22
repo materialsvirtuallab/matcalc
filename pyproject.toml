@@ -44,7 +44,7 @@ dependencies = [
     "phonopy>=2.38.0",
     "phono3py>=3.15.0",
 ]
-version = "0.4.2"
+version = "0.4.3"
 
 [project.optional-dependencies]
 phonon = ["seekpath"]
@@ -116,6 +116,7 @@ dev = [
     "matminer>=0.9.3",
     "mp-api>=0.45.3",
     "nbmake>=1.5.5",
+    "openai>=1.101.0",
     "pre-commit>=4.2.0",
     "pytest>=8.3.5",
     "pytest-cov>=6.0.0",
@@ -184,7 +185,7 @@ docstring-code-format = true
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
-"tasks.py" = ["ANN", "D", "T203"]
+"tasks.py" = ["ANN", "D", "T203", "T201", "BLE001", "S"]
 "tests/*" = ["D", "INP001", "N802", "N803", "PLR2004", "S101"]
 "tests/test_cli.py" = ["S603", "S607"]
 

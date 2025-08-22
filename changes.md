@@ -6,6 +6,20 @@ nav_order: 2
 
 # Change Log
 
+## v0.4.3
+
+1. **PR #102 fix:** add `required-environments` to enable Linux install by @MorrowChem
+2. **PR #97:** Make it possible to set COM momentum and/or rotation to zero in `MDCalc` by @Andrew-S-Rosen
+   - Feature: Allows setting the center-of-mass momentum and angular momenta to zero in `MDCalc` to prevent drift.
+3. **PR #96:** Allow for `MDCalc` to be run with `relax_cell=True` during the initial relaxation by @Andrew-S-Rosen
+   - Feature: Enables unit cell relaxation before an MD run.
+4. **PR #89:** Add support for `MTKNPT` by @Andrew-S-Rosen
+   - Feature: Added support for `MTKNPT`, the recommended method for NPT simulations in ASE.
+5. **PR #90:** Add a warning if using `NPT` by @Andrew-S-Rosen
+    - Warning: Raises `UserWarning` when `NPT` class is used due to stability concerns.
+6. **PR #88:** Add IsotropicMTKNPT to `_md.py` by @Andrew-S-Rosen
+    - Feature: Introduced `IsotropicMTKNPT` support, expanding supported `ensemble` options.
+
 ## v0.4.2
 - Bug fix for surface calculations (@computron).
 - Update OCPCalculator with the newer FairChemCalculator (@atulcthakur)
