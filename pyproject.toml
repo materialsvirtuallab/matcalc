@@ -147,6 +147,12 @@ conflicts = [
       { extra = "mattersim" },
     ],
 ]
+required-environments = [
+    "sys_platform == 'linux'",
+    "sys_platform == 'darwin' and platform_machine == 'x86_64'",
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
+
 
 [tool.ruff]
 line-length = 120
