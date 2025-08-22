@@ -18,6 +18,7 @@ nav_order: 2
     - Warning: Raises `UserWarning` when `NPT` class is used due to stability concerns.
 6. **PR #88:** Add IsotropicMTKNPT to `_md.py` by @Andrew-S-Rosen
     - Feature: Introduced `IsotropicMTKNPT` support, expanding supported `ensemble` options.
+7. Progress bars when running benchmarks.
 
 ## v0.4.2
 - Bug fix for surface calculations (@computron).
