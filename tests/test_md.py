@@ -64,7 +64,7 @@ def test_md_calc(
     )
     initial_vol = Si.lattice.volume
     results = md_calc.calc(Si)
-
+    assert results["final_structure"] != Si
     assert isinstance(results, dict)
 
     assert "trajectory" in results

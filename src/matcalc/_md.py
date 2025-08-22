@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
-from ase import units
+from ase import Atoms, units
 from ase.md import Langevin
 from ase.md.andersen import Andersen
 from ase.md.bussi import Bussi
@@ -19,12 +19,11 @@ from ase.md.verlet import VelocityVerlet
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
 from .backend._ase import TrajectoryObserver
-from .utils import to_ase_atoms
+from .utils import to_ase_atoms, to_pmg_structure
 
 if TYPE_CHECKING:
     from typing import Any
 
-    from ase import Atoms
     from ase.calculators.calculator import Calculator
     from pymatgen.core import Structure
 
@@ -419,6 +418,13 @@ class MDCalc(PropCalc):
 
         # Run the MD simulation for the specified number of steps.
         md.run(self.steps)
+        final_atoms = Atoms(
+            traj.atoms.get_chemical_symbols(),
+            positions=traj.atom_positions[-1],
+            cell=traj.cells[-1],
+            pbc=traj.atoms.get_pbc(),
+        )
+        result["final_structure"] = to_pmg_structure(final_atoms)
 
         traj = traj.get_slice(slice(-self.frames, len(traj), 1))
 
