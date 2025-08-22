@@ -7,7 +7,6 @@ nav_order: 2
 # Change Log
 
 ## v0.4.3
-
 1. **PR #102 fix:** add `required-environments` to enable Linux install by @MorrowChem
 2. **PR #97:** Make it possible to set COM momentum and/or rotation to zero in `MDCalc` by @Andrew-S-Rosen
    - Feature: Allows setting the center-of-mass momentum and angular momenta to zero in `MDCalc` to prevent drift.
