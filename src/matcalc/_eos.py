@@ -119,6 +119,13 @@ class EOSCalc(PropCalc):
             structures under conditions of strain, energy-volume data, Birch-Murnaghan
             bulk modulus (in GPa), and R-squared fit of the Birch-Murnaghan model to the
             data.
+        The units are originally documented in pymatgen.
+        See pymatgen.analysis.eos.BirchMurnaghan()
+        (https://github.com/materialsproject/pymatgen/blob/master/src/pymatgen/analysis/eos.py/#316)
+        -> pymatgen.analysis.eos.EOSBase()
+        (https://github.com/materialsproject/pymatgen/blob/master/src/pymatgen/analysis/eos.py/#38)
+        -> pymatgen.analysis.eos.EOSBase.b0_GPa()
+        (https://github.com/materialsproject/pymatgen/blob/master/src/pymatgen/analysis/eos.py/#155)
         """
         result = super().calc(structure)
         structure_in: Structure = to_pmg_structure(result["final_structure"])
