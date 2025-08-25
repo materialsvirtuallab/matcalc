@@ -162,8 +162,15 @@ class Phonon3Calc(PropCalc):
             - "temperatures": A numpy array of temperatures over which thermal
               conductivity has been computed.
             - "thermal_conductivity": The averaged thermal conductivity values computed
-              at the specified temperatures. Returns NaN if the values cannot be
+              at the specified temperatures in W/m-K. Returns NaN if the values cannot be
               computed.
+              The units are originally documented in phono3py.
+              See phono3py.Phono3py.thermal_conductivity()
+              (https://github.com/phonopy/phono3py/blob/master/phono3py/api_phono3py.py/#877)
+              -> phono3py.conductivity.init_rta.get_thermal_conductivity_RTA()
+              (https://github.com/phonopy/phono3py/blob/master/phono3py/conductivity/init_rta.py/#58)
+              -> phono3py.conductivity.init_rta.ShowCalcProgress.kappa_Wigner_RTA()
+              (https://github.com/phonopy/phono3py/blob/master/phono3py/conductivity/init_rta.py/#217)
         """
         result = super().calc(structure)
         structure_in: Structure = result["final_structure"]

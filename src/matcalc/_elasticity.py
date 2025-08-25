@@ -120,12 +120,21 @@ class ElasticityCalc(PropCalc):
             A dictionary containing the calculation results that include:
             - `elastic_tensor`: The computed elastic tensor of the material.
             - `shear_modulus_vrh`: Shear modulus obtained from the elastic tensor
-              using the Voigt-Reuss-Hill approximation.
+              using the Voigt-Reuss-Hill approximation in eV/A3.
             - `bulk_modulus_vrh`: Bulk modulus calculated using the Voigt-Reuss-Hill
-              approximation.
-            - `youngs_modulus`: Young's modulus derived from the elastic tensor.
+              approximation in eV/A3.
+            - `youngs_modulus`: Young's modulus derived from the elastic tensor in SI unit.
             - `residuals_sum`: The residual sum from the elastic tensor fitting.
             - `structure`: The (potentially relaxed) final structure after calculations.
+            The units are originally documented in pymatgen.
+            See pymatgen.analysis.elasticity.elastic.ElasticTensor()
+            (https://github.com/materialsproject/pymatgen/blob/master/src/pymatgen/analysis/elasticity/elastic.py/#130)
+            -> pymatgen.analysis.elasticity.elastic.ElasticTensor.k_vrh()
+            (https://github.com/materialsproject/pymatgen/blob/master/src/pymatgen/analysis/elasticity/elastic.py/#189)
+            pymatgen.analysis.elasticity.elastic.ElasticTensor.g_vrh()
+            (https://github.com/materialsproject/pymatgen/blob/master/src/pymatgen/analysis/elasticity/elastic.py/#194)
+            pymatgen.analysis.elasticity.elastic.ElasticTensor.y_mod()
+            (https://github.com/materialsproject/pymatgen/blob/master/src/pymatgen/analysis/elasticity/elastic.py/#199)
         """
         result = super().calc(structure)
         structure_in: Structure | Atoms = result["final_structure"]
