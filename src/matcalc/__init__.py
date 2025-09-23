@@ -21,6 +21,7 @@ from ._qha import QHACalc
 from ._relaxation import RelaxCalc
 from ._stability import EnergeticsCalc
 from ._surface import SurfaceCalc
+from ._gb import GBCalc
 from .config import SIMULATION_BACKEND, clear_cache
 from .utils import UNIVERSAL_CALCULATORS, PESCalculator
 
