@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
+import logging
+import math
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
-import math
-import logging
-
 from pymatgen.core.interface import GrainBoundaryGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -33,22 +32,23 @@ class GBCalc(PropCalc):
 
     :ivar relax_bulk: Whether to relax the bulk structure (cell and atoms) before GB generation.
     :type relax_bulk: bool
-    
+
     :ivar relax_gb: Whether to relax the grain boundary structures (atoms only) after generation.
     :type relax_gb: bool
-    
+
     :ivar fmax: Force convergence criterion (eV/Å) for relaxations.
     :type fmax: float
-    
+
     :ivar optimizer: Optimizer for structure relaxations.
     :type optimizer: str | Optimizer
-    
+
     :ivar max_steps: Maximum optimization steps for relaxations.
     :type max_steps: int
 
     :ivar relax_calc_kwargs: Additional keyword arguments for relaxation calculations. Defaults to None.
-    :type relax_calc_kwargs: dict | None    
+    :type relax_calc_kwargs: dict | None
     """
+
     def __init__(
         self,
         calculator: Calculator | str,
@@ -69,16 +69,16 @@ class GBCalc(PropCalc):
 
         :param relax_bulk: Whether to relax the bulk structure before GB generation. Default True.
         :type relax_bulk: bool, optional
-        
+
         :param relax_gb: Whether to relax the GB structures after generation. Default True.
         :type relax_gb: bool, optional
-        
+
         :param fmax: Force tolerance (eV/Å) for relaxations. Default 0.1.
         :type fmax: float, optional
-        
+
         :param optimizer: ASE optimizer or name for relaxations. Default "FIRE".
         :type optimizer: str | Optimizer, optional
-        
+
         :param max_steps: Max optimization steps. Default 500.
         :type max_steps: int, optional
 
@@ -141,7 +141,7 @@ class GBCalc(PropCalc):
 
         :param gb_generator_kwargs: Additional args for GrainBoundaryGenerator(). Default None.
         :type gb_generator_kwargs: dict | None, optional
-        
+
         :param gb_from_parameters_kwargs: Additional args for gb_from_parameters(). Default None.
         :type gb_from_parameters_kwargs: dict | None, optional
 
@@ -150,7 +150,6 @@ class GBCalc(PropCalc):
                  'bulk_energy_per_atom' and 'final_bulk'.
         :rtype: dict[str, Any]
         """
-        
         # GB generation - start with a primitive structure.
         structure = to_pmg_structure(structure)
         bulk_primitive = structure.to_primitive()
@@ -175,41 +174,46 @@ class GBCalc(PropCalc):
             initial_structure=bulk_primitive,
             **(gb_generator_kwargs or {}),
         )
-        
+
         analyzer = SpacegroupAnalyzer(bulk_primitive)
         lattice_type = analyzer.get_crystal_system()[0]
         c_a_ratio = gb_gen.get_ratio()
-        angles = gb_gen.get_rotation_angle_from_sigma(sigma=sigma, r_axis=rotation_axis, lat_type=lattice_type, ratio=c_a_ratio)
+        angles = gb_gen.get_rotation_angle_from_sigma(
+            sigma=sigma, r_axis=rotation_axis, lat_type=lattice_type, ratio=c_a_ratio
+        )
 
-        # look through the list of computed angles and find the one 
+        # look through the list of computed angles and find the one
         # that is within the tolerance of the requested angle
         rotation_angle_exact = next(
-            (a for a in angles
-            if math.isclose(a, rotation_angle, abs_tol=rotation_angle_tolerance)),
+            (a for a in angles if math.isclose(a, rotation_angle, abs_tol=rotation_angle_tolerance)),
             None,
         )
         # …and if none are within the tolerance, error out
         if rotation_angle_exact is None:
-            raise ValueError(f"No matching rotation angle {rotation_angle} for sigma={sigma}. \
-                                Possible angles: {angles}")
-        
+            raise ValueError(
+                f"No matching rotation angle {rotation_angle} for sigma={sigma}. \
+                                Possible angles: {angles}"
+            )
+
         grain_boundary = gb_gen.gb_from_parameters(
-                rotation_axis=rotation_axis,      
-                rotation_angle=rotation_angle_exact,         
-                plane=gb_plane,              
-                expand_times=expand_times,              
-                vacuum_thickness=vacuum_thickness,        
-                ab_shift=ab_shift,         
-                normal=normal,                  
-                rm_ratio=rm_ratio,           
-                 **(gb_from_parameters_kwargs or {}),
+            rotation_axis=rotation_axis,
+            rotation_angle=rotation_angle_exact,
+            plane=gb_plane,
+            expand_times=expand_times,
+            vacuum_thickness=vacuum_thickness,
+            ab_shift=ab_shift,
+            normal=normal,
+            rm_ratio=rm_ratio,
+            **(gb_from_parameters_kwargs or {}),
         )
 
-        return self.calc({
+        return self.calc(
+            {
                 "grain_boundary": grain_boundary,
                 "bulk_energy_per_atom": bulk_energy_per_atom,
                 "final_bulk": final_bulk,
-                })
+            }
+        )
 
     def calc(
         self,
@@ -236,7 +240,7 @@ class GBCalc(PropCalc):
                 "For grain boundary calculations, structure must be a dict in one of the following formats: "
                 "{'grain_boundary': gb_structure, 'bulk': bulk_structure} or {'grain_boundary': gb_structure, 'bulk_energy_per_atom': energy}."
             )
-        
+
         result_dict = structure.copy()
 
         if "bulk_energy_per_atom" in structure:
@@ -247,7 +251,7 @@ class GBCalc(PropCalc):
                 calculator=self.calculator,
                 fmax=self.fmax,
                 max_steps=self.max_steps,
-                relax_cell=self.relax_bulk, 
+                relax_cell=self.relax_bulk,
                 relax_atoms=self.relax_bulk,
                 optimizer=self.optimizer,
                 **(self.relax_calc_kwargs or {}),
@@ -280,11 +284,9 @@ class GBCalc(PropCalc):
 
         # Compute grain boundary energy
         gamma_gb = (gb_energy - n_atoms * bulk_energy_per_atom) / (2 * area)
-        
+
         return result_dict | {
             "final_grain_boundary": final_gb,
             "gb_relax_energy": gb_energy,
             "grain_boundary_energy": gamma_gb,
         }
-
-        
