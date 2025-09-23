@@ -277,7 +277,7 @@ class GBCalc(PropCalc):
         final_gb = gb_opt["final_structure"]
         gb_energy = gb_opt["energy"]
 
-        # Compute area (a × b)
+        # Compute area (a * b)
         lattice = final_gb.lattice.matrix
         area = np.linalg.norm(np.cross(lattice[0], lattice[1]))
         n_atoms = len(final_gb)
