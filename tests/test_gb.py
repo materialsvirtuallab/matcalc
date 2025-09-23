@@ -28,14 +28,14 @@ def test_GB_calc_basic(Si: Structure, m3gnet_calculator: PESCalculator) -> None:
     )
 
     results = gb_calc.calc_gb(
-            Si,
-            sigma=1,
-            rotation_axis=(1, 1, 1),
-            gb_plane=(1, 1, 1),
-            rotation_angle=0.0,
-            expand_times=1,
-        )
-    
+        Si,
+        sigma=1,
+        rotation_axis=(1, 1, 1),
+        gb_plane=(1, 1, 1),
+        rotation_angle=0.0,
+        expand_times=1,
+    )
+
     assert "final_bulk" in results
     assert "final_grain_boundary" in results
     assert "gb_relax_energy" in results
@@ -46,11 +46,8 @@ def test_GB_calc_basic(Si: Structure, m3gnet_calculator: PESCalculator) -> None:
     assert results["gb_relax_energy"] == pytest.approx(ABC, rel=1e-1)
     assert results["grain_boundary_energy"] == pytest.approx(ABC, rel=1e-1)
 
-    results = gb_calc.calc({
-        "grain_boundary": Si,
-        "bulk": Si
-        })
-    
+    results = gb_calc.calc({"grain_boundary": Si, "bulk": Si})
+
     assert "final_bulk" in results
     assert "final_grain_boundary" in results
     assert "gb_relax_energy" in results
