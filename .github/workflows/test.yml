@@ -34,6 +34,7 @@ jobs:
           pip install dgl==2.4.0 -f https://data.dgl.ai/wheels/torch-2.4/repo.html
           pip install -e '.[ci]'
 
+          apt-get update
           apt-get install curl  # Curl is not part of the minimal container image, but is required for CodeCov upload.
       - name: pytest
         run: pytest --cov=matcalc --cov-report=xml tests --color=yes
