@@ -1,4 +1,7 @@
-"""Interface structure/energy calculations."""
+"""Interface 
+structure/energy
+calculations.
+"""
 
 from __future__ import annotations
 
