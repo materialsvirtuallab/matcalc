@@ -1,4 +1,4 @@
-"""Interface 
+"""Interface
 structure/energy
 calculations.
 """
@@ -8,10 +8,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
-from pymatgen.analysis.interfaces.zsl import ZSLGenerator
 from pymatgen.analysis.interfaces.coherent_interfaces import CoherentInterfaceBuilder
+from pymatgen.analysis.interfaces.zsl import ZSLGenerator
 from pymatgen.analysis.structure_matcher import StructureMatcher
-
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
@@ -41,7 +40,7 @@ class InterfaceCalc(PropCalc):
         relax_calc_kwargs: dict | None = None,
     ) -> None:
         """Initialize the instance of the class.
-        
+
         Parameters:
             calculator (Calculator | str): An ASE calculator object used to perform energy and force
                 calculations. If string is provided, the corresponding universal calculator is loaded.
@@ -52,11 +51,11 @@ class InterfaceCalc(PropCalc):
             max_steps (int, optional): The maximum number of optimization steps. Defaults to 500.
             relax_calc_kwargs: Additional keyword arguments passed to the
             class:`RelaxCalc` constructor for both bulk and interface. Default is None.
-        
+
         Returns:
             None
         """
-        self.calculator = calculator  
+        self.calculator = calculator
         self.relax_bulk = relax_bulk
         self.relax_interface = relax_interface
         self.fmax = fmax
@@ -76,7 +75,7 @@ class InterfaceCalc(PropCalc):
         **kwargs: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Calculate all possible coherent interfaces between two bulk structures.
-        
+
         Parameters:
             film_bulk (Structure): The bulk structure of the film material.
             substrate_bulk (Structure): The bulk structure of the substrate material.
@@ -90,7 +89,6 @@ class InterfaceCalc(PropCalc):
         Returns:
                 dict: A list of dictionaries containing the calculated film, substrate, interface.
         """
-
         cib = CoherentInterfaceBuilder(
             film_structure=film_bulk,
             substrate_structure=substrate_bulk,
@@ -99,7 +97,7 @@ class InterfaceCalc(PropCalc):
             zslgen=zslgen,
             **(cib_kwargs or {}),
         )
-        
+
         terminations = cib.terminations
         all_interfaces: list = []
         for t in terminations:
@@ -111,8 +109,8 @@ class InterfaceCalc(PropCalc):
                 "No interfaces found with the given parameters. Adjust the ZSL parameters to find more matches."
             )
 
-        # Group similar / duplicate interfaces using StructureMatcher and keep one representative per group 
-        matcher = StructureMatcher()        
+        # Group similar / duplicate interfaces using StructureMatcher and keep one representative per group
+        matcher = StructureMatcher()
         groups: list[list] = []
         for i in all_interfaces:
             placed = False
@@ -124,7 +122,7 @@ class InterfaceCalc(PropCalc):
             if not placed:
                 groups.append([i])
         unique_interfaces = [g[0] for g in groups]
-        
+
         film_bulk = film_bulk.to_conventional()
         substrate_bulk = substrate_bulk.to_conventional()
 
@@ -139,7 +137,7 @@ class InterfaceCalc(PropCalc):
         )
         film_opt = relaxer_bulk.calc(film_bulk)
         substrate_opt = relaxer_bulk.calc(substrate_bulk)
-    
+
         interfaces = [
             {
                 "interface": interface,
@@ -152,18 +150,17 @@ class InterfaceCalc(PropCalc):
             for interface in unique_interfaces
         ]
 
-        return list(self.calc_many(interfaces, **kwargs))  
-        
+        return list(self.calc_many(interfaces, **kwargs))
 
     def calc(
         self,
         structure: Structure | Atoms | dict[str, Any],
     ) -> dict[str, Any]:
         """Calculate the interfacial energy of the given interface structures and sort by the energy.
-        
+
         Parameters:
             structure : A dictionary containing the film, substrate, interface structures
-        
+
         Returns:
             dict:
                 - "interface" (Structure): The initial interface structure.
@@ -199,7 +196,6 @@ class InterfaceCalc(PropCalc):
             substrate_opt = relaxer.calc(structure["substrate_bulk"])
             substrate_energy_per_atom = substrate_opt["energy"] / len(substrate_opt["final_structure"])
 
-
         interface = structure["interface"]
         relaxer = RelaxCalc(
             calculator=self.calculator,
@@ -213,12 +209,12 @@ class InterfaceCalc(PropCalc):
         interface_opt = relaxer.calc(interface)
         final_interface = interface_opt["final_structure"]
         interface_energy = interface_opt["energy"]
-        
+
         # pymatgen interface object does not include interface properties for interfacial energy calculation, define them here
-        
+
         matrix = interface.lattice.matrix
         area = float(np.linalg.norm(np.cross(matrix[0], matrix[1])))
-        
+
         unique_in_film = set(film_opt.symbol_set) - set(substrate_opt.symbol_set)
         unique_in_substrate = set(substrate_opt.symbol_set) - set(film_opt.symbol_set)
 
@@ -235,14 +231,15 @@ class InterfaceCalc(PropCalc):
             print("No unique elements found in either structure")
             film_in_interface = substrate_in_interface = None
 
-
-        gamma = (interface_energy - (film_in_interface * film_energy_per_atom + substrate_in_interface * substrate_energy_per_atom)) / (2 * area)
+        gamma = (
+            interface_energy
+            - (film_in_interface * film_energy_per_atom + substrate_in_interface * substrate_energy_per_atom)
+        ) / (2 * area)
 
         return result_dict | {
             "interface": interface,
             "final_interface": final_interface,
-            "interface_energy_per_atom": interface_energy/len(interface),
+            "interface_energy_per_atom": interface_energy / len(interface),
             "num_atoms": len(interface),
             "interfacial_energy": gamma,
         }
-    
