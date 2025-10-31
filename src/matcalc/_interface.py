@@ -68,7 +68,6 @@ class InterfaceCalc(PropCalc):
         film_miller: tuple[int, int, int],
         substrate_miller: tuple[int, int, int],
         zslgen: ZSLGenerator | None = None,
-        zsl_kwargs: dict | None = None,
         cib_kwargs: dict | None = None,
         **kwargs: dict[str, Any],
     ) -> list[dict[str, Any]]:
