@@ -318,13 +318,11 @@ class AdsorptionCalc(PropCalc):
             **(self.relax_calc_kwargs or {}),
         )
         slab_opt = relaxer.calc(slab)
-        slab_energy = slab_opt["energy"]
 
         return {
             "slab": slab,
-            "slab_energy": slab_energy,
-            "shift": slab_opt.get("shift", None),
-            "slab_energy_per_atom": slab_energy / len(slab_opt["final_structure"]),
+            "slab_energy": slab_opt["energy"],
+            "slab_energy_per_atom": slab_opt["energy"] / len(slab_opt["final_structure"]),
             "final_slab": slab_opt["final_structure"],
         }
     
