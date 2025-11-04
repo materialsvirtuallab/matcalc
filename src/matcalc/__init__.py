@@ -9,6 +9,7 @@ try:
 except PackageNotFoundError:
     pass  # package not installed
 
+from ._adsorption import AdsorptionCalc
 from ._base import ChainedCalc, PropCalc
 from ._elasticity import ElasticityCalc
 from ._eos import EOSCalc
@@ -21,7 +22,6 @@ from ._qha import QHACalc
 from ._relaxation import RelaxCalc
 from ._stability import EnergeticsCalc
 from ._surface import SurfaceCalc
-from ._adsorption import AdsorptionCalc
 from .config import SIMULATION_BACKEND, clear_cache
 from .utils import UNIVERSAL_CALCULATORS, PESCalculator
 

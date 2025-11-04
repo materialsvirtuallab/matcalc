@@ -113,7 +113,7 @@ class AdsorptionCalc(PropCalc):
         slab_gen_kwargs: dict | None = None,
         get_slabs_kwargs: dict | None = None,
         # adsorption parameters
-        adsorption_sites: dict[str:tuple[float, float]] | str = "all",
+        adsorption_sites: dict[str : tuple[float, float]] | str = "all",
         height: float = 0.9,
         mi_vec: tuple[float, float] | None = None,
         fixed_height: float = 5,
@@ -182,21 +182,16 @@ class AdsorptionCalc(PropCalc):
 
         bulk_opt = relaxer_bulk.calc(bulk)
 
-        adsorbate_dict = self.calc_adsorbate(
-            adsorbate, adsorbate_energy=adsorbate_energy
-        )
+        adsorbate_dict = self.calc_adsorbate(adsorbate, adsorbate_energy=adsorbate_energy)
 
         # Generally want the surface perpendicular to z
-        slab_gen_kwargs["max_normal_search"] = slab_gen_kwargs.get(
-            "max_normal_search", np.max(miller_index)
-        )
+        slab_gen_kwargs["max_normal_search"] = slab_gen_kwargs.get("max_normal_search", np.max(miller_index))
 
         slabgen = SlabGenerator(
             initial_structure=bulk_opt["final_structure"],
             miller_index=miller_index,
             min_slab_size=min_slab_size,
             min_vacuum_size=min_vacuum_size,
-
             **(slab_gen_kwargs or {}),
         )
         slab_dicts = [
@@ -217,10 +212,7 @@ class AdsorptionCalc(PropCalc):
                 fix_idx = np.argwhere(slab.cart_coords[:, 2] < maxz).flatten()
                 slab.add_site_property(
                     "selective_dynamics",
-                    [
-                        [False]*3 if i in fix_idx else [True]*3
-                        for i in range(len(slab))
-                    ],
+                    [[False] * 3 if i in fix_idx else [True] * 3 for i in range(len(slab))],
                 )
 
             slab_dict |= self.calc_slab(slab)
@@ -233,26 +225,18 @@ class AdsorptionCalc(PropCalc):
             )
 
             if adsorption_sites == "all":
-                asf_adsites = asf.find_adsorption_sites(
-                    **find_adsorption_sites_args or {}
-                )
+                asf_adsites = asf.find_adsorption_sites(**find_adsorption_sites_args or {})
                 asf_adsites.pop("all")
-                adsites = {
-                    s: asf_adsites[s] for s in asf_adsites
-                }
+                adsites = {s: asf_adsites[s] for s in asf_adsites}
             elif isinstance(adsorption_sites, str):
-                asf_adsites = asf.find_adsorption_sites(
-                    **find_adsorption_sites_args or {}
-                )
+                asf_adsites = asf.find_adsorption_sites(**find_adsorption_sites_args or {})
                 try:
-                    adsites = {
-                        adsorption_sites: asf_adsites[adsorption_sites]
-                    }
+                    adsites = {adsorption_sites: asf_adsites[adsorption_sites]}
                 except KeyError as err:
                     raise KeyError(
                         f"Provided sites: '{adsorption_sites}' must be one"
                         f" of {asf_adsites.keys()} or dictionary of the "
-                            "form {'site_name': [(x1, y1, z1), (x2, y2, z2), ...]}."
+                        "form {'site_name': [(x1, y1, z1), (x2, y2, z2), ...]}."
                     ) from err
             else:
                 adsites = adsorption_sites
@@ -303,10 +287,7 @@ class AdsorptionCalc(PropCalc):
 
         adsorbate = to_ase_atoms(adsorbate)
         # Add 15 Å of vacuum in all directions for relaxation
-        adsorbate.set_cell(
-            np.max(adsorbate.positions, axis=0) - \
-                np.min(adsorbate.positions, axis=0) + 15
-        )
+        adsorbate.set_cell(np.max(adsorbate.positions, axis=0) - np.min(adsorbate.positions, axis=0) + 15)
         adsorbate_opt = relaxer.calc(adsorbate)
         final_adsorbate = to_pmg_molecule(adsorbate_opt["final_structure"])
         final_adsorbate_energy = adsorbate_opt["energy"]
@@ -386,8 +367,7 @@ class AdsorptionCalc(PropCalc):
         n_slab_atoms = len(adslab) - n_adsorbate_atoms
         if len(adslab) != n_slab_atoms + n_adsorbate_atoms:
             raise ValueError(
-                "The number of atoms in the adslab does not equal the sum of "
-                "the slab and adsorbate atoms."
+                "The number of atoms in the adslab does not equal the sum of the slab and adsorbate atoms."
             )
 
         relaxer = RelaxCalc(
@@ -404,9 +384,7 @@ class AdsorptionCalc(PropCalc):
         adslab_energy = adslab_opt["energy"]
 
         ads_energy = (
-            adslab_energy
-            - n_slab_atoms * result_dict["slab_energy_per_atom"]
-            - result_dict["adsorbate_energy"]
+            adslab_energy - n_slab_atoms * result_dict["slab_energy_per_atom"] - result_dict["adsorbate_energy"]
         )
 
         return result_dict | {

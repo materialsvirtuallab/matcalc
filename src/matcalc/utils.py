@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from ase import Atoms
 from ase.calculators.calculator import Calculator
-from pymatgen.core import Structure, Molecule
+from pymatgen.core import Molecule, Structure
 from pymatgen.io.ase import AseAtomsAdaptor
 
 from .units import eVA3ToGPa
@@ -467,6 +467,7 @@ def to_pmg_structure(structure: Atoms | Structure) -> Structure:
     """
     return structure if isinstance(structure, Structure) else AseAtomsAdaptor.get_structure(structure)  # type: ignore[return-value]
 
+
 def to_pmg_molecule(structure: Atoms | Structure | Molecule) -> Molecule:
     """
     Converts a given structure of type Atoms or Structure into a Molecule
@@ -485,4 +486,4 @@ def to_pmg_molecule(structure: Atoms | Structure | Molecule) -> Molecule:
     if isinstance(structure, Atoms):
         structure = AseAtomsAdaptor.get_molecule(structure)
 
-    return Molecule.from_sites(structure) # type: ignore[return-value]
+    return Molecule.from_sites(structure)  # type: ignore[return-value]
