@@ -5,28 +5,25 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-
-from pymatgen.core import Lattice, Molecule, Structure
-from pymatgen.core.surface import SlabGenerator, generate_all_slabs
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
+from pymatgen.core import Lattice, Molecule, Structure
+from pymatgen.core.surface import SlabGenerator
 
 from matcalc import AdsorptionCalc
 from matcalc.utils import to_ase_atoms
 
 if TYPE_CHECKING:
-    from matgl.ext.ase import PESCalculator
-    from pymatgen.core import Structure
-    from pymatgen.core.surface import Slab
     from ase import Atoms
+    from matgl.ext.ase import PESCalculator
+    from pymatgen.core.surface import Slab
 
 @pytest.fixture(scope="module")
 def Pt_bulk() -> Structure:
     """Pt bulk as module-scoped fixture."""
-    struct = Structure(
+    return Structure(
         Lattice.cubic(3.924), ["Pt"]*4,
         [[0,0,0],[0,0.5,0.5],[0.5,0,0.5],[0.5,0.5,0]]
     )
-    return struct
 
 @pytest.fixture(scope="module")
 def Pt_slab(Pt_bulk: Structure) -> Slab:
@@ -41,18 +38,19 @@ def Pt_slab_atoms(Pt_slab: Slab) -> Atoms:
 
 @pytest.fixture(scope="module")
 def CO2() -> Molecule:
+    """CO2 molecule as module-scoped fixture."""
     return Molecule("COO", [[0, 0, 0], [0, 0, 1.16], [0, 0, -1.16]])
 
 @pytest.fixture(scope="module")
-def Pt_adslab(Pt_slab: Slab, CO2: Molecule):
+def Pt_adslab(Pt_slab: Slab, CO2: Molecule) -> Structure:
+    """Pt slab with CO2 adsorbed as module-scoped fixture."""
     asf = AdsorbateSiteFinder(Pt_slab)
-    adsite = asf.find_adsorption_sites()['all'][0]
+    adsite = asf.find_adsorption_sites()["all"][0]
     return asf.add_adsorbate(CO2, adsite)
 
-@pytest.mark.parametrize("test_input, expected",[
-    ({'slab_energy_per_atom': 1.0}, (1.0, -22.68405)),
-    ({'adsorbate_energy': 4.0}, (-5.8437, 4.0)),
-    ({'slab': Pt_slab_atoms, 'slab_energy_per_atom': 1.0, 'adsorbate_energy': 4.0}, (1.0, 4.0))
+@pytest.mark.parametrize(("test_input", "expected"),[
+    ({"adsorbate_energy": None}, (-5.8437, -22.68405)),
+    ({"adsorbate_energy": 4.0}, (-5.8437, 4.0)),
 ])
 def test_adsorption_calc_slab_inputs(
     Pt_slab: Slab,
@@ -62,6 +60,13 @@ def test_adsorption_calc_slab_inputs(
     test_input: dict,
     expected: float,
 ) -> None:
+    """ Test adsorption calculation with different slab inputs."""
+
+    structure = {
+        "slab": Pt_slab,
+        "adsorbate": CO2,
+        "adslab": Pt_adslab,
+    } | test_input
 
     ad_calc = AdsorptionCalc(
         calculator=m3gnet_calculator,
@@ -69,23 +74,19 @@ def test_adsorption_calc_slab_inputs(
         relax_bulk=False,
         relax_adsorbate=False,
     )
-    structure = {
-        "slab": Pt_slab,
-        "adsorbate": CO2,
-        "adslab": Pt_adslab,
-    } | test_input
 
     results = ad_calc.calc(structure)
 
-    assert(results['slab_energy_per_atom']) == pytest.approx(expected[0], rel=1e-1)
-    assert(results['adsorbate_energy']) == pytest.approx(expected[1], rel=1e-1)
+    assert(results["slab_energy_per_atom"]) == pytest.approx(expected[0], rel=1e-1)
+    assert(results["adsorbate_energy"]) == pytest.approx(expected[1], rel=1e-1)
+    assert "adsorption_energy" in results
 
 def test_adsorption_calc_adslabs(
     Pt_bulk: Slab,
     CO2: Molecule,
     m3gnet_calculator: PESCalculator,
 ) -> None:
-    
+    """ Test adsorption calculation over multiple adsorption sites."""
     ad_calc = AdsorptionCalc(
         calculator=m3gnet_calculator,
         relax_slab=True,

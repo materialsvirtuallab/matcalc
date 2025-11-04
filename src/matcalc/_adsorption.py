@@ -231,13 +231,20 @@ class AdsorptionCalc(PropCalc):
                     except KeyError:
                         raise KeyError(
                             f"Provided sites: '{adsorption_sites}' must be one"
-                            f" of {asf_adsites.keys()} "
+                            f" of {asf_adsites.keys()} or dictionary of the "
+                             "form {'site_name': [(x1, y1, z1), (x2, y2, z2), ...]}."
                         )
             else:
                 adsites = adsorption_sites
 
             for adsite in adsites:
                 for adsite_idx, adsite_coord in enumerate(adsites[adsite]):
+                    if not np.array(adsite_coord).shape == (3,):
+                        raise ValueError(
+                            "Each adsorption site coordinate must be a 3D "
+                            "coordinate of shape (3,), got "
+                            f"{adsite_coord} instead."
+                        )
                     adslab = asf.add_adsorbate(
                         molecule=adsorbate_dict["final_adsorbate"],
                         ads_coord=adsite_coord,
