@@ -2,66 +2,53 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
 from copy import deepcopy
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
-
-from pymatgen.core.surface import SlabGenerator
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
-from pymatgen.core import Structure, Molecule
+from pymatgen.core import Structure
+from pymatgen.core.surface import SlabGenerator
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
-from .utils import to_ase_atoms, to_pmg_structure, to_pmg_molecule
+from .utils import to_ase_atoms, to_pmg_molecule, to_pmg_structure
 
 if TYPE_CHECKING:
     from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
-    from pymatgen.core import Structure
+    from pymatgen.core import Molecule, Structure
 
 
 class AdsorptionCalc(PropCalc):
     """
-    A class for performing surface energy calculations by generating and optionally
-    relaxing bulk and slab structures. This facilitates materials science and
-    computational chemistry workflows, enabling computations of surface properties
-    for various crystal orientations and surface terminations.
+    Calculator for adsorption energies on surfaces.
+    Combines bulk relaxation, slab generation and relaxation, adsorbate
+    relaxation, and adsorption energy calculations.
+    Uses :class:`RelaxCalc` for structure relaxations.
+    Parameters allow control over which parts are relaxed and how.
 
-    Detailed description of the class, its purpose, and usage.
-
-    :ivar calculator: ASE Calculator used for energy and force evaluations. Interface
-        to computational backends like DFT or classical force fields.
-    :type calculator: Calculator
-    :ivar relax_bulk: Indicates whether to relax the bulk structure, including its
-        lattice parameters. Default is True.
-    :type relax_bulk: bool
-    :ivar relax_slab: Indicates whether to relax the slab structure, fixing its cell.
-        Default is True.
-    :type relax_slab: bool
-    :ivar fmax: Force tolerance (in eV/Å) used during relaxation, controlling
-        convergence. Default is 0.1.
-    :type fmax: float
-    :ivar optimizer: Optimizer to be used for structure relaxation. Can be a string
-        referring to the optimizer's name (e.g., "BFGS") or an instance of an optimizer
-        class. Default is "BFGS".
-    :type optimizer: str | Optimizer
-    :ivar max_steps: Maximum allowed steps for optimization during relaxation.
-        Default is 500.
-    :type max_steps: int
-    :ivar relax_calc_kwargs: Additional parameters passed to the relaxation calculator
-        for bulk and slab structures. Default is None.
-    :type relax_calc_kwargs: dict | None
-    :ivar final_bulk: Optimized bulk structure after relaxation. Initialized as None
-        until relaxation is performed.
-    :type final_bulk: Structure | None
-    :ivar bulk_energy: Energy of the relaxed bulk structure. Initialized as None and
-        updated after relaxation.
-    :type bulk_energy: float | None
-    :ivar n_bulk_atoms: Number of atoms in the bulk structure. Set after the bulk
-        relaxation step.
-    :type n_bulk_atoms: int | None
+    :param calculator: An ASE calculator object used to perform energy and force
+        calculations. If string is provided, the corresponding universal calculator is loaded.
+    :type calculator: Calculator | str
+    :param relax_adsorbate: Whether to relax the adsorbate structure. If note relaxed,
+        a single point or the adsorbate energy provided downstream is used. Default is True.
+    :type relax_adsorbate: bool, optional
+    :param relax_slab: Whether to relax each clean slab structure (cell fixed). Default is True.
+    :type relax_slab: bool, optional
+    :param relax_bulk: Whether to relax the bulk structure used to generate slabs, including its cell. Default is True.
+    :type relax_bulk: bool, optional
+    :param fmax: Force tolerance in eV/Å for relaxation. Default is 0.1.
+    :type fmax: float, optional
+    :param optimizer: The ASE optimizer to usein RelaxCalc. Can be a string (e.g. "BFGS") or
+        an :class:`Optimizer` instance. Default is "BFGS".
+    :type optimizer: str | Optimizer, optional
+    :param max_steps: Maximum number of optimization steps for relaxation. Default is 500.
+    :type max_steps: int, optional
+    :param relax_calc_kwargs: Additional keyword arguments passed to the
+        :class:`RelaxCalc` constructor for both bulk and slabs. Default is None.
+    :type relax_calc_kwargs: dict | None, optional
     """
 
     def __init__(
@@ -77,25 +64,23 @@ class AdsorptionCalc(PropCalc):
         relax_calc_kwargs: dict | None = None,
     ) -> None:
         """
-        Constructor for initializing the SurfaceCalc with all parameters needed
-        to generate and optionally relax bulk and slab structures.
+        Initialize the AdsorptionCalc.
 
         :param calculator: An ASE calculator object used to perform energy and force
             calculations. If string is provided, the corresponding universal calculator is loaded.
         :type calculator: Calculator | str
-        :param relax_bulk: Whether to relax the bulk structure, including its cell.
-            Default is True.
-        :type relax_bulk: bool, optional
-        :param relax_slab: Whether to relax each slab structure (cell fixed).
-            Default is True.
+        :param relax_adsorbate: Whether to relax the adsorbate structure. Default is True.
+        :type relax_adsorbate: bool, optional
+        :param relax_slab: Whether to relax each slab structure (cell fixed). Default is True.
         :type relax_slab: bool, optional
+        :param relax_bulk: Whether to relax the bulk structure, including its cell. Default is True.
+        :type relax_bulk: bool, optional
         :param fmax: Force tolerance in eV/Å for relaxation. Default is 0.1.
         :type fmax: float, optional
         :param optimizer: The ASE optimizer to use. Can be a string (e.g. "BFGS") or
             an :class:`Optimizer` instance. Default is "BFGS".
         :type optimizer: str | Optimizer, optional
-        :param max_steps: Maximum number of optimization steps for relaxation.
-            Default is 500.
+        :param max_steps: Maximum number of optimization steps for relaxation. Default is 500.
         :type max_steps: int, optional
         :param relax_calc_kwargs: Additional keyword arguments passed to the
             :class:`RelaxCalc` constructor for both bulk and slabs. Default is None.
@@ -119,6 +104,7 @@ class AdsorptionCalc(PropCalc):
         adsorbate: Molecule | Atoms,
         # slab parameters
         bulk: Structure | Atoms,
+        *,
         miller_index: tuple[int, int, int],
         adsorbate_energy: float | None = None,
         min_slab_size: float = 10.0,
@@ -134,9 +120,52 @@ class AdsorptionCalc(PropCalc):
         find_adsorption_sites_args: dict | None = None,
         # other
         dry_run: bool = False,
-        **kwargs
+        **kwargs: dict[str, Any],
     ) -> list[dict[str, Any]] | dict:
-
+        """
+        Calculate adsorption energies for adsorbates on slabs generated from a bulk structure.
+        :param adsorbate: The adsorbate structure to be placed on the slab.
+        :type adsorbate: Molecule | Atoms
+        :param bulk: The bulk structure from which slabs will be generated.
+        :type bulk: Structure | Atoms
+        :param miller_index: The Miller index defining the slab orientation.
+        :type miller_index: tuple[int, int, int]
+        :param adsorbate_energy: Optional pre-calculated energy of the adsorbate. If not provided,
+            the adsorbate will be relaxed and its energy calculated.
+        :type adsorbate_energy: float | None, optional
+        :param min_slab_size: Minimum thickness of the slab in Å. Default is 10.0.
+        :type min_slab_size: float, optional
+        :param min_vacuum_size: Minimum size of the vacuum layer in Å. Default is 20.0.
+        :type min_vacuum_size: float, optional
+        :param inplane_supercell: Tuple defining the in-plane supercell size. Default is (1, 1).
+        :type inplane_supercell: tuple[int, int], optional
+        :param slab_gen_kwargs: Additional keyword arguments passed to the SlabGenerator. Default is None.
+        :type slab_gen_kwargs: dict | None, optional
+        :param get_slabs_kwargs: Additional keyword arguments passed to the get_slabs method of
+            SlabGenerator. Default is None.
+        :type get_slabs_kwargs: dict | None, optional
+        :param adsorption_sites: Either a string specifying which adsorption sites to consider
+            (e.g., "all", "ontop", "bridge", "hollow"), or a dictionary specifying custom adsorption sites
+            with site names as keys and lists of fractional coordinates as values.
+            Default is "all".
+        :type adsorption_sites: dict[str:tuple[float, float]] | str, optional
+        :param height: Height above the surface to place the adsorbate in Å. Default is 0.9.
+        :type height: float, optional
+        :param mi_vec: Optional in-plane vector defining the slab orientation. If None, it is
+            automatically determined. Default is None.
+        :type mi_vec: tuple[float, float] | None, optional
+        :param fixed_height: Height below which slab atoms are fixed during relaxation in Å.
+            Default is 5 Å.
+        :type fixed_height: float, optional
+        :param find_adsorption_sites_args: Additional keyword arguments passed to the
+            find_adsorption_sites method of AdsorbateSiteFinder. Default is None.
+        :type find_adsorption_sites_args: dict | None, optional
+        :param dry_run: If True, only generates the adslab structures without performing calculations.
+            Default is False.
+        :type dry_run: bool, optional
+        :return: A list of dictionaries containing results for each adslab, or just the structures if dry_run is True.
+        :rtype: list[dict[str, Any]] | dict.
+        """
         adslab_dict = {}
         bulk = to_pmg_structure(bulk)
         bulk = bulk.to_conventional()
@@ -153,57 +182,46 @@ class AdsorptionCalc(PropCalc):
 
         bulk_opt = relaxer_bulk.calc(bulk)
 
-        if adsorbate_energy is not None and not self.relax_adsorbate:
-            adsorbate_dict = {
-                "adsorbate_energy": adsorbate_energy,
-                "adsorbate": adsorbate,
-                "final_adsorbate": adsorbate,
-            }
-        elif adsorbate_energy is not None and self.relax_adsorbate:
-            raise ValueError(
-                "Cannot provide adsorbate_energy and relax_adsorbate=True"
-            )
-        else:
-            adsorbate_dict = self.calc_adsorbate(adsorbate)
-
-        adsorbate_dict["final_adsorbate"] = to_pmg_molecule(
-            adsorbate_dict["final_adsorbate"]
+        adsorbate_dict = self.calc_adsorbate(
+            adsorbate, adsorbate_energy=adsorbate_energy
         )
 
         # Generally want the surface perpendicular to z
-        if 'max_normal_search' not in slab_gen_kwargs:
-            slab_gen_kwargs['max_normal_search'] = np.max(miller_index)
+        slab_gen_kwargs["max_normal_search"] = slab_gen_kwargs.get(
+            "max_normal_search", np.max(miller_index)
+        )
 
         slabgen = SlabGenerator(
             initial_structure=bulk_opt["final_structure"],
             miller_index=miller_index,
             min_slab_size=min_slab_size,
             min_vacuum_size=min_vacuum_size,
-            
+
             **(slab_gen_kwargs or {}),
         )
         slab_dicts = [
             {
                 "slab": slab.make_supercell((*inplane_supercell, 1)),
                 "miller_index": miller_index,
+                "shift": slab.shift,
             }
             for slab in slabgen.get_slabs(**(get_slabs_kwargs or {}))
         ]
         adslabs = []
-        for slab_dict in slab_dicts:
+        for slab_dict_ in slab_dicts:
+            slab_dict = deepcopy(slab_dict_)
             slab = slab_dict["slab"]
 
             if fixed_height is not None:
-                minz = np.min(slab.cart_coords, axis=0)[2]
-                for site in slab:
-                    if site.coords[2] < minz + fixed_height:
-                        site.properties["selective_dynamics"] = np.array(
-                            [False] * 3
-                        )
-                    else:
-                        site.properties["selective_dynamics"] = np.array(
-                            [True] * 3
-                        )
+                maxz = np.min(slab.cart_coords, axis=0)[2] + fixed_height
+                fix_idx = np.argwhere(slab.cart_coords[:, 2] < maxz).flatten()
+                slab.add_site_property(
+                    "selective_dynamics",
+                    [
+                        [False]*3 if i in fix_idx else [True]*3
+                        for i in range(len(slab))
+                    ],
+                )
 
             slab_dict |= self.calc_slab(slab)
             slab_dict |= deepcopy(adsorbate_dict)
@@ -214,41 +232,36 @@ class AdsorptionCalc(PropCalc):
                 mi_vec=mi_vec,
             )
 
-            if isinstance(adsorption_sites, str):
+            if adsorption_sites == "all":
                 asf_adsites = asf.find_adsorption_sites(
                     **find_adsorption_sites_args or {}
                 )
-                if adsorption_sites == "all":
-                    asf_adsites.pop("all")
+                asf_adsites.pop("all")
+                adsites = {
+                    s: asf_adsites[s] for s in asf_adsites
+                }
+            elif isinstance(adsorption_sites, str):
+                asf_adsites = asf.find_adsorption_sites(
+                    **find_adsorption_sites_args or {}
+                )
+                try:
                     adsites = {
-                        s: asf_adsites[s] for s in asf_adsites.keys()
+                        adsorption_sites: asf_adsites[adsorption_sites]
                     }
-                else:
-                    try:
-                        adsites = {
-                            adsorption_sites: asf_adsites[adsorption_sites]
-                        }
-                    except KeyError:
-                        raise KeyError(
-                            f"Provided sites: '{adsorption_sites}' must be one"
-                            f" of {asf_adsites.keys()} or dictionary of the "
-                             "form {'site_name': [(x1, y1, z1), (x2, y2, z2), ...]}."
-                        )
+                except KeyError as err:
+                    raise KeyError(
+                        f"Provided sites: '{adsorption_sites}' must be one"
+                        f" of {asf_adsites.keys()} or dictionary of the "
+                            "form {'site_name': [(x1, y1, z1), (x2, y2, z2), ...]}."
+                    ) from err
             else:
                 adsites = adsorption_sites
 
             for adsite in adsites:
                 for adsite_idx, adsite_coord in enumerate(adsites[adsite]):
-                    if not np.array(adsite_coord).shape == (3,):
-                        raise ValueError(
-                            "Each adsorption site coordinate must be a 3D "
-                            "coordinate of shape (3,), got "
-                            f"{adsite_coord} instead."
-                        )
                     adslab = asf.add_adsorbate(
                         molecule=adsorbate_dict["final_adsorbate"],
                         ads_coord=adsite_coord,
-                        # repeat=(*inplane_supercell, 1),
                     )
                     adslab_dict = {
                         "adslab": adslab,
@@ -261,12 +274,12 @@ class AdsorptionCalc(PropCalc):
 
         if dry_run:
             return adslabs
-        else:
-            return list(self.calc_many(adslabs, **kwargs))  # type:ignore[arg-type]
+        return list(self.calc_many(adslabs, **kwargs))  # type:ignore[arg-type]
 
     def calc_adsorbate(
         self,
         adsorbate: Molecule | Atoms,
+        adsorbate_energy: float | None = None,
     ) -> dict[str, Any]:
         """
         Calculate the energy of the adsorbate, optionally relaxing it.
@@ -276,6 +289,7 @@ class AdsorptionCalc(PropCalc):
         :return: A dictionary containing the adsorbate energy and final structure.
         :rtype: dict[str, Any]
         """
+        initial_adsorbate = to_pmg_molecule(adsorbate)
 
         relaxer = RelaxCalc(
             calculator=self.calculator,
@@ -294,12 +308,16 @@ class AdsorptionCalc(PropCalc):
                 np.min(adsorbate.positions, axis=0) + 15
         )
         adsorbate_opt = relaxer.calc(adsorbate)
-        adsorbate_energy = adsorbate_opt["energy"]
+        final_adsorbate = to_pmg_molecule(adsorbate_opt["final_structure"])
+        final_adsorbate_energy = adsorbate_opt["energy"]
+
+        if adsorbate_energy is not None:
+            final_adsorbate_energy = adsorbate_energy
 
         return {
-            "adsorbate": adsorbate,
-            "adsorbate_energy": adsorbate_energy,
-            "final_adsorbate": adsorbate_opt["final_structure"],
+            "adsorbate_energy": final_adsorbate_energy,
+            "adsorbate": initial_adsorbate,
+            "final_adsorbate": final_adsorbate,
         }
 
     def calc_slab(
@@ -314,7 +332,6 @@ class AdsorptionCalc(PropCalc):
         :return: A dictionary containing the slab energy and final structure.
         :rtype: dict[str, Any]
         """
-
         relaxer = RelaxCalc(
             calculator=self.calculator,
             fmax=self.fmax,
@@ -332,33 +349,38 @@ class AdsorptionCalc(PropCalc):
             "slab_energy_per_atom": slab_opt["energy"] / len(slab_opt["final_structure"]),
             "final_slab": slab_opt["final_structure"],
         }
-    
+
     def calc(
         self,
-        structure: Structure | Atoms | dict[str, Any],
+        structure: dict[str, Any],
     ) -> dict[str, Any]:
         """
-        """
-        if not isinstance(structure, dict):
-            slab_info = set(structure.keys()).intersection(("slab", "slab_energy_per_atom"))
-            adsorbate_info = set(structure.keys()).intersection(("adsorbate", "adsorbate_energy"))
-            if not (slab_info and adsorbate_info):
-                raise ValueError(
-                    "For adsorption calculations, structure must be dict with"
-                    " keys ('adslab' and 'slab' and 'adsorbate') and optionally"
-                    " ('slab_energy_per_atom' or 'slab_energy') and/or"
-                    " 'adsorbate_energy'"
-                )
+        Calculate the adsorption energy for a given adslab structure.
 
+        :param structure: A dictionary containing 'adslab', 'slab', and 'adsorbate' structures,
+            and optionally 'slab_energy_per_atom' and/or 'adsorbate_energy'.
+        :type structure: dict[str, Any]
+        :return: A dictionary containing the adsorption energy and related information.
+        :rtype: dict[str, Any]
+        """
         result_dict = structure.copy()
 
-        if not ("adsorbate_energy" in structure):
-            result_dict |= self.calc_adsorbate(structure["adsorbate"])
+        result_dict |= self.calc_adsorbate(
+            structure["adsorbate"],
+            adsorbate_energy=structure.get("adsorbate_energy"),
+        )
 
-        if not ("slab_energy_per_atom" in structure):
-            result_dict |= self.calc_slab(structure["slab"])
+        result_dict |= self.calc_slab(structure["slab"])
 
-        adslab = structure["adslab"]
+        try:
+            adslab = structure["adslab"]
+        except KeyError as err:
+            raise ValueError(
+                "For adsorption calculations, structure must be dict with"
+                " keys ('adslab' and 'slab' and 'adsorbate') and optionally"
+                " ('slab_energy_per_atom') and/or"
+                " 'adsorbate_energy'"
+            ) from err
 
         n_adsorbate_atoms = len(structure["adsorbate"])
         n_slab_atoms = len(adslab) - n_adsorbate_atoms

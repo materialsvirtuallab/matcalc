@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+import numpy as np
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.core.surface import SlabGenerator
@@ -21,8 +22,9 @@ if TYPE_CHECKING:
 def Pt_bulk() -> Structure:
     """Pt bulk as module-scoped fixture."""
     return Structure(
-        Lattice.cubic(3.924), ["Pt"]*4,
-        [[0,0,0],[0,0.5,0.5],[0.5,0,0.5],[0.5,0.5,0]]
+        Lattice.cubic(3.924),
+        ["Pt"]*4,
+        np.array([[0,0,0],[0,0.5,0.5],[0.5,0,0.5],[0.5,0.5,0]])
     )
 
 @pytest.fixture(scope="module")
@@ -39,7 +41,10 @@ def Pt_slab_atoms(Pt_slab: Slab) -> Atoms:
 @pytest.fixture(scope="module")
 def CO2() -> Molecule:
     """CO2 molecule as module-scoped fixture."""
-    return Molecule("COO", [[0, 0, 0], [0, 0, 1.16], [0, 0, -1.16]])
+    return Molecule(
+        "COO",
+        np.array([[0, 0, 0], [0, 0, 1.16], [0, 0, -1.16]]),
+    )
 
 @pytest.fixture(scope="module")
 def Pt_adslab(Pt_slab: Slab, CO2: Molecule) -> Structure:
@@ -58,7 +63,7 @@ def test_adsorption_calc_slab_inputs(
     Pt_adslab: Structure,
     m3gnet_calculator: PESCalculator,
     test_input: dict,
-    expected: float,
+    expected: tuple[float, float],
 ) -> None:
     """ Test adsorption calculation with different slab inputs."""
 
