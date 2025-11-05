@@ -3,22 +3,25 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from pymatgen.core import Structure
-from pymatgen.core.surface import SlabGenerator
+from pymatgen.core.surface import Slab, SlabGenerator
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
 from .utils import to_ase_atoms, to_pmg_molecule, to_pmg_structure
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
     from pymatgen.core import Molecule, Structure
+    from pymatgen.core.surface import Slab
 
 
 class AdsorptionCalc(PropCalc):
@@ -61,7 +64,7 @@ class AdsorptionCalc(PropCalc):
         fmax: float = 0.1,
         optimizer: str | Optimizer = "BFGS",
         max_steps: int = 500,
-        relax_calc_kwargs: dict | None = None,
+        relax_calc_kwargs: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize the AdsorptionCalc.
@@ -110,18 +113,18 @@ class AdsorptionCalc(PropCalc):
         min_slab_size: float = 10.0,
         min_vacuum_size: float = 20.0,
         inplane_supercell: tuple[int, int] = (1, 1),
-        slab_gen_kwargs: dict | None = None,
-        get_slabs_kwargs: dict | None = None,
+        slab_gen_kwargs: dict[str, Any] | None = None,
+        get_slabs_kwargs: dict[str, Any] | None = None,
         # adsorption parameters
-        adsorption_sites: dict[str : tuple[float, float]] | str = "all",
+        adsorption_sites: dict[str, Sequence[tuple[float, float]]] | str = "all",
         height: float = 0.9,
         mi_vec: tuple[float, float] | None = None,
         fixed_height: float = 5,
-        find_adsorption_sites_args: dict | None = None,
+        find_adsorption_sites_args: dict[str, Any] | None = None,
         # other
         dry_run: bool = False,
         **kwargs: dict[str, Any],
-    ) -> list[dict[str, Any]] | dict:
+    ) -> list[dict[str, Any]] | dict[Any, Any]:
         """
         Calculate adsorption energies for adsorbates on slabs generated from a bulk structure.
         :param adsorbate: The adsorbate structure to be placed on the slab.
@@ -140,10 +143,10 @@ class AdsorptionCalc(PropCalc):
         :param inplane_supercell: Tuple defining the in-plane supercell size. Default is (1, 1).
         :type inplane_supercell: tuple[int, int], optional
         :param slab_gen_kwargs: Additional keyword arguments passed to the SlabGenerator. Default is None.
-        :type slab_gen_kwargs: dict | None, optional
+        :type slab_gen_kwargs: dict[str, Any] | None, optional
         :param get_slabs_kwargs: Additional keyword arguments passed to the get_slabs method of
             SlabGenerator. Default is None.
-        :type get_slabs_kwargs: dict | None, optional
+        :type get_slabs_kwargs: dict[str, Any] | None, optional
         :param adsorption_sites: Either a string specifying which adsorption sites to consider
             (e.g., "all", "ontop", "bridge", "hollow"), or a dictionary specifying custom adsorption sites
             with site names as keys and lists of fractional coordinates as values.
@@ -159,12 +162,12 @@ class AdsorptionCalc(PropCalc):
         :type fixed_height: float, optional
         :param find_adsorption_sites_args: Additional keyword arguments passed to the
             find_adsorption_sites method of AdsorbateSiteFinder. Default is None.
-        :type find_adsorption_sites_args: dict | None, optional
+        :type find_adsorption_sites_args: dict[str, Any] | None, optional
         :param dry_run: If True, only generates the adslab structures without performing calculations.
             Default is False.
         :type dry_run: bool, optional
         :return: A list of dictionaries containing results for each adslab, or just the structures if dry_run is True.
-        :rtype: list[dict[str, Any]] | dict.
+        :rtype: list[dict[str, Any]] | dict[Any, Any].
         """
         adslab_dict = {}
         bulk = to_pmg_structure(bulk)
@@ -185,7 +188,8 @@ class AdsorptionCalc(PropCalc):
         adsorbate_dict = self.calc_adsorbate(adsorbate, adsorbate_energy=adsorbate_energy)
 
         # Generally want the surface perpendicular to z
-        slab_gen_kwargs["max_normal_search"] = slab_gen_kwargs.get("max_normal_search", np.max(miller_index))
+        if slab_gen_kwargs is not None:
+            slab_gen_kwargs["max_normal_search"] = slab_gen_kwargs.get("max_normal_search", np.max(miller_index))
 
         slabgen = SlabGenerator(
             initial_structure=bulk_opt["final_structure"],
@@ -196,16 +200,16 @@ class AdsorptionCalc(PropCalc):
         )
         slab_dicts = [
             {
-                "slab": slab.make_supercell((*inplane_supercell, 1)),
+                "slab": slab.make_supercell((*inplane_supercell, 1), in_place=False),
                 "miller_index": miller_index,
                 "shift": slab.shift,
             }
             for slab in slabgen.get_slabs(**(get_slabs_kwargs or {}))
         ]
-        adslabs = []
+        adslabs: list[dict[str, Any]] = []
         for slab_dict_ in slab_dicts:
             slab_dict = deepcopy(slab_dict_)
-            slab = slab_dict["slab"]
+            slab: Slab = cast("Slab", slab_dict["slab"])
 
             if fixed_height is not None:
                 maxz = np.min(slab.cart_coords, axis=0)[2] + fixed_height
@@ -218,8 +222,9 @@ class AdsorptionCalc(PropCalc):
             slab_dict |= self.calc_slab(slab)
             slab_dict |= deepcopy(adsorbate_dict)
 
+            final_slab = cast("Slab", slab_dict["final_slab"])
             asf = AdsorbateSiteFinder(
-                slab_dict["final_slab"],
+                final_slab,
                 height=height,
                 mi_vec=mi_vec,
             )
@@ -333,7 +338,7 @@ class AdsorptionCalc(PropCalc):
 
     def calc(
         self,
-        structure: dict[str, Any],
+        structure: dict[str, Any],  # type: ignore[override]
     ) -> dict[str, Any]:
         """
         Calculate the adsorption energy for a given adslab structure.

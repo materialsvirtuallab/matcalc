@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
     from maml.apps.pes import LMPStaticCalculator
     from pyace.basis import ACEBBasisSet, ACECTildeBasisSet, BBasisConfiguration
-    from pymatgen.core import IStructure
+    from pymatgen.core import IMolecule, IStructure
 
 
 # Listing of supported universal calculators.
@@ -435,7 +435,7 @@ class PESCalculator(Calculator):
         return result
 
 
-def to_ase_atoms(structure: Atoms | Structure) -> Atoms:
+def to_ase_atoms(structure: Atoms | Structure | Molecule) -> Atoms:
     """
     Converts a given structure into an ASE Atoms object. This function checks
     if the input structure is already an ASE Atoms object. If not, it converts
@@ -468,7 +468,7 @@ def to_pmg_structure(structure: Atoms | Structure) -> Structure:
     return structure if isinstance(structure, Structure) else AseAtomsAdaptor.get_structure(structure)  # type: ignore[return-value]
 
 
-def to_pmg_molecule(structure: Atoms | Structure | Molecule) -> Molecule:
+def to_pmg_molecule(structure: Atoms | Structure | Molecule | IMolecule) -> IMolecule:
     """
     Converts a given structure of type Atoms or Structure into a Molecule
     object. If the input structure is already of type Molecule, it is

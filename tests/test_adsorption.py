@@ -1,4 +1,4 @@
-"""Tests for the SurfaceCalc class."""
+"""Tests for the AdsorptionCalc class."""
 
 from __future__ import annotations
 
@@ -44,7 +44,7 @@ def Pt_slab_atoms(Pt_slab: Slab) -> Atoms:
 def CO2() -> Molecule:
     """CO2 molecule as module-scoped fixture."""
     return Molecule(
-        "COO",
+        ["C", "O", "O"],
         np.array([[0, 0, 0], [0, 0, 1.16], [0, 0, -1.16]]),
     )
 
