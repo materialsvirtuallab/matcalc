@@ -37,7 +37,6 @@ classifiers = [
 ]
 dependencies = [
     "ase>=3.26.0",
-    "numpy<2.0.0",
     "scikit-learn>=1.6.1",
     "pymatgen>=2025.4.20",
     "fsspec>=2025.3.0",
@@ -72,6 +71,9 @@ orb = [
 sevennet = [
     "sevenn>=0.10.4",
 ]
+matgl = [
+    "matgl>=2.0.1",
+]
 ci = [
     "codecov-cli>=10.3.0",
     "coverage>=7.7.1",
@@ -79,7 +81,7 @@ ci = [
     "ipython>=8.34.0",
     "jupyter>=1.1.1",
     "maml>=2025.4.3",
-    "matgl>=1.2.5",
+    "matgl>=2.0.1",
     "matminer>=0.9.3",
     "mp-api>=0.45.3",
     "nbmake>=1.5.5",
