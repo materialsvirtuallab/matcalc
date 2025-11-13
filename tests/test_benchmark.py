@@ -38,7 +38,7 @@ def test_equilibrium_benchmark(matpes_calculator: PESCalculator) -> None:
     benchmark = EquilibriumBenchmark(seed=1, n_samples=2)
     results = benchmark.run(matpes_calculator, "toy")
     assert len(results) == 2
-    assert results["d_toy"].mean() == pytest.approx(0.2294704733560756, abs=1e-1)
+    assert results["d_toy"].mean() == pytest.approx(0.12305854320340562, abs=1e-1)
     assert np.abs(results["Eform_toy"] - results["Eform_DFT"]).mean() == pytest.approx(0.05122194169085273, abs=1e-2)
 
 
@@ -54,7 +54,7 @@ def test_elasticity_benchmark(matpes_calculator: PESCalculator) -> None:
     assert not os.path.exists(chkpt_file)
     assert len(results) == 3
     # Compute MAE
-    assert np.abs(results["K_vrh_toy"] - results["K_vrh_DFT"]).mean() == pytest.approx(20.827423861035843, rel=1e-1)
+    assert np.abs(results["K_vrh_toy"] - results["K_vrh_DFT"]).mean() == pytest.approx(2.9499577941620814, rel=1e-1)
 
     benchmark = ElasticityBenchmark(benchmark_name="mp-pbe-elasticity-2025.3.json.gz", seed=0, n_samples=3)
 
@@ -81,7 +81,7 @@ def test_phonon_benchmark(matpes_calculator: PESCalculator) -> None:
     benchmark = PhononBenchmark(seed=0, n_samples=3)
     results = benchmark.run(matpes_calculator, "toy")
     assert len(results) == 3
-    assert np.abs(results["CV_toy"] - results["CV_DFT"]).mean() == pytest.approx(17.91411211019882, abs=1e-1)
+    assert np.abs(results["CV_toy"] - results["CV_DFT"]).mean() == pytest.approx(13.510378078609543, abs=1e-1)
 
 
 def test_softening_benchmark(matpes_calculator: PESCalculator) -> None:

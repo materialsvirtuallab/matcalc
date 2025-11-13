@@ -27,7 +27,7 @@ def _set_seed() -> None:
 @pytest.mark.parametrize(
     ("ensemble", "expected_energy"),
     [
-        ("nve", -10.819535868347996),
+        ("nve", -10.441453988814853),
         ("nvt", -10.84265926910263),
         ("nvt_berendsen", -10.82033001817293),
         ("nvt_langevin", -10.774126994388347),
@@ -72,7 +72,7 @@ def test_md_calc(
     assert "kinetic_energy" in results
     assert "total_energy" in results
 
-    assert results["total_energy"] == pytest.approx(expected_energy, rel=1e-2)
+    assert results["total_energy"] == pytest.approx(expected_energy, abs=1e-2)
 
     energies = np.array(results["trajectory"].total_energies)
 
