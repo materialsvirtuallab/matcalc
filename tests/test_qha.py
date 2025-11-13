@@ -45,7 +45,7 @@ if TYPE_CHECKING:
 )
 def test_qha_calc(
     Li2O: Structure,
-    m3gnet_calculator: PESCalculator,
+    matpes_calculator: PESCalculator,
     tmp_path: Path,
     helmholtz_file: str,
     volume_temp_file: str,
@@ -82,7 +82,7 @@ def test_qha_calc(
 
     # Initialize QHACalc
     qha_calc = QHACalc(
-        calculator=m3gnet_calculator,
+        calculator=matpes_calculator,
         t_step=50,
         t_max=1000,
         scale_factors=[0.97, 0.98, 0.99, 1.00, 1.01, 1.02, 1.03],
@@ -123,13 +123,13 @@ def test_qha_calc(
 
 def test_qha_calc_atoms(
     Si_atoms: Atoms,
-    m3gnet_calculator: PESCalculator,
+    matpes_calculator: PESCalculator,
 ) -> None:
     """Tests for QHACalc class."""
 
     # Initialize QHACalc
     qha_calc = QHACalc(
-        calculator=m3gnet_calculator,
+        calculator=matpes_calculator,
         t_step=50,
         t_max=1000,
         scale_factors=[0.97, 0.98, 0.99, 1.00, 1.01, 1.02, 1.03],

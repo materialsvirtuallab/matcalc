@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
-def test_surface_calc_basic(Si: Structure, m3gnet_calculator: PESCalculator) -> None:
+def test_surface_calc_basic(Si: Structure, matpes_calculator: PESCalculator) -> None:
     """
     Test the basic workflow:
       1) calc_slabs on a known structure
@@ -21,7 +21,7 @@ def test_surface_calc_basic(Si: Structure, m3gnet_calculator: PESCalculator) -> 
       3) Check the final results
     """
     surf_calc = SurfaceCalc(
-        calculator=m3gnet_calculator,
+        calculator=matpes_calculator,
         relax_bulk=True,
         relax_slab=True,
         fmax=0.1,
@@ -54,11 +54,11 @@ def test_surface_calc_basic(Si: Structure, m3gnet_calculator: PESCalculator) -> 
     assert slab_res["surface_energy"] == pytest.approx(0.15327125170767797, rel=1e-1)
 
 
-def test_surface_calc_invalid_input(Si: Structure, m3gnet_calculator: PESCalculator) -> None:
+def test_surface_calc_invalid_input(Si: Structure, matpes_calculator: PESCalculator) -> None:
     """
     If the user passes a non-dict to calc, it should raise ValueError.
     """
-    surf_calc = SurfaceCalc(calculator=m3gnet_calculator)
+    surf_calc = SurfaceCalc(calculator=matpes_calculator)
     with pytest.raises(
         ValueError,
         match="For surface calculations, structure must be a dict in one of the following formats:",
