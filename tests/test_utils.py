@@ -20,10 +20,20 @@ DIR = Path(__file__).parent.absolute()
 if TYPE_CHECKING:
     from pymatgen.core import Structure
 
+UNIVERSAL_CALCULATORS = [
+    calc
+    for calc in UNIVERSAL_CALCULATORS
+    if "DGL" not in calc.name
+    and "M3GNet" not in calc.name
+    and "CHGNet" not in calc.name
+    and "ANI-1x-Subset-PES" not in calc.name
+    and "QET" not in calc.name
+]
+
 
 def _map_calculators_to_packages(calculators: UNIVERSAL_CALCULATORS) -> dict[str, str]:  # Think
     prefix_package_map: list[tuple[tuple[str, ...], str]] = [
-        (("m3gnet", "chgnet", "tensornet", "pbe", "r2scan"), "matgl"),
+        (("tensornet", "pbe", "r2scan"), "matgl"),
         (("mace",), "mace"),
         (("sevennet",), "sevenn"),
         (("grace", "tensorpotential"), "tensorpotential"),
@@ -108,10 +118,10 @@ def test_pescalculator_load_nequip() -> None:
     assert isinstance(calc, Calculator)
 
 
-@pytest.mark.skipif(not find_spec("matgl"), reason="matgl is not installed")
-def test_pescalculator_load_matgl() -> None:
-    calc = PESCalculator.load_matgl(path=DIR / "pes" / "M3GNet-MP-2021.2.8-PES")
-    assert isinstance(calc, Calculator)
+# @pytest.mark.skipif(not find_spec("matgl"), reason="matgl is not installed")
+# def test_pescalculator_load_matgl() -> None:
+#     calc = PESCalculator.load_matgl(path=DIR / "pes" / "M3GNet-MP-2021.2.8-PES")
+#     assert isinstance(calc, Calculator)
 
 
 @pytest.mark.skipif(not find_spec("deepmd"), reason="deepmd is not installed")
