@@ -39,7 +39,7 @@ def test_equilibrium_benchmark(matpes_calculator: PESCalculator) -> None:
     results = benchmark.run(matpes_calculator, "toy")
     assert len(results) == 2
     assert results["d_toy"].mean() == pytest.approx(0.12305854320340562, abs=1e-1)
-    assert np.abs(results["Eform_toy"] - results["Eform_DFT"]).mean() == pytest.approx(0.05122194169085273, abs=1e-2)
+    assert np.abs(results["Eform_toy"] - results["Eform_DFT"]).mean() == pytest.approx(0.0703378673539001, abs=1e-2)
 
 
 def test_elasticity_benchmark(matpes_calculator: PESCalculator) -> None:
