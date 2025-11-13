@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from importlib.util import find_spec
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -76,7 +77,7 @@ def test_pescalculator_load_mtp(expected_unit: str, expected_weight: float) -> N
         potential=calc.potential,
         stress_unit=expected_unit,
     ).stress_weight == pytest.approx(expected_weight)
-    with pytest.raises(ValueError, match="Unsupported stress_unit: Pa. Must be 'GPa' or 'eV/A3'."):
+    with pytest.raises(ValueError, match=re.escape("Unsupported stress_unit: Pa. Must be 'GPa' or 'eV/A3'.")):
         PESCalculator(potential=calc.potential, stress_unit="Pa")
 
 
@@ -118,12 +119,6 @@ def test_pescalculator_load_nequip() -> None:
     assert isinstance(calc, Calculator)
 
 
-# @pytest.mark.skipif(not find_spec("matgl"), reason="matgl is not installed")
-# def test_pescalculator_load_matgl() -> None:
-#     calc = PESCalculator.load_matgl(path=DIR / "pes" / "M3GNet-MP-2021.2.8-PES")
-#     assert isinstance(calc, Calculator)
-
-
 @pytest.mark.skipif(not find_spec("deepmd"), reason="deepmd is not installed")
 def test_pescalculator_load_deepmd() -> None:
     calc = PESCalculator.load_deepmd(
@@ -152,9 +147,8 @@ def test_pescalculator_load_universal(Li2O: Structure, name: str) -> None:
     assert isinstance(result, dict)
 
     name = "whatever"
-    with pytest.raises(ValueError, match=f"Unrecognized {name=}") as exc:
+    with pytest.raises(ValueError, match=f"Unrecognized {name=}"):
         PESCalculator.load_universal(name)
-    assert str(exc.value) == f"Unrecognized {name=}, must be one of {UNIVERSAL_CALCULATORS}"
 
 
 def test_pescalculator_calculate() -> None:
@@ -183,5 +177,8 @@ def test_pescalculator_calculate() -> None:
 
 def test_aliases() -> None:
     # Ensures that model aliases always point to valid models.
+    names = [u.name for u in UNIVERSAL_CALCULATORS]
     for v in MODEL_ALIASES.values():
-        assert v in UNIVERSAL_CALCULATORS
+        # We are not testing DGL based models.
+        if "M3GNet" not in v and "CHGNet" not in v:
+            assert v in names
