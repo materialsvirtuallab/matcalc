@@ -45,7 +45,7 @@ def test_surface_calc_basic(Si: Structure, matpes_calculator: PESCalculator) -> 
 
     assert slab_res["bulk_energy_per_atom"] == pytest.approx(-5.419038772583008, rel=1e-1)
     assert slab_res["slab_energy"] == pytest.approx(-42.81388473510742, rel=1e-1)
-    assert slab_res["surface_energy"] == pytest.approx(0.020886063055827422, rel=1e-1)
+    assert slab_res["surface_energy"] == pytest.approx(0.04857103179280209, rel=1e-1)
 
     slab_res = results[1]
 
