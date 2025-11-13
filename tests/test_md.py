@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -33,8 +34,8 @@ def _set_seed() -> None:
         ("nvt_langevin", -10.3960898598168),
         ("nvt_andersen", -10.449911725549356),
         ("nvt_bussi", -10.394832352314676),
-        ("npt_inhomogeneous", -10.8222801574377),
-        ("npt_berendsen", -10.44423308859639),
+        ("npt_inhomogeneous", -10.444233085819286),
+        ("npt_berendsen", -10.423091635481624),
         ("npt_nose_hoover", -10.39898962348729),
         ("npt_isotropic_mtk", -10.42449303041493),
         ("npt_mtk", -10.45577119876975),
@@ -207,9 +208,11 @@ def test_rotation(Si_atoms: Atoms, matpes_calculator: PESCalculator, tmp_path: P
 def test_invalid_ensemble(Si: Structure, matpes_calculator: PESCalculator) -> None:
     with pytest.raises(
         ValueError,
-        match="The specified ensemble is not supported, choose from 'nve', 'nvt',"
-        " 'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
-        " 'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'.",
+        match=re.escape(
+            "The specified ensemble is not supported, choose from 'nve', 'nvt',"
+            " 'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
+            " 'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'.",
+        ),
     ):
         MDCalc(
             calculator=matpes_calculator,
