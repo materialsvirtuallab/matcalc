@@ -72,7 +72,7 @@ sevennet = [
     "sevenn>=0.10.4",
 ]
 matgl = [
-    "matgl>=2.0.1",
+    "matgl>=2.0.2",
 ]
 ci = [
     "codecov-cli>=10.3.0",
