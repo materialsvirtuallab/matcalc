@@ -7,7 +7,11 @@ from typing import TYPE_CHECKING, Any
 
 from ase.io import Trajectory
 from ase.mep import NEBTools
-from ase.neb import NEB
+
+try:
+    from ase.mep import NEB
+except ImportError:
+    from ase.neb import NEB
 from ase.utils.forcecurve import fit_images
 
 from ._base import PropCalc
