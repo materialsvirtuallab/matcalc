@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import re
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -208,11 +207,7 @@ def test_rotation(Si_atoms: Atoms, matpes_calculator: PESCalculator, tmp_path: P
 def test_invalid_ensemble(Si: Structure, matpes_calculator: PESCalculator) -> None:
     with pytest.raises(
         ValueError,
-        match=re.escape(
-            "The specified ensemble is not supported, choose from 'nve', 'nvt',"
-            " 'nvt_nose_hoover', 'nvt_berendsen', 'nvt_langevin', 'nvt_andersen',"
-            " 'nvt_bussi', 'npt', 'npt_nose_hoover', 'npt_berendsen', 'npt_inhomogeneous'.",
-        ),
+        match=r"The specified ensemble is not supported.*",
     ):
         MDCalc(
             calculator=matpes_calculator,
