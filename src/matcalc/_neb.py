@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import os
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
 from ase.io import Trajectory
 from ase.mep import NEBTools
 
@@ -13,6 +15,8 @@ try:
 except ImportError:
     from ase.neb import NEB
 from ase.utils.forcecurve import fit_images
+from pymatgen.core import Lattice, Structure
+from pymatgen.core.periodic_table import Species
 
 from ._base import PropCalc
 from .backend._ase import get_ase_optimizer
@@ -22,7 +26,73 @@ if TYPE_CHECKING:
     from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
-    from pymatgen.core import Structure
+
+
+@dataclass
+class MEP:
+    """Minimum Energy Path dataclass for NEB calculations.
+
+    Stores MEP results in a data-efficient format where labels and lattice
+    are stored once, and only fractional coordinates vary between images.
+    """
+
+    labels: list[Species] = field(default_factory=list)
+    """Species labels for all atoms (same for all images)."""
+    lattice: np.ndarray = field(default_factory=lambda: np.eye(3))
+    """Lattice matrix (same for all images)."""
+    frac_coords: list[np.ndarray] = field(default_factory=list)
+    """Fractional coordinates for each image."""
+    energies: list[float] = field(default_factory=list)
+    """Energy for each image."""
+
+    def as_dict(self) -> dict[str, Any]:
+        """Convert MEP to a data-efficient dictionary representation.
+
+        Returns:
+            Dictionary with:
+                - "labels": List of species strings (stored once)
+                - "lattice": Lattice matrix as a 3x3 array (stored once)
+                - "images": List of dictionaries, each containing:
+                    - "frac_coords": Fractional coordinates for the image
+                    - "energy": Energy for the image
+        """
+        return {
+            "labels": [str(spec) for spec in self.labels],
+            "lattice": self.lattice.tolist(),
+            "images": [
+                {"frac_coords": frac_coords.tolist(), "energy": energy}
+                for frac_coords, energy in zip(self.frac_coords, self.energies, strict=False)
+            ],
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> MEP:
+        """Reconstruct MEP from a dictionary representation.
+
+        Parameters:
+            d: Dictionary with keys "labels", "lattice", and "images" as returned by as_dict().
+
+        Returns:
+            MEP instance reconstructed from the dictionary.
+        """
+        labels = [Species(label) for label in d["labels"]]
+        lattice = np.array(d["lattice"])
+        frac_coords = [np.array(img["frac_coords"]) for img in d["images"]]
+        energies = [img["energy"] for img in d["images"]]
+        return cls(labels=labels, lattice=lattice, frac_coords=frac_coords, energies=energies)
+
+    def get_structures(self) -> list[Structure]:
+        """Get all images as a list of pymatgen Structures.
+
+        Returns:
+            List of Structure objects, one for each image in the MEP.
+        """
+        lattice_obj = Lattice(self.lattice)
+        structures = []
+        for frac_coords in self.frac_coords:
+            structure = Structure(lattice_obj, self.labels, frac_coords)
+            structures.append(structure)
+        return structures
 
 
 class NEBCalc(PropCalc):
@@ -110,7 +180,7 @@ class NEBCalc(PropCalc):
                 dict:
                     - "barrier" (float): The energy barrier of the reaction pathway.
                     - "force" (float): The force exerted on the atoms during the NEB calculation.
-                    - "mep" (dict): a dictionary containing the images and their respective energies.
+                    - "mep" (MEP): An MEP dataclass containing the images and their respective energies.
         """
         if not isinstance(structure, dict):
             raise ValueError(  # noqa:TRY004
@@ -138,9 +208,23 @@ class NEBCalc(PropCalc):
         result = {"barrier": data[0], "force": data[1]}
 
         energies = fit_images(self.neb.images).energies
-        mep = {
-            f"image{i:02d}": {"structure": to_pmg_structure(image), "energy": energy}
-            for i, (image, energy) in enumerate(zip(self.neb.images, energies, strict=False))
-        }
+        # Convert images to pymatgen structures
+        structures = [to_pmg_structure(image) for image in self.neb.images]
+
+        # Extract labels and lattice from first structure (same for all images)
+        first_struct = structures[0]
+        labels = first_struct.species
+        lattice = first_struct.lattice.matrix
+
+        # Extract fractional coordinates for each image
+        frac_coords_list = [struct.frac_coords for struct in structures]
+
+        # Create MEP instance
+        mep = MEP(
+            labels=list(labels),
+            lattice=lattice,
+            frac_coords=frac_coords_list,
+            energies=list(energies),
+        )
         result["mep"] = mep
         return result
