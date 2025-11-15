@@ -32,18 +32,24 @@ if TYPE_CHECKING:
 class MEP:
     """Minimum Energy Path dataclass for NEB calculations.
 
-    Stores MEP results in a data-efficient format where labels and lattice
-    are stored once, and only fractional coordinates vary between images.
+    Stores MEP results in a data-efficient format where labels are stored
+    once, and only fractional coordinates and lattices vary between images.
     """
 
     labels: list[Species] = field(default_factory=list)
     """Species labels for all atoms (same for all images)."""
-    lattice: np.ndarray = field(default_factory=lambda: np.eye(3))
-    """Lattice matrix (same for all images)."""
+    lattices: np.ndarray | list[np.ndarray] = field(default_factory=lambda: np.eye(3))
+    """Lattice matrix(ces). If a single array, applies to all images. If a list, one per image."""
     frac_coords: list[np.ndarray] = field(default_factory=list)
     """Fractional coordinates for each image."""
     energies: list[float] = field(default_factory=list)
     """Energy for each image."""
+
+    def get_lattices_list(self) -> list[np.ndarray]:
+        """Get lattices as a list, expanding a single lattice if needed."""
+        if isinstance(self.lattices, np.ndarray):
+            return [self.lattices] * len(self.frac_coords) if self.frac_coords else []
+        return self.lattices
 
     def as_dict(self) -> dict[str, Any]:
         """Convert MEP to a data-efficient dictionary representation.
@@ -51,17 +57,38 @@ class MEP:
         Returns:
             Dictionary with:
                 - "labels": List of species strings (stored once)
-                - "lattice": Lattice matrix as a 3x3 array (stored once)
+                - "lattice": Lattice matrix as a 3x3 array (only if same for all images)
                 - "images": List of dictionaries, each containing:
+                    - "lattice": Lattice matrix as a 3x3 array (only if different per image)
                     - "frac_coords": Fractional coordinates for the image
                     - "energy": Energy for the image
         """
+        lattices_list = self.get_lattices_list()
+
+        # Check if all lattices are the same
+        if lattices_list and all(np.allclose(lattices_list[0], lat) for lat in lattices_list[1:]):
+            # Store single lattice at top level
+            return {
+                "labels": [str(spec) for spec in self.labels],
+                "lattice": lattices_list[0].tolist(),
+                "images": [
+                    {
+                        "frac_coords": frac_coords.tolist(),
+                        "energy": energy,
+                    }
+                    for frac_coords, energy in zip(self.frac_coords, self.energies, strict=False)
+                ],
+            }
+        # Store lattice per image
         return {
             "labels": [str(spec) for spec in self.labels],
-            "lattice": self.lattice.tolist(),
             "images": [
-                {"frac_coords": frac_coords.tolist(), "energy": energy}
-                for frac_coords, energy in zip(self.frac_coords, self.energies, strict=False)
+                {
+                    "lattice": lattice.tolist(),
+                    "frac_coords": frac_coords.tolist(),
+                    "energy": energy,
+                }
+                for lattice, frac_coords, energy in zip(lattices_list, self.frac_coords, self.energies, strict=False)
             ],
         }
 
@@ -70,16 +97,20 @@ class MEP:
         """Reconstruct MEP from a dictionary representation.
 
         Parameters:
-            d: Dictionary with keys "labels", "lattice", and "images" as returned by as_dict().
+            d: Dictionary with keys "labels" and "images" as returned by as_dict().
+                May also contain "lattice" at top level if same for all images.
 
         Returns:
             MEP instance reconstructed from the dictionary.
         """
         labels = [Species(label) for label in d["labels"]]
-        lattice = np.array(d["lattice"])
         frac_coords = [np.array(img["frac_coords"]) for img in d["images"]]
         energies = [img["energy"] for img in d["images"]]
-        return cls(labels=labels, lattice=lattice, frac_coords=frac_coords, energies=energies)
+
+        # Check if lattice is stored at top level (same for all) or per image
+        lattices = np.array(d["lattice"]) if "lattice" in d else [np.array(img["lattice"]) for img in d["images"]]
+
+        return cls(labels=labels, lattices=lattices, frac_coords=frac_coords, energies=energies)
 
     def get_structures(self) -> list[Structure]:
         """Get all images as a list of pymatgen Structures.
@@ -87,9 +118,10 @@ class MEP:
         Returns:
             List of Structure objects, one for each image in the MEP.
         """
-        lattice_obj = Lattice(self.lattice)
         structures = []
-        for frac_coords in self.frac_coords:
+        lattices_list = self.get_lattices_list()
+        for lattice, frac_coords in zip(lattices_list, self.frac_coords, strict=False):
+            lattice_obj = Lattice(lattice)
             structure = Structure(lattice_obj, self.labels, frac_coords)
             structures.append(structure)
         return structures
@@ -211,18 +243,22 @@ class NEBCalc(PropCalc):
         # Convert images to pymatgen structures
         structures = [to_pmg_structure(image) for image in self.neb.images]
 
-        # Extract labels and lattice from first structure (same for all images)
+        # Extract labels from first structure (same for all images)
         first_struct = structures[0]
         labels = first_struct.species
-        lattice = first_struct.lattice.matrix
 
-        # Extract fractional coordinates for each image
+        # Extract lattice and fractional coordinates for each image
+        lattices_list = [struct.lattice.matrix for struct in structures]
         frac_coords_list = [struct.frac_coords for struct in structures]
+
+        # Check if all lattices are the same (within numerical precision)
+        first_lattice = lattices_list[0]
+        lattices = first_lattice if all(np.allclose(first_lattice, lat) for lat in lattices_list[1:]) else lattices_list
 
         # Create MEP instance
         mep = MEP(
             labels=list(labels),
-            lattice=lattice,
+            lattices=lattices,
             frac_coords=frac_coords_list,
             energies=list(energies),
         )
