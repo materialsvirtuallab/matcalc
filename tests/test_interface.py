@@ -46,7 +46,6 @@ def test_interface_calc_basic(Si: Structure, SiO2: Structure, m3gnet_calculator:
     assert interface_res["interfacial_energy"] == pytest.approx(0.14220127996544243, rel=1e-1)
 
 
-
 def test_interface_calc_invalid_input(Si: Structure, m3gnet_calculator: PESCalculator) -> None:
     """
     If the user passes a non-dict to calc, it should raise ValueError.
@@ -58,5 +57,3 @@ def test_interface_calc_invalid_input(Si: Structure, m3gnet_calculator: PESCalcu
         match="For interface calculations, structure must be a dict in one of the following formats:",
     ):
         interface_calc.calc(Si)
-
-
