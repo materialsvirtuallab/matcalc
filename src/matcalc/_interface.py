@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.optimize.optimize import Optimizer
+    from pymatgen.analysis.interfaces.zsl import ZSLGenerator
     from pymatgen.core import Structure
 
 
@@ -41,7 +42,8 @@ class InterfaceCalc(PropCalc):
         Parameters:
             calculator (Calculator | str): An ASE calculator object used to perform energy and force
                 calculations. If string is provided, the corresponding universal calculator is loaded.
-            relax_bulk (bool, optional): Whether to relax the bulk structures before interface calculations. Defaults to True.
+            relax_bulk (bool, optional): Whether to relax the bulk structures before interface
+                calculations. Defaults to True.
             relax_interface (bool, optional): Whether to relax the interface structures. Defaults to True.
             fmax (float, optional): The maximum force tolerance for convergence. Defaults to 0.1.
             optimizer (str | Optimizer, optional): The optimization algorithm to use. Defaults to "BFGS".
@@ -68,7 +70,7 @@ class InterfaceCalc(PropCalc):
         substrate_miller: tuple[int, int, int],
         zslgen: ZSLGenerator | None = None,
         cib_kwargs: dict | None = None,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> list[dict[str, Any]]:
         """Calculate all possible coherent interfaces between two bulk structures.
 
@@ -77,10 +79,13 @@ class InterfaceCalc(PropCalc):
             substrate_bulk (Structure): The bulk structure of the substrate material.
             film_miller (tuple[int, int, int]): The Miller index for the film surface.
             substrate_miller (tuple[int, int, int]): The Miller index for the substrate surface.
-            zslgen (ZSLGenerator | None, optional): An instance of ZSLGenerator to use for generating supercells.
-            zsl_kwargs (dict | None, optional): Additional keyword arguments to pass to the ZSLGenerator.
-            cib_kwargs (dict | None, optional): Additional keyword arguments to pass to the CoherentInterfaceBuilder.
-            **kwargs (dict[str, Any]): Additional keyword arguments.
+            zslgen (ZSLGenerator | None, optional): An instance of ZSLGenerator to use for generating
+                supercells.
+            zsl_kwargs (dict | None, optional): Additional keyword arguments to pass to the
+                ZSLGenerator.
+            cib_kwargs (dict | None, optional): Additional keyword arguments to pass to the
+                CoherentInterfaceBuilder.
+            **kwargs (Any): Additional keyword arguments passed to calc_many.
 
         Returns:
                 dict: A list of dictionaries containing the calculated film, substrate, interface.
@@ -146,7 +151,11 @@ class InterfaceCalc(PropCalc):
             for interface in unique_interfaces
         ]
 
+<<<<<<< HEAD
         return list(self.calc_many(interfaces, **kwargs))
+=======
+        return [r for r in self.calc_many(interfaces, **kwargs) if r is not None]
+>>>>>>> dafe5c2 (Fix errors and Add test)
 
     def calc(
         self,
@@ -166,10 +175,11 @@ class InterfaceCalc(PropCalc):
                 - "interfacial_energy" (float): The calculated interfacial energy
 
         """
-        if not (isinstance(structure, dict) and set(structure.keys()).intersection(("bulk", "bulk_energy_per_atom"))):
+        if not isinstance(structure, dict):
             raise ValueError(
                 "For interface calculations, structure must be a dict in one of the following formats: "
-                "{'film': film_struct, 'interface': interface_struct} or {'film': film_energy, 'substrate_energy': energy}."
+                "{'interface': interface_struct, 'film_energy_per_atom': energy, ...} from calc_interfaces or "
+                "{'interface': interface_struct, 'film_bulk': film_struct, 'substrate_bulk': substrate_struct}."
             )
 
         result_dict = structure.copy()
@@ -177,6 +187,8 @@ class InterfaceCalc(PropCalc):
         if "film_energy_per_atom" in structure and "substrate_energy_per_atom" in structure:
             film_energy_per_atom = structure["film_energy_per_atom"]
             substrate_energy_per_atom = structure["substrate_energy_per_atom"]
+            film_structure = structure["final_film"]
+            substrate_structure = structure["final_substrate"]
         else:
             relaxer = RelaxCalc(
                 calculator=self.calculator,
@@ -189,8 +201,13 @@ class InterfaceCalc(PropCalc):
             )
             film_opt = relaxer.calc(structure["film_bulk"])
             film_energy_per_atom = film_opt["energy"] / len(film_opt["final_structure"])
+            film_structure = film_opt["final_structure"]
             substrate_opt = relaxer.calc(structure["substrate_bulk"])
             substrate_energy_per_atom = substrate_opt["energy"] / len(substrate_opt["final_structure"])
+<<<<<<< HEAD
+=======
+            substrate_structure = substrate_opt["final_structure"]
+>>>>>>> dafe5c2 (Fix errors and Add test)
 
         interface = structure["interface"]
         relaxer = RelaxCalc(
@@ -206,26 +223,37 @@ class InterfaceCalc(PropCalc):
         final_interface = interface_opt["final_structure"]
         interface_energy = interface_opt["energy"]
 
+<<<<<<< HEAD
         # pymatgen interface object does not include interface properties for interfacial energy calculation, define them here
+=======
+        # pymatgen interface object does not include interface properties for interfacial energy
+        # calculation, define them here
+>>>>>>> dafe5c2 (Fix errors and Add test)
 
         matrix = interface.lattice.matrix
         area = float(np.linalg.norm(np.cross(matrix[0], matrix[1])))
 
+<<<<<<< HEAD
         unique_in_film = set(film_opt.symbol_set) - set(substrate_opt.symbol_set)
         unique_in_substrate = set(substrate_opt.symbol_set) - set(film_opt.symbol_set)
+=======
+        unique_in_film = set(film_structure.symbol_set) - set(substrate_structure.symbol_set)
+        unique_in_substrate = set(substrate_structure.symbol_set) - set(film_structure.symbol_set)
+>>>>>>> dafe5c2 (Fix errors and Add test)
 
         if unique_in_film:
-            unique_element = list(unique_in_film)[0]
-            count = film_opt.composition[unique_element]
-            substrate_in_interface = (interface.composition[unique_element] / count) * film_opt.num_sites
-        elif unique_in_substrate:
-            unique_element = list(unique_in_substrate)[0]
-            count = substrate_opt.composition[unique_element]
-            film_in_interface = (interface.composition[unique_element] / count) * substrate_opt.num_sites
+            unique_element = next(iter(unique_in_film))
+            count = film_structure.composition[unique_element]
+            film_in_interface = (interface.composition[unique_element] / count) * film_structure.num_sites
             substrate_in_interface = interface.num_sites - film_in_interface
+        elif unique_in_substrate:
+            unique_element = next(iter(unique_in_substrate))
+            count = substrate_structure.composition[unique_element]
+            substrate_in_interface = (interface.composition[unique_element] / count) * substrate_structure.num_sites
+            film_in_interface = interface.num_sites - substrate_in_interface
         else:
-            print("No unique elements found in either structure")
-            film_in_interface = substrate_in_interface = None
+            msg = "No unique elements found in either structure to determine atom counts in interface."
+            raise ValueError(msg)
 
         gamma = (
             interface_energy
