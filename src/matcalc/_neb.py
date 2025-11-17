@@ -62,7 +62,7 @@ class MEP:
             raise ValueError(f"Number of structures ({n_structs}) must match number of energies ({n_energies})")
 
         first_struct = structures[0]
-        self.labels = list(first_struct.species)
+        self.labels = list(first_struct.species)  # type: ignore[arg-type]
 
         lattices_list = [struct.lattice.matrix for struct in structures]
         frac_coords_list = [struct.frac_coords for struct in structures]
