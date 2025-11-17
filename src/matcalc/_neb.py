@@ -45,6 +45,35 @@ class MEP:
     energies: list[float] = field(default_factory=list)
     """Energy for each image."""
 
+    def __init__(
+        self,
+        structures: list[Structure],
+        energies: list[float],
+    ) -> None:
+        """Initialize MEP from structures and energies.
+
+        Parameters:
+            structures: List of pymatgen Structures.
+            energies: List of energies for each image.
+        """
+        if len(structures) != len(energies):
+            n_structs = len(structures)
+            n_energies = len(energies)
+            raise ValueError(f"Number of structures ({n_structs}) must match number of energies ({n_energies})")
+
+        first_struct = structures[0]
+        self.labels = list(first_struct.species)
+
+        lattices_list = [struct.lattice.matrix for struct in structures]
+        frac_coords_list = [struct.frac_coords for struct in structures]
+
+        # Check if all lattices are the same (within numerical precision)
+        first_lattice = lattices_list[0]
+        all_same = all(np.allclose(first_lattice, lat) for lat in lattices_list[1:])
+        self.lattices = first_lattice if all_same else lattices_list
+        self.frac_coords = frac_coords_list
+        self.energies = list(energies)
+
     def get_lattices_list(self) -> list[np.ndarray]:
         """Get lattices as a list, expanding a single lattice if needed."""
         if isinstance(self.lattices, np.ndarray):
@@ -108,9 +137,19 @@ class MEP:
         energies = [img["energy"] for img in d["images"]]
 
         # Check if lattice is stored at top level (same for all) or per image
-        lattices = np.array(d["lattice"]) if "lattice" in d else [np.array(img["lattice"]) for img in d["images"]]
+        if "lattice" in d:
+            lattices_list = [np.array(d["lattice"])] * len(frac_coords)
+        else:
+            lattices_list = [np.array(img["lattice"]) for img in d["images"]]
 
-        return cls(labels=labels, lattices=lattices, frac_coords=frac_coords, energies=energies)
+        # Reconstruct structures from labels, lattices, and fractional coordinates
+        structures = []
+        for lattice, frac_coord in zip(lattices_list, frac_coords, strict=False):
+            lattice_obj = Lattice(lattice)
+            structure = Structure(lattice_obj, labels, frac_coord)
+            structures.append(structure)
+
+        return cls(structures, energies)
 
     def get_structures(self) -> list[Structure]:
         """Get all images as a list of pymatgen Structures.
@@ -243,24 +282,7 @@ class NEBCalc(PropCalc):
         # Convert images to pymatgen structures
         structures = [to_pmg_structure(image) for image in self.neb.images]
 
-        # Extract labels from first structure (same for all images)
-        first_struct = structures[0]
-        labels = first_struct.species
-
-        # Extract lattice and fractional coordinates for each image
-        lattices_list = [struct.lattice.matrix for struct in structures]
-        frac_coords_list = [struct.frac_coords for struct in structures]
-
-        # Check if all lattices are the same (within numerical precision)
-        first_lattice = lattices_list[0]
-        lattices = first_lattice if all(np.allclose(first_lattice, lat) for lat in lattices_list[1:]) else lattices_list
-
-        # Create MEP instance
-        mep = MEP(
-            labels=list(labels),
-            lattices=lattices,
-            frac_coords=frac_coords_list,
-            energies=list(energies),
-        )
+        # Create MEP instance from structures and energies
+        mep = MEP(structures, list(energies))
         result["mep"] = mep
         return result
