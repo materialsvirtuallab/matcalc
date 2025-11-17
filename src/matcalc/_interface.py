@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from pymatgen.analysis.interfaces.coherent_interfaces import CoherentInterfaceBuilder
-from pymatgen.analysis.interfaces.zsl import ZSLGenerator
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
 from ._base import PropCalc
@@ -151,11 +150,7 @@ class InterfaceCalc(PropCalc):
             for interface in unique_interfaces
         ]
 
-<<<<<<< HEAD
-        return list(self.calc_many(interfaces, **kwargs))
-=======
         return [r for r in self.calc_many(interfaces, **kwargs) if r is not None]
->>>>>>> dafe5c2 (Fix errors and Add test)
 
     def calc(
         self,
@@ -173,15 +168,16 @@ class InterfaceCalc(PropCalc):
                 - "interface_energy_per_atom" (float): The final energy of the relaxed interface structure.
                 - "num_atoms" (int): The number of atoms in the interface structure.
                 - "interfacial_energy" (float): The calculated interfacial energy
-
         """
         if not isinstance(structure, dict):
-            raise ValueError(
+            msg = (
                 "For interface calculations, structure must be a dict in one of the following formats: "
                 "{'interface': interface_struct, 'film_energy_per_atom': energy, ...} from calc_interfaces or "
                 "{'interface': interface_struct, 'film_bulk': film_struct, 'substrate_bulk': substrate_struct}."
             )
+            raise TypeError(msg)
 
+        # Type narrowing: at this point, structure is guaranteed to be dict[str, Any]
         result_dict = structure.copy()
 
         if "film_energy_per_atom" in structure and "substrate_energy_per_atom" in structure:
@@ -204,10 +200,7 @@ class InterfaceCalc(PropCalc):
             film_structure = film_opt["final_structure"]
             substrate_opt = relaxer.calc(structure["substrate_bulk"])
             substrate_energy_per_atom = substrate_opt["energy"] / len(substrate_opt["final_structure"])
-<<<<<<< HEAD
-=======
             substrate_structure = substrate_opt["final_structure"]
->>>>>>> dafe5c2 (Fix errors and Add test)
 
         interface = structure["interface"]
         relaxer = RelaxCalc(
@@ -223,23 +216,14 @@ class InterfaceCalc(PropCalc):
         final_interface = interface_opt["final_structure"]
         interface_energy = interface_opt["energy"]
 
-<<<<<<< HEAD
-        # pymatgen interface object does not include interface properties for interfacial energy calculation, define them here
-=======
         # pymatgen interface object does not include interface properties for interfacial energy
         # calculation, define them here
->>>>>>> dafe5c2 (Fix errors and Add test)
 
         matrix = interface.lattice.matrix
         area = float(np.linalg.norm(np.cross(matrix[0], matrix[1])))
 
-<<<<<<< HEAD
-        unique_in_film = set(film_opt.symbol_set) - set(substrate_opt.symbol_set)
-        unique_in_substrate = set(substrate_opt.symbol_set) - set(film_opt.symbol_set)
-=======
         unique_in_film = set(film_structure.symbol_set) - set(substrate_structure.symbol_set)
         unique_in_substrate = set(substrate_structure.symbol_set) - set(film_structure.symbol_set)
->>>>>>> dafe5c2 (Fix errors and Add test)
 
         if unique_in_film:
             unique_element = next(iter(unique_in_film))
