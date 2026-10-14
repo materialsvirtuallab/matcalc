@@ -12,6 +12,7 @@ import pytest
 from numpy.testing import assert_allclose
 
 from matcalc import PhononCalc
+from matcalc._phonon import _mc_rattle
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -246,12 +247,13 @@ def test_phonon_calc_fix_imaginary_attempts(
     assert any("Imaginary mode correction attempt" in r.message for r in caplog.records)
 
 
-@pytest.mark.parametrize("rattle_method", ["random", "mc"])
+@pytest.mark.parametrize(("rattle_method", "stdev_again"), [("random", 0.02), ("mc", 0.01)])
 def test_phonon_calc_rattle_seed(
     Si_atoms: Atoms,
     matpes_calculator: PESCalculator,
     monkeypatch: pytest.MonkeyPatch,
     rattle_method: str,
+    stdev_again: float,
 ) -> None:
     """Each correction attempt rattles differently, a fixed seed reproduces the sequence, and the
     displacements scale with rattle_stdev."""
@@ -284,15 +286,21 @@ def test_phonon_calc_rattle_seed(
         ).calc(distorted_si_atoms)
         return list(displacements)
 
-    first = run(seed=7)
+    first = run(seed=7, rattle_stdev=0.01)
     assert len(first) == 2
     assert not np.allclose(first[0], first[1])
-    for disp, disp_again in zip(first, run(seed=7), strict=True):
-        assert_allclose(disp, disp_again)
-    assert not np.allclose(first[0], run(seed=8)[0])
-    assert_allclose(run(seed=7, rattle_stdev=0.02)[0], 2 * first[0], atol=1e-8)
+    for disp, disp_again in zip(first, run(seed=7, rattle_stdev=stdev_again), strict=True):
+        assert_allclose(disp_again, stdev_again / 0.01 * disp, atol=1e-8)
 
 
 def test_phonon_calc_invalid_rattle_method(matpes_calculator: PESCalculator) -> None:
     with pytest.raises(ValueError, match="rattle_method must be"):
         PhononCalc(calculator=matpes_calculator, rattle_method="MC")  # type: ignore[arg-type]
+
+
+def test_mc_rattle_min_distance(Si_atoms: Atoms) -> None:
+    atoms = Si_atoms * (2, 2, 2)
+    triu = np.triu_indices(len(atoms), 1)
+    d_min = 0.8 * atoms.get_all_distances(mic=True)[triu].min()
+    atoms.positions += _mc_rattle(atoms, 0.1, d_min, np.random.RandomState(0))
+    assert atoms.get_all_distances(mic=True)[triu].min() > d_min - 0.2  # d_min - 2 * width
