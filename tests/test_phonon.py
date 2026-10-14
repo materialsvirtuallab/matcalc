@@ -291,3 +291,8 @@ def test_phonon_calc_rattle_seed(
         assert_allclose(disp, disp_again)
     assert not np.allclose(first[0], run(seed=8)[0])
     assert_allclose(run(seed=7, rattle_stdev=0.02)[0], 2 * first[0], atol=1e-8)
+
+
+def test_phonon_calc_invalid_rattle_method(matpes_calculator: PESCalculator) -> None:
+    with pytest.raises(ValueError, match="rattle_method must be"):
+        PhononCalc(calculator=matpes_calculator, rattle_method="MC")  # type: ignore[arg-type]

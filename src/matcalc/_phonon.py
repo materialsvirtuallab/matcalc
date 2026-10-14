@@ -145,6 +145,8 @@ class PhononCalc(PropCalc):
 
         if supercell_matrix is None and min_length is None:
             raise ValueError("min_length must be set when supercell_matrix is None.")
+        if rattle_method not in ("random", "mc"):
+            raise ValueError(f"rattle_method must be 'random' or 'mc', got {rattle_method!r}.")
 
         # Set default paths for output files.
         for key, val, default_path in (
