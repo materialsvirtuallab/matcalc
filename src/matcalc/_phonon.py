@@ -112,6 +112,7 @@ class PhononCalc(PropCalc):
                 ``"mc"`` uses MC rattle, which rejects moves that bring atoms closer than 0.8 times
                 the shortest interatomic distance.
             rattle_stdev: Standard deviation (Å) of the rattle displacements per Cartesian component.
+                For ``"mc"``, the displacements are approximately this size (smaller when moves are rejected).
             seed: Seed for the rattle random number generator (None for nondeterministic).
             symprec: symmetry precision used for spglib symmetry finding.
             write_force_constants: Path to write FCs, True for default name, or False.
@@ -372,6 +373,32 @@ class PhononCalc(PropCalc):
         return relaxer.calc(structure_in)
 
 
+# _mc_rattle is adapted from hiphive (https://gitlab.com/materials-modeling/hiphive),
+# distributed under the following license:
+#
+# MIT License
+#
+# Copyright (c) 2018 materials-modeling
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+
 def _mc_rattle(
     atoms: Atoms,
     rattle_std: float,
@@ -384,7 +411,7 @@ def _mc_rattle(
 ) -> np.ndarray:
     """Monte Carlo rattle displacements.
 
-    Adapted from hiphive (MIT License, Copyright (c) 2018 materials-modeling), described in:
+    Adapted from hiphive, described in:
         F. Eriksson, E. Fransson, P. Erhart, Adv. Theory Simul. 2, 1800184 (2019).
         doi: 10.1002/adts.201800184
     Each Gaussian trial move of an atom is accepted with probability
