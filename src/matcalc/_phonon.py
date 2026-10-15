@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, cast
 import numpy as np
 import phonopy
 from ase.neighborlist import NeighborList
+from ase.units import kB
 from phonopy.file_IO import write_FORCE_CONSTANTS as write_force_constants
 from pymatgen.io.phonopy import get_phonopy_structure, get_pmg_structure
 
@@ -54,8 +55,9 @@ class PhononCalc(PropCalc):
         imaginary_freq_tol: Frequencies below this (THz) count as imaginary.
         on_imaginary_modes: ``"warn"`` or ``"error"`` on imaginary modes.
         fix_imaginary_attempts: Rattle/retry cycles to fix imaginary modes.
-        rattle_method: ``"random"`` or ``"mc"`` rattle used to fix imaginary modes.
+        rattle_method: ``"random"``, ``"mc"`` or ``"phonon"`` rattle used to fix imaginary modes.
         rattle_stdev: Rattle amplitude (Å).
+        rattle_temperature: Temperature (K) for thermal phonon rattle amplitudes, or None.
         seed: Seed for the rattle random number generator (default 42 is reproducible; None for nondeterministic).
         symprec: symmetry precision used for spglib symmetry finding.
         write_force_constants: Output path for force constants (or False).
@@ -82,8 +84,9 @@ class PhononCalc(PropCalc):
         imaginary_freq_tol: float = -0.01,
         on_imaginary_modes: Literal["error", "warn"] = "warn",
         fix_imaginary_attempts: int = 0,
-        rattle_method: Literal["random", "mc"] = "random",
+        rattle_method: Literal["random", "mc", "phonon"] = "random",
         rattle_stdev: float = 0.01,
+        rattle_temperature: float | None = None,
         seed: int | None = 42,
         symprec: float = 1e-5,
         write_force_constants: bool | str | Path = False,
@@ -110,9 +113,14 @@ class PhononCalc(PropCalc):
             fix_imaginary_attempts: Rattle/relax/phonon retries; 0 disables.
             rattle_method: Rattle used by the retries. ``"random"`` draws Gaussian displacements;
                 ``"mc"`` uses MC rattle, which rejects moves that bring atoms closer than 0.8 times
-                the shortest interatomic distance.
+                the shortest interatomic distance. ``"phonon"`` superimposes the Gamma-point normal modes of the
+                input cell with amplitudes proportional to 1/|omega|.
             rattle_stdev: Standard deviation (Å) of the rattle displacements per Cartesian component.
                 For ``"mc"``, the displacements are approximately this size (smaller when moves are rejected).
+                For ``"phonon"``, the RMS of the displacements per Cartesian component (unused when
+                ``rattle_temperature`` is set).
+            rattle_temperature: If set, the phonon rattle uses classical thermal amplitudes at this
+                temperature (K) instead of ``rattle_stdev``. Only used with ``rattle_method="phonon"``.
             seed: Seed for the rattle random number generator (default 42 is reproducible; None for nondeterministic).
             symprec: symmetry precision used for spglib symmetry finding.
             write_force_constants: Path to write FCs, True for default name, or False.
@@ -137,6 +145,7 @@ class PhononCalc(PropCalc):
         self.fix_imaginary_attempts = fix_imaginary_attempts
         self.rattle_method = rattle_method
         self.rattle_stdev = rattle_stdev
+        self.rattle_temperature = rattle_temperature
         self.seed = seed
         self.symprec = symprec
         self.write_force_constants = write_force_constants
@@ -146,8 +155,10 @@ class PhononCalc(PropCalc):
 
         if supercell_matrix is None and min_length is None:
             raise ValueError("min_length must be set when supercell_matrix is None.")
-        if rattle_method not in ("random", "mc"):
-            raise ValueError(f"rattle_method must be 'random' or 'mc', got {rattle_method!r}.")
+        if rattle_method not in ("random", "mc", "phonon"):
+            raise ValueError(f"rattle_method must be 'random', 'mc' or 'phonon', got {rattle_method!r}.")
+        if rattle_temperature is not None and rattle_method != "phonon":
+            raise ValueError("rattle_temperature is only used with rattle_method='phonon'.")
 
         # Set default paths for output files.
         for key, val, default_path in (
@@ -312,7 +323,7 @@ class PhononCalc(PropCalc):
         rng = np.random.RandomState(self.seed)
         for attempt in range(self.fix_imaginary_attempts):
             logger.info("Imaginary mode correction attempt %d/%d", attempt + 1, self.fix_imaginary_attempts)
-            structure_in = self._rattle_structure(structure_in, stdev=self.rattle_stdev, rng=rng)
+            structure_in = self._rattle_structure(structure_in, stdev=self.rattle_stdev, rng=rng, phonon=phonon)
 
             logger.info("Re-relaxing structure at fixed cell volume following rattle.")
             relax_result = self._relax_structure(structure_in)
@@ -333,12 +344,15 @@ class PhononCalc(PropCalc):
                 break
         return relax_result, phonon, frequencies, disp_supercells
 
-    def _rattle_structure(self, structure_in: Structure, rng: np.random.RandomState, stdev: float = 0.01) -> Structure:
+    def _rattle_structure(
+        self, structure_in: Structure, rng: np.random.RandomState, phonon: phonopy.Phonopy, stdev: float = 0.01
+    ) -> Structure:
         """Rattle the atoms to bump out of stationary point (stdev=0.01 Å).
 
         Args:
             structure_in: Pymatgen structure.
             rng: Random number generator for the displacements.
+            phonon: Phonopy object of ``structure_in``, used by the phonon rattle.
             stdev: standard deviation in angstrom for the rattle.
 
         Returns:
@@ -352,6 +366,8 @@ class PhononCalc(PropCalc):
             d_min = 0.8 * distances.min() if distances.size else 0.0
             n_iter = 10  # final displacements are ~ sqrt(n_iter) * step, i.e. ~ stdev
             atoms.positions += _mc_rattle(atoms, stdev / np.sqrt(n_iter), d_min, sub_rng, n_iter=n_iter)
+        elif self.rattle_method == "phonon":
+            atoms.positions += _phonon_rattle(phonon, stdev, rng, temperature=self.rattle_temperature)
         else:
             atoms.rattle(stdev=stdev, rng=rng)
         atoms.wrap()
@@ -373,7 +389,7 @@ class PhononCalc(PropCalc):
         return relaxer.calc(structure_in)
 
 
-# _mc_rattle is adapted from hiphive (https://gitlab.com/materials-modeling/hiphive),
+# _mc_rattle and _phonon_rattle are adapted from hiphive (https://gitlab.com/materials-modeling/hiphive),
 # distributed under the following license:
 #
 # MIT License
@@ -451,3 +467,37 @@ def _mc_rattle(
             else:
                 raise RuntimeError(f"MC rattle exceeded {max_attempts} trial moves for atom {i}.")
     return work.positions - reference
+
+
+def _phonon_rattle(
+    phonon: phonopy.Phonopy, stdev: float, rng: np.random.RandomState, temperature: float | None = None
+) -> np.ndarray:
+    """Phonon rattle displacements of the phonopy primitive cell (the input cell).
+
+    Adapted from hiphive, which follows D. West, S. K. Estreicher, Phys. Rev. Lett. 96, 115504 (2006).
+    The normal modes of the Gamma-point dynamical matrix get Gaussian amplitudes proportional to 1/|omega|.
+    Imaginary modes are treated as real and the three acoustic modes are left out. The displacements are
+    scaled to an RMS of ``stdev``, or, if ``temperature`` is set, have the classical thermal amplitudes
+    sqrt(kB T / m) / omega.
+
+    Args:
+        phonon: Phonopy object with force constants.
+        stdev: RMS of the displacements per Cartesian component (Å).
+        rng: Random number generator.
+        temperature: Temperature (K) for thermal amplitudes instead of ``stdev``.
+
+    Returns:
+        Displacements (N, 3) in Å.
+    """
+    phonon.dynamical_matrix.run([0.0, 0.0, 0.0])  # type: ignore[union-attr]
+    w2, vecs = np.linalg.eigh(phonon.dynamical_matrix.dynamical_matrix.real)  # type: ignore[union-attr]
+    modes = vecs.T.reshape(len(w2), -1, 3)
+    keep = np.argsort(np.abs(w2))[3:]
+    w = np.sqrt(np.abs(w2[keep]))
+    phases = rng.uniform(0, 2 * np.pi, size=len(w))
+    amplitudes = np.sqrt(-2 * np.log(1 - rng.random_sample(len(w))))
+    disp = np.tensordot(amplitudes * np.cos(phases) / w, modes[keep], (0, 0))
+    disp /= np.sqrt(phonon.primitive.masses)[:, None]
+    if temperature is not None:
+        return disp * np.sqrt(kB * temperature)
+    return disp * stdev / np.sqrt(np.mean(disp**2))

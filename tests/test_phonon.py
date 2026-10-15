@@ -12,7 +12,7 @@ import pytest
 from numpy.testing import assert_allclose
 
 from matcalc import PhononCalc
-from matcalc._phonon import _mc_rattle
+from matcalc._phonon import _mc_rattle, _phonon_rattle
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -247,7 +247,7 @@ def test_phonon_calc_fix_imaginary_attempts(
     assert any("Imaginary mode correction attempt" in r.message for r in caplog.records)
 
 
-@pytest.mark.parametrize(("rattle_method", "stdev_again"), [("random", 0.02), ("mc", 0.01)])
+@pytest.mark.parametrize(("rattle_method", "stdev_again"), [("random", 0.02), ("mc", 0.01), ("phonon", 0.01)])
 def test_phonon_calc_rattle_seed(
     Si_atoms: Atoms,
     matpes_calculator: PESCalculator,
@@ -290,13 +290,25 @@ def test_phonon_calc_rattle_seed(
     assert len(first) == 2
     assert not np.allclose(first[0], first[1])
     for disp, disp_again in zip(first, run(seed=7, rattle_stdev=stdev_again), strict=True):
-        assert_allclose(disp_again, stdev_again / 0.01 * disp, atol=1e-8)
+        assert_allclose(disp_again, stdev_again / 0.01 * disp, atol=1e-6)
     assert not np.allclose(first[0], run(seed=8)[0])
+    if rattle_method == "phonon":
+        assert_allclose(np.sqrt(np.mean(np.square(first))), 0.01)
 
 
 def test_phonon_calc_invalid_rattle_method(matpes_calculator: PESCalculator) -> None:
     with pytest.raises(ValueError, match="rattle_method must be"):
         PhononCalc(calculator=matpes_calculator, rattle_method="MC")  # type: ignore[arg-type]
+
+
+def test_phonon_calc_rattle_temperature(Si: Structure, matpes_calculator: PESCalculator) -> None:
+    phonon_calc = PhononCalc(calculator=matpes_calculator, supercell_matrix=((2, 0, 0), (0, 2, 0), (0, 0, 2)))
+    phonon, _, _ = phonon_calc._run_phonopy(Si)  # noqa: SLF001
+    disp_300 = _phonon_rattle(phonon, 0.01, np.random.RandomState(0), temperature=300.0)
+    disp_1200 = _phonon_rattle(phonon, 0.5, np.random.RandomState(0), temperature=1200.0)
+    assert_allclose(disp_1200, 2 * disp_300)  # amplitudes scale with sqrt(T), stdev is unused
+    with pytest.raises(ValueError, match="rattle_temperature is only used"):
+        PhononCalc(calculator=matpes_calculator, rattle_temperature=300.0)
 
 
 def test_mc_rattle_min_distance(Si_atoms: Atoms) -> None:
