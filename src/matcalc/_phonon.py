@@ -56,7 +56,7 @@ class PhononCalc(PropCalc):
         fix_imaginary_attempts: Rattle/retry cycles to fix imaginary modes.
         rattle_method: ``"random"`` or ``"mc"`` rattle used to fix imaginary modes.
         rattle_stdev: Rattle amplitude (Å).
-        seed: Seed for the rattle random number generator (None for nondeterministic).
+        seed: Seed for the rattle random number generator (default 42 is reproducible; None for nondeterministic).
         symprec: symmetry precision used for spglib symmetry finding.
         write_force_constants: Output path for force constants (or False).
         write_band_structure: Band structure YAML path (or False).
@@ -113,7 +113,7 @@ class PhononCalc(PropCalc):
                 the shortest interatomic distance.
             rattle_stdev: Standard deviation (Å) of the rattle displacements per Cartesian component.
                 For ``"mc"``, the displacements are approximately this size (smaller when moves are rejected).
-            seed: Seed for the rattle random number generator (None for nondeterministic).
+            seed: Seed for the rattle random number generator (default 42 is reproducible; None for nondeterministic).
             symprec: symmetry precision used for spglib symmetry finding.
             write_force_constants: Path to write FCs, True for default name, or False.
             write_band_structure: Path, True for default YAML, or False.
@@ -416,7 +416,7 @@ def _mc_rattle(
         doi: 10.1002/adts.201800184
     Each Gaussian trial move of an atom is accepted with probability
     ``(erf((d - d_min) / width) + 1) / 2``, where ``d`` is the shortest distance from the
-    atom to its neighbors within ``2 * d_min``.
+    atom to its neighbors within ``2 * d_min``. The neighbor list is built once from the initial positions.
 
     Args:
         atoms: ASE atoms to rattle (not modified).
