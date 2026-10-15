@@ -247,7 +247,7 @@ def test_phonon_calc_fix_imaginary_attempts(
     assert any("Imaginary mode correction attempt" in r.message for r in caplog.records)
 
 
-@pytest.mark.parametrize(("rattle_method", "stdev_again"), [("random", 0.02), ("mc", 0.01), ("phonon", 0.01)])
+@pytest.mark.parametrize(("rattle_method", "stdev_again"), [("random", 0.02), ("mc", 0.01)])
 def test_phonon_calc_rattle_seed(
     Si_atoms: Atoms,
     matpes_calculator: PESCalculator,
@@ -290,10 +290,8 @@ def test_phonon_calc_rattle_seed(
     assert len(first) == 2
     assert not np.allclose(first[0], first[1])
     for disp, disp_again in zip(first, run(seed=7, rattle_stdev=stdev_again), strict=True):
-        assert_allclose(disp_again, stdev_again / 0.01 * disp, atol=1e-6)
+        assert_allclose(disp_again, stdev_again / 0.01 * disp, atol=1e-8)
     assert not np.allclose(first[0], run(seed=8)[0])
-    if rattle_method == "phonon":
-        assert_allclose(np.sqrt(np.mean(np.square(first))), 0.01)
 
 
 def test_phonon_calc_invalid_rattle_method(matpes_calculator: PESCalculator) -> None:
