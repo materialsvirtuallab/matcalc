@@ -291,6 +291,7 @@ def test_phonon_calc_rattle_seed(
     assert not np.allclose(first[0], first[1])
     for disp, disp_again in zip(first, run(seed=7, rattle_stdev=stdev_again), strict=True):
         assert_allclose(disp_again, stdev_again / 0.01 * disp, atol=1e-8)
+    assert not np.allclose(first[0], run(seed=8)[0])
 
 
 def test_phonon_calc_invalid_rattle_method(matpes_calculator: PESCalculator) -> None:
@@ -302,5 +303,9 @@ def test_mc_rattle_min_distance(Si_atoms: Atoms) -> None:
     atoms = Si_atoms * (2, 2, 2)
     triu = np.triu_indices(len(atoms), 1)
     d_min = 0.8 * atoms.get_all_distances(mic=True)[triu].min()
-    atoms.positions += _mc_rattle(atoms, 0.1, d_min, np.random.RandomState(0))
-    assert atoms.get_all_distances(mic=True)[triu].min() > d_min - 0.2  # d_min - 2 * width
+    mc_atoms, random_atoms = atoms.copy(), atoms.copy()
+    mc_atoms.positions += _mc_rattle(atoms, 0.1, d_min, np.random.RandomState(0))
+    # random rattle of the same total size as 10 MC steps of 0.1 Å
+    random_atoms.positions += np.random.RandomState(0).normal(0.0, 0.1 * np.sqrt(10), (len(atoms), 3))
+    assert mc_atoms.get_all_distances(mic=True)[triu].min() > d_min - 0.2  # d_min - 2 * width
+    assert random_atoms.get_all_distances(mic=True)[triu].min() < d_min - 0.2
