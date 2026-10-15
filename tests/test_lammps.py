@@ -14,7 +14,7 @@ from ase.calculators.calculator import Calculator
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.lammps.data import LammpsData
 
-from matcalc import LAMMPSMDCalc
+from matcalc import DiffusionCalc, LAMMPSMDCalc
 from matcalc.utils import PESCalculator
 
 if TYPE_CHECKING:
@@ -199,3 +199,76 @@ def test_lammps_failed_run(Li2O: Structure, tmp_path: Path, monkeypatch: pytest.
     with pytest.raises(subprocess.CalledProcessError) as error:
         calc.calc(Li2O)
     assert error.value.returncode == 7
+
+
+@pytest.mark.parametrize(
+    ("frames", "equilibration_frames", "count", "energy"), [(None, 0, 3, 7 / 3), (None, 1, 2, 3), (1, 1, 1, 4)]
+)
+def test_lammps_trajectory_window(
+    Li2O: Structure,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    frames: int | None,
+    equilibration_frames: int,
+    count: int,
+    energy: float,
+) -> None:
+    monkeypatch.setattr(PESCalculator, "load_universal", lambda _name: Calculator())
+
+    def run(command: list[str], *, cwd: Path, **_kwargs: object) -> subprocess.CompletedProcess:
+        assert cwd == tmp_path / "run"
+        assert (cwd / "in.md").is_file()
+        _write_lammps_outputs(cwd)
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr("matcalc._lammps.subprocess.run", run)
+    calc = LAMMPSMDCalc("pbe", relax_structure=False, frames=frames, equilibration_frames=equilibration_frames)
+    result = calc.calc(Li2O, directory=tmp_path / "run")
+    assert len(result["trajectory"]) == count
+    assert result["potential_energy"] == pytest.approx(energy)
+    assert result["kinetic_energy"] == pytest.approx(energy * 10)
+    assert result["total_energy"] == pytest.approx(energy * 11)
+
+
+def test_lammps_empty_trajectory_window(Li2O: Structure, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(PESCalculator, "load_universal", lambda _name: Calculator())
+    calc = LAMMPSMDCalc("pbe", relax_structure=False, equilibration_frames=3)
+    calc.write_inputs(Li2O, directory=tmp_path)
+    _write_lammps_outputs(tmp_path)
+    monkeypatch.setattr(
+        "matcalc._lammps.subprocess.run",
+        lambda *args, **_kwargs: subprocess.CompletedProcess(args[0], 0),
+    )
+    with pytest.raises(ValueError, match="No frames left"):
+        calc.calc(Li2O, directory=tmp_path)
+
+
+def test_diffusion_lammps_run_directories(Li2O: Structure, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(PESCalculator, "load_universal", lambda _name: Calculator())
+    directories = []
+    volumes = []
+
+    def run(command: list[str], *, cwd: Path, **_kwargs: object) -> subprocess.CompletedProcess:
+        directories.append(cwd)
+        data = LammpsData.from_file(str(cwd / "md.data"), atom_style="atomic")
+        volumes.append(data.box.to_lattice().volume)
+        _write_lammps_outputs(cwd)
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr("matcalc._lammps.subprocess.run", run)
+    calc = DiffusionCalc(
+        "pbe", backend="lammps", specie="Li", equilibration_frames=0, analyzer_kwargs={"smoothed": False}
+    )
+    for scale in (1, 2):
+        structure = Li2O.copy()
+        structure.scale_lattice(Li2O.volume * scale)
+        upstream = {"final_structure": structure, "label": "transport", "_units": {"volume": "Å^3"}}
+        result = calc.calc(upstream)
+        assert len(result["trajectory"]) == 3
+        assert np.isfinite(result["diffusivity"])
+        assert result["label"] == "transport"
+        assert result["_units"]["volume"] == "Å^3"
+
+    assert directories[0] != directories[1]
+    assert not any(directory.exists() for directory in directories)
+    np.testing.assert_allclose(volumes, [Li2O.volume, Li2O.volume * 2], rtol=1e-6)

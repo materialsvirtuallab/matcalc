@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from shutil import which
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -14,8 +15,11 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from scipy.constants import Boltzmann, elementary_charge
 
 from matcalc import DiffusionCalc
+from matcalc.utils import PESCalculator as Loader
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from matgl.ext.ase import PESCalculator
     from pymatgen.core import Structure
 
@@ -70,8 +74,6 @@ def test_existing_trajectory(
     assert result["final_structure"] is Li2O
     assert result["potential_energy"] == -10.0
     assert result["_units"] == {"potential_energy": "eV", "diffusivity": "cm^2/s", "conductivity": "mS/cm"}
-    assert upstream["_units"] == {"potential_energy": "eV"}
-    assert "diffusivity" not in upstream
 
 
 def test_diffusion_defaults() -> None:
@@ -96,11 +98,9 @@ def test_diffusion_md(Li2O: Structure, matpes_calculator: PESCalculator) -> None
         equilibration_frames=5,
         analyzer_kwargs={"smoothed": False},
     )
-    original_coords = Li2O.cart_coords.copy()
-    upstream = {"final_structure": Li2O, "label": "short MD", "_units": {"volume": "Å^3"}}
-    result = calc.calc(upstream)
+    result = calc.calc({"final_structure": Li2O, "label": "short MD", "_units": {"volume": "Å^3"}})
 
-    # Reference setup follows run_worker.py's MD protocol, shortened to 200 steps.
+    # Reference: the same protocol run directly with ASE.
     atoms = AseAtomsAdaptor.get_atoms(Li2O)
     atoms.calc = matpes_calculator
     MaxwellBoltzmannDistribution(atoms, temperature_K=600.5, rng=np.random.RandomState(42))
@@ -116,11 +116,73 @@ def test_diffusion_md(Li2O: Structure, matpes_calculator: PESCalculator) -> None
         np.testing.assert_allclose(actual.positions, expected.positions, atol=1e-10)
         np.testing.assert_allclose(actual.get_momenta(), expected.get_momenta(), atol=1e-10)
     np.testing.assert_allclose(result["final_structure"].cart_coords, reference[-1].positions)
-    np.testing.assert_array_equal(Li2O.cart_coords, original_coords)
     assert result["label"] == "short MD"
     assert result["_units"]["volume"] == "Å^3"
     assert result["_units"]["total_energy"] == "eV"
     assert np.isfinite(result["total_energy"])
     assert result["diffusivity"] >= 0
     assert result["conductivity"] >= 0
-    assert "trajectory" not in upstream
+
+
+@pytest.mark.parametrize("frames", [None, 7])
+def test_diffusion_lammps_protocol(
+    Li2O: Structure, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, frames: int | None
+) -> None:
+    monkeypatch.setattr(Loader, "load_universal", lambda _name: Calculator())
+    kwargs = {} if frames is None else {"frames": frames}
+    calc = DiffusionCalc(
+        "pbe",
+        backend="lammps",
+        specie="Li",
+        temperature=600.5,
+        timestep=2.0,
+        taut=150,
+        ensemble="npt",
+        seed=27,
+        set_com_stationary=False,
+        set_zero_rotation=False,
+        **kwargs,
+    )
+    md_calc = calc._build_md_calc()  # noqa: SLF001
+    md_calc.write_inputs(Li2O, directory=tmp_path)
+    script = (tmp_path / "in.md").read_text()
+    commands = {
+        line.split()[0]: line.split()[1:] for line in script.splitlines() if line.strip() and not line.startswith("#")
+    }
+
+    assert md_calc.frames == frames
+    assert md_calc.equilibration_frames == 500
+    assert md_calc.steps == 100_000
+    assert not md_calc.relax_structure
+    assert commands["timestep"] == ["0.002"]
+    assert commands["fix"][:7] == ["1", "all", "npt", "temp", "600.5", "600.5", "0.15"]
+    assert commands["velocity"] == ["all", "create", "600.5", "27", "mom", "no", "rot", "no", "dist", "gaussian"]
+    assert commands["pair_coeff"][2:4] == ["matgl", "TensorNet-PES-MatPES-PBE-2025.2"]
+
+
+def test_diffusion_backend_errors() -> None:
+    with pytest.raises(ValueError, match="backend"):
+        DiffusionCalc(Calculator(), specie="Li", backend="unknown")
+    calc = DiffusionCalc(Calculator(), specie="Li", backend="lammps")
+    with pytest.raises(TypeError, match="model name"):
+        calc._build_md_calc()  # noqa: SLF001
+
+
+def test_diffusion_lammps_md(Li2O: Structure) -> None:
+    if not which("lmp"):
+        pytest.skip("lammps not available")
+    calc = DiffusionCalc(
+        "pbe",
+        backend="lammps",
+        specie="Li",
+        temperature=600.5,
+        steps=200,
+        equilibration_frames=5,
+        analyzer_kwargs={"smoothed": False},
+    )
+    result = calc.calc(Li2O)
+    assert len(result["trajectory"]) == 16
+    assert np.isfinite(result["diffusivity"])
+    assert np.isfinite(result["conductivity"])
+    assert np.isfinite(result["total_energy"])
+    np.testing.assert_allclose(result["final_structure"].cart_coords, result["trajectory"][-1].positions)

@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 from ase import units
 
 from ._base import PropCalc
+from ._lammps import LAMMPSMDCalc
 from ._md import MDCalc
 from .utils import to_pmg_structure
 
@@ -36,7 +38,7 @@ _ASE_ENSEMBLES = Literal[
 class DiffusionCalc(PropCalc):
     """Calculate ionic diffusivity and conductivity from an MD trajectory.
 
-    Runs MD with :class:`MDCalc` and analyses the equilibrated trajectory with
+    Runs MD with :class:`MDCalc` or :class:`LAMMPSMDCalc` and analyses the equilibrated trajectory with
     pymatgen's DiffusionAnalyzer. An input dict containing ``trajectory`` skips
     MD and uses those frames directly. Requires the ``diffusion`` extra.
     """
@@ -47,6 +49,7 @@ class DiffusionCalc(PropCalc):
         *,
         specie: str,
         temperature: float = 300,
+        backend: Literal["ase", "lammps"] = "ase",
         ensemble: _ASE_ENSEMBLES = "nvt_nose_hoover",
         timestep: float = 1.0,
         steps: int = 100_000,
@@ -67,22 +70,29 @@ class DiffusionCalc(PropCalc):
             calculator: ASE calculator instance or universal model name.
             specie: Symbol of the mobile ion species, e.g. ``"Li"``.
             temperature: Simulation temperature in Kelvin.
-            ensemble: Ensemble supported by MDCalc.
+            backend: MD engine. LAMMPS requires a model name string and runs in a temporary directory.
+            ensemble: Ensemble supported by the selected MD engine.
             timestep: MD time step in femtoseconds.
             steps: Total number of MD steps; defaults to 100 ps at a 1 fs step.
             loginterval: Steps between saved frames, also used as the analyzer's
                 ``step_skip``.
             equilibration_frames: Leading saved frames discarded by the internal MD run.
             taut: Thermostat time constant in femtoseconds.
-            seed: Seed for initial velocities on each MD run. None uses a random seed.
+            seed: Seed for initial velocities on each MD run; must be positive for LAMMPS.
+                None uses a random seed.
             relax_structure: Whether to relax the structure before MD.
             set_com_stationary: Remove initial center-of-mass momentum.
             set_zero_rotation: Remove initial angular momentum.
             relax_calc_kwargs: Extra arguments for RelaxCalc when relaxation is enabled.
             analyzer_kwargs: Extra arguments for DiffusionAnalyzer, e.g. ``smoothed``.
-            **md_kwargs: Additional arguments forwarded to MDCalc.
+            **md_kwargs: Additional arguments forwarded to the selected MD calculator in its native units.
+                Relative LAMMPS file paths are temporary; absolute paths retain explicit outputs.
         """
+        if backend not in ("ase", "lammps"):
+            raise ValueError(f"Unknown backend {backend!r}. Choose 'ase' or 'lammps'.")
         self.calculator = calculator
+        self._calculator_arg = calculator
+        self.backend = backend
         self.specie = specie
         self.temperature = temperature
         self.ensemble = ensemble
@@ -99,8 +109,28 @@ class DiffusionCalc(PropCalc):
         self.analyzer_kwargs = analyzer_kwargs or {}
         self.md_kwargs = md_kwargs
 
-    def _build_md_calc(self) -> MDCalc:
+    def _build_md_calc(self) -> MDCalc | LAMMPSMDCalc:
         """Build the MD calculator with a fresh initial-velocity generator."""
+        if self.backend == "lammps":
+            if not isinstance(self._calculator_arg, str):
+                raise TypeError("LAMMPS requires a model name string.")
+            seed = self.seed if self.seed is not None else int(np.random.default_rng().integers(1, 2**31 - 1))
+            return LAMMPSMDCalc(
+                self._calculator_arg,
+                ensemble=self.ensemble,  # type: ignore[arg-type]
+                temperature=self.temperature,
+                timestep=self.timestep / 1000,
+                taut=self.taut / 1000,
+                steps=self.steps,
+                loginterval=self.loginterval,
+                equilibration_frames=self.equilibration_frames,
+                seed=seed,
+                relax_structure=self.relax_structure,
+                set_com_stationary=self.set_com_stationary,
+                set_zero_rotation=self.set_zero_rotation,
+                relax_calc_kwargs=self.relax_calc_kwargs,
+                **{"frames": None, **self.md_kwargs},
+            )
         return MDCalc(
             self.calculator,
             ensemble=self.ensemble,
@@ -136,7 +166,12 @@ class DiffusionCalc(PropCalc):
 
         result = super().calc(structure)
         if "trajectory" not in result:
-            result.update(self._build_md_calc().calc(result))
+            md_calc = self._build_md_calc()
+            if isinstance(md_calc, LAMMPSMDCalc):
+                with TemporaryDirectory(prefix="matcalc-diffusion-") as directory:
+                    result.update(md_calc.calc(result, directory=directory))
+            else:
+                result.update(md_calc.calc(result))
         trajectory = [to_pmg_structure(frame) for frame in result["trajectory"]]
         analyzer = DiffusionAnalyzer.from_structures(
             trajectory,
