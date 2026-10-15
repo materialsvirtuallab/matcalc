@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import os
+import subprocess
 from pathlib import Path
 from shutil import which
 from typing import TYPE_CHECKING
 
+import numpy as np
 import pytest
 from ase.calculators.calculator import Calculator
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -134,3 +136,66 @@ def test_lammps_element_mapping(
     assert elements == ["Li", "O"]
     assert dump_modify[-2:] == elements
     assert [elements[int(atom_type) - 1] for atom_type in data.atoms["type"]] == ["O", "Li", "Li"]
+
+
+def _write_lammps_outputs(directory: Path) -> None:
+    frames = []
+    for step, oxygen_x, lithium_x1, lithium_x2 in (
+        (0, 0.0, 1.0, 2.0),
+        (10, 0.1, 1.2, 2.3),
+        (20, 0.2, 1.4, 2.6),
+    ):
+        frames.append(
+            f"ITEM: TIMESTEP\n{step}\n"
+            "ITEM: NUMBER OF ATOMS\n3\n"
+            "ITEM: BOX BOUNDS pp pp pp\n0 10\n0 10\n0 10\n"
+            "ITEM: ATOMS id element x y z\n"
+            f"1 O {oxygen_x} 0 0\n"
+            f"2 Li {lithium_x1} 1 1\n"
+            f"3 Li {lithium_x2} 2 2\n"
+        )
+    (directory / "md.lammpstrj").write_text("".join(frames))
+    (directory / "log.lammps").write_text(
+        "LAMMPS (29 Aug 2024)\n"
+        "Memory usage per processor = 1.0\n"
+        "Step PotEng KinEng TotEng\n"
+        "0 1 10 11\n10 2 20 22\n20 4 40 44\n25 100 1000 1100\n"
+        "Loop time of 0.001 on 1 procs for 25 steps with 3 atoms\n"
+    )
+
+
+def test_lammps_sampled_results(Li2O: Structure, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(PESCalculator, "load_universal", lambda _name: Calculator())
+    calc = LAMMPSMDCalc("pbe", relax_structure=False, steps=25, loginterval=10, frames=2)
+    calc.write_inputs(Li2O)
+    _write_lammps_outputs(tmp_path)
+    monkeypatch.setattr(
+        "matcalc._lammps.subprocess.run",
+        lambda *args, **_kwargs: subprocess.CompletedProcess(args[0], 0),
+    )
+    result = calc.calc(Li2O)
+
+    assert len(result["trajectory"]) == 2
+    assert result["potential_energy"] == pytest.approx(3.0)
+    assert result["kinetic_energy"] == pytest.approx(30.0)
+    assert result["total_energy"] == pytest.approx(33.0)
+    np.testing.assert_allclose(result["trajectory"][0].positions[:, 0], [0.1, 1.2, 2.3])
+    np.testing.assert_allclose(result["final_structure"].cart_coords, [[0.2, 0, 0], [1.4, 1, 1], [2.6, 2, 2]])
+    assert result["final_structure"] != Li2O
+
+
+def test_lammps_failed_run(Li2O: Structure, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(PESCalculator, "load_universal", lambda _name: Calculator())
+    calc = LAMMPSMDCalc("pbe", relax_structure=False, frames=2)
+    calc.write_inputs(Li2O)
+    _write_lammps_outputs(tmp_path)
+    executable = tmp_path / "lmp"
+    executable.write_text("#!/bin/sh\nexit 7\n")
+    executable.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{tmp_path}{os.pathsep}{os.environ['PATH']}")
+
+    with pytest.raises(subprocess.CalledProcessError) as error:
+        calc.calc(Li2O)
+    assert error.value.returncode == 7

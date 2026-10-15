@@ -191,7 +191,7 @@ class LAMMPSMDCalc(PropCalc):
         return lammps_run
 
     def calc(self, structure: Structure | Atoms | dict[str, Any]) -> dict:
-        """Run the MD calculation using LAMMPS."""
+        """Run MD and return the last saved structure and energies averaged over the returned frames."""
         # Preprocess the input structure using the superclass's calc method.
         # This initial processing returns a dictionary containing a "final_structure".
         result = super().calc(structure)
@@ -200,11 +200,11 @@ class LAMMPSMDCalc(PropCalc):
         if not (os.path.exists(self.infile) and os.path.exists("md.data")):
             self.write_inputs(structure_in)
 
-        lammps_command = f"lmp < {self.infile}"
-        subprocess.run(lammps_command, shell=True, check=False)  # noqa: S602
+        subprocess.run(["lmp", "-in", self.infile], check=True)  # noqa: S603, S607
 
         # Create a list to record the state of atoms at each simulation step.
         traj = []
+        frame_steps = []
         for snapshot in parse_lammps_dumps(self.trajfile):
             lattice = snapshot.box.to_lattice()
             coords = snapshot.data[["x", "y", "z"]].to_numpy()
@@ -212,19 +212,23 @@ class LAMMPSMDCalc(PropCalc):
             struct = Structure(lattice, species, coords, coords_are_cartesian=True)
 
             traj.append(AseAtomsAdaptor.get_atoms(struct))
+            frame_steps.append(snapshot.timestep)
         # Select the last 'self.frames' frames from the trajectory for further analysis.
         traj = traj[-self.frames :]
+        frame_steps = frame_steps[-self.frames :]
 
         thermo = parse_lammps_log(self.logfile)[0]
+        thermo = thermo[thermo["Step"].isin(frame_steps)]
         # Calculate the average potential energy over the selected frames.
-        energy_pot = thermo["PotEng"][-self.frames :].mean()
+        energy_pot = thermo["PotEng"].mean()
         # Calculate the average kinetic energy over the selected frames.
-        energy_kin = thermo["KinEng"][-self.frames :].mean()
+        energy_kin = thermo["KinEng"].mean()
         # Calculate the average total energy (potential + kinetic) over the selected frames.
-        energy_tot = thermo["TotEng"][-self.frames :].mean()
+        energy_tot = thermo["TotEng"].mean()
 
         # Update the result dictionary with the simulation trajectory and computed energy.
         result |= {
+            "final_structure": to_pmg_structure(traj[-1]),
             "trajectory": traj,
             "potential_energy": energy_pot,
             "kinetic_energy": energy_kin,
