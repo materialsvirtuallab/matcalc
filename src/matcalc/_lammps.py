@@ -15,6 +15,7 @@ from pymatgen.io.lammps.outputs import parse_lammps_dumps, parse_lammps_log
 
 from ._base import PropCalc
 from ._relaxation import RelaxCalc
+from .utils import to_pmg_structure
 
 if TYPE_CHECKING:
     from typing import Any, Literal
@@ -138,7 +139,7 @@ class LAMMPSMDCalc(PropCalc):
         # Preprocess the input structure using the superclass's calc method.
         # This initial processing returns a dictionary containing a "final_structure".
         result = super().calc(structure)
-        structure_in: Structure = result["final_structure"]
+        structure_in = to_pmg_structure(result["final_structure"])
 
         # If structure relaxation is enabled, relax the structure (atoms only) before the MD simulation.
         if self.relax_structure:
@@ -164,7 +165,7 @@ class LAMMPSMDCalc(PropCalc):
             "trajfile": self.trajfile,
             "gnnp_type": self.gnnp_type,
             "model_name": self.model_name,
-            "symbol_set": " ".join(structure_in.composition.as_dict()),
+            "symbol_set": " ".join(element.symbol for element in sorted(structure_in.composition.element_composition)),
             "temperature": self.temperature,
             "timestep": self.timestep,
             "steps": self.steps,

@@ -8,8 +8,12 @@ from shutil import which
 from typing import TYPE_CHECKING
 
 import pytest
+from ase.calculators.calculator import Calculator
+from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.io.lammps.data import LammpsData
 
 from matcalc import LAMMPSMDCalc
+from matcalc.utils import PESCalculator
 
 if TYPE_CHECKING:
     from ase import Atoms
@@ -102,3 +106,31 @@ def test_invalid_ensemble(Si: Structure) -> None:
             taup=0.1,
             steps=10,
         ).calc(Si)
+
+
+@pytest.mark.parametrize("as_atoms", [False, True])
+@pytest.mark.parametrize("oxidation_states", [False, True])
+def test_lammps_element_mapping(
+    Li2O: Structure,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    as_atoms: bool,
+    oxidation_states: bool,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(PESCalculator, "load_universal", lambda _name: Calculator())
+    structure = Li2O.get_sorted_structure(key=lambda site: site.specie.symbol != "O")
+    structure.remove_oxidation_states()
+    if oxidation_states:
+        structure.add_oxidation_state_by_element({"Li": 1, "O": -2})
+    calc = LAMMPSMDCalc("pbe", relax_structure=False)
+    calc.write_inputs(AseAtomsAdaptor.get_atoms(structure) if as_atoms else structure)
+
+    data = LammpsData.from_file("md.data", atom_style="atomic")
+    script = Path(calc.infile).read_text()
+    pair_coeff = next(line.split() for line in script.splitlines() if line.startswith("pair_coeff"))
+    dump_modify = next(line.split() for line in script.splitlines() if line.startswith("dump_modify"))
+    elements = pair_coeff[-2:]
+    assert elements == ["Li", "O"]
+    assert dump_modify[-2:] == elements
+    assert [elements[int(atom_type) - 1] for atom_type in data.atoms["type"]] == ["O", "Li", "Li"]
