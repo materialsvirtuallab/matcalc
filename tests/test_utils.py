@@ -224,6 +224,8 @@ def test_aliases() -> None:
         ("SevenNet-l3i5", "SevenNet-MPtrj-l3i5"),
         ("SevenNet-MF-OMPA", "SevenNet-OAM-MF"),
         ("SevenNet-OMAT", "SevenNet-OMat24"),
+        ("MatterSim-v1.0.0-1M", "M3GNet-MatterSim-v1.0.0-1M"),
+        ("MatterSim-v1.0.0-5M", "M3GNet-MatterSim-v1.0.0-5M"),
     ],
 )
 def test_renamed_models(old_name: str, canonical: str) -> None:
