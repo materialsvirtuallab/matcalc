@@ -222,7 +222,9 @@ def test_lammps_trajectory_window(
         return subprocess.CompletedProcess(command, 0)
 
     monkeypatch.setattr("matcalc._lammps.subprocess.run", run)
-    calc = LAMMPSMDCalc("pbe", relax_structure=False, frames=frames, equilibration_frames=equilibration_frames)
+    # frames=None uses the default, which keeps all frames as in MDCalc.
+    kwargs = {} if frames is None else {"frames": frames}
+    calc = LAMMPSMDCalc("pbe", relax_structure=False, equilibration_frames=equilibration_frames, **kwargs)
     result = calc.calc(Li2O, directory=tmp_path / "run")
     assert len(result["trajectory"]) == count
     assert result["potential_energy"] == pytest.approx(energy)

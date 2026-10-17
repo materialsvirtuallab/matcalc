@@ -129,7 +129,7 @@ class DiffusionCalc(PropCalc):
                 set_com_stationary=self.set_com_stationary,
                 set_zero_rotation=self.set_zero_rotation,
                 relax_calc_kwargs=self.relax_calc_kwargs,
-                **{"frames": None, **self.md_kwargs},
+                **self.md_kwargs,
             )
         return MDCalc(
             self.calculator,

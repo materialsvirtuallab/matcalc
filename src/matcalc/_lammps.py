@@ -75,7 +75,7 @@ class LAMMPSMDCalc(PropCalc):
         relax_structure: bool = True,
         fmax: float = 0.1,
         optimizer: str = "FIRE",
-        frames: int | None = 10,
+        frames: int | None = None,
         equilibration_frames: int = 0,
         seed: int = 142857,
         set_com_stationary: bool = True,
