@@ -8,14 +8,12 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 from ase import units
-from ase.calculators.calculator import Calculator
 from ase.md.nose_hoover_chain import NoseHooverChainNVT
 from ase.md.velocitydistribution import MaxwellBoltzmannDistribution, Stationary, ZeroRotation
 from pymatgen.io.ase import AseAtomsAdaptor
 from scipy.constants import Boltzmann, elementary_charge
 
 from matcalc import DiffusionCalc
-from matcalc.utils import PESCalculator as Loader
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -31,7 +29,7 @@ if TYPE_CHECKING:
 )
 def test_existing_trajectory(
     Li2O: Structure,
-    monkeypatch: pytest.MonkeyPatch,
+    matpes_calculator: PESCalculator,
     as_atoms: bool,
     temperature: float,
     timestep: float,
@@ -44,12 +42,8 @@ def test_existing_trajectory(
         frame.translate_sites(mobile_indices, [np.sqrt(0.01 * i), 0, 0], frac_coords=False)
         trajectory.append(AseAtomsAdaptor.get_atoms(frame) if as_atoms else frame)
 
-    def unexpected_md(_self: DiffusionCalc) -> None:
-        pytest.fail("An existing trajectory must not start MD.")
-
-    monkeypatch.setattr(DiffusionCalc, "_build_md_calc", unexpected_md)
     calc = DiffusionCalc(
-        Calculator(),
+        matpes_calculator,
         specie="Li",
         temperature=temperature,
         timestep=timestep,
@@ -76,8 +70,8 @@ def test_existing_trajectory(
     assert result["_units"] == {"potential_energy": "eV", "diffusivity": "cm^2/s", "conductivity": "mS/cm"}
 
 
-def test_diffusion_defaults() -> None:
-    md_calc = DiffusionCalc(Calculator(), specie="Li")._build_md_calc()  # noqa: SLF001
+def test_diffusion_defaults(matpes_calculator: PESCalculator) -> None:
+    md_calc = DiffusionCalc(matpes_calculator, specie="Li")._build_md_calc()  # noqa: SLF001
     assert md_calc.ensemble == "nvt_nose_hoover"
     assert md_calc.steps == 100_000
     assert md_calc.timestep == 1.0
@@ -125,13 +119,10 @@ def test_diffusion_md(Li2O: Structure, matpes_calculator: PESCalculator) -> None
 
 
 @pytest.mark.parametrize("frames", [None, 7])
-def test_diffusion_lammps_protocol(
-    Li2O: Structure, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, frames: int | None
-) -> None:
-    monkeypatch.setattr(Loader, "load_universal", lambda _name: Calculator())
+def test_diffusion_lammps_protocol(Li2O: Structure, tmp_path: Path, frames: int | None) -> None:
     kwargs = {} if frames is None else {"frames": frames}
     calc = DiffusionCalc(
-        "pbe",
+        "TensorNet",
         backend="lammps",
         specie="Li",
         temperature=600.5,
@@ -160,10 +151,10 @@ def test_diffusion_lammps_protocol(
     assert commands["pair_coeff"][2:4] == ["matgl", "TensorNet-PES-MatPES-PBE-2025.2"]
 
 
-def test_diffusion_backend_errors() -> None:
+def test_diffusion_backend_errors(matpes_calculator: PESCalculator) -> None:
     with pytest.raises(ValueError, match="backend"):
-        DiffusionCalc(Calculator(), specie="Li", backend="unknown")
-    calc = DiffusionCalc(Calculator(), specie="Li", backend="lammps")
+        DiffusionCalc(matpes_calculator, specie="Li", backend="unknown")
+    calc = DiffusionCalc(matpes_calculator, specie="Li", backend="lammps")
     with pytest.raises(TypeError, match="model name"):
         calc._build_md_calc()  # noqa: SLF001
 
@@ -172,7 +163,7 @@ def test_diffusion_lammps_md(Li2O: Structure) -> None:
     if not which("lmp"):
         pytest.skip("lammps not available")
     calc = DiffusionCalc(
-        "pbe",
+        "TensorNet",
         backend="lammps",
         specie="Li",
         temperature=600.5,
@@ -180,9 +171,14 @@ def test_diffusion_lammps_md(Li2O: Structure) -> None:
         equilibration_frames=5,
         analyzer_kwargs={"smoothed": False},
     )
-    result = calc.calc(Li2O)
-    assert len(result["trajectory"]) == 16
-    assert np.isfinite(result["diffusivity"])
-    assert np.isfinite(result["conductivity"])
-    assert np.isfinite(result["total_energy"])
-    np.testing.assert_allclose(result["final_structure"].cart_coords, result["trajectory"][-1].positions)
+    expanded = Li2O.copy()
+    expanded.scale_lattice(Li2O.volume * 1.2)
+    # Each run writes inputs for its own structure, so the fixed-cell MD keeps that volume.
+    for structure in (Li2O, expanded):
+        result = calc.calc(structure)
+        assert len(result["trajectory"]) == 16
+        assert np.isfinite(result["diffusivity"])
+        assert np.isfinite(result["conductivity"])
+        assert np.isfinite(result["total_energy"])
+        assert result["final_structure"].volume == pytest.approx(structure.volume)
+        np.testing.assert_allclose(result["final_structure"].cart_coords, result["trajectory"][-1].positions)

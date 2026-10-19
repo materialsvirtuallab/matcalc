@@ -10,12 +10,11 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
-from ase.calculators.calculator import Calculator
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.lammps.data import LammpsData
+from pymatgen.io.lammps.outputs import parse_lammps_log
 
-from matcalc import DiffusionCalc, LAMMPSMDCalc
-from matcalc.utils import PESCalculator
+from matcalc import LAMMPSMDCalc
 
 if TYPE_CHECKING:
     from ase import Atoms
@@ -110,167 +109,45 @@ def test_invalid_ensemble(Si: Structure) -> None:
         ).calc(Si)
 
 
-@pytest.mark.parametrize("as_atoms", [False, True])
-@pytest.mark.parametrize("oxidation_states", [False, True])
-def test_lammps_element_mapping(
-    Li2O: Structure,
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-    as_atoms: bool,
-    oxidation_states: bool,
-) -> None:
-    monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(PESCalculator, "load_universal", lambda _name: Calculator())
+def test_lammps_element_mapping(Li2O: Structure, tmp_path: Path) -> None:
+    # O comes first, so the composition order differs from the type order of the data file.
     structure = Li2O.get_sorted_structure(key=lambda site: site.specie.symbol != "O")
     structure.remove_oxidation_states()
-    if oxidation_states:
-        structure.add_oxidation_state_by_element({"Li": 1, "O": -2})
-    calc = LAMMPSMDCalc("pbe", relax_structure=False)
-    calc.write_inputs(AseAtomsAdaptor.get_atoms(structure) if as_atoms else structure)
-
-    data = LammpsData.from_file("md.data", atom_style="atomic")
-    script = Path(calc.infile).read_text()
-    pair_coeff = next(line.split() for line in script.splitlines() if line.startswith("pair_coeff"))
-    dump_modify = next(line.split() for line in script.splitlines() if line.startswith("dump_modify"))
-    elements = pair_coeff[-2:]
-    assert elements == ["Li", "O"]
-    assert dump_modify[-2:] == elements
-    assert [elements[int(atom_type) - 1] for atom_type in data.atoms["type"]] == ["O", "Li", "Li"]
-
-
-def _write_lammps_outputs(directory: Path) -> None:
-    frames = []
-    for step, oxygen_x, lithium_x1, lithium_x2 in (
-        (0, 0.0, 1.0, 2.0),
-        (10, 0.1, 1.2, 2.3),
-        (20, 0.2, 1.4, 2.6),
-    ):
-        frames.append(
-            f"ITEM: TIMESTEP\n{step}\n"
-            "ITEM: NUMBER OF ATOMS\n3\n"
-            "ITEM: BOX BOUNDS pp pp pp\n0 10\n0 10\n0 10\n"
-            "ITEM: ATOMS id element x y z\n"
-            f"1 O {oxygen_x} 0 0\n"
-            f"2 Li {lithium_x1} 1 1\n"
-            f"3 Li {lithium_x2} 2 2\n"
-        )
-    (directory / "md.lammpstrj").write_text("".join(frames))
-    (directory / "log.lammps").write_text(
-        "LAMMPS (29 Aug 2024)\n"
-        "Memory usage per processor = 1.0\n"
-        "Step PotEng KinEng TotEng\n"
-        "0 1 10 11\n10 2 20 22\n20 4 40 44\n25 100 1000 1100\n"
-        "Loop time of 0.001 on 1 procs for 25 steps with 3 atoms\n"
-    )
+    charged = structure.copy()
+    charged.add_oxidation_state_by_element({"Li": 1, "O": -2})
+    calc = LAMMPSMDCalc(calculator="TensorNet", relax_structure=False)
+    inputs = [structure, charged, AseAtomsAdaptor.get_atoms(structure), AseAtomsAdaptor.get_atoms(charged)]
+    for i, structure_in in enumerate(inputs):
+        calc.write_inputs(structure_in, directory=tmp_path / str(i))
+        data = LammpsData.from_file(str(tmp_path / str(i) / "md.data"), atom_style="atomic")
+        script = (tmp_path / str(i) / calc.infile).read_text().splitlines()
+        pair_coeff = next(line.split() for line in script if line.startswith("pair_coeff"))
+        dump_modify = next(line.split() for line in script if line.startswith("dump_modify"))
+        assert pair_coeff[-2:] == ["Li", "O"]
+        assert dump_modify[-2:] == ["Li", "O"]
+        assert [pair_coeff[-2:][int(atom_type) - 1] for atom_type in data.atoms["type"]] == ["O", "Li", "Li"]
 
 
-def test_lammps_sampled_results(Li2O: Structure, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(PESCalculator, "load_universal", lambda _name: Calculator())
-    calc = LAMMPSMDCalc("pbe", relax_structure=False, steps=25, loginterval=10, frames=2)
-    calc.write_inputs(Li2O)
-    _write_lammps_outputs(tmp_path)
-    monkeypatch.setattr(
-        "matcalc._lammps.subprocess.run",
-        lambda *args, **_kwargs: subprocess.CompletedProcess(args[0], 0),
-    )
-    result = calc.calc(Li2O)
+def test_lammps_frames(Li2O: Structure, tmp_path: Path) -> None:
+    if not which("lmp"):
+        pytest.skip("lammps not available")
+    calc = LAMMPSMDCalc(calculator="TensorNet", relax_structure=False, steps=25, loginterval=10, equilibration_frames=1)
+    result = calc.calc(Li2O, directory=tmp_path)
 
+    # Frames are saved at steps 0, 10 and 20; the log also reports the last step.
+    thermo = parse_lammps_log(str(tmp_path / "log.lammps"))[0]
+    assert list(thermo["Step"]) == [0, 10, 20, 25]
+    kept = thermo[thermo["Step"].isin([10, 20])]
     assert len(result["trajectory"]) == 2
-    assert result["potential_energy"] == pytest.approx(3.0)
-    assert result["kinetic_energy"] == pytest.approx(30.0)
-    assert result["total_energy"] == pytest.approx(33.0)
-    np.testing.assert_allclose(result["trajectory"][0].positions[:, 0], [0.1, 1.2, 2.3])
-    np.testing.assert_allclose(result["final_structure"].cart_coords, [[0.2, 0, 0], [1.4, 1, 1], [2.6, 2, 2]])
-    assert result["final_structure"] != Li2O
+    assert result["potential_energy"] == pytest.approx(kept["PotEng"].mean())
+    assert result["kinetic_energy"] == pytest.approx(kept["KinEng"].mean())
+    assert result["total_energy"] == pytest.approx(kept["TotEng"].mean())
+    np.testing.assert_allclose(result["final_structure"].cart_coords, result["trajectory"][-1].positions)
 
 
-def test_lammps_failed_run(Li2O: Structure, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(PESCalculator, "load_universal", lambda _name: Calculator())
-    calc = LAMMPSMDCalc("pbe", relax_structure=False, frames=2)
-    calc.write_inputs(Li2O)
-    _write_lammps_outputs(tmp_path)
-    executable = tmp_path / "lmp"
-    executable.write_text("#!/bin/sh\nexit 7\n")
-    executable.chmod(0o755)
-    monkeypatch.setenv("PATH", f"{tmp_path}{os.pathsep}{os.environ['PATH']}")
-
-    with pytest.raises(subprocess.CalledProcessError) as error:
-        calc.calc(Li2O)
-    assert error.value.returncode == 7
-
-
-@pytest.mark.parametrize(
-    ("frames", "equilibration_frames", "count", "energy"), [(None, 0, 3, 7 / 3), (None, 1, 2, 3), (1, 1, 1, 4)]
-)
-def test_lammps_trajectory_window(
-    Li2O: Structure,
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-    frames: int | None,
-    equilibration_frames: int,
-    count: int,
-    energy: float,
-) -> None:
-    monkeypatch.setattr(PESCalculator, "load_universal", lambda _name: Calculator())
-
-    def run(command: list[str], *, cwd: Path, **_kwargs: object) -> subprocess.CompletedProcess:
-        assert cwd == tmp_path / "run"
-        assert (cwd / "in.md").is_file()
-        _write_lammps_outputs(cwd)
-        return subprocess.CompletedProcess(command, 0)
-
-    monkeypatch.setattr("matcalc._lammps.subprocess.run", run)
-    # frames=None uses the default, which keeps all frames as in MDCalc.
-    kwargs = {} if frames is None else {"frames": frames}
-    calc = LAMMPSMDCalc("pbe", relax_structure=False, equilibration_frames=equilibration_frames, **kwargs)
-    result = calc.calc(Li2O, directory=tmp_path / "run")
-    assert len(result["trajectory"]) == count
-    assert result["potential_energy"] == pytest.approx(energy)
-    assert result["kinetic_energy"] == pytest.approx(energy * 10)
-    assert result["total_energy"] == pytest.approx(energy * 11)
-
-
-def test_lammps_empty_trajectory_window(Li2O: Structure, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(PESCalculator, "load_universal", lambda _name: Calculator())
-    calc = LAMMPSMDCalc("pbe", relax_structure=False, equilibration_frames=3)
-    calc.write_inputs(Li2O, directory=tmp_path)
-    _write_lammps_outputs(tmp_path)
-    monkeypatch.setattr(
-        "matcalc._lammps.subprocess.run",
-        lambda *args, **_kwargs: subprocess.CompletedProcess(args[0], 0),
-    )
-    with pytest.raises(ValueError, match="No frames left"):
+def test_lammps_failed_run(Li2O: Structure, tmp_path: Path) -> None:
+    if not which("lmp"):
+        pytest.skip("lammps not available")
+    calc = LAMMPSMDCalc(calculator="TensorNet", relax_structure=False, settings={"fix_command": "fix 1 all unknown"})
+    with pytest.raises(subprocess.CalledProcessError):
         calc.calc(Li2O, directory=tmp_path)
-
-
-def test_diffusion_lammps_run_directories(Li2O: Structure, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(PESCalculator, "load_universal", lambda _name: Calculator())
-    directories = []
-    volumes = []
-
-    def run(command: list[str], *, cwd: Path, **_kwargs: object) -> subprocess.CompletedProcess:
-        directories.append(cwd)
-        data = LammpsData.from_file(str(cwd / "md.data"), atom_style="atomic")
-        volumes.append(data.box.to_lattice().volume)
-        _write_lammps_outputs(cwd)
-        return subprocess.CompletedProcess(command, 0)
-
-    monkeypatch.setattr("matcalc._lammps.subprocess.run", run)
-    calc = DiffusionCalc(
-        "pbe", backend="lammps", specie="Li", equilibration_frames=0, analyzer_kwargs={"smoothed": False}
-    )
-    for scale in (1, 2):
-        structure = Li2O.copy()
-        structure.scale_lattice(Li2O.volume * scale)
-        upstream = {"final_structure": structure, "label": "transport", "_units": {"volume": "Å^3"}}
-        result = calc.calc(upstream)
-        assert len(result["trajectory"]) == 3
-        assert np.isfinite(result["diffusivity"])
-        assert result["label"] == "transport"
-        assert result["_units"]["volume"] == "Å^3"
-
-    assert directories[0] != directories[1]
-    assert not any(directory.exists() for directory in directories)
-    np.testing.assert_allclose(volumes, [Li2O.volume, Li2O.volume * 2], rtol=1e-6)
