@@ -138,7 +138,7 @@ class DiffusionCalc(PropCalc):
             timestep=self.timestep,
             steps=self.steps,
             taut=self.taut * units.fs,
-            rng=np.random.RandomState(self.seed),
+            seed=self.seed,
             loginterval=self.loginterval,
             equilibration_frames=self.equilibration_frames,
             relax_structure=self.relax_structure,

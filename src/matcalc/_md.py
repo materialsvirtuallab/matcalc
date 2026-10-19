@@ -84,7 +84,7 @@ class MDCalc(PropCalc):
         relax_calc_kwargs: dict | None = None,
         set_com_stationary: bool = False,
         set_zero_rotation: bool = False,
-        rng: np.random.Generator | np.random.RandomState | None = None,
+        seed: int | None = None,
     ) -> None:
         """
         Initializes an MDCalc instance with the specified simulation parameters and relaxation settings.
@@ -140,7 +140,7 @@ class MDCalc(PropCalc):
             set_zero_rotation (bool): Whether to set the total angular momentum to zero after setting up the
                 Maxwell-Boltzmann distribution.
                 Default to False.
-            rng: Random number generator for initial velocities. None uses NumPy's global generator.
+            seed: Seed for the initial velocities. None uses NumPy's global random number generator.
         """
         self.calculator = calculator
         self.ensemble = ensemble
@@ -173,7 +173,7 @@ class MDCalc(PropCalc):
         self.relax_calc_kwargs = relax_calc_kwargs
         self.set_com_stationary = set_com_stationary
         self.set_zero_rotation = set_zero_rotation
-        self.rng = rng
+        self.seed = seed
 
     def _initialize_md(self, atoms: Atoms) -> Any:  # noqa: C901, PLR0911
         """
@@ -380,7 +380,8 @@ class MDCalc(PropCalc):
 
         # Initialize the atomic velocities based on the Maxwell-Boltzmann distribution
         # at the specified temperature, ensuring proper kinetic energy.
-        MaxwellBoltzmannDistribution(atoms, temperature_K=self.temperature, rng=self.rng)
+        rng = None if self.seed is None else np.random.RandomState(self.seed)
+        MaxwellBoltzmannDistribution(atoms, temperature_K=self.temperature, rng=rng)
 
         if self.set_com_stationary:
             Stationary(atoms)

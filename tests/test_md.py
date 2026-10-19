@@ -228,7 +228,7 @@ def test_invalid_ensemble(Si: Structure, matpes_calculator: PESCalculator) -> No
         ).calc(Si)
 
 
-def test_initial_velocity_rng(Si_atoms: Atoms, matpes_calculator: PESCalculator) -> None:
+def test_initial_velocity_seed(Si_atoms: Atoms, matpes_calculator: PESCalculator) -> None:
     temperature = 600.5
     expected = Si_atoms.copy()
     MaxwellBoltzmannDistribution(expected, temperature_K=temperature, rng=np.random.RandomState(42))
@@ -238,7 +238,9 @@ def test_initial_velocity_rng(Si_atoms: Atoms, matpes_calculator: PESCalculator)
         steps=1,
         frames=2,
         relax_structure=False,
-        rng=np.random.RandomState(42),
+        seed=42,
     )
-    result = md_calc.calc(Si_atoms.copy())
-    np.testing.assert_array_equal(result["trajectory"][0].get_momenta(), expected.get_momenta())
+    # Every run starts from the same velocities.
+    for _ in range(2):
+        result = md_calc.calc(Si_atoms.copy())
+        np.testing.assert_array_equal(result["trajectory"][0].get_momenta(), expected.get_momenta())
