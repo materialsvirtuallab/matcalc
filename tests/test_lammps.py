@@ -19,6 +19,20 @@ LAMMPS_TEMPLATES_DIR = Path(__file__).parent.parent / "src" / "matcalc" / "lammp
 
 
 @pytest.mark.parametrize(
+    ("name", "expected_model"),
+    [
+        ("TensorNet-MatPES-PBE-2025.2", "TensorNet-PES-MatPES-PBE-2025.2"),
+        ("m3gnet", "M3GNet-PES-MatPES-PBE-2025.2"),
+        ("TensorNet-PES-ANI-1x-Subset", "TensorNet-PES-ANI-1x-Subset"),
+    ],
+)
+def test_lammps_model_names(name: str, expected_model: str) -> None:
+    calc = LAMMPSMDCalc(name, relax_structure=False)
+    assert calc.model_name == expected_model
+    assert calc.gnnp_type == "matgl"
+
+
+@pytest.mark.parametrize(
     ("ensemble", "expected_energy"),
     [
         ("nve", -10.74606),

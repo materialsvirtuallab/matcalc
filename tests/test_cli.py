@@ -71,8 +71,23 @@ def test_calculate_property(LiFePO4: Structure) -> None:
                 cif_file,
                 "-o",
                 "cli_results.yaml",
+                "-m",
+                "pbe",
             ]
         )
 
         assert os.path.exists("cli_results.json")
         assert os.path.exists("cli_results.yaml")
+
+
+def test_cli_unknown_model() -> None:
+    result = subprocess.run(
+        ["matcalc", "calc", "-p", "ElasticityCalc", "-s", "structure.cif", "-m", "TensorNet-MatPES-PBE-2025"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 2
+    assert "Unknown model" in result.stderr
+    assert "Did you mean" in result.stderr
+    assert "TensorNet-MatPES-PBE-2025.2" in result.stderr

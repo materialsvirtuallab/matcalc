@@ -13,8 +13,10 @@ from ase.calculators.calculator import Calculator
 from matcalc import RelaxCalc
 from matcalc.utils import (
     MODEL_ALIASES,
+    MODEL_REGISTRY,
     UNIVERSAL_CALCULATORS,
     PESCalculator,
+    _resolve_canonical,
 )
 
 DIR = Path(__file__).parent.absolute()
@@ -22,37 +24,22 @@ DIR = Path(__file__).parent.absolute()
 if TYPE_CHECKING:
     from pymatgen.core import Structure
 
-UNIVERSAL_CALCULATORS = [
-    calc
-    for calc in UNIVERSAL_CALCULATORS
-    # MatGL DGL backend / M3GNet / CHGNet are intentionally excluded from the
-    # parametrized smoke test (covered separately or skipped due to runtime).
-    if "DGL" not in calc.name and "M3GNet" not in calc.name and "CHGNet" not in calc.name
-]
+UNIVERSAL_CALCULATORS = [calc for calc in UNIVERSAL_CALCULATORS if "CHGNet" not in calc.name]
 
 
 def _map_calculators_to_packages(calculators: list) -> dict[str, str]:
-    prefix_package_map: list[tuple[tuple[str, ...], str]] = [
-        (("tensornet", "m3gnet", "chgnet"), "matgl"),
-        (("mace",), "mace"),
-        (("sevennet",), "sevenn"),
-        (("grace",), "tensorpotential"),
-        (("orb",), "orb_models"),
-        (("mattersim",), "mattersim"),
-        (("uma",), "fairchem"),
-        (("petmad",), "pet_mad"),
-        (("dpa", "deepmd"), "deepmd"),
-    ]
-
-    calculator_to_package: dict[str, str] = {}
-
-    for calc in calculators:
-        lower_calc = calc.name.lower()
-        for prefixes, package in prefix_package_map:
-            if any(lower_calc.startswith(prefix) for prefix in prefixes):
-                calculator_to_package[calc.name] = package
-                break
-    return calculator_to_package
+    provider_package_map = {
+        "matgl": "matgl",
+        "mace_mp": "mace",
+        "sevennet": "sevenn",
+        "grace": "tensorpotential",
+        "orb": "orb_models",
+        "mattersim": "mattersim",
+        "fairchem": "fairchem",
+        "upet": "upet",
+        "deepmd": "deepmd",
+    }
+    return {calc.name: provider_package_map[MODEL_REGISTRY[calc.name]["provider"]] for calc in calculators}
 
 
 UNIVERSAL_TO_PACKAGE = _map_calculators_to_packages(UNIVERSAL_CALCULATORS)
@@ -178,7 +165,44 @@ def test_pescalculator_calculate() -> None:
 
 def test_aliases() -> None:
     # Every alias must resolve to a canonical name in the registry.
-    from matcalc.utils import MODEL_REGISTRY
-
     for v in MODEL_ALIASES.values():
         assert v in MODEL_REGISTRY, f"Alias target {v!r} is not a canonical model name."
+
+
+@pytest.mark.parametrize(
+    ("old_name", "canonical"),
+    [
+        ("MACE-MP-0-small", "MACE-MPtrj-0a-small"),
+        ("MACE-MP-0-medium", "MACE-MPtrj-0a-medium"),
+        ("MACE-MP-0-large", "MACE-MPtrj-0a-large"),
+        ("MACE-MP-0b-small", "MACE-MPtrj-0b-small"),
+        ("MACE-MP-0b-medium", "MACE-MPtrj-0b-medium"),
+        ("MACE-MP-0b2-small", "MACE-MPtrj-0b2-small"),
+        ("MACE-MP-0b2-medium", "MACE-MPtrj-0b2-medium"),
+        ("MACE-MP-0b2-large", "MACE-MPtrj-0b2-large"),
+        ("MACE-MP-0b3-medium", "MACE-MPtrj-0b3-medium"),
+        ("MACE-OMAT-0-small", "MACE-OMat24-0-small"),
+        ("MACE-OMAT-0-medium", "MACE-OMat24-0-medium"),
+        ("MACE-MatPES-PBE-0", "MACE-OMat24-ft-MatPES-PBE-0"),
+        ("MACE-MatPES-r2SCAN-0", "MACE-OMat24-ft-MatPES-r2SCAN-0"),
+        ("GRACE-1L-OAM", "GRACE-OMat24-ft-MPA-1L-small"),
+        ("GRACE-2L-OAM", "GRACE-OMat24-ft-MPA-2L-small"),
+        ("GRACE-2L-OMAT", "GRACE-OMat24-2L-small"),
+        ("GRACE-2L-MPtrj", "GRACE-MPtrj-2L-r6"),
+        ("ORB-v2", "ORB-MPtrj-Alex-v2"),
+        ("ORB-d3-v2", "ORB-MPtrj-Alex-v2-D3"),
+        ("ORB-d3-sm-v2", "ORB-MPtrj-Alex-v2-D3-sm"),
+        ("ORB-d3-xs-v2", "ORB-MPtrj-Alex-v2-D3-xs"),
+        ("SevenNet-0", "SevenNet-MPtrj-0"),
+        ("SevenNet-l3i5", "SevenNet-MPtrj-l3i5"),
+        ("SevenNet-MF-OMPA", "SevenNet-OAM-MF"),
+        ("SevenNet-OMAT", "SevenNet-OMat24"),
+    ],
+)
+def test_renamed_models(old_name: str, canonical: str) -> None:
+    assert _resolve_canonical(old_name) == canonical
+
+
+def test_removed_models() -> None:
+    with pytest.raises(ValueError, match="was removed"):
+        PESCalculator.load_universal("PETMAD-1.0.0")
