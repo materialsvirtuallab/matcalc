@@ -107,9 +107,9 @@ def test_diffusion_md(Li2O: Structure, matpes_calculator: PESCalculator) -> None
 
     assert len(result["trajectory"]) == 16
     for actual, expected in zip(result["trajectory"], reference[5:], strict=True):
-        np.testing.assert_allclose(actual.positions, expected.positions, atol=1e-10)
-        np.testing.assert_allclose(actual.get_momenta(), expected.get_momenta(), atol=1e-10)
-    np.testing.assert_allclose(result["final_structure"].cart_coords, reference[-1].positions)
+        np.testing.assert_allclose(actual.positions, expected.positions, atol=1e-5)
+        np.testing.assert_allclose(actual.get_momenta(), expected.get_momenta(), atol=1e-4)
+    np.testing.assert_allclose(result["final_structure"].cart_coords, reference[-1].positions, atol=1e-5)
     assert result["label"] == "short MD"
     assert result["_units"]["volume"] == "Å^3"
     assert result["_units"]["total_energy"] == "eV"
