@@ -48,18 +48,18 @@ class DiffusionCalc(PropCalc):
         calculator: Calculator | str,
         *,
         specie: str,
-        temperature: float = 300,
+        temperature: float,
+        timestep: float,
+        loginterval: int,
         backend: Literal["ase", "lammps"] = "ase",
         ensemble: _ASE_ENSEMBLES = "nvt_nose_hoover",
-        timestep: float = 1.0,
         steps: int = 100_000,
-        loginterval: int = 10,
-        equilibration_frames: int = 500,
+        equilibration_frames: int = 0,
         taut: float = 100.0,
-        seed: int | None = 42,
-        relax_structure: bool = False,
+        seed: int | None = None,
+        relax_structure: bool = True,
         set_com_stationary: bool = True,
-        set_zero_rotation: bool = True,
+        set_zero_rotation: bool = False,
         relax_calc_kwargs: dict | None = None,
         analyzer_kwargs: dict[str, Any] | None = None,
         **md_kwargs: Any,
@@ -69,13 +69,14 @@ class DiffusionCalc(PropCalc):
         Args:
             calculator: ASE calculator instance or universal model name.
             specie: Symbol of the mobile ion species, e.g. ``"Li"``.
-            temperature: Simulation temperature in Kelvin.
+            temperature: Simulation temperature in Kelvin, also used for the conductivity. For a supplied
+                trajectory, the temperature it was run at.
+            timestep: MD time step in femtoseconds. For a supplied trajectory, the step it was run with.
+            loginterval: Steps between saved frames, also used as the analyzer's ``step_skip``. For a
+                supplied trajectory, the interval it was saved with.
             backend: MD engine. LAMMPS requires a model name string and runs in a temporary directory.
             ensemble: Ensemble supported by the selected MD engine.
-            timestep: MD time step in femtoseconds.
-            steps: Total number of MD steps; defaults to 100 ps at a 1 fs step.
-            loginterval: Steps between saved frames, also used as the analyzer's
-                ``step_skip``.
+            steps: Total number of MD steps.
             equilibration_frames: Leading saved frames discarded by the internal MD run.
             taut: Thermostat time constant in femtoseconds.
             seed: Seed for initial velocities on each MD run; must be positive for LAMMPS.

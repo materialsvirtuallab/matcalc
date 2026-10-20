@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 from ase import units
 from ase.md.nose_hoover_chain import NoseHooverChainNVT
-from ase.md.velocitydistribution import MaxwellBoltzmannDistribution, Stationary, ZeroRotation
+from ase.md.velocitydistribution import MaxwellBoltzmannDistribution, Stationary
 from pymatgen.io.ase import AseAtomsAdaptor
 from scipy.constants import Boltzmann, elementary_charge
 
@@ -71,16 +71,16 @@ def test_existing_trajectory(
 
 
 def test_diffusion_defaults(matpes_calculator: PESCalculator) -> None:
-    md_calc = DiffusionCalc(matpes_calculator, specie="Li")._build_md_calc()  # noqa: SLF001
+    calc = DiffusionCalc(matpes_calculator, specie="Li", temperature=1000, timestep=1.0, loginterval=10)
+    md_calc = calc._build_md_calc()  # noqa: SLF001
     assert md_calc.ensemble == "nvt_nose_hoover"
     assert md_calc.steps == 100_000
-    assert md_calc.timestep == 1.0
-    assert md_calc.loginterval == 10
-    assert md_calc.equilibration_frames == 500
+    assert md_calc.equilibration_frames == 0
     assert md_calc.taut == pytest.approx(100 * units.fs)
-    assert not md_calc.relax_structure
+    assert md_calc.seed is None
+    assert md_calc.relax_structure
     assert md_calc.set_com_stationary
-    assert md_calc.set_zero_rotation
+    assert not md_calc.set_zero_rotation
 
 
 def test_diffusion_md(Li2O: Structure, matpes_calculator: PESCalculator) -> None:
@@ -88,8 +88,12 @@ def test_diffusion_md(Li2O: Structure, matpes_calculator: PESCalculator) -> None
         matpes_calculator,
         specie="Li",
         temperature=600.5,
+        timestep=1.0,
+        loginterval=10,
         steps=200,
         equilibration_frames=5,
+        seed=42,
+        relax_structure=False,
         analyzer_kwargs={"smoothed": False},
     )
     result = calc.calc({"final_structure": Li2O, "label": "short MD", "_units": {"volume": "Å^3"}})
@@ -99,7 +103,6 @@ def test_diffusion_md(Li2O: Structure, matpes_calculator: PESCalculator) -> None
     atoms.calc = matpes_calculator
     MaxwellBoltzmannDistribution(atoms, temperature_K=600.5, rng=np.random.RandomState(42))
     Stationary(atoms)
-    ZeroRotation(atoms)
     md = NoseHooverChainNVT(atoms, timestep=units.fs, temperature_K=600.5, tdamp=100 * units.fs)
     reference = []
     md.attach(lambda: reference.append(atoms.copy()), interval=10)
@@ -127,6 +130,7 @@ def test_diffusion_lammps_protocol(Li2O: Structure, tmp_path: Path, frames: int 
         specie="Li",
         temperature=600.5,
         timestep=2.0,
+        loginterval=10,
         taut=150,
         ensemble="npt",
         seed=27,
@@ -142,9 +146,9 @@ def test_diffusion_lammps_protocol(Li2O: Structure, tmp_path: Path, frames: int 
     }
 
     assert md_calc.frames == frames
-    assert md_calc.equilibration_frames == 500
+    assert md_calc.equilibration_frames == 0
     assert md_calc.steps == 100_000
-    assert not md_calc.relax_structure
+    assert md_calc.relax_structure
     assert commands["timestep"] == ["0.002"]
     assert commands["fix"][:7] == ["1", "all", "npt", "temp", "600.5", "600.5", "0.15"]
     assert commands["velocity"] == ["all", "create", "600.5", "27", "mom", "no", "rot", "no", "dist", "gaussian"]
@@ -153,8 +157,10 @@ def test_diffusion_lammps_protocol(Li2O: Structure, tmp_path: Path, frames: int 
 
 def test_diffusion_backend_errors(matpes_calculator: PESCalculator) -> None:
     with pytest.raises(ValueError, match="backend"):
-        DiffusionCalc(matpes_calculator, specie="Li", backend="unknown")
-    calc = DiffusionCalc(matpes_calculator, specie="Li", backend="lammps")
+        DiffusionCalc(matpes_calculator, specie="Li", temperature=1000, timestep=1.0, loginterval=10, backend="unknown")
+    calc = DiffusionCalc(
+        matpes_calculator, specie="Li", temperature=1000, timestep=1.0, loginterval=10, backend="lammps"
+    )
     with pytest.raises(TypeError, match="model name"):
         calc._build_md_calc()  # noqa: SLF001
 
@@ -167,8 +173,11 @@ def test_diffusion_lammps_md(Li2O: Structure) -> None:
         backend="lammps",
         specie="Li",
         temperature=600.5,
+        timestep=1.0,
+        loginterval=10,
         steps=200,
         equilibration_frames=5,
+        relax_structure=False,
         analyzer_kwargs={"smoothed": False},
     )
     expanded = Li2O.copy()
