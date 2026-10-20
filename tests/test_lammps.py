@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 from pathlib import Path
 from shutil import which
@@ -143,6 +144,24 @@ def test_lammps_frames(Li2O: Structure, tmp_path: Path) -> None:
     assert result["kinetic_energy"] == pytest.approx(kept["KinEng"].mean())
     assert result["total_energy"] == pytest.approx(kept["TotEng"].mean())
     np.testing.assert_allclose(result["final_structure"].cart_coords, result["trajectory"][-1].positions)
+
+
+def test_lammps_thermo_stride(Li2O: Structure, tmp_path: Path) -> None:
+    if not which("lmp"):
+        pytest.skip("lammps not available")
+    calc = LAMMPSMDCalc(calculator="TensorNet", relax_structure=False, steps=25, loginterval=10, equilibration_frames=1)
+    calc.write_inputs(Li2O, directory=tmp_path)
+    script = tmp_path / calc.infile
+    script.write_text(re.sub(r"^thermo\s+\d+", "thermo 7", script.read_text(), flags=re.MULTILINE))
+    result = calc.calc(Li2O, directory=tmp_path)
+
+    # Frames are saved at steps 10 and 20, and the edited script outputs thermo at 0, 7, 14, 21 and 25.
+    thermo = parse_lammps_log(str(tmp_path / "log.lammps"))[0]
+    assert list(thermo["Step"]) == [0, 7, 14, 21, 25]
+    assert result["potential_energy"] == pytest.approx(thermo["PotEng"][2])
+    calc.frames = 1
+    with pytest.raises(ValueError, match="No thermo output between steps 20 and 20"):
+        calc.calc(Li2O, directory=tmp_path)
 
 
 def test_lammps_failed_run(Li2O: Structure, tmp_path: Path) -> None:

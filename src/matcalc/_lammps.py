@@ -46,7 +46,7 @@ class LAMMPSMDCalc(PropCalc):
         pressure: Target pressure for NPT (bar).
         taut, taup: Thermo/barostat time constants (ps).
         infile, trajfile, logfile: LAMMPS IO paths.
-        loginterval: Thermo output stride.
+        loginterval: Steps between saved frames and between thermo outputs.
         relax_structure: Pre-MD ``RelaxCalc`` when True.
         fmax, optimizer: Relaxation settings.
         frames: Number of trailing trajectory frames to return, or None for all frames.
@@ -207,14 +207,17 @@ class LAMMPSMDCalc(PropCalc):
         return lammps_run
 
     def calc(self, structure: Structure | Atoms | dict[str, Any], *, directory: str | Path = ".") -> dict:
-        """Run MD and return the last saved structure and mean energies of the selected frames.
+        """Run MD and return the selected frames and the mean energies over the steps they span.
 
         Args:
             structure: Structure, ASE Atoms, or upstream result dict.
-            directory: Working directory for LAMMPS and its relative input/output paths.
+            directory: Working directory for LAMMPS and its relative input/output paths. If the input
+                script and ``md.data`` already exist there, e.g. from ``write_inputs`` with a custom
+                ``script_template``, they are run as is and ``structure`` is not written.
 
         Returns:
-            Result dict including the selected trajectory and its mean energies.
+            Result dict including the selected trajectory and the mean thermo energies from its first
+            to its last frame.
         """
         # Preprocess the input structure using the superclass's calc method.
         # This initial processing returns a dictionary containing a "final_structure".
@@ -249,12 +252,12 @@ class LAMMPSMDCalc(PropCalc):
             )
 
         thermo = parse_lammps_log(str(directory / self.logfile))[0]
-        thermo = thermo[thermo["Step"].isin(frame_steps)]
-        # Calculate the average potential energy over the selected frames.
+        # Average all thermo output over the steps spanned by the selected frames.
+        thermo = thermo[thermo["Step"].between(frame_steps[0], frame_steps[-1])]
+        if thermo.empty:
+            raise ValueError(f"No thermo output between steps {frame_steps[0]} and {frame_steps[-1]}.")
         energy_pot = thermo["PotEng"].mean()
-        # Calculate the average kinetic energy over the selected frames.
         energy_kin = thermo["KinEng"].mean()
-        # Calculate the average total energy (potential + kinetic) over the selected frames.
         energy_tot = thermo["TotEng"].mean()
 
         # Update the result dictionary with the simulation trajectory and computed energy.

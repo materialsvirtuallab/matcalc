@@ -75,7 +75,8 @@ class DiffusionCalc(PropCalc):
             loginterval: Steps between saved frames, also used as the analyzer's ``step_skip``. For a
                 supplied trajectory, the interval it was saved with.
             backend: MD engine. LAMMPS requires a model name string and runs in a temporary directory.
-            ensemble: Ensemble supported by the selected MD engine.
+            ensemble: Ensemble supported by the selected MD engine. Use NVT or NVE: the analysis unwraps
+                displacements on each frame's cell, which is only approximate when the cell fluctuates.
             steps: Total number of MD steps.
             equilibration_frames: Leading saved frames discarded by the internal MD run.
             taut: Thermostat time constant in femtoseconds.
